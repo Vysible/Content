@@ -1,11 +1,13 @@
 FROM node:20-alpine AS base
 RUN corepack enable pnpm
 
-# Abhängigkeiten installieren
+# Abhängigkeiten installieren + Prisma Client generieren
 FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --no-frozen-lockfile
+COPY prisma ./prisma
+RUN pnpm prisma generate
 
 # Build
 FROM base AS builder
@@ -13,7 +15,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm prisma generate
 RUN pnpm build
 
 # Produktions-Image
@@ -30,9 +31,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Prisma für Migrationen
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
 
 USER nextjs
 EXPOSE 3000
