@@ -1,5 +1,14 @@
 {
   "mcpServers": {
+    "coolify": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@masonator/coolify-mcp@latest"],
+      "env": {
+        "COOLIFY_BASE_URL": "http://72.62.115.121:8000",
+        "COOLIFY_ACCESS_TOKEN": "1|mvtHhTpcG9tiMEit3HuEnE5Bm3B594NoacLgBckB0c01308d"
+      }
+    },
     "hostinger-mcp": {
       "type": "stdio",
       "command": "npx",
