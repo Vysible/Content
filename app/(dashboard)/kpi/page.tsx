@@ -45,7 +45,7 @@ export default async function KpiPage() {
             </tr>
           </thead>
           <tbody>
-            {projects.map((p) => (
+            {projects.map((p: { id: string; name: string; status: string }) => (
               <tr key={p.id} className="border-b border-stone/50 hover:bg-stone/20">
                 <td className="py-2 px-4 font-medium">{p.name}</td>
                 <td className="py-2 px-4">

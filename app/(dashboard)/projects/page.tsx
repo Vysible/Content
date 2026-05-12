@@ -62,7 +62,7 @@ export default async function ProjectsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {projects.map((p) => {
+          {projects.map((p: { id: string; name: string; praxisName: string | null; praxisUrl: string; channels: string[]; planningStart: Date; planningEnd: Date; status: string; createdAt: Date }) => {
             const status = STATUS_LABELS[p.status] ?? STATUS_LABELS.DRAFT
             const start = new Date(p.planningStart).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })
             const end = new Date(p.planningEnd).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })
@@ -89,7 +89,7 @@ export default async function ProjectsPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0 text-sm">
-                    {p.channels.map((ch) => (
+                    {p.channels.map((ch: string) => (
                       <span key={ch} title={ch} className="text-stahlgrau">{CHANNEL_ICONS[ch] ?? '◦'}</span>
                     ))}
                   </div>

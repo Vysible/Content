@@ -51,7 +51,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
 
         <InfoCard label="Kanäle">
           <div className="flex flex-wrap gap-1">
-            {project.channels.map((ch) => (
+            {project.channels.map((ch: string) => (
               <span key={ch} className="text-xs bg-stone text-anthrazit px-2 py-0.5 rounded-full">
                 {CHANNEL_LABELS[ch] ?? ch}
               </span>
@@ -70,7 +70,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
         <InfoCard label="Keywords">
           {project.keywords.length > 0 ? (
             <div className="flex flex-wrap gap-1">
-              {project.keywords.map((kw) => (
+              {project.keywords.map((kw: string) => (
                 <span key={kw} className="text-xs bg-tiefblau text-white px-2 py-0.5 rounded-full">{kw}</span>
               ))}
             </div>

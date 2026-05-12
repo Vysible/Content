@@ -79,7 +79,7 @@ export default function PraxisReviewPage() {
           <div className="grid grid-cols-4 gap-6">
             {/* Sidebar */}
             <div className="col-span-1 space-y-1">
-              {results.map((r, i) => (
+              {results.map((r: TextResult, i: number) => (
                 <button
                   key={i}
                   onClick={() => setActiveIdx(i)}
@@ -132,7 +132,7 @@ export default function PraxisReviewPage() {
                     <div>
                       <h3 className="text-sm font-semibold text-stahlgrau mb-2 uppercase tracking-wide">Social Media</h3>
                       <div className="space-y-2">
-                        {current.socialPosts.map((post, j) => (
+                        {current.socialPosts.map((post: string, j: number) => (
                           <div key={j} className="p-3 bg-stone/30 rounded-lg text-sm">{post}</div>
                         ))}
                       </div>

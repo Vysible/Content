@@ -91,7 +91,7 @@ export function ShareAccess(props: Props) {
                 </tr>
               </thead>
               <tbody>
-                {props.themes.map((t, i) => (
+                {props.themes.map((t: ThemenItem, i: number) => (
                   <tr key={i} className="border-t border-stone">
                     <td className="py-2 px-4 text-stahlgrau">{t.monat}</td>
                     <td className="py-2 px-4">{t.titel}</td>
@@ -110,7 +110,7 @@ export function ShareAccess(props: Props) {
       )}
 
       {/* Blog-Vorschau */}
-      {props.textResults.filter((r) => r.blog).map((r, i) => (
+      {props.textResults.filter((r: StoredTextResult) => r.blog).map((r: StoredTextResult, i: number) => (
         <section key={i} className="mb-6 bg-white border border-stone rounded-xl p-6">
           <p className="text-xs text-stahlgrau mb-1">{r.monat} · Blog</p>
           <h3 className="font-semibold text-lg mb-3">{r.titel}</h3>
