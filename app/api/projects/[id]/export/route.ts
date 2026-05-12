@@ -32,9 +32,9 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
   // Mindestens ein Artefakt muss einen Status != 'ausstehend' haben
   const hasReviewed =
-    textResults.some((r) => r.blogStatus && r.blogStatus !== 'ausstehend') ||
-    textResults.some((r) => r.newsletterStatus && r.newsletterStatus !== 'ausstehend') ||
-    textResults.some((r) => r.socialStatus && r.socialStatus !== 'ausstehend')
+    textResults.some((r: StoredTextResult) => r.blogStatus && r.blogStatus !== 'ausstehend') ||
+    textResults.some((r: StoredTextResult) => r.newsletterStatus && r.newsletterStatus !== 'ausstehend') ||
+    textResults.some((r: StoredTextResult) => r.socialStatus && r.socialStatus !== 'ausstehend')
 
   if (!hasReviewed) {
     return NextResponse.json(

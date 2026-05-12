@@ -61,12 +61,12 @@ export default async function ProjectKpiPage({ params }: { params: { projectId: 
             </tr>
           </thead>
           <tbody>
-            {Object.entries(costs.byStep).map(([step, eur]) => (
+            {Object.entries(costs.byStep).map(([step, eur]: [string, number]) => (
               <tr key={step} className="border-b border-stone/50 hover:bg-stone/20">
                 <td className="py-2 px-4 font-medium">{step}</td>
-                <td className="py-2 px-4 text-right">{(eur as number).toFixed(4)}</td>
+                <td className="py-2 px-4 text-right">{eur.toFixed(4)}</td>
                 <td className="py-2 px-4 text-right text-stahlgrau">
-                  {costs.totalEur > 0 ? `${(((eur as number) / costs.totalEur) * 100).toFixed(1)}%` : '—'}
+                  {costs.totalEur > 0 ? `${((eur / costs.totalEur) * 100).toFixed(1)}%` : '—'}
                 </td>
               </tr>
             ))}
