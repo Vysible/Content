@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/db'
-import type { CostEntry } from '@prisma/client'
 
 export interface ProjectCostSummary {
   projectId: string
@@ -54,7 +53,7 @@ export async function getProjectCosts(projectId: string): Promise<ProjectCostSum
     else if (e.timestamp >= prev) lastMonth += e.costEur
   }
 
-  const themeRuns = entries.filter((e: CostEntry) => e.step === 'themes').length
+  const themeRuns = entries.filter((e: { step: string }) => e.step === 'themes').length
   const generationCount = Math.max(1, themeRuns)
 
   return {
