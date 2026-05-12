@@ -2,6 +2,9 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { EditorView } from '@/components/editor/EditorView'
+import { SeoPanel } from '@/components/editor/SeoPanel'
+import { WordPressDraftButton } from '@/components/results/WordPressDraftButton'
+import { KlickTippButton } from '@/components/results/KlickTippButton'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
@@ -236,12 +239,14 @@ function BlogTab({
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
+  const [seoOpen, setSeoOpen] = useState<number | null>(null)
 
   return (
     <div className="space-y-3">
       {results.map((r) => {
         const globalIndex = allResults.indexOf(r)
         const isOpen = expanded === globalIndex
+        const isSeoOpen = seoOpen === globalIndex
 
         return (
           <div key={globalIndex} className="bg-white border border-stone rounded-xl overflow-hidden">
@@ -273,6 +278,28 @@ function BlogTab({
                   initialContent={r.blog.html}
                   onUpdate={(updates) => onUpdate(globalIndex, updates)}
                 />
+                <div className="px-4 pb-4 flex items-center gap-3 flex-wrap">
+                  <WordPressDraftButton
+                    projectId={projectId}
+                    title={r.blog.titel}
+                    html={r.blog.html}
+                  />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSeoOpen(isSeoOpen ? null : globalIndex) }}
+                    className="text-xs text-tiefblau hover:underline"
+                  >
+                    {isSeoOpen ? 'SEO schließen' : 'SEO-Analyse'}
+                  </button>
+                </div>
+                {isSeoOpen && (
+                  <div className="border-t border-stone">
+                    <SeoPanel
+                      title={r.blog.titel}
+                      html={r.blog.html}
+                      defaultKeyword={r.blog.keyword ?? ''}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -377,6 +404,15 @@ function NewsletterTab({
                     onUpdate={(updates) => onUpdate(globalIndex, updates)}
                   />
                 </Field>
+                <div className="pt-2">
+                  <KlickTippButton
+                    projectId={projectId}
+                    subject={nl.betreffA}
+                    body={nl.body}
+                    senderName="Vysible"
+                    senderEmail="noreply@vysible.de"
+                  />
+                </div>
               </div>
             )}
           </div>

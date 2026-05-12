@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 interface HedyImportProps {
-  projectId: string
+  projectId?: string
   onImported: (positioning: string) => void
 }
 

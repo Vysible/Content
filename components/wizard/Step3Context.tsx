@@ -2,19 +2,11 @@
 
 import { useState, useRef } from 'react'
 import type { WizardData } from './NewProjectWizard'
+import { HedyImport } from './HedyImport'
+import { TemplateSelector } from './TemplateSelector'
 
 // Geschätzte Tokens: 1 Token ≈ 4 Zeichen (Deutsch)
 const MAX_POSITIONING_CHARS = 4_000 * 4
-
-const FACHGEBIETE = [
-  { value: '', label: 'Kein Template (manuell)' },
-  { value: 'ZAHNARZT', label: 'Zahnarzt (Phase 3)' },
-  { value: 'KFO', label: 'Kieferorthopädie (Phase 3)' },
-  { value: 'GYNAEKOLOGE', label: 'Gynäkologie (Phase 3)' },
-  { value: 'DERMATOLOGE', label: 'Dermatologie (Phase 3)' },
-  { value: 'INTERNIST', label: 'Innere Medizin (Phase 3)' },
-  { value: 'ALLGEMEINMEDIZIN', label: 'Allgemeinmedizin (Phase 3)' },
-]
 
 interface Step3Props {
   data: WizardData
@@ -70,22 +62,15 @@ export function Step3Context({ data, onChange, onBack, onSubmit, submitting }: S
         <p className="text-sm text-stahlgrau">Je mehr Kontext, desto praxisspezifischer der generierte Content.</p>
       </div>
 
-      {/* Fachgebiet-Template (Platzhalter Slice 25) */}
-      <div>
-        <label className="block text-xs font-medium text-anthrazit mb-1">Fachgebiet-Template</label>
-        <select
-          value={data.fachgebiet}
-          onChange={(e) => onChange({ fachgebiet: e.target.value })}
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
-        >
-          {FACHGEBIETE.map((f) => (
-            <option key={f.value} value={f.value} disabled={f.value !== ''}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        <p className="text-xs text-stahlgrau mt-1">Vorbelegte Themen-Pools nach Fachgebiet – verfügbar ab Phase 3.</p>
-      </div>
+      {/* Fachgebiet-Template (Slice 25) */}
+      <TemplateSelector
+        onSelect={async (slug) => {
+          const res = await fetch(`/api/projects/templates`)
+          const templates = await res.json()
+          const tpl = templates.find((t: { slug: string }) => t.slug === slug)
+          if (tpl) onChange({ fachgebiet: tpl.fachgebiet })
+        }}
+      />
 
       {/* Positionierungsdokument */}
       <div>
@@ -148,20 +133,10 @@ export function Step3Context({ data, onChange, onBack, onSubmit, submitting }: S
         )}
       </div>
 
-      {/* Hedy-Import-Button (Platzhalter Slice 20) */}
-      <div className="flex items-center gap-3 p-3 bg-stone rounded-lg">
-        <span className="text-lg">🎙</span>
-        <div className="flex-1">
-          <p className="text-xs font-semibold text-anthrazit">Positionierung aus Hedy-Transkript</p>
-          <p className="text-xs text-stahlgrau">Importiert Positionierungsworkshop-Transkript und erstellt das Dokument per KI.</p>
-        </div>
-        <button
-          disabled
-          title="Verfügbar ab Phase 3 (Slice 20)"
-          className="px-3 py-1.5 text-xs bg-stone border border-stone rounded-lg text-stahlgrau cursor-not-allowed opacity-60"
-        >
-          Phase 3
-        </button>
+      {/* Hedy-Import (Slice 20) */}
+      <div className="p-4 bg-stone/40 rounded-xl border border-stone">
+        <p className="text-xs font-semibold text-anthrazit mb-2">Positionierung aus Hedy-Transkript generieren</p>
+        <HedyImport onImported={(positioning) => onChange({ positioningDocument: positioning })} />
       </div>
 
       {/* Keywords */}
