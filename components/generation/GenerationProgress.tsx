@@ -9,19 +9,31 @@ interface Props {
 }
 
 export function GenerationProgress({ jobId, onComplete }: Props) {
-  const { status, completedSteps, lastError, failedStep, isTerminal, retry } =
+  const { status, completedSteps, lastError, failedStep, isTerminal, retry, events } =
     useGenerationStream(jobId)
 
   if (status === 'complete' && onComplete) {
     onComplete()
   }
 
+  // Queue-Position aus dem letzten queue_position-Event ermitteln
+  const queueEvent = [...events].reverse().find((e) => e.type === 'queue_position')
+  const queuePosition = queueEvent?.data?.position as number | undefined
+
   return (
     <div className="bg-white border border-stone rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-nachtblau">Generierung läuft</h3>
+        <h3 className="font-semibold text-nachtblau">
+          {status === 'queued' ? 'In Warteschlange' : 'Generierung läuft'}
+        </h3>
         <StatusBadge status={status} />
       </div>
+
+      {status === 'queued' && queuePosition && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+          Position {queuePosition} in der Warteschlange – wird gestartet, sobald ein Slot frei ist.
+        </div>
+      )}
 
       <ol className="space-y-2">
         {GENERATION_STEPS.map((step, i) => {
@@ -62,7 +74,7 @@ export function GenerationProgress({ jobId, onComplete }: Props) {
               onClick={retry}
               className="text-xs px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
-              Ab „{STEP_LABELS[failedStep]}" wiederholen
+              Ab „{STEP_LABELS[failedStep as keyof typeof STEP_LABELS]}" wiederholen
             </button>
           )}
         </div>
