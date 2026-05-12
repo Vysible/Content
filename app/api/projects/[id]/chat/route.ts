@@ -39,18 +39,26 @@ Der Nutzer möchte folgenden ${versionField === 'blog' ? 'Blog-Beitrag (HTML)' :
 Gib NUR den überarbeiteten Text zurück – kein Kommentar, keine Erklärung.
 ${versionField === 'blog' ? 'Behalte das HTML-Format bei.' : 'Behalte Betreff/Preheader/Body-Struktur bei.'}`
 
-  const anthropic = await getAnthropicClient()
-  const response = await anthropic.messages.create({
-    model: DEFAULT_MODEL,
-    max_tokens: 2_048,
-    system: systemPrompt,
-    messages: [
-      {
-        role: 'user',
-        content: `Aktueller Inhalt:\n\n${currentContent}\n\n---\nAnfrage: ${userMessage}`,
-      },
-    ],
-  })
+  if (!userMessage?.trim()) {
+    return NextResponse.json({ error: 'Nachricht darf nicht leer sein' }, { status: 400 })
+  }
+
+  const messageContent = `Aktueller Inhalt:\n\n${currentContent ?? ''}\n\n---\nAnfrage: ${userMessage}`
+
+  let response
+  try {
+    const anthropic = await getAnthropicClient()
+    response = await anthropic.messages.create({
+      model: DEFAULT_MODEL,
+      max_tokens: 2_048,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: messageContent }],
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unbekannter API-Fehler'
+    console.error('[Vysible] Chat API-Fehler:', message)
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 
   await trackCost({
     projectId: params.id,
