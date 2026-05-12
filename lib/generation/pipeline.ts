@@ -2,6 +2,7 @@ import { emitEvent, setStatus, getJob, resetForRetry } from './job-store'
 import { GENERATION_STEPS, type GenerationStep, type JobState } from './types'
 import { generateThemes } from './themes'
 import { generateTexts } from './texts'
+import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
 import { scrapeUrl } from '@/lib/scraper/client'
 import { buildContext } from '@/lib/ai/context-builder'
@@ -171,6 +172,9 @@ async function runStep(
           status: 'ACTIVE',
         },
       })
+
+      // E-Mail-Benachrichtigung (Slice 19)
+      sendNotification('generation_complete', project.name).catch(() => {})
 
       emitEvent(jobId, {
         type: 'texts_done',
