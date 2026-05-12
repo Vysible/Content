@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
+import { EditorView } from '@/components/editor/EditorView'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
@@ -101,6 +102,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
       )}
       {activeTab === 'blog' && (
         <BlogTab
+          projectId={projectId}
           results={results.filter((r) => r.blog)}
           onUpdate={(index, updates) => autosave(index, updates)}
           allResults={results}
@@ -108,6 +110,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
       )}
       {activeTab === 'newsletter' && (
         <NewsletterTab
+          projectId={projectId}
           results={results.filter((r) => r.newsletter)}
           onUpdate={(index, updates) => autosave(index, updates)}
           allResults={results}
@@ -222,10 +225,12 @@ function ThemenTab({
 // ── Blog ──────────────────────────────────────────────────────────────────────
 
 function BlogTab({
+  projectId,
   results,
   allResults,
   onUpdate,
 }: {
+  projectId: string
   results: StoredTextResult[]
   allResults: StoredTextResult[]
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
@@ -259,16 +264,14 @@ function BlogTab({
             </div>
 
             {isOpen && r.blog && (
-              <div className="border-t border-stone p-4">
-                <p className="text-xs text-stahlgrau mb-2">HTML-Inhalt (bearbeitbar)</p>
-                <textarea
-                  className="w-full text-sm font-mono border border-stone rounded-lg p-3 min-h-[400px] focus:outline-none focus:border-tiefblau"
-                  defaultValue={r.blog.html}
-                  onChange={(e) =>
-                    onUpdate(globalIndex, {
-                      blog: { ...r.blog!, html: e.target.value },
-                    })
-                  }
+              <div className="border-t border-stone">
+                <EditorView
+                  projectId={projectId}
+                  index={globalIndex}
+                  result={r}
+                  versionField="blog"
+                  initialContent={r.blog.html}
+                  onUpdate={(updates) => onUpdate(globalIndex, updates)}
                 />
               </div>
             )}
@@ -285,10 +288,12 @@ function BlogTab({
 // ── Newsletter ────────────────────────────────────────────────────────────────
 
 function NewsletterTab({
+  projectId,
   results,
   allResults,
   onUpdate,
 }: {
+  projectId: string
   results: StoredTextResult[]
   allResults: StoredTextResult[]
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
@@ -362,15 +367,14 @@ function NewsletterTab({
                     }
                   />
                 </Field>
-                <Field label="Body">
-                  <textarea
-                    className="w-full text-sm border border-stone rounded-lg p-3 min-h-[200px] focus:outline-none focus:border-tiefblau"
-                    defaultValue={nl.body}
-                    onChange={(e) =>
-                      onUpdate(globalIndex, {
-                        newsletter: { ...nl, body: e.target.value },
-                      })
-                    }
+                <Field label="Body (Rich-Text + KI-Chat)">
+                  <EditorView
+                    projectId={projectId}
+                    index={globalIndex}
+                    result={r}
+                    versionField="newsletter"
+                    initialContent={nl.body}
+                    onUpdate={(updates) => onUpdate(globalIndex, updates)}
                   />
                 </Field>
               </div>

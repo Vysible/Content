@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ResultsTabs } from '@/components/results/ResultsTabs'
 import { ExportButton } from '@/components/results/ExportButton'
+import { SharePanel } from '@/components/results/SharePanel'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 
@@ -41,14 +42,19 @@ export default async function ResultsPage({ params }: { params: { id: string } }
         subtitle={project.praxisName ?? project.praxisUrl}
       />
 
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <Link
-          href={`/projects/${params.id}`}
-          className="text-sm text-stahlgrau hover:text-anthrazit"
-        >
-          ← Zurück zum Projekt
-        </Link>
-        <ExportButton projectId={params.id} textResults={textResults} />
+      <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-4">
+          <Link href={`/projects/${params.id}`} className="text-sm text-stahlgrau hover:text-anthrazit">
+            ← Zurück zum Projekt
+          </Link>
+          <Link href={`/projects/${params.id}/calendar`} className="text-sm text-tiefblau hover:underline">
+            📅 Kalender
+          </Link>
+        </div>
+        <div className="flex items-center gap-3 relative">
+          <SharePanel projectId={params.id} />
+          <ExportButton projectId={params.id} textResults={textResults} />
+        </div>
       </div>
 
       <ResultsTabs

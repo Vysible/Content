@@ -16,6 +16,10 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@prisma/client": "^5.22.0",
+    "@tiptap/extension-heading": "^3.23.2",
+    "@tiptap/extension-placeholder": "^3.23.2",
+    "@tiptap/react": "^3.23.2",
+    "@tiptap/starter-kit": "^3.23.2",
     "bcryptjs": "^2.4.3",
     "docx": "^9.6.1",
     "js-yaml": "^4.1.1",

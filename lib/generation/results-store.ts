@@ -8,10 +8,18 @@ export type BlogStatus = 'ausstehend' | 'in_wordpress' | 'veroeffentlicht'
 export type NewsletterStatus = 'ausstehend' | 'kt_kampagne' | 'versendet'
 export type SocialStatus = 'ausstehend' | 'hochgeladen' | 'freigegeben'
 
+export interface ContentVersion {
+  content: string
+  savedAt: string // ISO timestamp
+}
+
 export interface StoredTextResult extends TextResult {
   blogStatus?: BlogStatus
   newsletterStatus?: NewsletterStatus
   socialStatus?: SocialStatus
+  // Max. 10 Versionen je Artefakt (Slice 8)
+  blogVersions?: ContentVersion[]
+  newsletterVersions?: ContentVersion[]
 }
 
 export const BLOG_STATUS_LABELS: Record<BlogStatus, string> = {

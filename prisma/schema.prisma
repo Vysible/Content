@@ -54,6 +54,7 @@ model Project {
   themeResults        Json?         // ThemenItem[] – Slice 12
   textResults         Json?         // TextResult[] – Slice 13
   status              ProjectStatus @default(DRAFT)
+  shareLinks          ShareLink[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -78,6 +79,19 @@ model CostEntry {
 
   @@index([projectId])
   @@index([timestamp])
+}
+
+model ShareLink {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  token        String   @unique @default(cuid())
+  passwordHash String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([token])
+  @@index([projectId])
 }
 
 enum Role {
