@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { Header } from '@/components/layout/header'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { GenerateSection } from './GenerateSection'
 
 const CHANNEL_LABELS: Record<string, string> = {
   BLOG: 'Blog',
@@ -35,10 +36,9 @@ export default async function ProjectPage({ params }: { params: { id: string } }
         subtitle={`${project.praxisName ?? project.praxisUrl} · ${start} – ${end}`}
       />
 
-      {/* Status-Banner: Generierung noch nicht verfügbar */}
-      <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
-        <strong>Slice 3a/3b (SSE-Infrastruktur + Prozess-Orchestrierung)</strong> – die eigentliche Generierung
-        ist der nächste Implementierungsschritt. Das Projekt wurde gespeichert.
+      {/* Generierungs-Bereich */}
+      <div className="mb-6">
+        <GenerateSection projectId={project.id} />
       </div>
 
       {/* Projekt-Details */}
