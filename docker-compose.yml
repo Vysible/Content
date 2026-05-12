@@ -9,9 +9,22 @@ services:
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
       ENCRYPTION_SECRET: ${ENCRYPTION_SECRET}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      PLAYWRIGHT_SERVICE_URL: http://playwright:3001
     depends_on:
       db:
         condition: service_healthy
+      playwright:
+        condition: service_healthy
+    restart: unless-stopped
+
+  playwright:
+    build: ./services/playwright
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
   db:
