@@ -4,10 +4,10 @@ import type { StoredTextResult } from '@/lib/generation/results-store'
 import { BLOG_STATUS_LABELS, NEWSLETTER_STATUS_LABELS, SOCIAL_STATUS_LABELS } from '@/lib/generation/results-store'
 
 const FUNNEL_LABELS: Record<string, string> = {
-  awareness: 'Awareness',
-  consideration: 'Consideration',
-  decision: 'Decision',
-  retention: 'Retention',
+  Awareness: 'Awareness',
+  Consideration: 'Consideration',
+  Decision: 'Decision',
+  Retention: 'Retention',
 }
 const KANAL_LABELS: Record<string, string> = {
   BLOG: 'Blog',
@@ -27,14 +27,16 @@ export function buildXlsx(
   // Sheet 1: Themenplan
   const themenRows = themes.map((t) => ({
     Monat: t.monat,
-    Titel: t.titel,
+    Titel: t.seoTitel,
     Kanal: KANAL_LABELS[t.kanal] ?? t.kanal,
-    Funnel: FUNNEL_LABELS[t.funnel] ?? t.funnel,
-    HWG: t.hwg,
-    Keyword: t.keyword,
+    Funnel: FUNNEL_LABELS[t.funnelStufe] ?? t.funnelStufe,
+    HWG: t.hwgFlag,
+    Keyword: t.keywordPrimaer,
     Praxisspezifisch: t.praxisspezifisch ? 'Ja' : 'Nein',
     'SEO/Frage': t.istFrage ? 'Ja' : 'Nein',
-    Beschreibung: t.beschreibung ?? '',
+    Kategorie: t.kategorie,
+    Priorität: t.prioritaet,
+    CTA: t.cta,
   }))
   const wsThemen = XLSX.utils.json_to_sheet(themenRows)
   XLSX.utils.book_append_sheet(wb, wsThemen, 'Themenplan')

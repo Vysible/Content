@@ -18,7 +18,7 @@ import {
   SOCIAL_STATUS_LABELS,
 } from '@/lib/generation/results-store'
 
-type Tab = 'themen' | 'blog' | 'newsletter' | 'social' | 'bildbriefings'
+type Tab = 'themen' | 'blog' | 'newsletter' | 'social' | 'textentwuerfe' | 'bildbriefings'
 type SortKey = 'monat' | 'funnel' | 'hwg' | 'kanal'
 
 interface Props {
@@ -67,13 +67,14 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
     { key: 'blog', label: 'Blog' },
     { key: 'newsletter', label: 'Newsletter' },
     ...(hasSocial ? [{ key: 'social' as Tab, label: 'Social Media' }] : []),
+    { key: 'textentwuerfe', label: 'Textentwürfe' },
     { key: 'bildbriefings', label: 'Bildbriefings' },
   ]
 
   const sortedThemes = [...themes].sort((a, b) => {
     if (sort === 'monat') return a.monat.localeCompare(b.monat)
-    if (sort === 'funnel') return a.funnel.localeCompare(b.funnel)
-    if (sort === 'hwg') return a.hwg.localeCompare(b.hwg)
+    if (sort === 'funnel') return a.funnelStufe.localeCompare(b.funnelStufe)
+    if (sort === 'hwg') return a.hwgFlag.localeCompare(b.hwgFlag)
     if (sort === 'kanal') return a.kanal.localeCompare(b.kanal)
     return 0
   })
@@ -126,6 +127,9 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
           allResults={results}
         />
       )}
+      {activeTab === 'textentwuerfe' && (
+        <TextentwuerfeTab results={results} />
+      )}
       {activeTab === 'bildbriefings' && (
         <ImageBriefTab results={results} />
       )}
@@ -144,12 +148,6 @@ function ThemenTab({
   sort: SortKey
   setSort: (k: SortKey) => void
 }) {
-  const FUNNEL_LABELS: Record<string, string> = {
-    awareness: 'Awareness',
-    consideration: 'Consideration',
-    decision: 'Decision',
-    retention: 'Retention',
-  }
   const HWG_COLORS: Record<string, string> = {
     gruen: 'bg-green-100 text-green-700',
     gelb: 'bg-amber-100 text-amber-700',
@@ -200,19 +198,19 @@ function ThemenTab({
             {themes.map((t, i) => (
               <tr key={i} className="border-b border-stone/50 hover:bg-stone/30">
                 <td className="py-2 pr-4 text-stahlgrau whitespace-nowrap">{t.monat}</td>
-                <td className="py-2 pr-4 font-medium">{t.titel}</td>
+                <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
                 <td className="py-2 pr-4">
                   <span className="text-xs bg-stone px-2 py-0.5 rounded-full">
                     {KANAL_LABELS[t.kanal] ?? t.kanal}
                   </span>
                 </td>
-                <td className="py-2 pr-4 text-stahlgrau">{FUNNEL_LABELS[t.funnel] ?? t.funnel}</td>
+                <td className="py-2 pr-4 text-stahlgrau">{t.funnelStufe}</td>
                 <td className="py-2 pr-4">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${HWG_COLORS[t.hwg] ?? ''}`}>
-                    {t.hwg}
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${HWG_COLORS[t.hwgFlag] ?? ''}`}>
+                    {t.hwgFlag}
                   </span>
                 </td>
-                <td className="py-2 text-stahlgrau text-xs">{t.keyword}</td>
+                <td className="py-2 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
               </tr>
             ))}
           </tbody>
@@ -500,6 +498,60 @@ function SocialTab({
       })}
       {results.length === 0 && (
         <p className="text-sm text-stahlgrau py-8 text-center">Keine Social-Posts vorhanden</p>
+      )}
+    </div>
+  )
+}
+
+// ── Textentwürfe ──────────────────────────────────────────────────────────────
+
+function TextentwuerfeTab({ results }: { results: StoredTextResult[] }) {
+  const [expanded, setExpanded] = useState<number | null>(null)
+  const withText = results.filter((r) => r.blog ?? r.newsletter)
+
+  return (
+    <div className="space-y-3">
+      {withText.map((r, i) => {
+        const isOpen = expanded === i
+        const preview = r.blog
+          ? r.blog.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200)
+          : r.newsletter?.body.slice(0, 200) ?? ''
+
+        return (
+          <div key={i} className="bg-white border border-stone rounded-xl overflow-hidden">
+            <div
+              className="flex items-center justify-between p-4 cursor-pointer hover:bg-stone/20"
+              onClick={() => setExpanded(isOpen ? null : i)}
+            >
+              <div>
+                <p className="font-medium text-sm">{r.titel}</p>
+                <p className="text-xs text-stahlgrau">
+                  {r.monat} · {r.blog ? 'Blog' : 'Newsletter'} · {r.blog ? `${r.blog.wordCount} Wörter` : ''}
+                </p>
+              </div>
+              <span className="text-stahlgrau text-xs ml-4">{isOpen ? '▲' : '▼'}</span>
+            </div>
+            {!isOpen && (
+              <p className="px-4 pb-3 text-xs text-stahlgrau line-clamp-2">{preview}…</p>
+            )}
+            {isOpen && (
+              <div className="border-t border-stone p-4">
+                {r.blog && (
+                  <div
+                    className="prose prose-sm max-w-none text-sm"
+                    dangerouslySetInnerHTML={{ __html: r.blog.html }}
+                  />
+                )}
+                {r.newsletter && !r.blog && (
+                  <div className="whitespace-pre-wrap text-sm text-anthrazit">{r.newsletter.body}</div>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      })}
+      {withText.length === 0 && (
+        <p className="text-sm text-stahlgrau py-8 text-center">Keine Textentwürfe vorhanden</p>
       )}
     </div>
   )

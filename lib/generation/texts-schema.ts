@@ -13,7 +13,7 @@ export const NewsletterSchema = z.object({
   titel: z.string(),
   betreffA: z.string(),
   betreffB: z.string(),
-  preheader: z.string().max(120),
+  preheader: z.string().max(100),
   body: z.string().min(50),
   cta: z.string(),
 })
@@ -21,6 +21,22 @@ export const NewsletterSchema = z.object({
 export const SocialPostSchema = z.object({
   kanal: z.enum(['SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN']),
   text: z.string(),
+}).superRefine((val, ctx) => {
+  const limits: Record<string, number> = {
+    SOCIAL_INSTAGRAM: 200,
+    SOCIAL_FACEBOOK: 80,
+    SOCIAL_LINKEDIN: 700,
+  }
+  const limit = limits[val.kanal]
+  if (limit && val.text.length > limit) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.too_big,
+      maximum: limit,
+      type: 'string',
+      inclusive: true,
+      message: `${val.kanal}: max. ${limit} Zeichen (aktuell ${val.text.length})`,
+    })
+  }
 })
 
 export const ImageBriefSchema = z.object({
