@@ -88,7 +88,7 @@ export default async function ProjectKpiPage({ params }: { params: { projectId: 
               </tr>
             </thead>
             <tbody>
-              {reports.map((r) => (
+              {reports.map((r: { id: string; month: string; totalEur: number }) => (
                 <tr key={r.id} className="border-b border-stone/50 hover:bg-stone/20">
                   <td className="py-2 px-4 font-medium">{r.month}</td>
                   <td className="py-2 px-4 text-right">{r.totalEur.toFixed(4)}</td>
