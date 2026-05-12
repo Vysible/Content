@@ -122,7 +122,7 @@ export default async function ProjectKpiPage({ params }: { params: { projectId: 
             </tr>
           </thead>
           <tbody>
-            {entries.map((e) => (
+            {entries.map((e: { id: string; timestamp: Date; step: string; model: string; inputTokens: number; outputTokens: number; costEur: number }) => (
               <tr key={e.id} className="border-b border-stone/50 hover:bg-stone/20">
                 <td className="py-2 px-4 text-xs text-stahlgrau">
                   {new Date(e.timestamp).toLocaleString('de-DE')}
