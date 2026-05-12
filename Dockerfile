@@ -4,9 +4,9 @@ RUN corepack enable pnpm
 # Abhängigkeiten installieren + Prisma Client generieren
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --no-frozen-lockfile
+COPY package.json pnpm-lock.yaml* .npmrc* ./
 COPY prisma ./prisma
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm prisma generate
 
 # Build
