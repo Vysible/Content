@@ -35,7 +35,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   await prisma.project.update({
     where: { id: params.id },
-    data: { keywords: keywords.filter((k) => typeof k === 'string') },
+    data: { keywords: keywords.filter((k: unknown) => typeof k === 'string') },
   })
 
   return NextResponse.json({ ok: true })

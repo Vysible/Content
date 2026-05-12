@@ -61,8 +61,8 @@ ${versionField === 'blog' ? 'Behalte das HTML-Format bei.' : 'Behalte Betreff/Pr
   })
 
   const revised = response.content
-    .filter((b) => b.type === 'text')
-    .map((b) => (b as { type: 'text'; text: string }).text)
+    .filter((b: { type: string }) => b.type === 'text')
+    .map((b: { type: string; text?: string }) => (b as { type: 'text'; text: string }).text)
     .join('')
 
   // Version speichern (max. 10)

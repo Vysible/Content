@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { projectId: strin
       where: { projectId: params.projectId },
       orderBy: { timestamp: 'asc' },
     })
-    const rows = entries.map((e) => ({
+    const rows = entries.map((e: { timestamp: Date; model: string; step: string; inputTokens: number; outputTokens: number; costEur: number }) => ({
       Timestamp: e.timestamp.toISOString(),
       Modell: e.model,
       Schritt: e.step,

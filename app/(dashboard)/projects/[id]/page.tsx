@@ -25,7 +25,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
 
   if (!project) notFound()
 
-  const totalCost = project.costEntries.reduce((sum, e) => sum + e.costEur, 0)
+  const totalCost = project.costEntries.reduce((sum: number, e: { costEur: number }) => sum + e.costEur, 0)
   const start = new Date(project.planningStart).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
   const end = new Date(project.planningEnd).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
 
