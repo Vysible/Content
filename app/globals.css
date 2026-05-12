@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-nachtblau: #0F1E35;
+  --color-tiefblau: #1C3560;
+  --color-cognac: #C47830;
+  --color-creme: #F6F1E9;
+  --color-anthrazit: #2D3748;
+}
+
+html,
+body {
+  background: var(--color-creme);
+  color: var(--color-anthrazit);
+}
+
+/* DSGVO-konform: keine Google Fonts. System-Fonts via Tailwind. */
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d6cfc1;
+  border-radius: 3px;
+}

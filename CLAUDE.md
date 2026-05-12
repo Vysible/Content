@@ -1,61 +1,89 @@
 # CLAUDE.md — Vysible
 
-## What is this?
+## Was ist das?
 
-Vysible is a browser-based AI content automation platform for medical and dental practices in the DACH region. Single-tenant, agency-internal. Generates 6-month content packages (blog, newsletter, social media, WordPress drafts, Klick-Tipp campaigns) from a practice URL + positioning document.
+Vysible ist eine browser-basierte KI-Content-Automationsplattform für Arzt- und Zahnarztpraxen im DACH-Raum. Single-Tenant, agentur-intern. Generiert 6-Monats-Content-Pakete (Blog, Newsletter, Social Media, WordPress-Drafts, Klick-Tipp-Kampagnen) aus einer Praxis-URL + Positionierungsdokument.
 
 ## Status
 
-**Phase A — UI prototype** (current). Single-file `index.html` served via nginx.
-**Phase B — full app** (planned). Next.js 14 + Auth.js v5 + Prisma + Postgres per `plan.md`.
+**Phase B — Slice 4 abgeschlossen.** Next.js 14 App Router + Auth.js v5 + Prisma + PostgreSQL.
+**Nächster Schritt:** Slice 11 (Scraper-Service).
 
-## Tech Stack
+## Tech-Stack
 
-| Layer | Phase A | Phase B (planned) |
-|---|---|---|
-| Frontend | Single-file HTML + Tailwind CDN | Next.js 14 App Router + Tailwind + shadcn/ui |
-| Backend | — | Next.js API routes, Auth.js v5 |
-| DB | — | SQLite (dev) / PostgreSQL (prod) |
-| Web server | nginx 1.27-alpine | Node 20 + Next.js |
-| Container | Docker | Docker Compose |
-| Deploy | Coolify on Hostinger VPS | Coolify on Hostinger VPS |
-| SSL | Traefik + Let's Encrypt | Traefik + Let's Encrypt |
-| DNS | Cloudflare (proxied A-record) | Cloudflare (proxied A-record) |
+| Schicht | Technologie |
+|---|---|
+| Framework | Next.js 14 (App Router), TypeScript |
+| Styling | Tailwind CSS (nativ, kein CDN) |
+| Auth | Auth.js v5 (Credentials), bcrypt 12 Rounds |
+| DB | PostgreSQL (prod + dev via Docker) |
+| ORM | Prisma 5 |
+| KI | Anthropic SDK + OpenAI SDK |
+| Verschlüsselung | AES-256-GCM für API-Keys |
+| Container | Docker / Docker Compose |
+| Deploy | Coolify auf Hostinger VPS |
+| SSL/Proxy | Cloudflare Tunnel (kein offener Port) |
 
-## File structure
+## Dateistruktur
 
 ```
 /
-├── index.html       Single-file prototype (login, dashboard, wizard, results, KPIs, analytics)
-├── Dockerfile       nginx:1.27-alpine + index.html
-├── nginx.conf       Static serving + /healthz endpoint + security headers
-├── plan.md          Full implementation plan v6.1 (Phase B)
-├── CLAUDE.md        This file
-└── README.md        Quick start
+├── app/
+│   ├── (auth)/login/           Login-Seite
+│   ├── (dashboard)/            Geschützter Bereich
+│   │   ├── page.tsx            Dashboard
+│   │   └── settings/api-keys/  API-Key-Manager (Slice 4 ✅)
+│   └── api/
+│       ├── auth/[...nextauth]/ Auth.js Handler
+│       └── api-keys/           CRUD + Test-Calls
+├── components/
+│   ├── api-keys/               ApiKeyList, ApiKeyForm
+│   └── layout/                 Sidebar, Header
+├── lib/
+│   ├── auth/session.ts         requireAuth / requireAdmin
+│   ├── crypto/aes.ts           AES-256-GCM Ver-/Entschlüsselung
+│   ├── ai/client.ts            Anthropic- + OpenAI-Client
+│   ├── costs/tracker.ts        CostEntry in DB schreiben
+│   └── db.ts                   Prisma-Singleton
+├── config/model-prices.ts      Token-Preise (einzige Quelle)
+├── prompts/*.yaml              KI-Prompts (nie im TypeScript-Code)
+├── prisma/schema.prisma        DB-Schema
+├── auth.ts                     Auth.js Konfiguration (Node.js)
+├── auth.config.ts              Auth.js Konfiguration (Edge)
+├── middleware.ts               Route-Schutz
+└── plan.md                     Vollständiger Implementierungsplan v6.1
 ```
 
 ## Deployment
 
-- **Repo:** `Torsten-Kohnert/torsten-vysible` (private)
+- **Repo:** `vysible/content`
 - **Production:** `https://vysible.torsten-kohnert.de` (Coolify auto-deploys on push to `main`)
-- **DNS:** A-record `vysible` → `72.62.156.161` (Cloudflare proxied)
-- **SSL:** Traefik + Let's Encrypt (automatic)
+- **DNS:** A-record `vysible` → VPS (Cloudflare Tunnel, kein offener Port)
 
-## Conventions
+## Konventionen
 
-Follows `~/Documents/Claude/Dev Ops/code-style-guide.md`:
-- German UI text, English code/identifiers
-- No `var`, always `const`/`let`
-- `console.log('[Vysible]', ...)` with project prefix
-- AES-256 for any future API keys (Phase B)
-- No PII in logs — IDs only
+Folgt `~/Documents/Claude/Dev Ops/code-style-guide.md`:
+- Deutsche UI-Texte, englische Code-Bezeichner
+- Kein `var`, immer `const`/`let`
+- `console.log('[Vysible]', ...)` mit Projekt-Prefix
+- AES-256-GCM für alle API-Keys
+- Kein PII in Logs — nur IDs
 
-## Phase A → Phase B migration plan
+## Sicherheits-Constraints
 
-When Phase B starts (next slice = Slice 4: API-Key Manager), replace `index.html` + nginx with Next.js app in the same repo. Coolify pipeline stays. DNS stays. Domain stays.
+- **API-Keys:** AES-256-GCM verschlüsselt, `encryptedKey` wird nie als Klartext zurückgegeben
+- **Passwörter:** bcrypt 12 Rounds
+- **Sessions:** JWT (1h) + Cookie maxAge 30 Tage, HTTP-only
+- **Route-Schutz:** `middleware.ts` schützt alle Routen außer `/login` und `/api/auth/*`
 
-## Known limitations (Phase A)
+## Phase-Übersicht
 
-- Static UI only — no real auth, no real API calls, no DB
-- Tailwind via CDN (Phase B will compile Tailwind natively)
-- Example data hard-coded (Zahnzentrum Warendorf as validation persona)
+| Phase | Status | Nächster Schritt |
+|---|---|---|
+| **0** Foundation | ✅ | — |
+| **1** Core MVP | 🔄 Slice 4 ✅ | **Slice 11 (Scraper-Service)** |
+| **2** Collaboration | ⬜ | — |
+| **3** Erweiterungen | ⬜ | — |
+| **4** Quality & Scale | ⬜ | — |
+
+Vollständiger Plan: `plan.md`

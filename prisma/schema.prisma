@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(STAFF)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  apiKeys ApiKey[]
+}
+
+model ApiKey {
+  id           String   @id @default(cuid())
+  name         String
+  provider     Provider
+  encryptedKey String
+  model        String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  @@index([provider, active])
+}
+
+model CostEntry {
+  id           String   @id @default(cuid())
+  projectId    String?
+  timestamp    DateTime @default(now())
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  costEur      Float
+  step         String
+
+  @@index([projectId])
+  @@index([timestamp])
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum Provider {
+  ANTHROPIC
+  OPENAI
+  DATASEO
+  KLICKTIPP
+  WORDPRESS
+  HEDY
+  CANVA
+}
