@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { encrypt } from '@/lib/crypto/aes'
-import type { Provider } from '@prisma/client'
 
 const createSchema = z.object({
   name: z.string().min(1).max(100),
@@ -49,7 +48,7 @@ export async function POST(req: NextRequest) {
   const apiKey = await prisma.apiKey.create({
     data: {
       name,
-      provider: provider as Provider,
+      provider: provider as 'ANTHROPIC' | 'OPENAI' | 'DATASEO' | 'KLICKTIPP' | 'WORDPRESS' | 'HEDY' | 'CANVA',
       encryptedKey,
       model: model ?? null,
       createdById: session.user.id,
