@@ -93,6 +93,14 @@ export default async function ProjectPage({ params }: { params: { id: string } }
         <Link href="/projects" className="px-4 py-2 text-sm text-stahlgrau hover:text-anthrazit border border-stone rounded-lg transition">
           ← Alle Projekte
         </Link>
+        {project.status === 'ACTIVE' && (
+          <Link
+            href={`/projects/${project.id}/results`}
+            className="px-4 py-2 text-sm bg-tiefblau text-white rounded-lg hover:bg-nachtblau transition font-medium"
+          >
+            Ergebnisse ansehen →
+          </Link>
+        )}
       </div>
     </div>
   )
