@@ -22,14 +22,15 @@ model User {
 }
 
 model ApiKey {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
   provider     Provider
   encryptedKey String
   model        String?
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  active       Boolean   @default(true)
+  expiresAt    DateTime? // Slice 26: Token-Ablauf-Warnsystem
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id])
@@ -50,11 +51,16 @@ model Project {
   themenPool          String?
   keywords            String[]
   canvaFolderId       String?
+  wpUrl               String?       // Slice 22: WordPress-URL
+  ktListId            String?       // Slice 23: Klick-Tipp Listen-ID
   scrapedData         Json?         // ScrapeResult-Snapshot
   themeResults        Json?         // ThemenItem[] – Slice 12
   textResults         Json?         // TextResult[] – Slice 13
   status              ProjectStatus @default(DRAFT)
   shareLinks          ShareLink[]
+  praxisUsers         PraxisUser[]  // Slice 21
+  comments            Comment[]     // Slice 21
+  costReports         CostReport[]  // Slice 24
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -91,6 +97,50 @@ model ShareLink {
   createdAt    DateTime @default(now())
 
   @@index([token])
+  @@index([projectId])
+}
+
+// Slice 21 – Praxis-Portal
+model PraxisUser {
+  id            String    @id @default(cuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  email         String
+  name          String
+  inviteToken   String    @unique @default(cuid())
+  inviteExpires DateTime
+  active        Boolean   @default(false) // wird true nach erstem Login
+  createdAt     DateTime  @default(now())
+
+  @@index([inviteToken])
+  @@index([projectId])
+}
+
+model Comment {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contentIndex Int      // Index in textResults[]
+  text         String
+  authorName   String
+  authorRole   String   @default("praxis") // "praxis" | "agentur"
+  createdAt    DateTime @default(now())
+
+  @@index([projectId, contentIndex])
+}
+
+// Slice 24 – KPI-Dashboard / Monatsreport
+model CostReport {
+  id        String   @id @default(cuid())
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  month     String   // YYYY-MM
+  totalEur  Float
+  breakdown Json     // { themes, blog, newsletter, social, chat, ... }
+  pdfPath   String?
+  createdAt DateTime @default(now())
+
+  @@index([month])
   @@index([projectId])
 }
 

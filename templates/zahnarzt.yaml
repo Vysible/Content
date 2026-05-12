@@ -1,0 +1,32 @@
+name: Zahnarzt Standard
+fachgebiet: ZAHNARZT
+channels:
+  - BLOG
+  - NEWSLETTER
+  - SOCIAL_INSTAGRAM
+  - SOCIAL_FACEBOOK
+keywords:
+  - Zahnarzt
+  - Zahnarztpraxis
+  - Zahngesundheit
+  - Prophylaxe
+  - Zähne
+positioningDocument: |
+  # Positionierungsvorlage: Zahnarztpraxis
+
+  ## Leistungsschwerpunkte
+  - Prophylaxe und professionelle Zahnreinigung
+  - Ästhetische Zahnmedizin (Bleaching, Veneers)
+  - Implantologie
+  - Kinderzahnheilkunde
+
+  ## Zielgruppe
+  Familien im lokalen Einzugsgebiet, Erwachsene 25–55 Jahre, gesundheitsbewusst.
+
+  ## Tonalität
+  Warm, vertrauenswürdig, kompetent, nicht zu akademisch.
+
+  ## USPs
+  - Angstpatienten willkommen
+  - Modernste Technik (DVT, CEREC)
+  - Kurze Wartezeiten
