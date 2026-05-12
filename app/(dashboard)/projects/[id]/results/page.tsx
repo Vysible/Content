@@ -4,6 +4,7 @@ import { Header } from '@/components/layout/header'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ResultsTabs } from '@/components/results/ResultsTabs'
+import { ExportButton } from '@/components/results/ExportButton'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 
@@ -40,13 +41,14 @@ export default async function ResultsPage({ params }: { params: { id: string } }
         subtitle={project.praxisName ?? project.praxisUrl}
       />
 
-      <div className="mb-4 flex gap-3">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <Link
           href={`/projects/${params.id}`}
           className="text-sm text-stahlgrau hover:text-anthrazit"
         >
           ← Zurück zum Projekt
         </Link>
+        <ExportButton projectId={params.id} textResults={textResults} />
       </div>
 
       <ResultsTabs
