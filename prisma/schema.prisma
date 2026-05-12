@@ -52,6 +52,7 @@ model Project {
   canvaFolderId       String?
   scrapedData         Json?         // ScrapeResult-Snapshot
   themeResults        Json?         // ThemenItem[] – Slice 12
+  textResults         Json?         // TextResult[] – Slice 13
   status              ProjectStatus @default(DRAFT)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt

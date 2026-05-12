@@ -1,11 +1,13 @@
 import { emitEvent, setStatus, getJob, resetForRetry } from './job-store'
 import { GENERATION_STEPS, type GenerationStep, type JobState } from './types'
 import { generateThemes } from './themes'
+import { generateTexts } from './texts'
 import { prisma } from '@/lib/db'
 import { scrapeUrl } from '@/lib/scraper/client'
 import { buildContext } from '@/lib/ai/context-builder'
 import type { Project } from '@prisma/client'
 import type { ScrapeResult } from '@/lib/scraper/client'
+import type { ThemenItem } from './themes-schema'
 
 function now(): string {
   return new Date().toISOString()
@@ -20,6 +22,8 @@ function getStartIndex(job: JobState): number {
 // Geteilter Zustand innerhalb eines Pipeline-Laufs
 interface PipelineCtx {
   scrapeResult?: ScrapeResult
+  themes?: ThemenItem[]
+  positioningContext?: string
 }
 
 export async function runGenerationPipeline(jobId: string, project: Project): Promise<void> {
@@ -89,6 +93,7 @@ async function runStep(
         themenPool: project.themenPool ?? undefined,
         scrapeResult: ctx.scrapeResult,
       })
+      ctx.positioningContext = context.systemContext
       emitEvent(jobId, {
         type: 'positioning_injected',
         data: {
@@ -125,7 +130,7 @@ async function runStep(
 
     case 'themes_done': {
       const themes = await generateThemes({ project, scrapeResult: ctx.scrapeResult })
-      // Themen in DB speichern
+      ctx.themes = themes
       await prisma.project.update({
         where: { id: project.id },
         data: { themeResults: JSON.parse(JSON.stringify(themes)) },
@@ -143,15 +148,42 @@ async function runStep(
       emitEvent(jobId, { type: 'plans_done', timestamp: now() })
       break
 
-    case 'texts_done':
-      // Slice 13: KI-Texte (Blog, Newsletter, Social)
-      // TODO (Slice 13): await generateTexts(themes, context, project)
+    case 'texts_done': {
+      // Themen aus DB laden falls ctx leer (Retry-Fall)
+      const themes =
+        ctx.themes ??
+        ((project.themeResults as unknown as ThemenItem[] | null) ?? [])
+
+      const positioningContext =
+        ctx.positioningContext ??
+        buildContext({
+          positioningDocument: project.positioningDocument ?? undefined,
+          keywords: project.keywords,
+          themenPool: project.themenPool ?? undefined,
+        }).systemContext
+
+      const textResults = await generateTexts({ project, themes, positioningContext })
+
+      await prisma.project.update({
+        where: { id: project.id },
+        data: {
+          textResults: JSON.parse(JSON.stringify(textResults)),
+          status: 'ACTIVE',
+        },
+      })
+
       emitEvent(jobId, {
         type: 'texts_done',
-        data: { message: 'Text-Generierung folgt in Slice 13' },
+        data: {
+          blog: textResults.filter((r) => r.blog).length,
+          newsletter: textResults.filter((r) => r.newsletter).length,
+          social: textResults.filter((r) => r.socialPosts?.length).length,
+          imageBriefs: textResults.length,
+        },
         timestamp: now(),
       })
       break
+    }
   }
 }
 
