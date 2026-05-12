@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     results[contentIndex] = { ...results[contentIndex], blogStatus: 'freigegeben' }
     await prisma.project.update({
       where: { id: projectId },
-      data: { textResults: results as unknown as Parameters<typeof prisma.project.update>[0]['data']['textResults'] },
+      data: { textResults: results as any },
     })
   }
 
