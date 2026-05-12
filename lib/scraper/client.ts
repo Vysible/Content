@@ -38,6 +38,18 @@ export async function scrapeUrl(url: string): Promise<ScrapeResult> {
   return data as ScrapeResult
 }
 
+export async function checkRobotsRemote(url: string): Promise<boolean> {
+  const res = await fetch(`${getServiceUrl()}/robots-check`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+    signal: AbortSignal.timeout(10_000),
+  })
+  if (!res.ok) return true // fail open
+  const data = await res.json()
+  return data.allowed === true
+}
+
 export async function checkScraperHealth(): Promise<boolean> {
   try {
     const res = await fetch(`${getServiceUrl()}/health`, {

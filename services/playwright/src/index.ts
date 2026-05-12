@@ -1,5 +1,6 @@
 import express from 'express'
 import { scrape } from './scraper'
+import { checkRobots } from './robots'
 import type { ScrapeRequest } from './types'
 
 const app = express()
@@ -38,6 +39,21 @@ app.post('/scrape', async (req, res) => {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler'
     console.error(`[Playwright] Fehler: ${url} – ${message}`)
     res.status(400).json({ error: message })
+  }
+})
+
+// POST /robots-check – schnelle robots.txt-Prüfung ohne Scraping
+app.post('/robots-check', async (req, res) => {
+  const { url } = req.body as { url?: string }
+  if (!url || typeof url !== 'string') {
+    res.status(400).json({ error: 'url erforderlich' })
+    return
+  }
+  try {
+    const allowed = await checkRobots(url)
+    res.json({ allowed })
+  } catch {
+    res.json({ allowed: true }) // fail open
   }
 })
 

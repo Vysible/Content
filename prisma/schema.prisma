@@ -17,7 +17,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  apiKeys ApiKey[]
+  apiKeys  ApiKey[]
+  projects Project[]
 }
 
 model ApiKey {
@@ -36,9 +37,36 @@ model ApiKey {
   @@index([provider, active])
 }
 
+model Project {
+  id                  String        @id @default(cuid())
+  name                String
+  praxisUrl           String
+  praxisName          String?
+  fachgebiet          String?       // ZAHNARZT, KFO, GYNAEKOLOGE, ...
+  planningStart       DateTime
+  planningEnd         DateTime
+  channels            String[]      // ["BLOG","NEWSLETTER","SOCIAL_INSTAGRAM",...]
+  positioningDocument String?       // Markdown, max. ~4.000 Tokens
+  themenPool          String?
+  keywords            String[]
+  canvaFolderId       String?
+  scrapedData         Json?         // ScrapeResult-Snapshot
+  status              ProjectStatus @default(DRAFT)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  createdById String
+  createdBy   User        @relation(fields: [createdById], references: [id])
+  costEntries CostEntry[]
+
+  @@index([status])
+  @@index([createdById])
+}
+
 model CostEntry {
   id           String   @id @default(cuid())
   projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   timestamp    DateTime @default(now())
   model        String
   inputTokens  Int
@@ -53,6 +81,12 @@ model CostEntry {
 enum Role {
   ADMIN
   STAFF
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
 }
 
 enum Provider {
