@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import type { CostEntry } from '@prisma/client'
 
 export interface ProjectCostSummary {
   projectId: string
@@ -53,7 +54,7 @@ export async function getProjectCosts(projectId: string): Promise<ProjectCostSum
     else if (e.timestamp >= prev) lastMonth += e.costEur
   }
 
-  const themeRuns = entries.filter((e) => e.step === 'themes').length
+  const themeRuns = entries.filter((e: CostEntry) => e.step === 'themes').length
   const generationCount = Math.max(1, themeRuns)
 
   return {
@@ -97,7 +98,7 @@ export async function getGlobalKpis(): Promise<GlobalKpis> {
     }
   }
 
-  const themeRuns = allEntries.filter((e) => e.step === 'themes').length
+  const themeRuns = allEntries.filter((e: { costEur: number; step: string; timestamp: Date }) => e.step === 'themes').length
   const generationCount = Math.max(1, themeRuns)
 
   return {
@@ -111,6 +112,6 @@ export async function getGlobalKpis(): Promise<GlobalKpis> {
     currentMonthEur,
     lastMonthEur,
     avgCostPerPackage: totalEur / generationCount,
-    pendingApprovals: praxisUsers.length, // Vereinfachung: aktive Praxis-User als Proxy
+    pendingApprovals: praxisUsers.length,
   }
 }
