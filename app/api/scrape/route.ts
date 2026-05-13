@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { auth } from '@/auth'
-import { scrapeUrl, checkScraperHealth } from '@/lib/scraper/client'
+import { scrapeUrl, checkScraperHealth, RobotsBlockedError } from '@/lib/scraper/client'
 
 const scrapeSchema = z.object({
   url: z.string().url('Ungültige URL'),
@@ -37,6 +37,12 @@ export async function POST(req: NextRequest) {
     console.log(`[Vysible] Scrape abgeschlossen: ${url} – ${result.pagesScraped} Seiten (User: ${session.user.id})`)
     return NextResponse.json(result)
   } catch (err) {
+    if (err instanceof RobotsBlockedError) {
+      return NextResponse.json(
+        { error: err.message, robotsBlocked: true, fallbackHint: err.fallbackHint },
+        { status: 403 },
+      )
+    }
     const message = err instanceof Error ? err.message : 'Scraper-Fehler'
     return NextResponse.json({ error: message }, { status: 400 })
   }

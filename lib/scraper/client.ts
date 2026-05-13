@@ -1,3 +1,14 @@
+export class RobotsBlockedError extends Error {
+  readonly robotsBlocked = true
+  readonly fallbackHint: string
+
+  constructor(message: string, fallbackHint: string) {
+    super(message)
+    this.name = 'RobotsBlockedError'
+    this.fallbackHint = fallbackHint
+  }
+}
+
 export interface ScrapeResult {
   url: string
   domain: string
@@ -32,6 +43,12 @@ export async function scrapeUrl(url: string): Promise<ScrapeResult> {
   const data = await res.json()
 
   if (!res.ok) {
+    if (data.robotsBlocked) {
+      throw new RobotsBlockedError(
+        data.error ?? 'robots.txt blockiert den Zugriff',
+        data.fallbackHint ?? 'Bitte Praxistext manuell eingeben (mind. 200 Zeichen)',
+      )
+    }
     throw new Error(data.error ?? `Scraper-Fehler: HTTP ${res.status}`)
   }
 

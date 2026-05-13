@@ -38,7 +38,12 @@ app.post('/scrape', async (req, res) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler'
     console.error(`[Playwright] Fehler: ${url} – ${message}`)
-    res.status(400).json({ error: message })
+    const robotsBlocked = message.includes('robots.txt')
+    res.status(robotsBlocked ? 403 : 400).json({
+      error: message,
+      robotsBlocked,
+      ...(robotsBlocked && { fallbackHint: 'Bitte Praxistext manuell eingeben (mind. 200 Zeichen)' }),
+    })
   }
 })
 
