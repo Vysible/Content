@@ -4,9 +4,9 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_URL: https://vysible.cloud
       ENCRYPTION_SECRET: ${ENCRYPTION_SECRET}
-      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_APP_URL: https://vysible.cloud
       PLAYWRIGHT_SERVICE_URL: http://playwright:3001
     depends_on:
       playwright:
@@ -14,16 +14,6 @@ services:
     networks:
       - coolify
       - default
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.vysible.rule=Host(`vysible.online`)
-      - traefik.http.routers.vysible.entrypoints=https
-      - traefik.http.routers.vysible.tls=true
-      - traefik.http.routers.vysible.tls.certresolver=letsencrypt
-      - traefik.http.services.vysible.loadbalancer.server.port=3000
-      - traefik.http.routers.vysible-http.rule=Host(`vysible.online`)
-      - traefik.http.routers.vysible-http.entrypoints=http
-      - traefik.http.routers.vysible-http.middlewares=redirect-to-https
     restart: unless-stopped
 
   playwright:
