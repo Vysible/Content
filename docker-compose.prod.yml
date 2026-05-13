@@ -11,10 +11,25 @@ services:
     depends_on:
       playwright:
         condition: service_healthy
+    networks:
+      - coolify
+      - default
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vysible.rule=Host(`vysible.online`)
+      - traefik.http.routers.vysible.entrypoints=https
+      - traefik.http.routers.vysible.tls=true
+      - traefik.http.routers.vysible.tls.certresolver=letsencrypt
+      - traefik.http.services.vysible.loadbalancer.server.port=3000
+      - traefik.http.routers.vysible-http.rule=Host(`vysible.online`)
+      - traefik.http.routers.vysible-http.entrypoints=http
+      - traefik.http.routers.vysible-http.middlewares=redirect-to-https
     restart: unless-stopped
 
   playwright:
     build: ./services/playwright
+    networks:
+      - default
     restart: unless-stopped
     mem_limit: 512m
     healthcheck:
@@ -22,6 +37,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+networks:
+  coolify:
+    external: true
+  default:
+    driver: bridge
 
 volumes:
   postgres_data:
