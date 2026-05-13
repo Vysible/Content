@@ -57,8 +57,8 @@ Vysible ist eine browser-basierte KI-Content-Automationsplattform für Arzt- und
 ## Deployment
 
 - **Repo:** `vysible/content`
-- **Production:** `https://vysible.torsten-kohnert.de` (Coolify auto-deploys on push to `main`)
-- **DNS:** A-record `vysible` → VPS (Cloudflare Tunnel, kein offener Port)
+- **Production:** `https://vysible.online` (Coolify auto-deploys on push to `main`)
+- **DNS:** A-record `vysible.online` → VPS
 
 ## Konventionen
 
