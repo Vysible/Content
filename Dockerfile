@@ -23,7 +23,7 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 
-RUN apk add --no-cache openssl && \
+RUN apk add --no-cache openssl su-exec && \
     addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
 # Standalone-Output
@@ -32,13 +32,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Prisma für Migrationen
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
 
-USER nextjs
 EXPOSE 3000
 ENV PORT=3000 HOSTNAME="0.0.0.0"
 
-CMD ["sh", "-c", "for i in 1 2 3 4 5; do echo \"[Startup] Migration attempt $i...\"; node node_modules/prisma/build/index.js migrate deploy && echo '[Startup] Migration OK' && break; echo '[Startup] Migration failed, retrying in 5s...'; sleep 5; done; exec node server.js"]
+# Migrationen als root, dann Server als nextjs
+CMD ["sh", "-c", "for i in 1 2 3 4 5; do echo \"[Startup] Migration attempt $i...\"; node node_modules/prisma/build/index.js migrate deploy && echo '[Startup] Migration OK' && break; echo '[Startup] Migration failed, retrying in 5s...'; sleep 5; done; exec su-exec nextjs node server.js"]
