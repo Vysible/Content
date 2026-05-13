@@ -7,20 +7,21 @@ services:
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       ENCRYPTION_SECRET: ${ENCRYPTION_SECRET}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      PLAYWRIGHT_SERVICE_URL: http://playwright:3001
     depends_on:
-      - postgres
+      playwright:
+        condition: service_healthy
     restart: unless-stopped
 
   playwright:
     build: ./services/playwright
     restart: unless-stopped
     mem_limit: 512m
-
-  postgres:
-    image: postgres:16-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   postgres_data:

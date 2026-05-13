@@ -25,6 +25,9 @@ export interface GlobalKpis {
   pendingApprovals: number
 }
 
+type CostRow = { step: string; costEur: number; timestamp: Date }
+type ProjectRow = { status: string; textResults: unknown }
+
 function monthStart(offset = 0): Date {
   const d = new Date()
   d.setDate(1)
@@ -46,14 +49,14 @@ export async function getProjectCosts(projectId: string): Promise<ProjectCostSum
   const now = monthStart()
   const prev = monthStart(-1)
 
-  for (const e of entries) {
+  for (const e of entries as CostRow[]) {
     byStep[e.step] = (byStep[e.step] ?? 0) + e.costEur
     total += e.costEur
     if (e.timestamp >= now) currentMonth += e.costEur
     else if (e.timestamp >= prev) lastMonth += e.costEur
   }
 
-  const themeRuns = entries.filter((e) => e.step === 'themes').length
+  const themeRuns = (entries as CostRow[]).filter((e) => e.step === 'themes').length
   const generationCount = Math.max(1, themeRuns)
 
   return {
@@ -81,14 +84,14 @@ export async function getGlobalKpis(): Promise<GlobalKpis> {
   const prev = monthStart(-1)
 
   let totalEur = 0, currentMonthEur = 0, lastMonthEur = 0
-  for (const e of allEntries) {
+  for (const e of allEntries as CostRow[]) {
     totalEur += e.costEur
     if (e.timestamp >= now) currentMonthEur += e.costEur
     else if (e.timestamp >= prev) lastMonthEur += e.costEur
   }
 
   let articlesGenerated = 0, newslettersGenerated = 0, socialPostsGenerated = 0
-  for (const p of projects) {
+  for (const p of projects as ProjectRow[]) {
     const results = (p.textResults as Array<{ blog?: unknown; newsletter?: unknown; socialPosts?: unknown[] }> | null) ?? []
     for (const r of results) {
       if (r.blog) articlesGenerated++
@@ -97,13 +100,13 @@ export async function getGlobalKpis(): Promise<GlobalKpis> {
     }
   }
 
-  const themeRuns = allEntries.filter((e) => e.step === 'themes').length
+  const themeRuns = (allEntries as CostRow[]).filter((e) => e.step === 'themes').length
   const generationCount = Math.max(1, themeRuns)
 
   return {
     projectsTotal: projects.length,
-    projectsActive: projects.filter((p) => p.status === 'ACTIVE').length,
-    projectsArchived: projects.filter((p) => p.status === 'ARCHIVED').length,
+    projectsActive: (projects as ProjectRow[]).filter((p) => p.status === 'ACTIVE').length,
+    projectsArchived: (projects as ProjectRow[]).filter((p) => p.status === 'ARCHIVED').length,
     articlesGenerated,
     newslettersGenerated,
     socialPostsGenerated,
@@ -111,6 +114,6 @@ export async function getGlobalKpis(): Promise<GlobalKpis> {
     currentMonthEur,
     lastMonthEur,
     avgCostPerPackage: totalEur / generationCount,
-    pendingApprovals: praxisUsers.length, // Vereinfachung: aktive Praxis-User als Proxy
+    pendingApprovals: praxisUsers.length,
   }
 }
