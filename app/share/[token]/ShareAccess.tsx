@@ -69,6 +69,12 @@ export function ShareAccess(props: Props) {
     )
   }
 
+  const HWG_COLORS: Record<string, string> = {
+    gruen: 'bg-green-100 text-green-700',
+    gelb: 'bg-amber-100 text-amber-700',
+    rot: 'bg-red-100 text-red-700',
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
@@ -76,7 +82,6 @@ export function ShareAccess(props: Props) {
         <p className="text-stahlgrau">{props.praxisName} · Read-only Freigabe</p>
       </div>
 
-      {/* Themenübersicht */}
       {props.themes.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-semibold mb-3">Themenplan</h2>
@@ -94,11 +99,11 @@ export function ShareAccess(props: Props) {
                 {props.themes.map((t: ThemenItem, i: number) => (
                   <tr key={i} className="border-t border-stone">
                     <td className="py-2 px-4 text-stahlgrau">{t.monat}</td>
-                    <td className="py-2 px-4">{t.titel}</td>
+                    <td className="py-2 px-4">{t.seoTitel}</td>
                     <td className="py-2 px-4 text-xs">{t.kanal}</td>
                     <td className="py-2 px-4">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${t.hwg === 'gruen' ? 'bg-green-100 text-green-700' : t.hwg === 'gelb' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
-                        {t.hwg}
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${HWG_COLORS[t.hwgFlag] ?? ''}`}>
+                        {t.hwgFlag}
                       </span>
                     </td>
                   </tr>
@@ -109,7 +114,6 @@ export function ShareAccess(props: Props) {
         </section>
       )}
 
-      {/* Blog-Vorschau */}
       {props.textResults.filter((r: StoredTextResult) => r.blog).map((r: StoredTextResult, i: number) => (
         <section key={i} className="mb-6 bg-white border border-stone rounded-xl p-6">
           <p className="text-xs text-stahlgrau mb-1">{r.monat} · Blog</p>
