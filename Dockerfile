@@ -4,6 +4,7 @@ RUN corepack enable pnpm
 # Abhängigkeiten installieren + Prisma Client generieren
 FROM base AS deps
 WORKDIR /app
+RUN apk add --no-cache openssl
 COPY package.json pnpm-lock.yaml* .npmrc* ./
 COPY prisma ./prisma
 RUN pnpm install --no-frozen-lockfile
@@ -12,6 +13,7 @@ RUN pnpm prisma generate
 # Build
 FROM base AS builder
 WORKDIR /app
+RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm prisma generate
@@ -23,7 +25,8 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+RUN apk add --no-cache openssl su-exec && \
+    addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
 # Standalone-Output
 COPY --from=builder /app/public ./public
@@ -36,8 +39,8 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
 
-USER nextjs
 EXPOSE 3000
 ENV PORT=3000 HOSTNAME="0.0.0.0"
 
-CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node server.js"]
+# Migrationen als root, dann Server als nextjs
+CMD ["sh", "-c", "for i in 1 2 3 4 5; do echo \"[Startup] Migration attempt $i...\"; node node_modules/prisma/build/index.js migrate deploy && echo '[Startup] Migration OK' && break; echo '[Startup] Migration failed, retrying in 5s...'; sleep 5; done; exec su-exec nextjs node server.js"]
