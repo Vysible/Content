@@ -12,12 +12,12 @@ import {
   type TextResult,
 } from './texts-schema'
 import type { ThemenItem } from './themes-schema'
-import type { Project } from '@prisma/client'
+import type { Project } from '@/lib/types/prisma'
 
 interface TextsInput {
   project: Project
   themes: ThemenItem[]
-  positioningContext: string // aus buildContext().systemContext
+  positioningContext: string
 }
 
 export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
@@ -33,7 +33,7 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
 
     const result: TextResult = {
       monat: theme.monat,
-      titel: theme.titel,
+      titel: theme.seoTitel,
       kanal: theme.kanal,
       imageBrief,
     }
@@ -61,8 +61,6 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
   return results
 }
 
-// ── Blog ──────────────────────────────────────────────────────────────────────
-
 async function generateBlogPost(args: {
   theme: ThemenItem
   project: Project
@@ -71,13 +69,13 @@ async function generateBlogPost(args: {
   const { theme, project, positioningContext } = args
 
   const prompt = loadPrompt('blog', {
-    thema: theme.titel,
+    thema: theme.thema,
     praxisName: project.praxisName ?? project.praxisUrl,
-    seoTitel: theme.titel,
-    keywordPrimaer: theme.keyword,
-    paaFragen: `Was ist ${theme.keyword}? Wann sollte ich einen Arzt aufsuchen?`,
+    seoTitel: theme.seoTitel,
+    keywordPrimaer: theme.keywordPrimaer,
+    paaFragen: theme.paaFragen.join('\n'),
     positionierungsdokument: positioningContext.slice(0, 6_000),
-    tonalitaet: 'professionell, empathisch, verständlich',
+    tonalität: 'professionell, empathisch, verständlich',
   })
 
   const anthropic = await getAnthropicClient()
@@ -99,10 +97,8 @@ async function generateBlogPost(args: {
   const html = extractText(response)
   const wordCount = countWords(html)
 
-  return { monat: theme.monat, titel: theme.titel, keyword: theme.keyword, html, wordCount }
+  return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount }
 }
-
-// ── Newsletter ────────────────────────────────────────────────────────────────
 
 async function generateNewsletter(args: {
   theme: ThemenItem
@@ -112,10 +108,10 @@ async function generateNewsletter(args: {
   const { theme, project, positioningContext } = args
 
   const prompt = loadPrompt('newsletter', {
-    thema: theme.titel,
+    thema: theme.thema,
     praxisName: project.praxisName ?? project.praxisUrl,
     monat: theme.monat,
-    cta: 'Jetzt Termin vereinbaren',
+    cta: theme.cta,
     positionierungsdokument: positioningContext.slice(0, 4_000),
   })
 
@@ -140,27 +136,23 @@ async function generateNewsletter(args: {
 }
 
 function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
-  // Betreff A/B aus dem Text extrahieren
-  const betreffA = extractLine(raw, /Betreff\s*A\s*[:：]/i) ?? theme.titel
-  const betreffB = extractLine(raw, /Betreff\s*B\s*[:：]/i) ?? `${theme.titel} – Ihr Termin wartet`
-  const preheader = extractLine(raw, /Preheader\s*[:：]/i) ?? theme.titel.slice(0, 80)
+  const betreffA = extractLine(raw, /Betreff\s*A\s*[::：]/i) ?? theme.seoTitel
+  const betreffB = extractLine(raw, /Betreff\s*B\s*[::：]/i) ?? `${theme.seoTitel} – Ihr Termin wartet`
+  const preheader = extractLine(raw, /Preheader\s*[::：]/i) ?? theme.seoTitel.slice(0, 80)
 
-  // Body: alles nach dem ersten Betreff/Preheader-Block
   const bodyStart = raw.search(/\n\n/)
   const body = bodyStart > -1 ? raw.slice(bodyStart).trim() : raw
 
   return {
     monat: theme.monat,
-    titel: theme.titel,
+    titel: theme.seoTitel,
     betreffA,
     betreffB,
     preheader: preheader.slice(0, 100),
     body,
-    cta: 'Jetzt Termin vereinbaren',
+    cta: theme.cta,
   }
 }
-
-// ── Social ────────────────────────────────────────────────────────────────────
 
 async function generateSocialPosts(args: {
   theme: ThemenItem
@@ -175,10 +167,10 @@ async function generateSocialPosts(args: {
     .join(', ')
 
   const prompt = loadPrompt('social', {
-    thema: theme.titel,
+    thema: theme.thema,
     praxisName: project.praxisName ?? project.praxisUrl,
     kanaele: kanalLabels,
-    cta: 'Jetzt Termin buchen',
+    cta: theme.cta,
     positionierungsdokument: positioningContext.slice(0, 3_000),
   })
 
@@ -216,8 +208,6 @@ async function generateSocialPosts(args: {
   return posts
 }
 
-// ── Bildbriefing ──────────────────────────────────────────────────────────────
-
 async function generateImageBrief(args: {
   theme: ThemenItem
   project: Project
@@ -225,10 +215,10 @@ async function generateImageBrief(args: {
   const { theme, project } = args
 
   const prompt = loadPrompt('image-brief', {
-    thema: theme.titel,
+    thema: theme.thema,
     praxisName: project.praxisName ?? project.praxisUrl,
     kanal: theme.kanal,
-    hwgFlag: theme.hwg,
+    hwgFlag: theme.hwgFlag,
     canvaOrdner: project.canvaFolderId ?? '',
   })
 
@@ -252,8 +242,6 @@ async function generateImageBrief(args: {
   const parsed = parseJsonBlock(raw)
   return ImageBriefSchema.parse(parsed)
 }
-
-// ── Hilfsfunktionen ───────────────────────────────────────────────────────────
 
 function extractText(response: { content: Array<{ type: string; text?: string }> }): string {
   return response.content
