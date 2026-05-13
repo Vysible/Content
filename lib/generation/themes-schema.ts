@@ -1,15 +1,28 @@
 import { z } from 'zod'
 
 export const ThemenItemSchema = z.object({
-  monat: z.string().regex(/^\d{4}-\d{2}$/), // z.B. "2026-01"
-  titel: z.string().min(5),
+  // Pflichtfelder (plan.md)
+  monat: z.string().regex(/^\d{4}-\d{2}$/),              // "2026-01"
+  thema: z.string().min(3),                              // Kurzbezeichnung des Oberthemas
+  seoTitel: z.string().min(5),                           // SEO-optimierter Titel
+  kategorie: z.string(),                                 // z.B. "Prophylaxe", "Implantologie"
+  zielgruppe: z.string(),                                // Primäre Zielgruppe
+  funnelStufe: z.enum(['Awareness', 'Consideration', 'Decision', 'Retention']),
+  keywordPrimaer: z.string(),
+  keywordSekundaer: z.array(z.string()).default([]),
+  paaFragen: z.array(z.string()).min(1),                 // People-Also-Ask → als H2 im Blog
   kanal: z.enum(['BLOG', 'NEWSLETTER', 'SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN']),
-  funnel: z.enum(['awareness', 'consideration', 'decision', 'retention']),
-  hwg: z.enum(['gruen', 'gelb', 'rot']),
-  keyword: z.string(),
-  beschreibung: z.string().optional(),
+  contentWinkel: z.string(),                             // Blickwinkel / Perspektive
+  cta: z.string(),                                       // Call-to-Action
+  prioritaet: z.enum(['Hoch', 'Mittel', 'Niedrig']),
+  positionierungGenutzt: z.boolean(),
+  canvaOrdnerGenutzt: z.boolean(),
+  keywordsGenutzt: z.boolean(),
+  hwgFlag: z.enum(['gruen', 'gelb', 'rot']),
+
+  // Qualitätsprüfungsfelder (intern)
   praxisspezifisch: z.boolean(),
-  istFrage: z.boolean(), // Titel ist Frage oder enthält Keyword
+  istFrage: z.boolean(),                                  // seoTitel ist Frage oder enthält Keyword
 })
 
 export type ThemenItem = z.infer<typeof ThemenItemSchema>
