@@ -39,9 +39,10 @@ export async function generateMonthlyReport(month: string): Promise<void> {
         },
       },
     })
-    const totalEur = all.reduce((s, e) => s + e.costEur, 0)
+    const allRows = all as Array<{ costEur: number; step: string }>
+    const totalEur = allRows.reduce((s, e) => s + e.costEur, 0)
     const breakdown: Record<string, number> = {}
-    for (const e of all) breakdown[e.step] = (breakdown[e.step] ?? 0) + e.costEur
+    for (const e of allRows) breakdown[e.step] = (breakdown[e.step] ?? 0) + e.costEur
 
     await prisma.costReport.create({
       data: { projectId: null, month, totalEur, breakdown },
