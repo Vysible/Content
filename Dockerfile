@@ -4,6 +4,7 @@ RUN corepack enable pnpm
 # Abhängigkeiten installieren + Prisma Client generieren
 FROM base AS deps
 WORKDIR /app
+RUN apk add --no-cache openssl
 COPY package.json pnpm-lock.yaml* .npmrc* ./
 COPY prisma ./prisma
 RUN pnpm install --no-frozen-lockfile
@@ -12,6 +13,7 @@ RUN pnpm prisma generate
 # Build
 FROM base AS builder
 WORKDIR /app
+RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm prisma generate
