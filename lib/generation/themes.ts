@@ -4,7 +4,7 @@ import { DEFAULT_MODEL } from '@/config/model-prices'
 import { buildContext } from '@/lib/ai/context-builder'
 import { loadPrompt } from './prompt-loader'
 import { ThemenListSchema, validateThemenQuality, type ThemenItem } from './themes-schema'
-import type { Project } from '@prisma/client'
+import type { Project } from '@/lib/types/prisma'
 import type { ScrapeResult } from '@/lib/scraper/client'
 
 const MAX_RETRIES = 2
@@ -83,7 +83,6 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
           console.log(`[Vysible] Themen-Qualitätsprüfung fehlgeschlagen (Versuch ${attempt + 1}): ${validation.reason}`)
           continue
         }
-        // Nach max Retries: Ergebnis trotzdem verwenden, nur warnen
         console.warn(`[Vysible] Themen-Qualitätskriterien nicht erfüllt nach ${attempt + 1} Versuchen: ${validation.reason}`)
       }
 
@@ -100,10 +99,8 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
 }
 
 function parseThemesJson(text: string): ThemenItem[] {
-  // JSON-Block aus Markdown-Code-Fences extrahieren
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/)
   const jsonText = fenced ? fenced[1] : text.trim()
-
   const parsed = JSON.parse(jsonText)
   return ThemenListSchema.parse(parsed)
 }
@@ -112,6 +109,5 @@ function extractStandort(scrapeResult?: ScrapeResult): string {
   if (!scrapeResult) return ''
   const addr = scrapeResult.contact.address
   if (addr) return addr
-  // Adresse aus Fließtext schätzen – Fallback leer
   return ''
 }

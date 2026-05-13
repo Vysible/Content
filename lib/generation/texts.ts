@@ -12,7 +12,7 @@ import {
   type TextResult,
 } from './texts-schema'
 import type { ThemenItem } from './themes-schema'
-import type { Project } from '@prisma/client'
+import type { Project } from '@/lib/types/prisma'
 
 interface TextsInput {
   project: Project
@@ -140,12 +140,10 @@ async function generateNewsletter(args: {
 }
 
 function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
-  // Betreff A/B aus dem Text extrahieren
   const betreffA = extractLine(raw, /Betreff\s*A\s*[:：]/i) ?? theme.seoTitel
   const betreffB = extractLine(raw, /Betreff\s*B\s*[:：]/i) ?? `${theme.seoTitel} – Ihr Termin wartet`
   const preheader = extractLine(raw, /Preheader\s*[:：]/i) ?? theme.seoTitel.slice(0, 80)
 
-  // Body: alles nach dem ersten Betreff/Preheader-Block
   const bodyStart = raw.search(/\n\n/)
   const body = bodyStart > -1 ? raw.slice(bodyStart).trim() : raw
 

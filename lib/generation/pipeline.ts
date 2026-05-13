@@ -6,7 +6,7 @@ import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
 import { scrapeUrl } from '@/lib/scraper/client'
 import { buildContext } from '@/lib/ai/context-builder'
-import type { Project } from '@prisma/client'
+import type { Project } from '@/lib/types/prisma'
 import type { ScrapeResult } from '@/lib/scraper/client'
 import type { ThemenItem } from './themes-schema'
 
