@@ -22,7 +22,7 @@ Vysible ist eine browser-basierte KI-Content-Automationsplattform für Arzt- und
 | Verschlüsselung | AES-256-GCM für API-Keys |
 | Container | Docker / Docker Compose |
 | Deploy | Coolify auf Hostinger VPS |
-| SSL/Proxy | Cloudflare Tunnel (kein offener Port) |
+| SSL/Proxy | Traefik (Coolify-managed) |
 
 ## Dateistruktur
 
@@ -57,8 +57,8 @@ Vysible ist eine browser-basierte KI-Content-Automationsplattform für Arzt- und
 ## Deployment
 
 - **Repo:** `vysible/content`
-- **Production:** `https://vysible.online` (Coolify auto-deploys on push to `main`)
-- **DNS:** A-record `vysible` → VPS (Cloudflare Tunnel, kein offener Port)
+- **Production:** `https://vysible.cloud` (Coolify auto-deploys on push to `main`)
+- **DNS:** A-record `vysible.cloud` → `72.62.115.121` (Hostinger VPS)
 
 ## Konventionen
 
