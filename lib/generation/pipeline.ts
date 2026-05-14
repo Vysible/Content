@@ -10,6 +10,7 @@ import { buildContext } from '@/lib/ai/context-builder'
 import type { Project } from '@/lib/types/prisma'
 import type { ScrapeResult } from '@/lib/scraper/client'
 import type { ThemenItem } from './themes-schema'
+import { listFolderAssets, buildCanvaContext } from '@/lib/canva/client'
 
 function now(): string {
   return new Date().toISOString()
@@ -111,9 +112,32 @@ async function runStep(
       break
     }
 
-    case 'canva_loaded':
-      await emitEvent(jobId, { type: 'canva_loaded', data: { skipped: true }, timestamp: now() })
+    case 'canva_loaded': {
+      if (project.canvaFolderId) {
+        try {
+          const assets = await listFolderAssets(project.canvaFolderId)
+          ctx.canvaContext = buildCanvaContext(assets)
+          await emitEvent(jobId, {
+            type: 'canva_loaded',
+            data: { assetCount: assets.length },
+            timestamp: now(),
+          })
+        } catch (err: unknown) {
+          // Canva-API nicht erreichbar → Fallback auf leeren Kontext, kein Hard-Fail
+          logger.warn({ err, projectId: project.id }, 'Canva-API nicht erreichbar — Kontext leer')
+          ctx.canvaContext = ''
+          await emitEvent(jobId, {
+            type: 'canva_loaded',
+            data: { skipped: true, reason: 'Canva-API nicht erreichbar' },
+            timestamp: now(),
+          })
+        }
+      } else {
+        ctx.canvaContext = ''
+        await emitEvent(jobId, { type: 'canva_loaded', data: { skipped: true }, timestamp: now() })
+      }
       break
+    }
 
     case 'pool_loaded':
       await emitEvent(jobId, {
@@ -132,7 +156,11 @@ async function runStep(
       break
 
     case 'themes_done': {
-      const themes = await generateThemes({ project, scrapeResult: ctx.scrapeResult })
+      const themes = await generateThemes({
+        project,
+        scrapeResult: ctx.scrapeResult,
+        canvaContext: ctx.canvaContext,
+      })
       ctx.themes = themes
       await prisma.project.update({
         where: { id: project.id },

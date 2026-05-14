@@ -16,7 +16,7 @@ interface ThemesInput {
 }
 
 export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> {
-  const { project, scrapeResult } = input
+  const { project, scrapeResult, canvaContext } = input
 
   const context = buildContext({
     positioningDocument: project.positioningDocument ?? undefined,
@@ -39,6 +39,10 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
   const zeitraumStart = start.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
   const zeitraumEnde = end.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
 
+  const canvaSection = canvaContext
+    ? `\n\nVerfügbare Canva-Assets (für Bildgestaltung berücksichtigen):\n${canvaContext}`
+    : ''
+
   const prompt = loadPrompt('themes', {
     praxisName: project.praxisName ?? project.praxisUrl,
     standort: extractStandort(scrapeResult),
@@ -46,7 +50,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     zeitraumStart,
     zeitraumEnde,
     kanaele: project.channels.join(', '),
-    positionierungsdokument: context.systemContext,
+    positionierungsdokument: context.systemContext + canvaSection,
     keywords: project.keywords.join(', '),
   })
 

@@ -20,6 +20,12 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   da Sprint 2 abgeschlossen. Abgrenzung zum neuen `Pre_Sprint_Review.md` ergänzt.
 
 ### Added (Sprints)
+- Pipeline — Canva-Context-Injektion (Phase-1-Restarbeiten):
+  - `lib/generation/pipeline.ts` MOD: `canva_loaded`-Step ruft `listFolderAssets()` auf wenn `project.canvaFolderId` gesetzt; Fallback auf leeren Kontext wenn API nicht erreichbar (kein Hard-Fail); SSE-Event zeigt `assetCount` oder `skipped`
+  - `lib/generation/themes.ts` MOD: `canvaContext` an Themes-Prompt übergeben
+  - `lib/generation/texts.ts` (bereits aus Slice D): `canvaContext` im `TextsInput`-Interface vorbereitet, wird an `texts_done`-Step aus `PipelineCtx` weitergereicht
+  - Kein Canva-API-Key im Frontend oder in Logs (nur ID)
+
 - Slice 13 — Blog-Gliederungsschritt (Phase-1-Restarbeiten, FA-KI-04):
   - `prompts/blog-outline.yaml` NEU — Gliederungs-Prompt (H1 + 3–5 H2 + je 1 Satz, HWG-konform, ~150–200 Wörter)
   - `lib/generation/texts.ts` MOD: `generateBlogOutlines()` (exportiert) — Gliederung für alle Blog-Themen; Gliederung als Kontext an `generateBlogPost()` übergeben
