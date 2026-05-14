@@ -188,7 +188,7 @@ export function Step3Context({ data, onChange, onBack, onSubmit, submitting }: S
         <button
           onClick={onSubmit}
           disabled={submitting}
-          className="px-6 py-2 bg-cognac hover:bg-cognacDark text-white text-sm font-semibold rounded-lg transition disabled:opacity-60"
+          className="px-6 py-2 bg-cognac hover:bg-cognacDark text-black text-sm font-semibold rounded-lg transition disabled:opacity-60"
         >
           {submitting ? 'Projekt wird erstellt …' : 'Projekt erstellen'}
         </button>

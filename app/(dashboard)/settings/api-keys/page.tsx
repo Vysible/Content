@@ -40,7 +40,7 @@ export default function ApiKeysPage() {
           !showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="bg-cognac hover:bg-cognacDark text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+              className="bg-cognac hover:bg-cognacDark text-black text-sm font-semibold px-4 py-2 rounded-lg transition"
             >
               + Key hinzufügen
             </button>

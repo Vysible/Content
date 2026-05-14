@@ -123,7 +123,7 @@ export function ApiKeyForm({ onSuccess, onCancel }: ApiKeyFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-cognac hover:bg-cognacDark text-white text-sm font-semibold py-2 rounded-lg transition disabled:opacity-60"
+          className="flex-1 bg-cognac hover:bg-cognacDark text-black text-sm font-semibold py-2 rounded-lg transition disabled:opacity-60"
         >
           {loading ? 'Speichern …' : 'Speichern'}
         </button>
