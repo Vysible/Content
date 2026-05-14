@@ -5,11 +5,21 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Added
+- Sprint 3 — PII-Encryption & Structured Logging:
+  - `lib/utils/logger.ts` — Pino-Logger (strukturiertes JSON-Logging, PII-Redaction für email/password/name/encryptedKey)
+  - `lib/crypto/aes.ts` MOD: Versions-Präfix `v1:` im Ciphertext-Format (Key-Rotation-vorbereitet)
+  - `lib/crypto/aes.ts` MOD: `decrypt()` abwärtskompatibel (erkennt Legacy-Format ohne `v1:`)
+  - Prisma-Migration `20260514202000_pii_encryption_fields`: `User.emailEncrypted`, `User.nameEncrypted`, `PraxisUser.emailEncrypted`, `PraxisUser.nameEncrypted` (AES-256-GCM, nullable)
+  - `scripts/migrate-pii.ts` — idempotentes Datenmigrations-Skript (Plaintext → AES-256-GCM)
+  - Alle `console.*`-Calls in `lib/` ersetzt durch strukturierte `logger.*`-Calls
+
 ### Fixed
+- `docs/forge-web-deviations.md`: Abweichungen `User.email Plaintext`, `web-encryption-at-rest Versions-Präfix` und `terminal-output` auf Status Resolved gesetzt (Sprint 3)
 - Sidebar: Menüpunkt "Ergebnisansicht" (`/results`) wiederhergestellt — war in Commit `fd71beb` versehentlich entfernt worden; Icon und Reihenfolge entsprechen wieder dem Stand vor dem Verlust
 - Production-Deploy (`vysible.cloud`): Root Cause identifiziert — Coolify-App `f58gu47l7uwwchjhhd25c0gy` lief seit Stunden auf Commit `90948c4`; manueller Re-Deploy über SSH ausgelöst
 
-### Added
+### Added (Sprint 2)
 - Sprint 2 — Test-Infrastruktur (NFA-16):
   - Vitest 4 Setup: `vitest.config.ts`, Prisma-Mock in `__tests__/setup.ts`, Coverage-Provider v8 (60 %-Schwelle)
   - Unit-Tests: `lib/crypto/aes.ts` — AES-256-GCM Roundtrip, IV-Zufälligkeit, Fehlerfälle (6 Cases)

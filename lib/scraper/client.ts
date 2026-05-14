@@ -1,3 +1,5 @@
+import { logger } from '@/lib/utils/logger'
+
 export interface ScrapeResult {
   url: string
   domain: string
@@ -61,7 +63,7 @@ export async function checkScraperHealth(): Promise<boolean> {
     })
     return res.ok
   } catch (err: unknown) {
-    console.warn('[Vysible] [WARN] Scraper-Health-Check fehlgeschlagen:', err)
+    logger.warn({ err }, 'Scraper-Health-Check fehlgeschlagen')
     return false
   }
 }

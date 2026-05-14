@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { calcCostEur } from '@/config/model-prices'
+import { logger } from '@/lib/utils/logger'
 
 interface TrackCostParams {
   projectId?: string
@@ -23,5 +24,5 @@ export async function trackCost(params: TrackCostParams): Promise<void> {
     },
   })
 
-  console.log(`[Vysible] CostEntry: ${params.step} | ${params.model} | ${params.inputTokens}in/${params.outputTokens}out | ${costEur.toFixed(6)} EUR`)
+  logger.info({ step: params.step, model: params.model, inputTokens: params.inputTokens, outputTokens: params.outputTokens, costEur }, 'CostEntry tracked')
 }

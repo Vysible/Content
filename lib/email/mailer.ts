@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer'
 import { prisma } from '@/lib/db'
 import { decrypt } from '@/lib/crypto/aes'
 import { withRetry } from '@/lib/utils/retry'
+import { logger } from '@/lib/utils/logger'
 
 export type EmailTrigger =
   | 'generation_complete'
@@ -28,7 +29,7 @@ export async function sendNotification(
   try {
     password = decrypt(config.encryptedPassword)
   } catch (err: unknown) {
-    console.error('[Vysible] [FAIL] SMTP-Passwort konnte nicht entschlüsselt werden:', err)
+    logger.error({ err }, 'SMTP-Passwort konnte nicht entschlüsselt werden')
     return
   }
 
@@ -53,5 +54,5 @@ export async function sendNotification(
     `smtp.sendMail(${trigger})`,
   )
 
-  console.log(`[Vysible] E-Mail gesendet: ${trigger} für ${projectName}`)
+  logger.info({ trigger }, 'E-Mail gesendet')
 }

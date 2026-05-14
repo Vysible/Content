@@ -1,4 +1,5 @@
 import { getJob, setStatus, emitEvent } from './job-store'
+import { logger } from '@/lib/utils/logger'
 
 const MAX_CONCURRENT = 3
 
@@ -93,7 +94,7 @@ function dequeueNext(): void {
       return Promise.all(updatePositions)
     })
     .catch((err: unknown) => {
-      console.warn('[Vysible] [WARN] Queue-Positions-Update fehlgeschlagen:', err)
+      logger.warn({ err }, 'Queue-Positions-Update fehlgeschlagen')
     })
 
   runNow(nextJobId, runner)

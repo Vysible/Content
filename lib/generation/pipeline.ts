@@ -1,4 +1,5 @@
 import { emitEvent, setStatus, getJob, resetForRetry } from './job-store'
+import { logger } from '@/lib/utils/logger'
 import { GENERATION_STEPS, type GenerationStep, type JobState } from './types'
 import { generateThemes } from './themes'
 import { generateTexts } from './texts'
@@ -61,7 +62,7 @@ export async function runGenerationPipeline(jobId: string, project: Project): Pr
       timestamp: now(),
     })
 
-    console.error(`[Vysible] [FAIL] Pipeline-Fehler (Job ${jobId}, Schritt ${failedStep}): ${message}`)
+    logger.error({ jobId, failedStep, message }, 'Pipeline-Fehler')
   }
 }
 
@@ -172,7 +173,7 @@ async function runStep(
 
       // §3a: Fehler im E-Mail-Versand werden geloggt, blockieren nicht die Pipeline
       sendNotification('generation_complete', project.name).catch((err: unknown) => {
-        console.error('[Vysible] [FAIL] E-Mail-Benachrichtigung nach Generierung fehlgeschlagen:', err)
+        logger.error({ err }, 'E-Mail-Benachrichtigung nach Generierung fehlgeschlagen')
       })
 
       await emitEvent(jobId, {

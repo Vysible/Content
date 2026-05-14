@@ -61,7 +61,7 @@ Ohne Tests ist jeder weitere Sprint ein Blindflug (NFA-16).
 | E2E-Grundgerüst: URL → ZIP | Playwright |
 | GitHub Actions CI: lint + typecheck + test | — |
 
-### Sprint 3 — PII-Encryption & Logging (ca. 3 Tage)
+### Sprint 3 — PII-Encryption & Logging ✅ Abgeschlossen (2026-05-14)
 
 Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 

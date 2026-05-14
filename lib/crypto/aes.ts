@@ -1,6 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto'
 
 const ALGORITHM = 'aes-256-gcm'
+const VERSION = 'v1'
 
 function getKey(): Buffer {
   const secret = process.env.ENCRYPTION_SECRET
@@ -10,7 +11,7 @@ function getKey(): Buffer {
   return Buffer.from(secret, 'hex')
 }
 
-// Rückgabe-Format: iv:authTag:ciphertext (alles hex-kodiert)
+// Rückgabe-Format: v1:iv:authTag:ciphertext (alles hex-kodiert)
 export function encrypt(plaintext: string): string {
   const key = getKey()
   const iv = randomBytes(12)
@@ -19,15 +20,25 @@ export function encrypt(plaintext: string): string {
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()])
   const tag = cipher.getAuthTag()
 
-  return `${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`
+  return `${VERSION}:${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`
 }
 
 export function decrypt(ciphertext: string): string {
   const key = getKey()
-  const parts = ciphertext.split(':')
-  if (parts.length !== 3) throw new Error('Ungültiges Ciphertext-Format')
+  let ivHex: string, tagHex: string, dataHex: string
 
-  const [ivHex, tagHex, dataHex] = parts
+  if (ciphertext.startsWith('v1:')) {
+    // Neues Format: v1:iv:tag:cipher
+    const parts = ciphertext.slice(3).split(':')
+    if (parts.length !== 3) throw new Error('Ungültiges v1-Ciphertext-Format')
+    ;[ivHex, tagHex, dataHex] = parts
+  } else {
+    // Legacy-Format: iv:tag:cipher (wird nach Datenmigration entfernt)
+    const parts = ciphertext.split(':')
+    if (parts.length !== 3) throw new Error('Ungültiges Legacy-Ciphertext-Format')
+    ;[ivHex, tagHex, dataHex] = parts
+  }
+
   const iv = Buffer.from(ivHex, 'hex')
   const tag = Buffer.from(tagHex, 'hex')
   const data = Buffer.from(dataHex, 'hex')

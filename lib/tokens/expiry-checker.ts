@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sendNotification } from '@/lib/email/mailer'
+import { logger } from '@/lib/utils/logger'
 
 const WARN_DAYS = Number(process.env.TOKEN_WARN_DAYS ?? '14')
 
@@ -18,7 +19,7 @@ export async function checkTokenExpiry(): Promise<void> {
       ((key.expiresAt?.getTime() ?? 0) - Date.now()) / (1000 * 60 * 60 * 24)
     )
     await sendNotification('generation_complete', 'System', `API-Key "${key.name}" (${key.provider}) läuft in ${daysLeft} Tagen ab.`).catch(() => {})
-    console.log('[Vysible] Token expiry warning:', key.name, 'in', daysLeft, 'days')
+    logger.warn({ keyId: key.id, provider: key.provider, daysLeft }, 'Token expiry warning')
   }
 }
 

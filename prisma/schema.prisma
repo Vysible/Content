@@ -10,14 +10,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  role      Role     @default(STAFF)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  emailEncrypted String?  // AES-256-GCM, Format: v1:iv:tag:cipher
+  nameEncrypted  String?  // AES-256-GCM, Format: v1:iv:tag:cipher
+  password       String
+  role           Role     @default(STAFF)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   apiKeys  ApiKey[]
   projects Project[]
@@ -137,15 +139,17 @@ model ShareLink {
 }
 
 model PraxisUser {
-  id            String    @id @default(cuid())
-  projectId     String
-  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  email         String
-  name          String
-  inviteToken   String    @unique @default(cuid())
-  inviteExpires DateTime
-  active        Boolean   @default(false)
-  createdAt     DateTime  @default(now())
+  id             String    @id @default(cuid())
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  email          String
+  name           String
+  emailEncrypted String?   // AES-256-GCM, Format: v1:iv:tag:cipher
+  nameEncrypted  String?   // AES-256-GCM, Format: v1:iv:tag:cipher
+  inviteToken    String    @unique @default(cuid())
+  inviteExpires  DateTime
+  active         Boolean   @default(false)
+  createdAt      DateTime  @default(now())
 
   @@index([inviteToken])
   @@index([projectId])

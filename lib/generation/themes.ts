@@ -1,4 +1,5 @@
 import { getAnthropicClient } from '@/lib/ai/client'
+import { logger } from '@/lib/utils/logger'
 import { trackCost } from '@/lib/costs/tracker'
 import { DEFAULT_MODEL } from '@/config/model-prices'
 import { buildContext } from '@/lib/ai/context-builder'
@@ -75,7 +76,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     const validation = validateThemenQuality(items)
 
     if (!validation.ok) {
-      console.warn(`[Vysible] [WARN] Themen-Qualitätskriterien nicht erfüllt: ${validation.reason} — wird wiederholt`)
+      logger.warn({ projectId: project.id, reason: validation.reason }, 'Themen-Qualitätskriterien nicht erfüllt — wird wiederholt')
       throw new Error(`Qualitätsprüfung fehlgeschlagen: ${validation.reason}`)
     }
 

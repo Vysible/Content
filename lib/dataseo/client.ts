@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { decrypt } from '@/lib/crypto/aes'
 import { trackCost } from '@/lib/costs/tracker'
+import { logger } from '@/lib/utils/logger'
 
 export interface KeywordSuggestion {
   keyword: string
@@ -71,7 +72,7 @@ export async function fetchKeywordSuggestions(
       }
     }
   } catch (err: unknown) {
-    console.warn('[Vysible] [WARN] DataForSEO Autocomplete nicht erreichbar — graceful degradation:', err)
+    logger.warn({ err }, 'DataForSEO Autocomplete nicht erreichbar — graceful degradation')
   }
 
   // PAA-Fragen via Related Keywords
@@ -93,7 +94,7 @@ export async function fetchKeywordSuggestions(
       }
     }
   } catch (err: unknown) {
-    console.warn('[Vysible] [WARN] DataForSEO PAA nicht erreichbar — graceful degradation:', err)
+    logger.warn({ err }, 'DataForSEO PAA nicht erreichbar — graceful degradation')
   }
 
   return results
