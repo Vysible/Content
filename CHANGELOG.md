@@ -20,6 +20,12 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   da Sprint 2 abgeschlossen. Abgrenzung zum neuen `Pre_Sprint_Review.md` ergänzt.
 
 ### Added (Sprints)
+- Slice 9 — Export-Dateinamen-Konvention (Phase-1-Restarbeiten):
+  - `lib/export/zip.ts` MOD: `filename()` nutzt deutsches Monatsformat "Apr2027" statt numerischem "202704"
+  - `lib/export/zip.ts` MOD: `deriveFilePrefix()` (exportiert) — erste 3 Großbuchstaben des ersten signifikanten Worts; Titel/Gattungsbegriffe werden übersprungen; Umlaut-Normalisierung; Fallback "PRX"
+  - `app/api/projects/[id]/export/route.ts` BUGFIX: `praxisKuerzel: ''` (leer) durch `deriveFilePrefix(praxisName)` ersetzt
+  - Unit-Tests: `__tests__/unit/export/zip.test.ts` — 7 Cases (WAR, MUE, HAU, PRX-Fallback, Sonderzeichen, Gattungsbegriff, Mehrteilig) — 7/7 PASS
+
 - Slice 4 — API-Key-Manager Erweiterungen (Phase-1-Restarbeiten):
   - Pro-Projekt-Key-Auswahl (FA-F-11a): `Project.apiKeyId` (nullable FK zu `ApiKey`), Prisma-Migration `20260514211000_project_api_key_selection`
   - `lib/ai/client.ts` MOD: `getAnthropicClient(projectApiKeyId?)` und `getOpenAIClient(projectApiKeyId?)` — projektspezifischer Key mit globalem Default-Fallback

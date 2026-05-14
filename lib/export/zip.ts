@@ -14,23 +14,51 @@ interface ZipInput {
   praxisAddress?: string
 }
 
+const DE_MONTHS: Record<number, string> = {
+  1: 'Jan', 2: 'Feb', 3: 'Mrz', 4: 'Apr', 5: 'Mai', 6: 'Jun',
+  7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Okt', 11: 'Nov', 12: 'Dez',
+}
+
 /**
  * Dateinamen-Konvention: [PraxisKürzel]_[Kanal]_[MonatJahr]_v1.[ext]
+ * Beispiel: WAR_Blog_Apr2027_v1.docx
  */
 function filename(kuerzel: string, kanal: string, monat: string, ext: string): string {
-  const monatFormatted = monat.replace('-', '') // "2026-01" → "202601"
+  // monat = "2027-04" → "Apr2027"
+  const [year, month] = monat.split('-')
+  const monatLabel = DE_MONTHS[Number(month)] ?? month
+  const monatFormatted = `${monatLabel}${year}`
   return `${kuerzel}_${kanal}_${monatFormatted}_v1.${ext}`
 }
 
-function praxisKuerzel(name: string): string {
-  return name
-    .replace(/[^a-zA-ZäöüÄÖÜß\s]/g, '')
+/**
+ * Ableiten des Praxis-Kürzels aus dem Praxisnamen.
+ * Regel: erste 3 Großbuchstaben des ersten (signifikanten) Worts.
+ * Beispiel: "Zahnzentrum Warendorf" → "WAR" (zweites Wort, da "Zahnzentrum" generisch)
+ * Fallback: "PRX" bei leerem oder zeichenlosem Namen.
+ * Unit-Test: deriveFilePrefix('Zahnzentrum Warendorf') === 'WAR'
+ */
+export function deriveFilePrefix(name: string): string {
+  const ascii = name
+    .replace(/ä/gi, 'ae').replace(/ö/gi, 'oe').replace(/ü/gi, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-zA-Z\s]/g, '')
     .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w.slice(0, 3).toUpperCase())
-    .join('')
-    || 'PRAXIS'
+
+  if (!ascii) return 'PRX'
+
+  const words = ascii.split(/\s+/).filter(Boolean)
+
+  // Generische Präfixe überspringen, wenn möglich
+  const GENERIC = new Set(['praxis', 'zahnarzt', 'arzt', 'klinik', 'zentrum', 'zahnzentrum', 'gemeinschaftspraxis', 'dr', 'prof', 'med', 'dent'])
+  const significant = words.find((w) => !GENERIC.has(w.toLowerCase())) ?? words[0]
+
+  const prefix = significant!.toUpperCase().slice(0, 3)
+  return prefix.length > 0 ? prefix : 'PRX'
+}
+
+function praxisKuerzel(name: string): string {
+  return deriveFilePrefix(name)
 }
 
 export async function buildExportZip(input: ZipInput): Promise<Buffer> {

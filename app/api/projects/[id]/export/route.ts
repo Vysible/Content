@@ -1,6 +1,6 @@
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
-import { buildExportZip } from '@/lib/export/zip'
+import { buildExportZip, deriveFilePrefix } from '@/lib/export/zip'
 import { NextResponse } from 'next/server'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { StoredTextResult } from '@/lib/generation/results-store'
@@ -67,7 +67,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
   const zipBuffer = await buildExportZip({
     praxisName,
-    praxisKuerzel: '',
+    praxisKuerzel: deriveFilePrefix(praxisName),
     themes,
     textResults,
   })
