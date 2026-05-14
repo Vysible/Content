@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { RichTextEditor } from './RichTextEditor'
 import { ChatPanel } from './ChatPanel'
 import type { StoredTextResult, ContentVersion } from '@/lib/generation/results-store'
+
+export type SaveState = 'saved' | 'saving' | 'error' | 'idle'
 
 interface Props {
   projectId: string
@@ -11,37 +13,31 @@ interface Props {
   result: StoredTextResult
   versionField: 'blog' | 'newsletter'
   initialContent: string
+  saveState: SaveState
   onUpdate: (updates: Partial<StoredTextResult>) => void
 }
 
-type SaveState = 'saved' | 'saving' | 'error' | 'idle'
-
-export function EditorView({ projectId, index, result, versionField, initialContent, onUpdate }: Props) {
+export function EditorView({
+  projectId,
+  index,
+  result,
+  versionField,
+  initialContent,
+  saveState,
+  onUpdate,
+}: Props) {
   const [content, setContent] = useState(initialContent)
   const [versions, setVersions] = useState<ContentVersion[]>(
     (versionField === 'blog' ? result.blogVersions : result.newsletterVersions) ?? []
   )
-  const [saveState, setSaveState] = useState<SaveState>('idle')
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function handleChange(html: string) {
     setContent(html)
-    setSaveState('saving')
-
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const updates: Partial<StoredTextResult> =
-          versionField === 'blog'
-            ? { blog: { ...result.blog!, html } }
-            : { newsletter: { ...result.newsletter!, body: html } }
-        onUpdate(updates)
-        setSaveState('saved')
-        setTimeout(() => setSaveState('idle'), 2_000)
-      } catch {
-        setSaveState('error')
-      }
-    }, 5_000)
+    const updates: Partial<StoredTextResult> =
+      versionField === 'blog'
+        ? { blog: { ...result.blog!, html } }
+        : { newsletter: { ...result.newsletter!, body: html } }
+    onUpdate(updates)
   }
 
   function handleRevised(newContent: string, newVersions: ContentVersion[]) {

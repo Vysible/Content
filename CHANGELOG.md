@@ -14,6 +14,16 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `docs/dev-prompts/sprint-p2b-kalender-sharing.md` — Sprint-Prompt P2-B (Slice 7 + 10).
 - `docs/dev-prompts/sprint-p2c-email.md` — Sprint-Prompt P2-C (Slice 19).
 
+### Fixed
+- Editor-Autosave: Stiller Catch in `EditorView.tsx` und `ResultsTabs.tsx`-Autosave durch
+  geloggte Catch-Blöcke ersetzt. SaveIndicator wird jetzt aus `ResultsTabs` (per-Item-State)
+  gesteuert statt aus `EditorView` — "Gespeichert" erscheint erst nach erfolgreicher
+  API-Antwort, "Fehler beim Speichern" bei HTTP-Fehler. Doppel-Debouncing (5s+5s)
+  beseitigt (Sprint P2-A, Sub-Slice A, Slice 6).
+- `SharePanel.tsx`: Drei stille Catches (load/create/revoke) durch geloggte Catches
+  ersetzt — `console.warn('[Vysible] …')` mit kontextuellem Fehlertext (Sprint P2-A,
+  Forge-Regel `resilience §3a`).
+
 ### Changed
 - `docs/dev-prompts/Pre_Slice_Validation.md` (v1.2.0):
   - **Phase 0 (PSR) als automatischer Auto-Aufruf** zu Sprint-Beginn integriert.

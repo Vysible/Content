@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
-import { EditorView } from '@/components/editor/EditorView'
+import { EditorView, type SaveState } from '@/components/editor/EditorView'
 import { SeoPanel } from '@/components/editor/SeoPanel'
 import { WordPressDraftButton } from '@/components/results/WordPressDraftButton'
 import { KlickTippButton } from '@/components/results/KlickTippButton'
@@ -32,8 +32,13 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
   const [activeTab, setActiveTab] = useState<Tab>('themen')
   const [results, setResults] = useState<StoredTextResult[]>(textResults)
   const [sort, setSort] = useState<SortKey>('monat')
-  const [saving, setSaving] = useState(false)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [saveStates, setSaveStates] = useState<Record<number, SaveState>>({})
+  const debounceRefs = useRef<Record<number, ReturnType<typeof setTimeout> | null>>({})
+  const idleRefs = useRef<Record<number, ReturnType<typeof setTimeout> | null>>({})
+
+  const setSaveState = useCallback((index: number, state: SaveState) => {
+    setSaveStates((prev) => ({ ...prev, [index]: state }))
+  }, [])
 
   const autosave = useCallback(
     (index: number, updates: Partial<StoredTextResult>) => {
@@ -42,23 +47,30 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
         next[index] = { ...next[index], ...updates }
         return next
       })
+      setSaveState(index, 'saving')
 
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      debounceRef.current = setTimeout(async () => {
-        setSaving(true)
+      if (debounceRefs.current[index]) clearTimeout(debounceRefs.current[index]!)
+      debounceRefs.current[index] = setTimeout(async () => {
         try {
-          await fetch(`/api/projects/${projectId}/results`, {
+          const res = await fetch(`/api/projects/${projectId}/results`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ index, updates }),
           })
-        } finally {
-          setSaving(false)
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          setSaveState(index, 'saved')
+          if (idleRefs.current[index]) clearTimeout(idleRefs.current[index]!)
+          idleRefs.current[index] = setTimeout(() => setSaveState(index, 'idle'), 2_000)
+        } catch (err: unknown) {
+          console.warn('[Vysible] Autosave fehlgeschlagen:', err)
+          setSaveState(index, 'error')
         }
       }, 5_000)
     },
-    [projectId]
+    [projectId, setSaveState]
   )
+
+  const isAnySaving = Object.values(saveStates).some((s) => s === 'saving')
 
   const hasSocial = channels.some((c) => c.startsWith('SOCIAL_'))
 
@@ -96,7 +108,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
             {t.label}
           </button>
         ))}
-        {saving && (
+        {isAnySaving && (
           <span className="ml-auto text-xs text-stahlgrau self-center pr-2">Speichert…</span>
         )}
       </div>
@@ -109,6 +121,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
           projectId={projectId}
           results={results.filter((r) => r.blog)}
           onUpdate={(index, updates) => autosave(index, updates)}
+          saveStates={saveStates}
           allResults={results}
         />
       )}
@@ -117,6 +130,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
           projectId={projectId}
           results={results.filter((r) => r.newsletter)}
           onUpdate={(index, updates) => autosave(index, updates)}
+          saveStates={saveStates}
           allResults={results}
         />
       )}
@@ -229,11 +243,13 @@ function BlogTab({
   projectId,
   results,
   allResults,
+  saveStates,
   onUpdate,
 }: {
   projectId: string
   results: StoredTextResult[]
   allResults: StoredTextResult[]
+  saveStates: Record<number, SaveState>
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
@@ -274,6 +290,7 @@ function BlogTab({
                   result={r}
                   versionField="blog"
                   initialContent={r.blog.html}
+                  saveState={saveStates[globalIndex] ?? 'idle'}
                   onUpdate={(updates) => onUpdate(globalIndex, updates)}
                 />
                 <div className="px-4 pb-4 flex items-center gap-3 flex-wrap">
@@ -316,11 +333,13 @@ function NewsletterTab({
   projectId,
   results,
   allResults,
+  saveStates,
   onUpdate,
 }: {
   projectId: string
   results: StoredTextResult[]
   allResults: StoredTextResult[]
+  saveStates: Record<number, SaveState>
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
@@ -399,6 +418,7 @@ function NewsletterTab({
                     result={r}
                     versionField="newsletter"
                     initialContent={nl.body}
+                    saveState={saveStates[globalIndex] ?? 'idle'}
                     onUpdate={(updates) => onUpdate(globalIndex, updates)}
                   />
                 </Field>

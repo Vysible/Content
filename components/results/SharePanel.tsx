@@ -24,7 +24,9 @@ export function SharePanel({ projectId }: Props) {
     fetch(`/api/projects/${projectId}/share`)
       .then((r) => r.json())
       .then(setLinks)
-      .catch(() => {})
+      .catch((err: unknown) => {
+        console.warn('[Vysible] Share-Links konnten nicht geladen werden:', err)
+      })
   }, [show, projectId])
 
   async function create() {
@@ -36,23 +38,29 @@ export function SharePanel({ projectId }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
       })
-      if (res.ok) {
-        const link: ShareLink = await res.json()
-        setLinks((prev) => [link, ...prev])
-        setPassword('')
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const link: ShareLink = await res.json()
+      setLinks((prev) => [link, ...prev])
+      setPassword('')
+    } catch (err: unknown) {
+      console.warn('[Vysible] Share-Link konnte nicht erstellt werden:', err)
     } finally {
       setCreating(false)
     }
   }
 
   async function revoke(token: string) {
-    await fetch(`/api/projects/${projectId}/share`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    })
-    setLinks((prev) => prev.filter((l) => l.token !== token))
+    try {
+      const res = await fetch(`/api/projects/${projectId}/share`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setLinks((prev) => prev.filter((l) => l.token !== token))
+    } catch (err: unknown) {
+      console.warn('[Vysible] Share-Link konnte nicht widerrufen werden:', err)
+    }
   }
 
   function copy(token: string) {
