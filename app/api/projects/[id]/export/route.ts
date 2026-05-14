@@ -4,9 +4,10 @@ import { buildExportZip } from '@/lib/export/zip'
 import { NextResponse } from 'next/server'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { StoredTextResult } from '@/lib/generation/results-store'
+import { writeAuditLog } from '@/lib/audit/logger'
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  await requireAuth()
+  const session = await requireAuth()
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
@@ -16,11 +17,28 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       praxisUrl: true,
       themeResults: true,
       textResults: true,
+      hwgFlag: true,
     },
   })
 
   if (!project) {
     return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
+  }
+
+  if (project.hwgFlag) {
+    await writeAuditLog({
+      action:    'export.download',
+      entity:    'Project',
+      entityId:  params.id,
+      projectId: params.id,
+      userId:    session.user.id,
+      userEmail: session.user.email ?? undefined,
+      meta:      { blocked: true, reason: 'hwg_flag' },
+    })
+    return NextResponse.json(
+      { error: 'Export gesperrt: HWG-Compliance-Flag ist gesetzt. Bitte Inhalt prüfen und Flag zurücksetzen.' },
+      { status: 403 }
+    )
   }
 
   const themes = (project.themeResults as unknown as ThemenItem[] | null) ?? []
@@ -54,6 +72,16 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
   const safeName = praxisName.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 30)
   const filename = `${safeName}_Content.zip`
+
+  await writeAuditLog({
+    action:    'export.download',
+    entity:    'Project',
+    entityId:  params.id,
+    projectId: params.id,
+    userId:    session.user.id,
+    userEmail: session.user.email ?? undefined,
+    meta:      { filename },
+  })
 
   return new Response(zipBuffer as unknown as BodyInit, {
     headers: {

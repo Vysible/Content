@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
+import { writeAuditLog } from '@/lib/audit/logger'
 
 const createSchema = z.object({
   name: z.string().min(1).max(200),
@@ -21,6 +22,7 @@ export async function GET() {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const projects = await prisma.project.findMany({
+    where: { createdById: session.user.id },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -68,7 +70,15 @@ export async function POST(req: NextRequest) {
     select: { id: true, name: true },
   })
 
-  console.log(`[Vysible] Projekt erstellt: ${project.id} – ${project.name} (User: ${session.user.id})`)
+  await writeAuditLog({
+    action:    'project.create',
+    entity:    'Project',
+    entityId:  project.id,
+    projectId: project.id,
+    userId:    session.user.id,
+    userEmail: session.user.email ?? undefined,
+    meta:      { name: project.name },
+  })
 
   return NextResponse.json(project, { status: 201 })
 }

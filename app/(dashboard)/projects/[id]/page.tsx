@@ -4,6 +4,8 @@ import { Header } from '@/components/layout/header'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { GenerateSection } from './GenerateSection'
+import { ReviewPanel } from '@/components/project/ReviewPanel'
+import { AuditLogTab } from '@/components/project/AuditLogTab'
 
 const CHANNEL_LABELS: Record<string, string> = {
   BLOG: 'Blog',
@@ -87,6 +89,23 @@ export default async function ProjectPage({ params }: { params: { id: string } }
         <InfoCard label="Status">
           <span className="text-sm font-medium">{project.status}</span>
         </InfoCard>
+      </div>
+
+      {/* Review & Compliance */}
+      <div className="mb-6">
+        <ReviewPanel
+          projectId={project.id}
+          reviewMode={project.reviewMode as 'SIMPLE' | 'COMPLETE'}
+          hwgFlag={project.hwgFlag}
+        />
+      </div>
+
+      {/* Audit-Log */}
+      <div className="mb-6">
+        <div className="bg-white border border-stone rounded-xl p-4">
+          <p className="text-xs text-stahlgrau font-medium uppercase tracking-wide mb-3">Aktivitätsprotokoll</p>
+          <AuditLogTab projectId={project.id} />
+        </div>
       </div>
 
       <div className="flex gap-3">

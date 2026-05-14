@@ -59,11 +59,14 @@ model Project {
   themeResults        Json?
   textResults         Json?
   status              ProjectStatus @default(DRAFT)
+  reviewMode          ReviewMode    @default(SIMPLE)
+  hwgFlag             Boolean       @default(false)
   shareLinks          ShareLink[]
   praxisUsers         PraxisUser[]
   comments            Comment[]
   costReports         CostReport[]
   generationJobs      GenerationJob[]
+  auditLogs           AuditLog[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -175,6 +178,24 @@ model CostReport {
   @@index([projectId])
 }
 
+model AuditLog {
+  id         String   @id @default(cuid())
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  userId     String?
+  userEmail  String?
+  action     String
+  entity     String
+  entityId   String?
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
 enum Role {
   ADMIN
   STAFF
@@ -184,6 +205,11 @@ enum ProjectStatus {
   DRAFT
   ACTIVE
   ARCHIVED
+}
+
+enum ReviewMode {
+  SIMPLE
+  COMPLETE
 }
 
 enum GenerationJobStatus {
