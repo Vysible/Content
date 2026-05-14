@@ -6,6 +6,15 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- Slice 4 — API-Key-Manager Erweiterungen (Phase-1-Restarbeiten):
+  - Pro-Projekt-Key-Auswahl (FA-F-11a): `Project.apiKeyId` (nullable FK zu `ApiKey`), Prisma-Migration `20260514211000_project_api_key_selection`
+  - `lib/ai/client.ts` MOD: `getAnthropicClient(projectApiKeyId?)` und `getOpenAIClient(projectApiKeyId?)` — projektspezifischer Key mit globalem Default-Fallback
+  - Pipeline, themes.ts, texts.ts: `project.apiKeyId` wird an AI-Client weitergereicht
+  - `/api/projects/[id]/settings` (GET/PATCH): apiKeyId lesen und speichern
+  - `/projects/[id]/settings` UI: Dropdown zur Key-Auswahl pro Provider (Anthropic, OpenAI)
+  - API-Keys-Seite: `SocialTokenStatusSection` — zeigt Canva-Token-Status (gültig/abgelaufen) mit "Bitte erneuern"-Hinweis
+  - `lib/types/prisma.ts` MOD: `apiKeyId` im Project-Interface ergänzt
+
 - Slice 16 — Auth-Lücken (Phase-1-Restarbeiten):
   - Passwort-Vergessen-Flow: `/api/auth/forgot-password` (Token-Generierung + SMTP), `/api/auth/reset-password` (Token-Validierung + bcrypt-Hash), `app/(auth)/reset-password/page.tsx` (Reset-Formular)
   - Login-Seite: "Passwort vergessen?"-Link + Inline-Formular ohne Seitennavigation

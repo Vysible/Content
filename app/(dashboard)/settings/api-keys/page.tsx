@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Header } from '@/components/layout/header'
 import { ApiKeyList } from '@/components/api-keys/ApiKeyList'
 import { ApiKeyForm } from '@/components/api-keys/ApiKeyForm'
+import { SocialTokenStatusSection } from './SocialTokenStatusSection'
 
 interface ApiKey {
   id: string
@@ -71,6 +72,8 @@ export default function ApiKeysPage() {
         <strong>Phase 3 (geplant):</strong> DataForSEO, Klick-Tipp, WordPress, Hedy und Canva können bereits als
         Provider angelegt werden — werden aber erst ab Phase 3 aktiv genutzt.
       </div>
+
+      <SocialTokenStatusSection />
     </div>
   )
 }

@@ -19,6 +19,7 @@ interface TextsInput {
   project: Project
   themes: ThemenItem[]
   positioningContext: string
+  canvaContext?: string
 }
 
 export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
@@ -79,7 +80,7 @@ async function generateBlogPost(args: {
     tonalitaet: 'professionell, empathisch, verständlich',
   })
 
-  const anthropic = await getAnthropicClient()
+  const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
@@ -119,7 +120,7 @@ async function generateNewsletter(args: {
     positionierungsdokument: positioningContext.slice(0, 4_000),
   })
 
-  const anthropic = await getAnthropicClient()
+  const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
@@ -181,7 +182,7 @@ async function generateSocialPosts(args: {
     positionierungsdokument: positioningContext.slice(0, 3_000),
   })
 
-  const anthropic = await getAnthropicClient()
+  const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
@@ -232,7 +233,7 @@ async function generateImageBrief(args: {
     canvaOrdner: project.canvaFolderId ?? '',
   })
 
-  const anthropic = await getAnthropicClient()
+  const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({

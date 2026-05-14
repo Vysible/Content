@@ -12,6 +12,7 @@ import type { ScrapeResult } from '@/lib/scraper/client'
 interface ThemesInput {
   project: Project
   scrapeResult?: ScrapeResult
+  canvaContext?: string
 }
 
 export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> {
@@ -49,7 +50,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     keywords: project.keywords.join(', '),
   })
 
-  const anthropic = await getAnthropicClient()
+  const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({

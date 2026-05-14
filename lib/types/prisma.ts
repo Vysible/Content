@@ -16,6 +16,7 @@ export interface Project {
   canvaFolderId: string | null
   wpUrl: string | null
   ktListId: string | null
+  apiKeyId: string | null
   scrapedData: unknown
   themeResults: unknown
   textResults: unknown

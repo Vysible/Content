@@ -38,8 +38,9 @@ model ApiKey {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  createdById String
-  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById  String
+  createdBy    User      @relation(fields: [createdById], references: [id])
+  projectsUsing Project[] @relation("ProjectApiKey")
 
   @@index([provider, active])
 }
@@ -59,6 +60,8 @@ model Project {
   canvaFolderId       String?
   wpUrl               String?
   ktListId            String?
+  apiKeyId            String?
+  apiKey              ApiKey?  @relation("ProjectApiKey", fields: [apiKeyId], references: [id], onDelete: SetNull)
   scrapedData         Json?
   themeResults        Json?
   textResults         Json?
