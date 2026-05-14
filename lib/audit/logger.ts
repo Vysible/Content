@@ -17,7 +17,9 @@ export type AuditAction =
   | 'api_key.create'
   | 'api_key.delete'
   | 'user.login'
-  | 'user.logout';
+  | 'user.logout'
+  | 'admin.user.update'
+  | 'admin.user.create';
 
 interface AuditParams {
   action: AuditAction;

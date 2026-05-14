@@ -10,16 +10,18 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  name           String?
-  emailEncrypted String?  // AES-256-GCM, Format: v1:iv:tag:cipher
-  nameEncrypted  String?  // AES-256-GCM, Format: v1:iv:tag:cipher
-  password       String
-  role           Role     @default(STAFF)
-  active         Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String?
+  emailEncrypted    String?   // AES-256-GCM, Format: v1:iv:tag:cipher
+  nameEncrypted     String?   // AES-256-GCM, Format: v1:iv:tag:cipher
+  password          String
+  role              Role      @default(STAFF)
+  active            Boolean   @default(true)
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   apiKeys  ApiKey[]
   projects Project[]

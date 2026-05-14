@@ -6,6 +6,15 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- Slice 16 — Auth-Lücken (Phase-1-Restarbeiten):
+  - Passwort-Vergessen-Flow: `/api/auth/forgot-password` (Token-Generierung + SMTP), `/api/auth/reset-password` (Token-Validierung + bcrypt-Hash), `app/(auth)/reset-password/page.tsx` (Reset-Formular)
+  - Login-Seite: "Passwort vergessen?"-Link + Inline-Formular ohne Seitennavigation
+  - Prisma-Migration `20260514210000_auth_reset_token`: `User.resetToken`, `User.resetTokenExpiry` (nullable, Single-Use, 1h Ablauf)
+  - Admin-User-Verwaltung: `GET /api/admin/users`, `PATCH /api/admin/users/[id]` (active, role), UI unter `/settings/users` (nur Admins sichtbar)
+  - `components/auth/AutoLogoutProvider.tsx`: Client-Komponente mit 30-Min-Inaktivitäts-Timer (reset bei click/keypress/mousemove/scroll/touchstart)
+  - Dashboard-Layout: `AutoLogoutProvider` eingebunden
+  - AuditAction-Typen: `admin.user.update`, `admin.user.create` ergänzt
+
 - Sprint 3 — PII-Encryption & Structured Logging:
   - `lib/utils/logger.ts` — Pino-Logger (strukturiertes JSON-Logging, PII-Redaction für email/password/name/encryptedKey)
   - `lib/crypto/aes.ts` MOD: Versions-Präfix `v1:` im Ciphertext-Format (Key-Rotation-vorbereitet)

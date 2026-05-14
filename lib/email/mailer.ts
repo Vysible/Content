@@ -10,6 +10,54 @@ export type EmailTrigger =
   | 'published'
   | 'share_approved'
 
+export async function sendPasswordResetMail(toEmail: string, resetUrl: string): Promise<void> {
+  const config = await prisma.smtpConfig.findFirst({ where: { active: true } })
+  if (!config) {
+    logger.warn('Kein aktiver SMTP-Config — Passwort-Reset-Mail kann nicht gesendet werden')
+    return
+  }
+
+  let password: string
+  try {
+    password = decrypt(config.encryptedPassword)
+  } catch (err: unknown) {
+    logger.error({ err }, 'SMTP-Passwort konnte nicht entschlüsselt werden (Password-Reset)')
+    return
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    auth: { user: config.user, pass: password },
+  })
+
+  const subject = 'Vysible: Passwort zurücksetzen'
+  const text = [
+    'Sie haben eine Passwort-Zurücksetzen-Anfrage gestellt.',
+    '',
+    `Bitte klicken Sie auf folgenden Link (gültig für 1 Stunde):`,
+    resetUrl,
+    '',
+    'Falls Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail ignorieren.',
+    '',
+    'Vysible – KI-Content-Plattform',
+  ].join('\n')
+
+  await withRetry(
+    () =>
+      transporter.sendMail({
+        from: config.user,
+        to: toEmail,
+        subject,
+        text,
+      }),
+    'smtp.sendPasswordResetMail',
+  )
+
+  logger.info('Passwort-Reset-Mail gesendet')
+}
+
 const TRIGGER_SUBJECTS: Record<EmailTrigger, string> = {
   generation_complete: 'Vysible: Generierung abgeschlossen',
   draft_uploaded:      'Vysible: Entwurf hochgeladen',
