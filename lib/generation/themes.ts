@@ -3,7 +3,7 @@ import { trackCost } from '@/lib/costs/tracker'
 import { DEFAULT_MODEL } from '@/config/model-prices'
 import { buildContext } from '@/lib/ai/context-builder'
 import { loadPrompt } from './prompt-loader'
-import { ThemenListSchema, validateThemenQuality, type ThemenItem } from './themes-schema'
+import { ThemenItemSchema, ThemenListSchema, validateThemenQuality, type ThemenItem } from './themes-schema'
 import type { Project } from '@/lib/types/prisma'
 import type { ScrapeResult } from '@/lib/scraper/client'
 
@@ -57,7 +57,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     try {
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL,
-        max_tokens: 4_096,
+        max_tokens: 8_192,
         system: prompt.system,
         messages: [{ role: 'user', content: prompt.user }],
       })
@@ -100,15 +100,47 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
 
 function parseThemesJson(text: string): ThemenItem[] {
   const fenced = text.match(/```(?:json)?[ \t]*\r?\n?([\s\S]*?)\r?\n?```/)
-  if (fenced?.[1]) {
-    return ThemenListSchema.parse(JSON.parse(fenced[1].trim()))
+  const jsonText = fenced?.[1]?.trim() ?? extractJsonText(text)
+
+  try {
+    return ThemenListSchema.parse(JSON.parse(jsonText))
+  } catch {
+    // JSON abgeschnitten (max_tokens) → vollständige Objekte salvagen
+    return salvageTruncatedArray(jsonText)
   }
+}
+
+function extractJsonText(text: string): string {
   const start = text.indexOf('[')
+  if (start === -1) return text.trim()
   const end = text.lastIndexOf(']')
-  if (start !== -1 && end > start) {
-    return ThemenListSchema.parse(JSON.parse(text.slice(start, end + 1)))
+  return end > start ? text.slice(start, end + 1) : text.slice(start)
+}
+
+function salvageTruncatedArray(text: string): ThemenItem[] {
+  const items: ThemenItem[] = []
+  let depth = 0
+  let objStart = -1
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+    if (ch === '{') {
+      if (depth === 0) objStart = i
+      depth++
+    } else if (ch === '}') {
+      depth--
+      if (depth === 0 && objStart !== -1) {
+        try {
+          const result = ThemenItemSchema.safeParse(JSON.parse(text.slice(objStart, i + 1)))
+          if (result.success) items.push(result.data)
+        } catch { /* ungültiges Objekt überspringen */ }
+        objStart = -1
+      }
+    }
   }
-  return ThemenListSchema.parse(JSON.parse(text.trim()))
+
+  if (items.length === 0) throw new Error('Keine gültigen Themen-Objekte in der Antwort gefunden')
+  return items
 }
 
 function extractStandort(scrapeResult?: ScrapeResult): string {
