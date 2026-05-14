@@ -297,5 +297,6 @@ CHECKS:
 ═══════════════════════════════════════════════
 [OK] P2-A ABGESCHLOSSEN
 ▶ Nächste Priorität: Sprint P2-B (Kalender + Kunden-Sharing)
+▶ ARCHIVIEREN: Move-Item docs/dev-prompts/sprint-p2a-editor-chat.md docs/dev-prompts/archive/
 ═══════════════════════════════════════════════
 ```

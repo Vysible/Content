@@ -279,5 +279,6 @@ CHECKS:
 ═══════════════════════════════════════════════
 [OK] P2-B ABGESCHLOSSEN
 ▶ Nächste Priorität: Sprint P2-C (E-Mail vollständig)
+▶ ARCHIVIEREN: Move-Item docs/dev-prompts/sprint-p2b-kalender-sharing.md docs/dev-prompts/archive/
 ═══════════════════════════════════════════════
 ```

@@ -301,5 +301,6 @@ CHECKS:
 [OK] P2-C ABGESCHLOSSEN
 ▶ Nächste Priorität: Sprint P2-D (DataForSEO Slice 11a — erst nach API-Vorab-Validierung)
    ODER: Phase-3-Backlog starten (Slice 27 Kosten-Tracking als erster Schritt)
+▶ ARCHIVIEREN: Move-Item docs/dev-prompts/sprint-p2c-email.md docs/dev-prompts/archive/
 ═══════════════════════════════════════════════
 ```
