@@ -4,6 +4,8 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      AUTH_SECRET: ${NEXTAUTH_SECRET}
+      AUTH_TRUST_HOST: "true"
       NEXTAUTH_URL: https://vysible.cloud
       ENCRYPTION_SECRET: ${ENCRYPTION_SECRET}
       NEXT_PUBLIC_APP_URL: https://vysible.cloud

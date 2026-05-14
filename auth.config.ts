@@ -3,6 +3,7 @@ import type { NextAuthConfig } from 'next-auth'
 // Edge-Runtime-kompatible Konfiguration (kein Prisma hier)
 export const authConfig: NextAuthConfig = {
   trustHost: true,
+  secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET,
   pages: {
     signIn: '/login',
   },
