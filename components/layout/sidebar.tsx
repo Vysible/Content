@@ -19,6 +19,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: '⊞' },
   { href: '/projects', label: 'Projekte', icon: '◈' },
   { href: '/settings/api-keys', label: 'API-Keys', icon: '⚿' },
+  { href: '/settings/password', label: 'Passwort', icon: '⚙' },
 ]
 
 export function Sidebar() {
