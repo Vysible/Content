@@ -6,7 +6,11 @@
 > **Geltungsbereich:** Alle Sprints in `docs/roadmap.md`. Ersetzt die Forge-interne
 > `Pre_Slice_Validation.md` (Forge-intern = nicht für Konsumenten-Projekte gedacht).
 >
-> **Status:** v1.0.0
+> **Abgrenzung:** Diese Datei ist der **Agent-automatische technische Gate-Check**.
+> Die **fachliche** Prüfung eines Sprint-Prompts (Scope, Architektur, Acceptance)
+> erfolgt vorher durch den `Pre_Sprint_Review.md` (PSR) — Maintainer-getrieben.
+>
+> **Status:** v1.1.0
 
 ---
 
@@ -109,6 +113,7 @@ im **selben Commit** wie die Änderung aktualisiert — nie nachträglich.
 | B TypeScript | **Hard** | nein — Maintainer |
 | C Roadmap | Soft | nein — Maintainer übersteuert |
 | D CHANGELOG | Soft | nein — Maintainer ergänzt |
+| E Tests | **Hard** | nein — Maintainer |
 
 ---
 
@@ -117,7 +122,7 @@ im **selben Commit** wie die Änderung aktualisiert — nie nachträglich.
 ### 4/4 PASS → Auto-Proceed
 
 ```
-PRE-SLICE VALIDATION — Vysible v1.0.0
+PRE-SLICE VALIDATION — Vysible v1.1.0
 ======================================
 
 Sprint: <Sprint-Name>
@@ -127,8 +132,9 @@ Checks:
   [B] TypeScript:    PASS  0 errors
   [C] Roadmap:       PASS  Vorgaenger-Sprint abgeschlossen
   [D] CHANGELOG:     PASS  [Unreleased]-Block vorhanden
+  [E] Tests:         PASS  0 failures
 
-Result: 4/4 PASS
+Result: 5/5 PASS
 
 GO — Starting Sprint implementation.
 ```
@@ -149,11 +155,27 @@ NO-GO. Sprint work blocked.
 
 ---
 
+### Check E — Tests grün (ab Sprint 2 aktiv)
+
+```powershell
+pnpm test --run
+```
+
+| Kriterium | Ergebnis |
+|---|---|
+| 0 failing tests | ✅ PASS |
+| Tests fehlgeschlagen | ❌ **Hard-FAIL** |
+
+**Bei Hard-FAIL:** `Test failures: <Anzahl>. Fix before sprint.` STOP.
+Kein Auto-Fix. Maintainer behebt Fehler.
+
+---
+
 ## Erweiterungsplan
 
 | Check | Aktivierung |
 |---|---|
-| E Test-Count (Vitest) | Nach Sprint 2 (Tests eingeführt) |
+| ~~E Test-Count (Vitest)~~ | ✅ **Aktiv seit Sprint 2 (2026-05-14)** |
 | F ESLint | Nach ESLint-Konfiguration im Projekt |
 
 ---
@@ -163,3 +185,4 @@ NO-GO. Sprint work blocked.
 | Version | Änderung |
 |---|---|
 | v1.0.0 | Initial — 4 Checks (A–D) für Vysible. Ersetzt Forge-interne Pre_Slice_Validation. |
+| v1.1.0 | Check E (Vitest) aktiviert — Sprint 2 abgeschlossen (2026-05-14). |

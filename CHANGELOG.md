@@ -6,6 +6,20 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- `docs/dev-prompts/Pre_Sprint_Review.md` (v2.0.0) — fachliche Sprint-Prompt-Prüfung
+  durch Maintainer + Cursor vor Übergabe an den Implementierungs-Agent. 8 Checks
+  (Scope, Abhängigkeiten, ADRs, Forge-Regeln, FA-/NFA-IDs, Code-Realität, Acceptance,
+  Risiken), verbindliche Check-Reihenfolge, GO/WARN/FAIL-Schwellwerte mit
+  Eskalations-Pfaden, Pflicht zu min. 2 Optionen in der Empfehlung.
+- `docs/dev-prompts/sprint-p2a-editor-chat.md` — Sprint-Prompt P2-A (Slice 6 + 8).
+- `docs/dev-prompts/sprint-p2b-kalender-sharing.md` — Sprint-Prompt P2-B (Slice 7 + 10).
+- `docs/dev-prompts/sprint-p2c-email.md` — Sprint-Prompt P2-C (Slice 19).
+
+### Changed
+- `docs/dev-prompts/Pre_Slice_Validation.md` (v1.1.0) — Check E (Vitest) aktiviert,
+  da Sprint 2 abgeschlossen. Abgrenzung zum neuen `Pre_Sprint_Review.md` ergänzt.
+
+### Added (Sprints)
 - Slice 4 — API-Key-Manager Erweiterungen (Phase-1-Restarbeiten):
   - Pro-Projekt-Key-Auswahl (FA-F-11a): `Project.apiKeyId` (nullable FK zu `ApiKey`), Prisma-Migration `20260514211000_project_api_key_selection`
   - `lib/ai/client.ts` MOD: `getAnthropicClient(projectApiKeyId?)` und `getOpenAIClient(projectApiKeyId?)` — projektspezifischer Key mit globalem Default-Fallback
