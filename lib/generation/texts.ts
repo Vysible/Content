@@ -251,9 +251,12 @@ function extractText(response: { content: Array<{ type: string; text?: string }>
 }
 
 function parseJsonBlock(text: string): unknown {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-  const jsonText = fenced ? fenced[1] : text.trim()
-  return JSON.parse(jsonText)
+  const fenced = text.match(/```(?:json)?[ \t]*\r?\n?([\s\S]*?)\r?\n?```/)
+  if (fenced?.[1]) return JSON.parse(fenced[1].trim())
+  const start = text.indexOf('{')
+  const end = text.lastIndexOf('}')
+  if (start !== -1 && end > start) return JSON.parse(text.slice(start, end + 1))
+  return JSON.parse(text.trim())
 }
 
 function extractLine(text: string, pattern: RegExp): string | undefined {

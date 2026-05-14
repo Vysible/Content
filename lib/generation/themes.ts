@@ -99,10 +99,16 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
 }
 
 function parseThemesJson(text: string): ThemenItem[] {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-  const jsonText = fenced ? fenced[1] : text.trim()
-  const parsed = JSON.parse(jsonText)
-  return ThemenListSchema.parse(parsed)
+  const fenced = text.match(/```(?:json)?[ \t]*\r?\n?([\s\S]*?)\r?\n?```/)
+  if (fenced?.[1]) {
+    return ThemenListSchema.parse(JSON.parse(fenced[1].trim()))
+  }
+  const start = text.indexOf('[')
+  const end = text.lastIndexOf(']')
+  if (start !== -1 && end > start) {
+    return ThemenListSchema.parse(JSON.parse(text.slice(start, end + 1)))
+  }
+  return ThemenListSchema.parse(JSON.parse(text.trim()))
 }
 
 function extractStandort(scrapeResult?: ScrapeResult): string {
