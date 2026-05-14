@@ -1,21 +1,34 @@
 # Pre-Sprint Review (PSR) — Vysible
 
-> **Zweck:** Fachliche Prüfung eines Sprint-Prompts **bevor** er an den Agent
-> übergeben wird. Stellt sicher, dass Scope, Architekturkonformität,
-> Compliance und Akzeptanzkriterien tragfähig sind.
+> **Zweck:** Fachliche Prüfung eines Sprint-Prompts. Stellt sicher, dass
+> Scope, Architekturkonformität, Compliance und Akzeptanzkriterien tragfähig sind.
+>
+> **Aufruf-Wege (seit v2.1.0):**
+> - **Automatisch** als Phase 0 der `Pre_Slice_Validation.md` (Agent ruft PSR
+>   zu Sprint-Beginn auf, vor den technischen Gates).
+> - **Manuell** durch Maintainer via Trigger-Phrase `PSR für <prompt-datei>`
+>   (z.B. wenn vorab geprüft werden soll, ob ein Prompt überhaupt sinnvoll ist).
 >
 > **Abgrenzung zu `Pre_Slice_Validation.md`:**
-> - Pre_Slice_Validation = Agent-automatischer Gate-Check (Working Tree, TypeScript, Tests etc.)
-> - Pre-Sprint Review = Read-only Analyse durch Maintainer + Cursor, **vor** Übergabe an den Agent.
+> - PSR (diese Datei) = fachliche Prüfung des Sprint-Prompts (Scope, ADRs, Acceptance).
+> - Pre_Slice_Validation = technische Gates (Working Tree, TypeScript, Tests).
+>   PSR ist dort Phase 0, die technischen Checks sind Phase 1.
 >
-> **Status:** v2.0.0
+> **Status:** v2.1.0
 
 ---
 
-## Trigger-Phrase
+## Aufruf
 
-Der Maintainer löst PSR explizit aus durch eine der folgenden Formulierungen
-an Cursor:
+### Variante 1 — Automatisch (Standardfall)
+
+Beim Start eines Sprints liest der Agent zuerst `Pre_Slice_Validation.md`.
+Dort ist PSR als **Phase 0** definiert — der Agent ruft diese Datei automatisch
+auf und arbeitet die 8 Checks ab. Kein manueller Trigger nötig.
+
+### Variante 2 — Manuell (Vorab-Prüfung)
+
+Der Maintainer kann PSR jederzeit vorab manuell auslösen:
 
 ```
 PSR für <prompt-datei>
@@ -27,8 +40,8 @@ Beispiele:
 - `PSR für docs/dev-prompts/sprint-p2a-editor-chat.md`
 - `Mach PSR für sprint-3-pii-encryption.md`
 
-Cursor liest dann diese Datei (`Pre_Sprint_Review.md`) komplett und arbeitet
-die 8 Checks der Reihe nach ab.
+Sinnvoll z.B. wenn der Maintainer einen Prompt überarbeiten will, bevor er
+ihn überhaupt an den Agent übergibt.
 
 ---
 
@@ -408,13 +421,18 @@ ob ein neuer PSR-Lauf nötig ist nach:
 
 ## Brücke zur Sprint-Implementierung
 
-Bei **GO** oder **GO-MIT-ANPASSUNGEN** (nach Erledigung der Anpassungen)
-folgt direkt die Sprint-Implementierung. Der Agent startet automatisch
-mit der `Pre_Slice_Validation.md` (5 Hard/Soft-Checks).
+Wenn PSR im automatischen Aufruf (Phase 0 der Pre_Slice_Validation) läuft:
 
-PSR und Pre_Slice_Validation **ergänzen sich**:
-- PSR = fachliche Prüfung (vor Agent-Start, durch Maintainer + Cursor)
-- Pre_Slice_Validation = technische Prüfung (am Agent-Start, durch Agent)
+| PSR-Result | Aktion |
+|---|---|
+| **GO** | Auto-proceed zu Phase 1 (technische Gates) |
+| **GO-MIT-ANPASSUNGEN** (≤3 WARN) | STOP – Maintainer-Override: `GO trotz WARN: <Begründung>` |
+| **GO-MIT-ANPASSUNGEN** (>3 WARN) | STOP – Prompt überarbeiten |
+| **NO-GO** | Hard-STOP – Maintainer-Eingriff |
+| **NO-GO-LIGHT** | Hard-STOP – Prompt überarbeiten, erneuter Lauf |
+
+Bei **manuellem Aufruf** (Variante 2): PSR liefert nur den Bericht, der
+Maintainer entscheidet anschließend selbst, ob er den Sprint startet.
 
 ---
 
@@ -424,3 +442,4 @@ PSR und Pre_Slice_Validation **ergänzen sich**:
 |---|---|
 | v1.0.0 | Initial — 7 PSR-Checks + Output-Format + Beispiel |
 | v2.0.0 | Trigger-Phrase, 8 Checks (Forge-Compliance + Anforderungs-IDs separat), verbindliche Reihenfolge, scharfe GO/NO-GO-Schwellen, Eskalations-Tabelle, Mindest-Optionen-Regel, NO-GO-Beispiel, Brücke zu Pre_Slice_Validation |
+| v2.1.0 | PSR ist nun Phase 0 der Pre_Slice_Validation (automatischer Aufruf). Manueller Aufruf bleibt als Variante 2 erhalten. Override-Syntax `GO trotz WARN: ...` ergänzt. |

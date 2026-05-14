@@ -6,18 +6,25 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
-- `docs/dev-prompts/Pre_Sprint_Review.md` (v2.0.0) — fachliche Sprint-Prompt-Prüfung
-  durch Maintainer + Cursor vor Übergabe an den Implementierungs-Agent. 8 Checks
-  (Scope, Abhängigkeiten, ADRs, Forge-Regeln, FA-/NFA-IDs, Code-Realität, Acceptance,
-  Risiken), verbindliche Check-Reihenfolge, GO/WARN/FAIL-Schwellwerte mit
-  Eskalations-Pfaden, Pflicht zu min. 2 Optionen in der Empfehlung.
+- `docs/dev-prompts/Pre_Sprint_Review.md` (v2.1.0) — fachliche Sprint-Prompt-Prüfung
+  mit 8 Checks (Scope, Abhängigkeiten, ADRs, Forge-Regeln, FA-/NFA-IDs, Code-Realität,
+  Acceptance, Risiken). Wird automatisch als Phase 0 der Pre_Slice_Validation
+  aufgerufen; manueller Aufruf via `PSR für <prompt-datei>` weiterhin möglich.
 - `docs/dev-prompts/sprint-p2a-editor-chat.md` — Sprint-Prompt P2-A (Slice 6 + 8).
 - `docs/dev-prompts/sprint-p2b-kalender-sharing.md` — Sprint-Prompt P2-B (Slice 7 + 10).
 - `docs/dev-prompts/sprint-p2c-email.md` — Sprint-Prompt P2-C (Slice 19).
 
 ### Changed
-- `docs/dev-prompts/Pre_Slice_Validation.md` (v1.1.0) — Check E (Vitest) aktiviert,
-  da Sprint 2 abgeschlossen. Abgrenzung zum neuen `Pre_Sprint_Review.md` ergänzt.
+- `docs/dev-prompts/Pre_Slice_Validation.md` (v1.2.0):
+  - **Phase 0 (PSR) als automatischer Auto-Aufruf** zu Sprint-Beginn integriert.
+    Maintainer muss PSR nicht mehr manuell triggern.
+  - Override-Syntax `GO trotz WARN: <Begründung>` für Phase-0-WARN-Fälle (Variante B,
+    pragmatisch).
+  - **Whitelist für Check A (Working Tree):** Dirty Files unter `docs/dev-prompts/`,
+    `docs/forge-migration-audit.md` und `docs/ERROR-Log.md` lösen kein STOP mehr aus —
+    nur Hinweis im Bericht. Verhindert nervigen Hard-FAIL beim Anlegen neuer
+    Sprint-Prompts oder Archiv-Verschiebungen.
+  - Check E (Vitest) aktiviert (war seit v1.1.0).
 
 ### Added (Sprints)
 - Pipeline — Canva-Context-Injektion (Phase-1-Restarbeiten):
