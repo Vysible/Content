@@ -18,6 +18,8 @@ function VysibleLogo({ className }: { className?: string }) {
 const navItems = [
   { href: '/', label: 'Dashboard', icon: '⊞' },
   { href: '/projects', label: 'Projekte', icon: '◈' },
+  { href: '/projects/new', label: 'Neues Projekt', icon: '+' },
+  { href: '/kpi', label: 'Social-KPIs', icon: '↗' },
   { href: '/settings/api-keys', label: 'API-Keys', icon: '⚿' },
   { href: '/settings/password', label: 'Passwort', icon: '⚙' },
 ]
@@ -27,13 +29,11 @@ export function Sidebar() {
 
   return (
     <aside className="w-56 flex-shrink-0 bg-nachtblau text-creme flex flex-col h-screen sticky top-0">
-      {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-5 border-b border-tiefblau">
         <VysibleLogo className="w-8 h-8 text-cognac" />
         <span className="font-bold text-sm tracking-wide">Vysible</span>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 py-4 px-2 space-y-1">
         {navItems.map((item) => {
           const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
@@ -55,7 +55,6 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Abmelden */}
       <div className="p-2 border-t border-tiefblau">
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
