@@ -24,8 +24,8 @@ Bekannte Abweichungen: `docs/forge-web-deviations.md`
 | **4** Quality & Scale | ~0 % | — |
 
 **Nächste Prioritäten:**
-1. Sprint 0: Resilience-Fixes (stille Catches, Retry-Wrapper) + `generation_jobs`-DB-Tabelle (NFA-18)
-2. Sprint 1: Slice 28 — Audit-Log, Compliance-Gate (HWG), Review-Workflow (aus Konzept v6 FA-B-11/12/13, FA-F-31)
+1. ~~Sprint 0: Resilience-Fixes + `generation_jobs`-DB-Tabelle~~ ✅ Abgeschlossen (2026-05-14)
+2. Sprint 1: Slice 28 — Audit-Log, Compliance-Gate (HWG), Review-Workflow (FA-B-11/12/13, FA-F-31)
 3. Sprint 2: Tests (Vitest + Playwright E2E, NFA-16)
 
 ## Tech-Stack
@@ -66,6 +66,34 @@ templates/*.yaml          Fachgebiet-Templates
 prisma/schema.prisma      DB-Schema
 ```
 
+## Governance-Regeln (verbindlich für alle KI-Agenten)
+
+Die vollständigen Regeln liegen in `.cursor/rules/` (Cursor injiziert sie automatisch).  
+Bei Arbeit **ohne Cursor** (z.B. Claude API, ChatGPT, Windsurf) gelten diese Kernprinzipien zwingend:
+
+### Sicherheit
+- **Keine Secrets im Code.** API-Keys, Passwörter, Tokens ausschliesslich via `process.env`. Nie hardcoden, nie committen.
+- **Keine PII in Logs.** Nur IDs loggen, nie E-Mail, Name, Telefon.
+- **AES-256-GCM** für alle externen API-Keys — einzige Stelle: `lib/crypto/aes.ts`.
+
+### Resilience (IO-Calls)
+- **Kein stiller Catch.** Jeder `catch`-Block muss loggen oder re-throwen — `catch {}` ist verboten.
+- **Retry auf alle externen Calls.** `scrapeUrl`, AI-Calls, `sendMail` etc. über `lib/utils/retry.ts` (`withRetry`) wrappen.
+- **Kein `rejectUnauthorized: false`** hardcoded — SSL-Verhalten immer via Config.
+
+### Code-Qualität
+- **Keine Duplikation.** Vor jedem neuen Helper/Funktion: prüfen ob bereits vorhanden.
+- **Server vs. Client Components.** `'use client'` nur wenn Hooks oder Browser-APIs genutzt werden.
+- **Daten-Fetch in Server Components**, nicht in Client Components (ausser bei User-Interaktion).
+
+### Commits & Changelog
+- **CHANGELOG.md** wird im selben Commit aktualisiert wie die Änderung — nie als Follow-up.
+- **Kein Commit ohne explizite Anfrage** durch den Nutzer.
+
+### Prompts
+- **KI-Prompts gehören in `/prompts/*.yaml`** — nie als String im TypeScript-Code.
+- **Vibe-Coding-Prompts** (Entwicklerprompts) in `docs/dev-prompts/`.
+
 ## Konventionen
 
 - Deutsche UI-Texte, englische Code-Bezeichner
@@ -73,7 +101,6 @@ prisma/schema.prisma      DB-Schema
 - Kein `var`, immer `const`/`let`
 - Alle externen API-Keys AES-256-verschlüsselt, nie im Frontend
 - Kein PII in Logs — nur IDs
-- Forge-Regeln in `.cursor/rules/` sind verbindlich
 
 ## Sicherheits-Constraints
 
