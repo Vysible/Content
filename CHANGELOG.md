@@ -5,6 +5,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Sidebar: Menüpunkt "Ergebnisansicht" (`/results`) wiederhergestellt — war in Commit `fd71beb` versehentlich entfernt worden; Icon und Reihenfolge entsprechen wieder dem Stand vor dem Verlust
+- Production-Deploy (`vysible.cloud`): Root Cause identifiziert — Coolify-App `f58gu47l7uwwchjhhd25c0gy` lief seit Stunden auf Commit `90948c4`; manueller Re-Deploy über SSH ausgelöst
+
 ### Added
 - Sprint 2 — Test-Infrastruktur (NFA-16):
   - Vitest 4 Setup: `vitest.config.ts`, Prisma-Mock in `__tests__/setup.ts`, Coverage-Provider v8 (60 %-Schwelle)
