@@ -12,16 +12,16 @@ jobs:
     steps:
       - name: Trigger Coolify Deploy
         run: |
-          echo "Calling Coolify API..."
           HTTP_CODE=$(curl -s -o /tmp/response.txt -w "%{http_code}" \
             -X GET \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
             --connect-timeout 10 \
-            "http://72.62.115.121:8000/api/v1/deploy?uuid=nndzr03dlpcfony81kja6lb6&force=true" 2>&1)
+            "http://72.62.115.121:8000/api/v1/deploy?uuid=f58gu47l7uwwchjhhd25c0gy&force=true")
           echo "HTTP Status: $HTTP_CODE"
           echo "Response: $(cat /tmp/response.txt)"
           if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
             echo "Deploy triggered successfully"
           else
-            echo "Warning: Unexpected status $HTTP_CODE - check if port 8000 is reachable"
+            echo "Warning: Unexpected status $HTTP_CODE"
+            exit 1
           fi
