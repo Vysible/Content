@@ -7,7 +7,10 @@ import { writeAuditLog } from '@/lib/audit/logger'
 const reviewSchema = z.object({
   reviewMode: z.enum(['SIMPLE', 'COMPLETE']).optional(),
   hwgFlag:    z.boolean().optional(),
-})
+}).refine(
+  (data) => data.reviewMode !== undefined || data.hwgFlag !== undefined,
+  { message: 'Mindestens ein Feld (reviewMode oder hwgFlag) muss angegeben werden.' }
+)
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await requireAuth()
@@ -25,6 +28,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   if (!project) {
     return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
+  }
+
+  if (project.createdById !== session.user.id) {
+    return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 })
   }
 
   const updateData: { reviewMode?: 'SIMPLE' | 'COMPLETE'; hwgFlag?: boolean } = {}

@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { encrypt } from '@/lib/crypto/aes'
+import { writeAuditLog } from '@/lib/audit/logger'
 
 const createSchema = z.object({
   name: z.string().min(1).max(100),
@@ -64,6 +65,15 @@ export async function POST(req: NextRequest) {
   })
 
   console.log(`[Vysible] API-Key erstellt: ${provider} / ${name} (User: ${session.user.id})`)
+
+  await writeAuditLog({
+    action:    'api_key.create',
+    entity:    'ApiKey',
+    entityId:  apiKey.id,
+    userId:    session.user.id,
+    userEmail: session.user.email ?? undefined,
+    meta:      { name: apiKey.name, provider: apiKey.provider },
+  })
 
   return NextResponse.json(apiKey, { status: 201 })
 }

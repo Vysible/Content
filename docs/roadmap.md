@@ -33,7 +33,7 @@ Keine neuen Features. Technische Schuld die jeden Folgesprint blockiert.
 | `withRetry`-Wrapper für `scrapeUrl`, AI-Calls, `sendMail` | NFA-06: kein Exponential-Backoff | `resilience.mdc §3c` |
 | SMTP-Config in eigenes Prisma-Modell `SmtpConfig` | HEDY-Provider-Hack bereinigen | — |
 
-### Sprint 1 — Slice 28: Compliance & Governance (ca. 3 Tage)
+### Sprint 1 — Slice 28: Compliance & Governance ✅ Abgeschlossen (2026-05-14)
 
 P1-Anforderungen aus Konzept v6, die in plan.md v6.1 fehlen (ADR-005).
 

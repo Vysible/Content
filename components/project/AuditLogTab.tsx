@@ -7,7 +7,7 @@ interface AuditEntry {
   action:    string
   entity:    string
   entityId:  string | null
-  userEmail: string | null
+  userId:    string | null
   meta:      Record<string, unknown> | null
   createdAt: string
 }
@@ -19,7 +19,7 @@ export function AuditLogTab({ projectId }: { projectId: string }) {
   useEffect(() => {
     fetch(`/api/projects/${projectId}/audit`)
       .then((r) => r.json())
-      .then((data) => setLogs(Array.isArray(data) ? data : []))
+      .then((data: { logs: AuditEntry[] }) => setLogs(data.logs ?? []))
       .catch((err: unknown) => console.error('[Vysible] AuditLogTab fetch failed:', err))
       .finally(() => setLoading(false))
   }, [projectId])
@@ -36,9 +36,6 @@ export function AuditLogTab({ projectId }: { projectId: string }) {
               <span className="text-xs font-mono bg-stone text-anthrazit px-1.5 py-0.5 rounded">
                 {log.action}
               </span>
-              {log.userEmail && (
-                <span className="text-xs text-stahlgrau truncate">{log.userEmail}</span>
-              )}
             </div>
             {log.meta && Object.keys(log.meta).length > 0 && (
               <p className="text-xs text-stahlgrau mt-1 font-mono">

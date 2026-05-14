@@ -4,6 +4,7 @@ import { createJob } from '@/lib/generation/job-store'
 import { runGenerationPipeline } from '@/lib/generation/pipeline'
 import { tryEnqueue } from '@/lib/generation/queue'
 import { rateLimit } from '@/lib/ratelimit'
+import { writeAuditLog } from '@/lib/audit/logger'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -42,6 +43,15 @@ export async function POST(req: Request) {
   }
 
   const job = await createJob(projectId)
+
+  await writeAuditLog({
+    action:    'generation.start',
+    entity:    'Project',
+    entityId:  projectId,
+    projectId: projectId,
+    userId:    userId,
+    meta:      { jobId: job.id, channels: project.channels },
+  })
 
   await tryEnqueue(job.id, () => runGenerationPipeline(job.id, project))
 
