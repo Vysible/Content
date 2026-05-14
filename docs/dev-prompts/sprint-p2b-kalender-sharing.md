@@ -110,7 +110,8 @@ StoredTextResult-Schema                           NICHT anfassen
 
 // NACHHER:
 } catch (err: unknown) {
-  logger.error('[Vysible] Kalender-Verschiebung konnte nicht gespeichert werden:', err)
+  // Client-Component → console.* mit '[Vysible]'-Prefix (lib/utils/logger.ts ist server-only)
+  console.error('[Vysible] Kalender-Verschiebung konnte nicht gespeichert werden:', err)
   // Rollback: ursprünglichen Zustand wiederherstellen
   setItems(items) // items = Zustand vor der Änderung
 } finally {
@@ -147,7 +148,7 @@ neuen Catch: `items`-Snapshot vor dem Update speichern und bei Fehler wiederhers
 ### Acceptance Checklist
 
 - [ ] Drag-and-Drop zwischen Monaten: Item wechselt Monat + API gespeichert
-- [ ] API-Fehler beim Drag: Item springt zum Original-Monat zurück + `logger.error`
+- [ ] API-Fehler beim Drag: Item springt zum Original-Monat zurück + `console.error('[Vysible] …', err)` (Client-Component)
 - [ ] Farbcodierung: Ausstehend (grau) / In Bearbeitung (gelb) / Freigegeben (grün) / Veröffentlicht (blau)
 - [ ] Wenn `wpDraftStatus` im StoredTextResult vorhanden: separater WP-Badge im Kalender-Item
 - [ ] Legende unter Kalender aktualisiert wenn neuer Badge hinzugefügt

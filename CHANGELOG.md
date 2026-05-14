@@ -60,6 +60,11 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   Sprint-Prompts dokumentieren die Trennung sauber, ohne DRIFT-Eintrag pro
   Sprint zu produzieren. Wird obsolet, sobald Browser-Logger eingeführt ist
   (siehe `OpenActions.md` Backlog-Punkt 2).
+- Folgekorrektur: `docs/dev-prompts/sprint-p2b-kalender-sharing.md` enthielt
+  zwei verbleibende Inkonsistenzen — Code-Beispiel `handleDrop` und Acceptance-
+  Bullet zum Drag-Fehler nutzten `logger.error` für eine Client-Component
+  (`ContentCalendar.tsx`). Beide auf `console.error('[Vysible] …', err)` mit
+  Inline-Kommentar zur Begründung umgestellt.
 
 ### Fixed
 - Editor-Autosave: Stiller Catch in `EditorView.tsx` und `ResultsTabs.tsx`-Autosave durch
