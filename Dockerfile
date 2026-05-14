@@ -33,6 +33,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# YAML-Prompts und Templates (werden von loadPrompt via fs.readFileSync gelesen)
+COPY --from=builder /app/prompts ./prompts
+COPY --from=builder /app/templates ./templates
+
 # Prisma für Migrationen
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
