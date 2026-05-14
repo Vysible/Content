@@ -5,7 +5,18 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Added
+- `ShareAccess.tsx`: Newsletter-Abschnitt im Kunden-Freigabelink — Betreff A/B,
+  Preheader und Body (HTML) werden read-only angezeigt, Abschnitt nur sichtbar
+  wenn Daten vorhanden (Sprint P2-B, Sub-Slice B, Slice 10 — FA-F-26).
+- `ShareAccess.tsx`: Social-Media-Abschnitt im Kunden-Freigabelink — Instagram,
+  Facebook und LinkedIn Posts mit Text und Zeichenzahl-Anzeige (Limit-Überschreitung
+  in Rot), pro Monat gruppiert, read-only (Sprint P2-B, Sub-Slice B, Slice 10).
+
 ### Fixed
+- `ShareAccess.tsx`: `verify()` hatte `try/finally` ohne `catch` — Netzwerkfehler
+  wurden still geschluckt. Neu: `catch` zeigt "Verbindungsfehler"-Meldung und
+  loggt via `console.error('[Vysible] …')` (Option A, Sprint P2-B — Forge `resilience §3a`).
 - `ContentCalendar.tsx`: Stiller `try/finally`-Block in `handleDrop` durch
   `catch` mit UI-Rollback ersetzt — bei API-Fehler springt das Item zum
   Ursprungsmonat zurück und `console.error('[Vysible] …')` wird geloggt
