@@ -81,7 +81,7 @@ async function generateBlogPost(args: {
   const anthropic = await getAnthropicClient()
   const response = await anthropic.messages.create({
     model: DEFAULT_MODEL,
-    max_tokens: 2_048,
+    max_tokens: 4_096,
     system: prompt.system,
     messages: [{ role: 'user', content: prompt.user }],
   })
@@ -118,7 +118,7 @@ async function generateNewsletter(args: {
   const anthropic = await getAnthropicClient()
   const response = await anthropic.messages.create({
     model: DEFAULT_MODEL,
-    max_tokens: 1_024,
+    max_tokens: 2_048,
     system: prompt.system,
     messages: [{ role: 'user', content: prompt.user }],
   })
@@ -136,9 +136,9 @@ async function generateNewsletter(args: {
 }
 
 function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
-  const betreffA = extractLine(raw, /Betreff\s*A\s*[::：]/i) ?? theme.seoTitel
-  const betreffB = extractLine(raw, /Betreff\s*B\s*[::：]/i) ?? `${theme.seoTitel} – Ihr Termin wartet`
-  const preheader = extractLine(raw, /Preheader\s*[::：]/i) ?? theme.seoTitel.slice(0, 80)
+  const betreffA = extractLine(raw, /Betreff\s*A\s*[::]/i) ?? theme.seoTitel
+  const betreffB = extractLine(raw, /Betreff\s*B\s*[::]/i) ?? `${theme.seoTitel} – Ihr Termin wartet`
+  const preheader = extractLine(raw, /Preheader\s*[::]/i) ?? theme.seoTitel.slice(0, 80)
 
   const bodyStart = raw.search(/\n\n/)
   const body = bodyStart > -1 ? raw.slice(bodyStart).trim() : raw
@@ -177,7 +177,7 @@ async function generateSocialPosts(args: {
   const anthropic = await getAnthropicClient()
   const response = await anthropic.messages.create({
     model: DEFAULT_MODEL,
-    max_tokens: 512,
+    max_tokens: 1_024,
     system: prompt.system,
     messages: [{ role: 'user', content: prompt.user }],
   })
@@ -225,7 +225,7 @@ async function generateImageBrief(args: {
   const anthropic = await getAnthropicClient()
   const response = await anthropic.messages.create({
     model: DEFAULT_MODEL,
-    max_tokens: 512,
+    max_tokens: 1_024,
     system: prompt.system,
     messages: [{ role: 'user', content: prompt.user }],
   })

@@ -104,7 +104,7 @@ function parseThemesJson(text: string): ThemenItem[] {
 
   try {
     return ThemenListSchema.parse(JSON.parse(jsonText))
-  } catch {
+  } catch (_e) {
     // JSON abgeschnitten (max_tokens) → vollständige Objekte salvagen
     return salvageTruncatedArray(jsonText)
   }
@@ -133,7 +133,7 @@ function salvageTruncatedArray(text: string): ThemenItem[] {
         try {
           const result = ThemenItemSchema.safeParse(JSON.parse(text.slice(objStart, i + 1)))
           if (result.success) items.push(result.data)
-        } catch { /* ungültiges Objekt überspringen */ }
+        } catch (_e) { /* ungültiges Objekt überspringen */ }
         objStart = -1
       }
     }

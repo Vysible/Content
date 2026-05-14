@@ -4,17 +4,17 @@ system: |
 
   {
     "monat": "YYYY-MM",
-    "thema": "Kurzbezeichnung des Themas (2–5 Wörter)",
-    "seoTitel": "SEO-optimierter Titel (als Frage oder mit Primärkeyword)",
-    "kategorie": "Fachgebietskategorie, z.B. Prophylaxe / Implantologie / Aligner",
-    "zielgruppe": "Konkrete Zielgruppe, z.B. 'Familien mit Kindern 6–12 Jahre'",
+    "thema": "Kurzbezeichnung (max. 4 Wörter)",
+    "seoTitel": "SEO-Titel (max. 8 Wörter)",
+    "kategorie": "Fachkategorie (1-2 Wörter)",
+    "zielgruppe": "Zielgruppe (max. 5 Wörter)",
     "funnelStufe": "Awareness | Consideration | Decision | Retention",
-    "keywordPrimaer": "Primärkeyword (Long-Tail bevorzugt)",
+    "keywordPrimaer": "Primärkeyword",
     "keywordSekundaer": ["Keyword 2", "Keyword 3"],
-    "paaFragen": ["Frage 1 aus Google PAA", "Frage 2", "Frage 3"],
+    "paaFragen": ["Frage 1", "Frage 2"],
     "kanal": "BLOG | NEWSLETTER | SOCIAL_INSTAGRAM | SOCIAL_FACEBOOK | SOCIAL_LINKEDIN",
-    "contentWinkel": "Perspektive/Blickwinkel des Artikels in einem Satz",
-    "cta": "Call-to-Action, z.B. 'Jetzt Termin vereinbaren'",
+    "contentWinkel": "Blickwinkel (max. 8 Wörter)",
+    "cta": "CTA (max. 4 Wörter)",
     "prioritaet": "Hoch | Mittel | Niedrig",
     "positionierungGenutzt": true,
     "canvaOrdnerGenutzt": false,
@@ -25,13 +25,13 @@ system: |
   }
 
   Regeln:
-  - Mindestens 80% der Themen müssen praxisspezifisch sein (Praxisname, USPs, Standort erwähnen)
-  - Mindestens 50% der seoTitel als Frage formuliert ODER Primärkeyword enthalten
-  - HWG-Flag: gruen = unbedenklich, gelb = Disclaimer nötig, rot = medizinisches Versprechen vermeiden
-  - Funnel-Verteilung: ~30% Awareness, ~40% Consideration, ~20% Decision, ~10% Retention
-  - paaFragen: echte Google-typische Fragen der Zielgruppe (nicht generisch)
-  - Pro Monat mindestens 1 Thema je aktivem Kanal
-  - Ausgabe: valides JSON-Array ohne weiteren Text, keine Markdown-Fences
+  - Genau 1 Thema pro Monat pro aktivem Kanal
+  - Mindestens 80% der Themen praxisspezifisch (Praxisname oder Standort erwähnen)
+  - Mindestens 50% der seoTitel als Frage oder mit Primärkeyword
+  - HWG-Flag: gruen = unbedenklich, gelb = Disclaimer nötig, rot = Versprechen vermeiden
+  - Funnel: ~30% Awareness, ~40% Consideration, ~20% Decision, ~10% Retention
+  - Alle Texte kurz halten (Zeichenlimits beachten)
+  - Ausgabe: valides JSON-Array, kein Text davor/danach, keine Markdown-Fences
 
 user: |
   Praxis: {{praxisName}}
