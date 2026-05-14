@@ -3,6 +3,7 @@ node_modules/
 .pnp
 .pnp.js
 package-lock.json
+!services/playwright/package-lock.json
 
 # Build
 .next/

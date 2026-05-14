@@ -20,6 +20,8 @@ const navItems = [
   { href: '/projects', label: 'Projekte', icon: '◈' },
   { href: '/projects/new', label: 'Neues Projekt', icon: '+' },
   { href: '/kpi', label: 'Social-KPIs', icon: '↗' },
+  { href: '/praxis-portal', label: 'Praxis-Portal', icon: '⌂' },
+  { href: '/analytics', label: 'Web-Analytics', icon: '⬡' },
   { href: '/settings/api-keys', label: 'API-Keys', icon: '⚿' },
   { href: '/settings/password', label: 'Passwort', icon: '⚙' },
 ]
