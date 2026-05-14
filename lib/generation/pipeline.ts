@@ -74,7 +74,6 @@ async function runStep(
     case 'scrape_done': {
       const result = await scrapeUrl(project.praxisUrl)
       ctx.scrapeResult = result
-      // Scrape-Ergebnis in DB persistieren (für Retry ohne erneutes Scraping)
       await prisma.project.update({
         where: { id: project.id },
         data: { scrapedData: JSON.parse(JSON.stringify(result)) },
@@ -109,7 +108,6 @@ async function runStep(
     }
 
     case 'canva_loaded':
-      // Slice 17: Canva-Assets – noch nicht aktiv
       emitEvent(jobId, { type: 'canva_loaded', data: { skipped: true }, timestamp: now() })
       break
 
@@ -145,12 +143,10 @@ async function runStep(
     }
 
     case 'plans_done':
-      // Slice 12: Redaktionsplan = Themen nach Monat/Kanal sortiert (kein eigener AI-Call)
       emitEvent(jobId, { type: 'plans_done', timestamp: now() })
       break
 
     case 'texts_done': {
-      // Themen aus DB laden falls ctx leer (Retry-Fall)
       const themes =
         ctx.themes ??
         ((project.themeResults as unknown as ThemenItem[] | null) ?? [])
@@ -173,7 +169,6 @@ async function runStep(
         },
       })
 
-      // E-Mail-Benachrichtigung (Slice 19)
       sendNotification('generation_complete', project.name).catch(() => {})
 
       emitEvent(jobId, {

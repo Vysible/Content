@@ -30,7 +30,7 @@ model ApiKey {
   encryptedKey String
   model        String?
   active       Boolean   @default(true)
-  expiresAt    DateTime? // Slice 26: Token-Ablauf-Warnsystem
+  expiresAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -45,24 +45,24 @@ model Project {
   name                String
   praxisUrl           String
   praxisName          String?
-  fachgebiet          String?       // ZAHNARZT, KFO, GYNAEKOLOGE, ...
+  fachgebiet          String?
   planningStart       DateTime
   planningEnd         DateTime
-  channels            String[]      // ["BLOG","NEWSLETTER","SOCIAL_INSTAGRAM",...]
-  positioningDocument String?       // Markdown, max. ~4.000 Tokens
+  channels            String[]
+  positioningDocument String?
   themenPool          String?
   keywords            String[]
   canvaFolderId       String?
-  wpUrl               String?       // Slice 22: WordPress-URL
-  ktListId            String?       // Slice 23: Klick-Tipp Listen-ID
-  scrapedData         Json?         // ScrapeResult-Snapshot
-  themeResults        Json?         // ThemenItem[] – Slice 12
-  textResults         Json?         // TextResult[] – Slice 13
+  wpUrl               String?
+  ktListId            String?
+  scrapedData         Json?
+  themeResults        Json?
+  textResults         Json?
   status              ProjectStatus @default(DRAFT)
   shareLinks          ShareLink[]
-  praxisUsers         PraxisUser[]  // Slice 21
-  comments            Comment[]     // Slice 21
-  costReports         CostReport[]  // Slice 24
+  praxisUsers         PraxisUser[]
+  comments            Comment[]
+  costReports         CostReport[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -102,7 +102,6 @@ model ShareLink {
   @@index([projectId])
 }
 
-// Slice 21 – Praxis-Portal
 model PraxisUser {
   id            String    @id @default(cuid())
   projectId     String
@@ -111,7 +110,7 @@ model PraxisUser {
   name          String
   inviteToken   String    @unique @default(cuid())
   inviteExpires DateTime
-  active        Boolean   @default(false) // wird true nach erstem Login
+  active        Boolean   @default(false)
   createdAt     DateTime  @default(now())
 
   @@index([inviteToken])
@@ -122,23 +121,22 @@ model Comment {
   id           String   @id @default(cuid())
   projectId    String
   project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  contentIndex Int      // Index in textResults[]
+  contentIndex Int
   text         String
   authorName   String
-  authorRole   String   @default("praxis") // "praxis" | "agentur"
+  authorRole   String   @default("praxis")
   createdAt    DateTime @default(now())
 
   @@index([projectId, contentIndex])
 }
 
-// Slice 24 – KPI-Dashboard / Monatsreport
 model CostReport {
   id        String   @id @default(cuid())
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  month     String   // YYYY-MM
+  month     String
   totalEur  Float
-  breakdown Json     // { themes, blog, newsletter, social, chat, ... }
+  breakdown Json
   pdfPath   String?
   createdAt DateTime @default(now())
 

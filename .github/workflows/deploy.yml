@@ -1,0 +1,18 @@
+name: Deploy to Coolify
+
+on:
+  push:
+    branches:
+      - claude/migrate-app-to-server-cqjn5
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify Deploy
+        run: |
+          curl -sf -X GET \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
+            "http://72.62.115.121:8000/api/v1/deploy?uuid=nndzr03dlpcfony81kja6lb6&force=true"
+          echo "Deploy triggered"

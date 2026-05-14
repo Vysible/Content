@@ -17,7 +17,7 @@ import type { Project } from '@/lib/types/prisma'
 interface TextsInput {
   project: Project
   themes: ThemenItem[]
-  positioningContext: string // aus buildContext().systemContext
+  positioningContext: string
 }
 
 export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
@@ -61,8 +61,6 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
   return results
 }
 
-// ── Blog ──────────────────────────────────────────────────────────────────────
-
 async function generateBlogPost(args: {
   theme: ThemenItem
   project: Project
@@ -77,7 +75,7 @@ async function generateBlogPost(args: {
     keywordPrimaer: theme.keywordPrimaer,
     paaFragen: theme.paaFragen.join('\n'),
     positionierungsdokument: positioningContext.slice(0, 6_000),
-    tonalitaet: 'professionell, empathisch, verständlich',
+    tonalität: 'professionell, empathisch, verständlich',
   })
 
   const anthropic = await getAnthropicClient()
@@ -101,8 +99,6 @@ async function generateBlogPost(args: {
 
   return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount }
 }
-
-// ── Newsletter ────────────────────────────────────────────────────────────────
 
 async function generateNewsletter(args: {
   theme: ThemenItem
@@ -140,9 +136,9 @@ async function generateNewsletter(args: {
 }
 
 function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
-  const betreffA = extractLine(raw, /Betreff\s*A\s*[:：]/i) ?? theme.seoTitel
-  const betreffB = extractLine(raw, /Betreff\s*B\s*[:：]/i) ?? `${theme.seoTitel} – Ihr Termin wartet`
-  const preheader = extractLine(raw, /Preheader\s*[:：]/i) ?? theme.seoTitel.slice(0, 80)
+  const betreffA = extractLine(raw, /Betreff\s*A\s*[::：]/i) ?? theme.seoTitel
+  const betreffB = extractLine(raw, /Betreff\s*B\s*[::：]/i) ?? `${theme.seoTitel} – Ihr Termin wartet`
+  const preheader = extractLine(raw, /Preheader\s*[::：]/i) ?? theme.seoTitel.slice(0, 80)
 
   const bodyStart = raw.search(/\n\n/)
   const body = bodyStart > -1 ? raw.slice(bodyStart).trim() : raw
@@ -157,8 +153,6 @@ function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
     cta: theme.cta,
   }
 }
-
-// ── Social ────────────────────────────────────────────────────────────────────
 
 async function generateSocialPosts(args: {
   theme: ThemenItem
@@ -214,8 +208,6 @@ async function generateSocialPosts(args: {
   return posts
 }
 
-// ── Bildbriefing ──────────────────────────────────────────────────────────────
-
 async function generateImageBrief(args: {
   theme: ThemenItem
   project: Project
@@ -250,8 +242,6 @@ async function generateImageBrief(args: {
   const parsed = parseJsonBlock(raw)
   return ImageBriefSchema.parse(parsed)
 }
-
-// ── Hilfsfunktionen ───────────────────────────────────────────────────────────
 
 function extractText(response: { content: Array<{ type: string; text?: string }> }): string {
   return response.content
