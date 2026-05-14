@@ -70,8 +70,8 @@ export async function fetchKeywordSuggestions(
         await trackCost({ projectId, model: 'dataseo', inputTokens: 0, outputTokens: 0, step: 'dataseo' })
       }
     }
-  } catch {
-    // DataForSEO nicht erreichbar – graceful degradation
+  } catch (err: unknown) {
+    console.warn('[Vysible] [WARN] DataForSEO Autocomplete nicht erreichbar — graceful degradation:', err)
   }
 
   // PAA-Fragen via Related Keywords
@@ -92,8 +92,8 @@ export async function fetchKeywordSuggestions(
         results.push({ keyword: item.keyword, type: 'paa' })
       }
     }
-  } catch {
-    // graceful degradation
+  } catch (err: unknown) {
+    console.warn('[Vysible] [WARN] DataForSEO PAA nicht erreichbar — graceful degradation:', err)
   }
 
   return results

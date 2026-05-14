@@ -1,77 +1,107 @@
 import { EventEmitter } from 'events'
-import type { JobState, JobStatus, GenerationEvent, GenerationStep } from './types'
+import { Prisma } from '@prisma/client'
+import { prisma } from '@/lib/db'
+import type { GenerationEvent, GenerationStep, JobState, JobStatus } from './types'
+import { GENERATION_STEPS } from './types'
 
-// EventEmitter separat vom serialisierbaren State halten
-const stateMap = new Map<string, JobState>()
+// EventEmitters leben ausschliesslich im Speicher (nicht serialisierbar).
+// Der persistierbare JobState wird in der DB gespeichert (GenerationJob-Tabelle).
 const emitterMap = new Map<string, EventEmitter>()
 
-// Globaler Singleton (überlebt HMR in dev + Next.js module caching)
 const g = globalThis as unknown as {
-  _vysibleJobStates?: Map<string, JobState>
   _vysibleJobEmitters?: Map<string, EventEmitter>
 }
-
-if (!g._vysibleJobStates) g._vysibleJobStates = stateMap
 if (!g._vysibleJobEmitters) g._vysibleJobEmitters = emitterMap
-
-const states: Map<string, JobState> = g._vysibleJobStates
 const emitters: Map<string, EventEmitter> = g._vysibleJobEmitters
 
-const JOB_TTL_MS = 2 * 60 * 60 * 1000 // 2 Stunden
-
-export function createJob(projectId: string): JobState {
-  const id = crypto.randomUUID()
-  const now = new Date()
-
-  const state: JobState = {
-    id,
-    projectId,
-    status: 'pending',
-    completedSteps: [],
-    events: [],
-    createdAt: now,
-    updatedAt: now,
-  }
-
-  const emitter = new EventEmitter()
-  emitter.setMaxListeners(20)
-
-  states.set(id, state)
-  emitters.set(id, emitter)
-
-  // Auto-Cleanup
-  setTimeout(() => {
-    states.delete(id)
-    emitters.delete(id)
-  }, JOB_TTL_MS)
-
-  return state
+// DB-Status → TypeScript-JobStatus
+function dbStatusToJobStatus(
+  dbStatus: 'PENDING' | 'QUEUED' | 'RUNNING' | 'COMPLETE' | 'ERROR',
+): JobStatus {
+  return dbStatus.toLowerCase() as JobStatus
 }
 
-export function getJob(id: string): JobState | undefined {
-  return states.get(id)
+// TypeScript-JobStatus → DB-Enum-String
+function jobStatusToDb(
+  status: JobStatus,
+): 'PENDING' | 'QUEUED' | 'RUNNING' | 'COMPLETE' | 'ERROR' {
+  return status.toUpperCase() as 'PENDING' | 'QUEUED' | 'RUNNING' | 'COMPLETE' | 'ERROR'
+}
+
+function dbRecordToJobState(record: {
+  id: string
+  projectId: string
+  status: string
+  completedSteps: string[]
+  events: unknown
+  lastError: string | null
+  failedStep: string | null
+  queuePosition: number | null
+  createdAt: Date
+  updatedAt: Date
+}): JobState {
+  return {
+    id: record.id,
+    projectId: record.projectId,
+    status: dbStatusToJobStatus(record.status as 'PENDING' | 'QUEUED' | 'RUNNING' | 'COMPLETE' | 'ERROR'),
+    completedSteps: record.completedSteps as GenerationStep[],
+    events: ((record.events as unknown) as GenerationEvent[]) ?? [],
+    lastError: record.lastError ?? undefined,
+    failedStep: (record.failedStep as GenerationStep | null) ?? undefined,
+    queuePosition: record.queuePosition ?? undefined,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+  }
+}
+
+function getOrCreateEmitter(jobId: string): EventEmitter {
+  let emitter = emitters.get(jobId)
+  if (!emitter) {
+    emitter = new EventEmitter()
+    emitter.setMaxListeners(20)
+    emitters.set(jobId, emitter)
+  }
+  return emitter
+}
+
+export async function createJob(projectId: string): Promise<JobState> {
+  const record = await prisma.generationJob.create({
+    data: {
+      projectId,
+      status: 'PENDING',
+      completedSteps: [],
+      events: [],
+    },
+  })
+
+  getOrCreateEmitter(record.id)
+  return dbRecordToJobState(record)
+}
+
+export async function getJob(id: string): Promise<JobState | undefined> {
+  const record = await prisma.generationJob.findUnique({ where: { id } })
+  if (!record) return undefined
+  return dbRecordToJobState(record)
 }
 
 export function getEmitter(id: string): EventEmitter | undefined {
   return emitters.get(id)
 }
 
-export function setStatus(jobId: string, status: JobStatus): void {
-  const state = states.get(jobId)
-  if (!state) return
-  state.status = status
-  state.updatedAt = new Date()
+export async function setStatus(jobId: string, status: JobStatus): Promise<void> {
+  await prisma.generationJob.update({
+    where: { id: jobId },
+    data: { status: jobStatusToDb(status) },
+  })
 }
 
-export function emitEvent(jobId: string, event: GenerationEvent): void {
-  const state = states.get(jobId)
-  const emitter = emitters.get(jobId)
-  if (!state || !emitter) return
+export async function emitEvent(jobId: string, event: GenerationEvent): Promise<void> {
+  const record = await prisma.generationJob.findUnique({ where: { id: jobId } })
+  if (!record) return
 
-  state.events.push(event)
-  state.updatedAt = new Date()
+  const events = [...(((record.events as unknown) as GenerationEvent[]) ?? []), event]
 
-  // Abgeschlossene Schritte tracken (für Retry)
+  const completedSteps = [...record.completedSteps] as GenerationStep[]
   if (
     event.type !== 'error' &&
     event.type !== 'complete' &&
@@ -79,47 +109,56 @@ export function emitEvent(jobId: string, event: GenerationEvent): void {
     event.type !== 'queue_position'
   ) {
     const step = event.type as GenerationStep
-    if (!state.completedSteps.includes(step)) {
-      state.completedSteps.push(step)
+    if (!completedSteps.includes(step)) {
+      completedSteps.push(step)
     }
   }
 
-  if (event.type === 'error') {
-    state.status = 'error'
-    state.lastError = event.error
-    state.failedStep = event.failedStep
-  }
+  const serializedEvents = JSON.parse(JSON.stringify(events)) as Prisma.InputJsonValue
 
-  if (event.type === 'texts_done') {
-    state.status = 'complete'
-  }
+  await prisma.generationJob.update({
+    where: { id: jobId },
+    data: {
+      events: serializedEvents,
+      completedSteps,
+      ...(event.type === 'error' && {
+        status: 'ERROR' as const,
+        lastError: event.error ?? null,
+        failedStep: event.failedStep ?? null,
+      }),
+      ...(event.type === 'texts_done' && { status: 'COMPLETE' as const }),
+    },
+  })
 
-  emitter.emit('event', event)
+  const emitter = emitters.get(jobId)
+  emitter?.emit('event', event)
 }
 
-export function resetForRetry(jobId: string, fromStep: GenerationStep): void {
-  const state = states.get(jobId)
-  if (!state) return
+export async function resetForRetry(jobId: string, fromStep: GenerationStep): Promise<void> {
+  const record = await prisma.generationJob.findUnique({ where: { id: jobId } })
+  if (!record) return
 
-  const { GENERATION_STEPS } = require('./types')
   const retryFromIndex = GENERATION_STEPS.indexOf(fromStep)
 
-  // Erledigte Schritte bis zum Fehlerpunkt behalten
-  state.completedSteps = state.completedSteps.filter(
-    (s) => GENERATION_STEPS.indexOf(s) < retryFromIndex
+  const completedSteps = (record.completedSteps as GenerationStep[]).filter(
+    (s) => GENERATION_STEPS.indexOf(s) < retryFromIndex,
   )
 
-  // Events bis zum Fehlerpunkt behalten
-  state.events = state.events.filter(
+  const events = (((record.events as unknown) as GenerationEvent[]) ?? []).filter(
     (e) =>
       e.type === 'connected' ||
       e.type === 'queue_position' ||
-      (e.type !== 'error' &&
-        GENERATION_STEPS.indexOf(e.type as GenerationStep) < retryFromIndex)
+      (e.type !== 'error' && GENERATION_STEPS.indexOf(e.type as GenerationStep) < retryFromIndex),
   )
 
-  state.status = 'running'
-  state.lastError = undefined
-  state.failedStep = undefined
-  state.updatedAt = new Date()
+  await prisma.generationJob.update({
+    where: { id: jobId },
+    data: {
+      status: 'RUNNING',
+      completedSteps,
+      events: JSON.parse(JSON.stringify(events)),
+      lastError: null,
+      failedStep: null,
+    },
+  })
 }

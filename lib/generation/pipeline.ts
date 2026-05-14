@@ -16,7 +16,7 @@ function now(): string {
 
 function getStartIndex(job: JobState): number {
   if (job.completedSteps.length === 0) return 0
-  const lastDone = job.completedSteps[job.completedSteps.length - 1]
+  const lastDone = job.completedSteps[job.completedSteps.length - 1]!
   return GENERATION_STEPS.indexOf(lastDone) + 1
 }
 
@@ -28,10 +28,10 @@ interface PipelineCtx {
 }
 
 export async function runGenerationPipeline(jobId: string, project: Project): Promise<void> {
-  const job = getJob(jobId)
+  const job = await getJob(jobId)
   if (!job) return
 
-  setStatus(jobId, 'running')
+  await setStatus(jobId, 'running')
 
   const startIndex = getStartIndex(job)
   const ctx: PipelineCtx = {}
@@ -43,16 +43,17 @@ export async function runGenerationPipeline(jobId: string, project: Project): Pr
 
   try {
     for (let i = startIndex; i < GENERATION_STEPS.length; i++) {
-      const step = GENERATION_STEPS[i]
+      const step = GENERATION_STEPS[i]!
       await runStep(jobId, step, project, ctx)
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler'
-    const lastDone = getJob(jobId)?.completedSteps.slice(-1)[0]
+    const currentJob = await getJob(jobId)
+    const lastDone = currentJob?.completedSteps.slice(-1)[0]
     const lastIndex = lastDone ? GENERATION_STEPS.indexOf(lastDone) : -1
     const failedStep = GENERATION_STEPS[lastIndex + 1] as GenerationStep | undefined
 
-    emitEvent(jobId, {
+    await emitEvent(jobId, {
       type: 'error',
       error: message,
       failedStep,
@@ -60,7 +61,7 @@ export async function runGenerationPipeline(jobId: string, project: Project): Pr
       timestamp: now(),
     })
 
-    console.error(`[Vysible] Pipeline-Fehler (Job ${jobId}, Schritt ${failedStep}): ${message}`)
+    console.error(`[Vysible] [FAIL] Pipeline-Fehler (Job ${jobId}, Schritt ${failedStep}): ${message}`)
   }
 }
 
@@ -78,7 +79,7 @@ async function runStep(
         where: { id: project.id },
         data: { scrapedData: JSON.parse(JSON.stringify(result)) },
       })
-      emitEvent(jobId, {
+      await emitEvent(jobId, {
         type: 'scrape_done',
         data: { url: project.praxisUrl, pagesScraped: result.pagesScraped },
         timestamp: now(),
@@ -94,7 +95,7 @@ async function runStep(
         scrapeResult: ctx.scrapeResult,
       })
       ctx.positioningContext = context.systemContext
-      emitEvent(jobId, {
+      await emitEvent(jobId, {
         type: 'positioning_injected',
         data: {
           hasDocument: !!project.positioningDocument,
@@ -108,11 +109,11 @@ async function runStep(
     }
 
     case 'canva_loaded':
-      emitEvent(jobId, { type: 'canva_loaded', data: { skipped: true }, timestamp: now() })
+      await emitEvent(jobId, { type: 'canva_loaded', data: { skipped: true }, timestamp: now() })
       break
 
     case 'pool_loaded':
-      emitEvent(jobId, {
+      await emitEvent(jobId, {
         type: 'pool_loaded',
         data: { hasPool: !!project.themenPool },
         timestamp: now(),
@@ -120,7 +121,7 @@ async function runStep(
       break
 
     case 'keywords_loaded':
-      emitEvent(jobId, {
+      await emitEvent(jobId, {
         type: 'keywords_loaded',
         data: { count: project.keywords.length },
         timestamp: now(),
@@ -134,7 +135,7 @@ async function runStep(
         where: { id: project.id },
         data: { themeResults: JSON.parse(JSON.stringify(themes)) },
       })
-      emitEvent(jobId, {
+      await emitEvent(jobId, {
         type: 'themes_done',
         data: { count: themes.length },
         timestamp: now(),
@@ -143,7 +144,7 @@ async function runStep(
     }
 
     case 'plans_done':
-      emitEvent(jobId, { type: 'plans_done', timestamp: now() })
+      await emitEvent(jobId, { type: 'plans_done', timestamp: now() })
       break
 
     case 'texts_done': {
@@ -169,9 +170,12 @@ async function runStep(
         },
       })
 
-      sendNotification('generation_complete', project.name).catch(() => {})
+      // §3a: Fehler im E-Mail-Versand werden geloggt, blockieren nicht die Pipeline
+      sendNotification('generation_complete', project.name).catch((err: unknown) => {
+        console.error('[Vysible] [FAIL] E-Mail-Benachrichtigung nach Generierung fehlgeschlagen:', err)
+      })
 
-      emitEvent(jobId, {
+      await emitEvent(jobId, {
         type: 'texts_done',
         data: {
           blog: textResults.filter((r) => r.blog).length,
@@ -187,6 +191,6 @@ async function runStep(
 }
 
 export async function retryPipeline(jobId: string, fromStep: GenerationStep, project: Project): Promise<void> {
-  resetForRetry(jobId, fromStep)
+  await resetForRetry(jobId, fromStep)
   await runGenerationPipeline(jobId, project)
 }

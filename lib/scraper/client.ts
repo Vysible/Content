@@ -21,21 +21,25 @@ function getServiceUrl(): string {
   return process.env.PLAYWRIGHT_SERVICE_URL ?? 'http://playwright:3001'
 }
 
+import { withRetry } from '@/lib/utils/retry'
+
 export async function scrapeUrl(url: string): Promise<ScrapeResult> {
-  const res = await fetch(`${getServiceUrl()}/scrape`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, depth: 1 }),
-    signal: AbortSignal.timeout(90_000),
-  })
+  return withRetry(async () => {
+    const res = await fetch(`${getServiceUrl()}/scrape`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, depth: 1 }),
+      signal: AbortSignal.timeout(90_000),
+    })
 
-  const data = await res.json()
+    const data = await res.json()
 
-  if (!res.ok) {
-    throw new Error(data.error ?? `Scraper-Fehler: HTTP ${res.status}`)
-  }
+    if (!res.ok) {
+      throw new Error(data.error ?? `Scraper-Fehler: HTTP ${res.status}`)
+    }
 
-  return data as ScrapeResult
+    return data as ScrapeResult
+  }, `scraper.scrapeUrl(${url})`)
 }
 
 export async function checkRobotsRemote(url: string): Promise<boolean> {
@@ -56,7 +60,8 @@ export async function checkScraperHealth(): Promise<boolean> {
       signal: AbortSignal.timeout(5_000),
     })
     return res.ok
-  } catch {
+  } catch (err: unknown) {
+    console.warn('[Vysible] [WARN] Scraper-Health-Check fehlgeschlagen:', err)
     return false
   }
 }

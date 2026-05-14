@@ -4,10 +4,9 @@ import { DEFAULT_MODEL } from '@/config/model-prices'
 import { buildContext } from '@/lib/ai/context-builder'
 import { loadPrompt } from './prompt-loader'
 import { ThemenItemSchema, ThemenListSchema, validateThemenQuality, type ThemenItem } from './themes-schema'
+import { withRetry } from '@/lib/utils/retry'
 import type { Project } from '@/lib/types/prisma'
 import type { ScrapeResult } from '@/lib/scraper/client'
-
-const MAX_RETRIES = 2
 
 interface ThemesInput {
   project: Project
@@ -51,51 +50,37 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
 
   const anthropic = await getAnthropicClient()
 
-  let lastError: Error | null = null
+  return withRetry(async () => {
+    const response = await anthropic.messages.create({
+      model: DEFAULT_MODEL,
+      max_tokens: 8_192,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    })
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL,
-        max_tokens: 8_192,
-        system: prompt.system,
-        messages: [{ role: 'user', content: prompt.user }],
-      })
+    await trackCost({
+      projectId: project.id,
+      model: DEFAULT_MODEL,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      step: 'themes',
+    })
 
-      await trackCost({
-        projectId: project.id,
-        model: DEFAULT_MODEL,
-        inputTokens: response.usage.input_tokens,
-        outputTokens: response.usage.output_tokens,
-        step: 'themes',
-      })
+    const rawText = response.content
+      .filter((b) => b.type === 'text')
+      .map((b) => (b as { type: 'text'; text: string }).text)
+      .join('')
 
-      const rawText = response.content
-        .filter((b) => b.type === 'text')
-        .map((b) => (b as { type: 'text'; text: string }).text)
-        .join('')
+    const items = parseThemesJson(rawText)
+    const validation = validateThemenQuality(items)
 
-      const items = parseThemesJson(rawText)
-      const validation = validateThemenQuality(items)
-
-      if (!validation.ok) {
-        if (attempt < MAX_RETRIES) {
-          console.log(`[Vysible] Themen-Qualitätsprüfung fehlgeschlagen (Versuch ${attempt + 1}): ${validation.reason}`)
-          continue
-        }
-        console.warn(`[Vysible] Themen-Qualitätskriterien nicht erfüllt nach ${attempt + 1} Versuchen: ${validation.reason}`)
-      }
-
-      return items
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err))
-      if (attempt < MAX_RETRIES) {
-        console.warn(`[Vysible] generateThemes Versuch ${attempt + 1} fehlgeschlagen: ${lastError.message}`)
-      }
+    if (!validation.ok) {
+      console.warn(`[Vysible] [WARN] Themen-Qualitätskriterien nicht erfüllt: ${validation.reason} — wird wiederholt`)
+      throw new Error(`Qualitätsprüfung fehlgeschlagen: ${validation.reason}`)
     }
-  }
 
-  throw lastError ?? new Error('Themenplanung fehlgeschlagen')
+    return items
+  }, `anthropic.generateThemes(${project.id})`)
 }
 
 function parseThemesJson(text: string): ThemenItem[] {

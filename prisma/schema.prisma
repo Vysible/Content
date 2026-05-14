@@ -63,6 +63,7 @@ model Project {
   praxisUsers         PraxisUser[]
   comments            Comment[]
   costReports         CostReport[]
+  generationJobs      GenerationJob[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -72,6 +73,36 @@ model Project {
 
   @@index([status])
   @@index([createdById])
+}
+
+model GenerationJob {
+  id             String              @id @default(cuid())
+  projectId      String
+  project        Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status         GenerationJobStatus @default(PENDING)
+  completedSteps String[]
+  events         Json                @default("[]")
+  lastError      String?
+  failedStep     String?
+  queuePosition  Int?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model SmtpConfig {
+  id                String   @id @default(cuid())
+  host              String
+  port              Int      @default(587)
+  secure            Boolean  @default(false)
+  user              String
+  encryptedPassword String
+  recipients        String[]
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model CostEntry {
@@ -153,6 +184,14 @@ enum ProjectStatus {
   DRAFT
   ACTIVE
   ARCHIVED
+}
+
+enum GenerationJobStatus {
+  PENDING
+  QUEUED
+  RUNNING
+  COMPLETE
+  ERROR
 }
 
 enum Provider {

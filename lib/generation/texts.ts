@@ -2,6 +2,7 @@ import { getAnthropicClient } from '@/lib/ai/client'
 import { trackCost } from '@/lib/costs/tracker'
 import { DEFAULT_MODEL } from '@/config/model-prices'
 import { loadPrompt } from './prompt-loader'
+import { withRetry } from '@/lib/utils/retry'
 import {
   ImageBriefSchema,
   SocialResponseSchema,
@@ -75,29 +76,32 @@ async function generateBlogPost(args: {
     keywordPrimaer: theme.keywordPrimaer,
     paaFragen: theme.paaFragen.join('\n'),
     positionierungsdokument: positioningContext.slice(0, 6_000),
-    tonalität: 'professionell, empathisch, verständlich',
+    tonalitaet: 'professionell, empathisch, verständlich',
   })
 
   const anthropic = await getAnthropicClient()
-  const response = await anthropic.messages.create({
-    model: DEFAULT_MODEL,
-    max_tokens: 4_096,
-    system: prompt.system,
-    messages: [{ role: 'user', content: prompt.user }],
-  })
 
-  await trackCost({
-    projectId: project.id,
-    model: DEFAULT_MODEL,
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
-    step: 'blog',
-  })
+  return withRetry(async () => {
+    const response = await anthropic.messages.create({
+      model: DEFAULT_MODEL,
+      max_tokens: 4_096,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    })
 
-  const html = extractText(response)
-  const wordCount = countWords(html)
+    await trackCost({
+      projectId: project.id,
+      model: DEFAULT_MODEL,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      step: 'blog',
+    })
 
-  return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount }
+    const html = extractText(response)
+    const wordCount = countWords(html)
+
+    return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount }
+  }, `anthropic.generateBlogPost(${theme.monat})`)
 }
 
 async function generateNewsletter(args: {
@@ -116,23 +120,26 @@ async function generateNewsletter(args: {
   })
 
   const anthropic = await getAnthropicClient()
-  const response = await anthropic.messages.create({
-    model: DEFAULT_MODEL,
-    max_tokens: 2_048,
-    system: prompt.system,
-    messages: [{ role: 'user', content: prompt.user }],
-  })
 
-  await trackCost({
-    projectId: project.id,
-    model: DEFAULT_MODEL,
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
-    step: 'newsletter',
-  })
+  return withRetry(async () => {
+    const response = await anthropic.messages.create({
+      model: DEFAULT_MODEL,
+      max_tokens: 2_048,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    })
 
-  const raw = extractText(response)
-  return parseNewsletter(raw, theme)
+    await trackCost({
+      projectId: project.id,
+      model: DEFAULT_MODEL,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      step: 'newsletter',
+    })
+
+    const raw = extractText(response)
+    return parseNewsletter(raw, theme)
+  }, `anthropic.generateNewsletter(${theme.monat})`)
 }
 
 function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
@@ -175,37 +182,40 @@ async function generateSocialPosts(args: {
   })
 
   const anthropic = await getAnthropicClient()
-  const response = await anthropic.messages.create({
-    model: DEFAULT_MODEL,
-    max_tokens: 1_024,
-    system: prompt.system,
-    messages: [{ role: 'user', content: prompt.user }],
-  })
 
-  await trackCost({
-    projectId: project.id,
-    model: DEFAULT_MODEL,
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
-    step: 'social',
-  })
+  return withRetry(async () => {
+    const response = await anthropic.messages.create({
+      model: DEFAULT_MODEL,
+      max_tokens: 1_024,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    })
 
-  const raw = extractText(response)
-  const parsed = parseJsonBlock(raw)
-  const socialData = SocialResponseSchema.parse(parsed)
+    await trackCost({
+      projectId: project.id,
+      model: DEFAULT_MODEL,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      step: 'social',
+    })
 
-  const posts: SocialPost[] = []
-  if (channels.includes('SOCIAL_INSTAGRAM') && socialData.instagram) {
-    posts.push({ kanal: 'SOCIAL_INSTAGRAM', text: socialData.instagram })
-  }
-  if (channels.includes('SOCIAL_FACEBOOK') && socialData.facebook) {
-    posts.push({ kanal: 'SOCIAL_FACEBOOK', text: socialData.facebook })
-  }
-  if (channels.includes('SOCIAL_LINKEDIN') && socialData.linkedin) {
-    posts.push({ kanal: 'SOCIAL_LINKEDIN', text: socialData.linkedin })
-  }
+    const raw = extractText(response)
+    const parsed = parseJsonBlock(raw)
+    const socialData = SocialResponseSchema.parse(parsed)
 
-  return posts
+    const posts: SocialPost[] = []
+    if (channels.includes('SOCIAL_INSTAGRAM') && socialData.instagram) {
+      posts.push({ kanal: 'SOCIAL_INSTAGRAM', text: socialData.instagram })
+    }
+    if (channels.includes('SOCIAL_FACEBOOK') && socialData.facebook) {
+      posts.push({ kanal: 'SOCIAL_FACEBOOK', text: socialData.facebook })
+    }
+    if (channels.includes('SOCIAL_LINKEDIN') && socialData.linkedin) {
+      posts.push({ kanal: 'SOCIAL_LINKEDIN', text: socialData.linkedin })
+    }
+
+    return posts
+  }, `anthropic.generateSocialPosts(${theme.monat})`)
 }
 
 async function generateImageBrief(args: {
@@ -223,24 +233,27 @@ async function generateImageBrief(args: {
   })
 
   const anthropic = await getAnthropicClient()
-  const response = await anthropic.messages.create({
-    model: DEFAULT_MODEL,
-    max_tokens: 1_024,
-    system: prompt.system,
-    messages: [{ role: 'user', content: prompt.user }],
-  })
 
-  await trackCost({
-    projectId: project.id,
-    model: DEFAULT_MODEL,
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
-    step: 'image-brief',
-  })
+  return withRetry(async () => {
+    const response = await anthropic.messages.create({
+      model: DEFAULT_MODEL,
+      max_tokens: 1_024,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    })
 
-  const raw = extractText(response)
-  const parsed = parseJsonBlock(raw)
-  return ImageBriefSchema.parse(parsed)
+    await trackCost({
+      projectId: project.id,
+      model: DEFAULT_MODEL,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      step: 'image-brief',
+    })
+
+    const raw = extractText(response)
+    const parsed = parseJsonBlock(raw)
+    return ImageBriefSchema.parse(parsed)
+  }, `anthropic.generateImageBrief(${theme.monat})`)
 }
 
 function extractText(response: { content: Array<{ type: string; text?: string }> }): string {
