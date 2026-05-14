@@ -76,7 +76,12 @@ Select-String "html.*mail|mailHtml|htmlTemplate" lib/email -Recurse -i
 
 - [ ] Jedes Sub-Slice einzeln committed
 - [ ] Kein `sendNotification(...).catch(() => {})` übrig — alle Catches loggen
-- [ ] `logger.*` aus `lib/utils/logger.ts` statt `console.*`
+- [ ] Logger: `logger.*` aus `lib/utils/logger.ts` in Server-Code (`lib/`, `app/api/`);
+      `console.warn/error('[Vysible] …', err)` in Client-Components (`'use client'`).
+      Hintergrund: pino-pretty ist server-only — siehe `docs/forge-web-deviations.md`
+      "Client-Component-Logger" und `OpenActions.md` Backlog-Punkt 2.
+      P2-C-Hinweis: Sub-Slice A (sendNotification-Catches) ist reiner Server-Code →
+      `logger.*` Pflicht. Sub-Slice B/C (UI-Settings) sind Client-Code → `console.*`-Pattern.
 - [ ] TypeScript strict: 0 Fehler
 - [ ] Tests grün
 - [ ] CHANGELOG im jeweiligen Commit aktualisiert

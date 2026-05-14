@@ -37,6 +37,24 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   Sprint 0a (5 Restbestand-stille-Catches schließen) und Browser-tauglicher
   Logger (mit Optionsvergleich pino/browser, consola, eigener Wrapper).
 
+### Changed (Sprint-Prompt-Vorlagen Self-Review-Regel präzisiert)
+- `docs/dev-prompts/sprint-p2b-kalender-sharing.md`: Self-Review-Bullet
+  "`logger.*` statt `console.*`" auf präzise Server/Client-Trennung erweitert.
+  Abschluss-Validation-Skript entsprechend differenziert (Server: keine
+  `console.*`; Client: nur `console.warn/error('[Vysible] …', err)`).
+  Acceptance- und Abschlussbericht-Bullets ebenfalls präzisiert.
+- `docs/dev-prompts/sprint-p2c-email.md`: Self-Review-Bullet entsprechend
+  präzisiert; Sprint-spezifischer Hinweis ergänzt (Sub-Slice A = Server,
+  Sub-Slice B/C = Client).
+- `docs/dev-prompts/Pre_Sprint_Review.md`: PSR Check 7 (Acceptance-Qualität)
+  Forge-Compliance-Frage konkretisiert um Logger-Trennung und
+  `[Vysible]`-Prefix-Regel.
+- Hintergrund: Die alte Regel "`logger.*` statt `console.*`" war in Client-
+  Components technisch unerfüllbar (pino-pretty server-only). Künftige
+  Sprint-Prompts dokumentieren die Trennung sauber, ohne DRIFT-Eintrag pro
+  Sprint zu produzieren. Wird obsolet, sobald Browser-Logger eingeführt ist
+  (siehe `OpenActions.md` Backlog-Punkt 2).
+
 ### Fixed
 - Editor-Autosave: Stiller Catch in `EditorView.tsx` und `ResultsTabs.tsx`-Autosave durch
   geloggte Catch-Blöcke ersetzt. SaveIndicator wird jetzt aus `ResultsTabs` (per-Item-State)

@@ -69,7 +69,10 @@ Besonders: Welche Status-Felder existieren im `StoredTextResult`-Typ für WP und
 ## CRITICAL: Self-review Checklist
 
 - [ ] Jedes Sub-Slice einzeln committed (kein Mega-Commit)
-- [ ] `logger.*` statt `console.*`
+- [ ] Logger: `logger.*` aus `lib/utils/logger.ts` in Server-Code (`lib/`, `app/api/`);
+      `console.warn/error('[Vysible] …', err)` in Client-Components (`'use client'`).
+      Hintergrund: pino-pretty ist server-only — siehe `docs/forge-web-deviations.md`
+      "Client-Component-Logger" und `OpenActions.md` Backlog-Punkt 2.
 - [ ] Kein neues `catch {}` ohne Log — Forge `resilience §3a`
 - [ ] TypeScript strict: 0 Fehler nach jedem Sub-Slice
 - [ ] Tests grün — kein Regression
@@ -148,7 +151,8 @@ neuen Catch: `items`-Snapshot vor dem Update speichern und bei Fehler wiederhers
 - [ ] Farbcodierung: Ausstehend (grau) / In Bearbeitung (gelb) / Freigegeben (grün) / Veröffentlicht (blau)
 - [ ] Wenn `wpDraftStatus` im StoredTextResult vorhanden: separater WP-Badge im Kalender-Item
 - [ ] Legende unter Kalender aktualisiert wenn neuer Badge hinzugefügt
-- [ ] Kein neuer `console.*`
+- [ ] Kein neuer `console.*` ohne `[Vysible]`-Prefix (Client-Components: nur
+      `console.warn/error('[Vysible] …', err)`; Server-Code: `logger.*`)
 
 ### Commit-Message
 
@@ -240,8 +244,15 @@ feat(sharing): Newsletter + Social-Posts im Kunden-Freigabelink anzeigen (Slice 
 # TypeScript fehlerfrei
 node node_modules/typescript/bin/tsc --noEmit
 
-# Keine neuen console.* in components/
-Select-String "console\.(log|warn|error)" components -Recurse
+# Server-Code (lib/, app/api/): Keine console.* erlaubt
+Select-String "console\.(log|warn|error)" lib,app/api -Recurse |
+  Where-Object { $_.Path -notmatch "scripts[/\\]" }
+# → Zero Treffer (Server nutzt logger.*)
+
+# Client-Components: nur console.warn/error mit [Vysible]-Prefix erlaubt
+Select-String "console\.(log|warn|error)" components -Recurse |
+  Where-Object { $_.Line -notmatch "\[Vysible\]" }
+# → Zero Treffer
 
 # Keine neuen stillen Catches
 Select-String "\.catch\(\(\)\s*=>\s*\{\s*\}\)" components,app -Recurse
@@ -270,11 +281,11 @@ DRIFT (Abweichungen vom Prompt):
   Besonders: WP/KT-Status-Felder in StoredTextResult vorhanden? [ ] ja / [ ] nein
 
 CHECKS:
-  TypeScript 0 Fehler:    [ ]
-  Alle Tests grün:        [ ] x/x PASS
-  Keine console.*:        [ ]
-  Keine stillen Catches:  [ ]
-  CHANGELOG aktuell:      [ ]
+  TypeScript 0 Fehler:                  [ ]
+  Alle Tests grün:                      [ ] x/x PASS
+  Keine console.* ohne [Vysible]:       [ ] (Server: 0 console.*; Client: nur console.warn/error mit Prefix)
+  Keine stillen Catches:                [ ]
+  CHANGELOG aktuell:                    [ ]
 
 ═══════════════════════════════════════════════
 [OK] P2-B ABGESCHLOSSEN

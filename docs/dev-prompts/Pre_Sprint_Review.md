@@ -163,7 +163,7 @@ Sind die Acceptance Checklist-Punkte fachlich vollständig und testbar?
 |---|---|
 | Jeder Punkt automatisiert oder manuell prüfbar (kein „funktioniert irgendwie")? | Prompt |
 | Wurden NFAs aus Check 5 in Acceptance gespiegelt? | Prompt vs. Konzept |
-| Werden Forge-Compliance-Punkte (Logger, Resilience, no console.*) abgeprüft? | Prompt vs. Forge-Regeln |
+| Werden Forge-Compliance-Punkte abgeprüft? Insbesondere: Logger-Trennung (Server: `logger.*`, Client: `console.warn/error('[Vysible] …', err)`), Resilience (kein stiller Catch), keine `console.*` ohne `[Vysible]`-Prefix | Prompt vs. Forge-Regeln + `forge-web-deviations.md` |
 | Gibt es Acceptance ohne erkennbare Implementierungs-Anweisung im Scope? | Prompt |
 
 ### Check 8 — Risiken
