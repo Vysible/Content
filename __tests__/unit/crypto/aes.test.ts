@@ -10,10 +10,12 @@ describe('AES-256-GCM encrypt/decrypt', () => {
     vi.stubEnv('ENCRYPTION_SECRET', TEST_SECRET)
   })
 
-  it('erzeugt Format iv:tag:cipher (3 Teile)', async () => {
+  it('erzeugt Format v1:iv:tag:cipher (4 Teile)', async () => {
     const { encrypt } = await import('@/lib/crypto/aes')
     const result = encrypt('Hallo Welt')
-    expect(result.split(':')).toHaveLength(3)
+    const parts = result.split(':')
+    expect(parts).toHaveLength(4)
+    expect(parts[0]).toBe('v1')
   })
 
   it('Roundtrip: decrypt(encrypt(x)) === x', async () => {

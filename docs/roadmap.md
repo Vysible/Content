@@ -74,17 +74,15 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 
 ---
 
-## Phase-1-Restarbeiten (nach Sprint 0–2)
+## Phase-1-Restarbeiten (nach Sprint 0–2) ✅ Abgeschlossen (2026-05-14)
 
-Diese Slices sind teilweise implementiert und müssen vervollständigt werden:
-
-| Slice | Lücke | Aufwand |
+| Slice | Lücke | Status |
 |---|---|---|
-| Slice 16 (Auth) | Passwort-Vergessen-Email, Admin-User-Verwaltungs-UI, Auto-Logout 30 min | 1 Tag |
-| Slice 4 (API-Key-Manager) | Pro-Projekt-Key-Auswahl (FA-F-11a), Social-Token-Manager-UI | 1 Tag |
-| Slice 9 (Export) | Dateinamen-Konvention `[PraxisKürzel]_[Kanal]_[MonatJahr]_v[N]` | 0.5 Tage |
-| Slice 13 (KI-Texte) | Blog-Gliederungsschritt vor Volltext (FA-KI-04) | 1–2 Tage |
-| Pipeline (canva_loaded) | Canva-Context-Injektion in Pipeline verdrahten | 0.5 Tage |
+| Slice 16 (Auth) | Passwort-Vergessen-Email, Admin-User-Verwaltungs-UI, Auto-Logout 30 min | ✅ Commit 89d8185 |
+| Slice 4 (API-Key-Manager) | Pro-Projekt-Key-Auswahl (FA-F-11a), Social-Token-Manager-UI | ✅ Commit 4be7a65 |
+| Slice 9 (Export) | Dateinamen-Konvention `[PraxisKürzel]_[Kanal]_[MonatJahr]_v[N]` | ✅ Commit 62f6c19 |
+| Slice 13 (KI-Texte) | Blog-Gliederungsschritt vor Volltext (FA-KI-04) | ✅ Commit b749a01 |
+| Pipeline (canva_loaded) | Canva-Context-Injektion in Pipeline verdrahten | ✅ Commit 36461b3 |
 
 ---
 
