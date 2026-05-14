@@ -37,7 +37,30 @@ Zwei offene Punkte (benötigen laufende DB)
 
 ## Backlog / Tech-Debt (nicht sprintgebunden)
 
-1. **Themen-Quality-Gate refaktorisieren** (`lib/generation/themes-schema.ts` Z. 33–53)
+1. **Sprint 0a — Restbestand stiller Catches schließen** (Forge-Regel `resilience §3a`)
+
+   Fünf `.catch(() => {})` aus Slices 23/25/26/27, eingeführt vor Forge-Migration. Alle dokumentiert in `docs/forge-web-deviations.md` (Status: `Accepted`, Timeline: Sprint 0a).
+
+   - `components/layout/TokenWarningBanner.tsx:21` (Slice 26)
+   - `components/wizard/TemplateSelector.tsx:23` (Slice 25)
+   - `lib/klicktipp/client.ts:34` (Slice 23)
+   - `lib/tokens/expiry-checker.ts:21` (Slice 26)
+   - `lib/costs/reporter.ts:56` (Slice 27)
+
+   Pattern: catch durch `(err: unknown) => { logger.warn(...) }` (Server) bzw. `console.warn('[Vysible] …', err)` (Client) ersetzen. Aufwand: ~1–2 Stunden.
+
+2. **Browser-tauglicher Logger** (Forge-Regel `resilience §3a` — Client-Component-Abweichung)
+
+   `lib/utils/logger.ts` nutzt `pino` mit `pino-pretty`-Transport — nur Server-side lauffähig. Client-Components nutzen daher `console.warn/error('[Vysible] …')`. Eintrag in `docs/forge-web-deviations.md` (Status: `Accepted`).
+
+   Optionen:
+   - `pino/browser` (offizielle Browser-Variante, kompatible API)
+   - `consola` (alternativer isomorpher Logger)
+   - Dünner eigener Wrapper `lib/utils/logger-client.ts`, der intern `console.*` mit `[Vysible]`-Prefix kapselt
+
+   Nach Einführung: Sprint-Prompt-Self-Review-Regeln präzisieren ("`logger.*` in Server, `loggerClient.*` in Client").
+
+3. **Themen-Quality-Gate refaktorisieren** (`lib/generation/themes-schema.ts` Z. 33–53)
 
    Aktueller Zustand: `validateThemenQuality()` enthält zwei hardcoded Schwellwerte (`0.8` praxisspezifisch, `0.5` SEO-Titel-Quote) und kippt den gesamten Pipeline-Run bei Unterschreitung. Quelle der Werte: `docs/dev-prompts/plan-v6.1.md` Z. 525.
 

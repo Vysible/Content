@@ -90,8 +90,8 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 
 | Slice | Name | Status |
 |---|---|---|
-| Slice 6 | Text-Editor (Autosave-Indikator) | ⚠️ Teilweise |
-| Slice 8 | Chat + Versionen (Kontext-Binding, Chips, Versionierung) | ⚠️ Teilweise |
+| Slice 6 | Text-Editor (Autosave-Indikator) | ✅ Abgeschlossen (2026-05-14, Sprint P2-A · Commit bc6f205) |
+| Slice 8 | Chat + Versionen (Kontext-Binding, Chips, Versionierung) | ✅ Abgeschlossen (2026-05-14, Sprint P2-A · Commit 581aaab) |
 | Slice 7 | Kalender (Drag & Drop, Status-Farben) | ⚠️ Teilweise |
 | Slice 11a | DataForSEO Keyword-Review-UI | ⚠️ Stub |
 | Slice 17 | Canva OAuth 2.0 Flow + Ordner-Such-UI | ⚠️ Stub |

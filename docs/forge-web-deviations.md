@@ -12,8 +12,8 @@ Migrations-Datum: **2026-05-14**
 
 | Rule-ID | Datum | forge-web-Version | Status | Begründung | Timeline |
 |---|---|---|---|---|---|
-| `schicht-0/resilience` (§3a) | 2026-05-14 | 2.2.0 | Accepted | `sendNotification(...).catch(() => {})` in `lib/generation/pipeline.ts:172` ist ein stiller Catch. `checkScraperHealth` in `lib/scraper/client.ts` hat bare `catch { return false }`. Beides wird in Sprint 0 behoben. | Sprint 0 |
-| `schicht-0/resilience` (§3c) | 2026-05-14 | 2.2.0 | Accepted | Kein Retry-Wrapper auf externen IO-Calls (`scrapeUrl`, AI-Calls, `sendMail`). Exponentieller Backoff fehlt (NFA-06 des Konzeptdokuments). Wird in Sprint 0 implementiert. | Sprint 0 |
+| `schicht-0/resilience` (§3a) — Client-Component-Logger | 2026-05-14 | 2.2.0 | Accepted | Client-Components nutzen `console.warn/error('[Vysible] …')` statt `logger.*`, weil `lib/utils/logger.ts` (`pino` mit `pino-pretty`-Transport) nur Server-side funktioniert. Konsistent mit AGENTS.md-Konvention. Alle catches loggen explizit — kein stiller Catch. Browser-tauglicher Logger (z.B. `pino/browser` oder isomorpher Wrapper) wird separat eingeführt. | Backlog |
+| `schicht-0/resilience` (§3a) — Restbestand stiller Catches | 2026-05-14 | 2.2.0 | Accepted | Fünf stille `.catch(() => {})` aus Slices 23/25/26/27, eingeführt vor Forge-Migration: `components/layout/TokenWarningBanner.tsx:21`, `components/wizard/TemplateSelector.tsx:23`, `lib/klicktipp/client.ts:34`, `lib/tokens/expiry-checker.ts:21`, `lib/costs/reporter.ts:56`. Nicht im aktuellen Sprint-Scope. | Sprint 0a (geplant) |
 
 ---
 
@@ -21,6 +21,9 @@ Migrations-Datum: **2026-05-14**
 
 | Rule-ID | Datum geschlossen | Massnahme |
 |---|---|---|
+| `schicht-0/resilience` (§3a) — `sendNotification(...).catch(() => {})` in `lib/generation/pipeline.ts` | 2026-05-14 | Sprint 0 (Commit `b5c80f2`): catch loggt nun via `logger.error({ err }, '…')` und blockiert die Pipeline nicht (`pipeline.ts:235-237`). |
+| `schicht-0/resilience` (§3a) — `checkScraperHealth` bare catch | 2026-05-14 | Sprint 0 (Commit `b5c80f2`): catch loggt via `logger.warn({ err }, 'Scraper-Health-Check fehlgeschlagen')` (`lib/scraper/client.ts:65-67`). |
+| `schicht-0/resilience` (§3c) — fehlender Retry-Wrapper | 2026-05-14 | Sprint 0 (Commit `b5c80f2`): `withRetry` in `lib/utils/retry.ts` eingeführt; auf `scrapeUrl`, AI-Calls und `sendMail` angewendet. |
 | `schicht-2/web-encryption-at-rest` (User.email/name Plaintext) | 2026-05-14 | Sprint 3: `emailEncrypted`/`nameEncrypted` in `User` und `PraxisUser` via Prisma-Migration hinzugefügt. `scripts/migrate-pii.ts` für idempotente Datenmigration. |
 | `schicht-2/web-encryption-at-rest` (Versions-Präfix) | 2026-05-14 | Sprint 3: `lib/crypto/aes.ts` mit `v1:`-Präfix und abwärtskompatiblem `decrypt()` aktualisiert. |
 | `schicht-0/terminal-output` | 2026-05-14 | Sprint 3: `pino`-Logger in `lib/utils/logger.ts` eingeführt, PII-Redaction konfiguriert. |

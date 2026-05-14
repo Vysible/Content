@@ -11,10 +11,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   Acceptance, Risiken). Wird automatisch als Phase 0 der Pre_Slice_Validation
   aufgerufen; manueller Aufruf via `PSR für <prompt-datei>` weiterhin möglich.
 - `docs/dev-prompts/sprint-p2a-editor-chat.md` — Sprint-Prompt P2-A (Slice 6 + 8).
+  Archiviert nach `docs/dev-prompts/archive/` nach Sprint-Abschluss am 2026-05-14.
 - `docs/dev-prompts/sprint-p2b-kalender-sharing.md` — Sprint-Prompt P2-B (Slice 7 + 10).
 - `docs/dev-prompts/sprint-p2c-email.md` — Sprint-Prompt P2-C (Slice 19).
-
-### Added
 - KI-Chat (`ChatPanel.tsx`): Sichtbarer Konversationsverlauf — jede Chip-Aktion und
   Freitext-Anweisung erzeugt ein User-Bubble + Assistant-Bubble (80-Zeichen-Plain-Text-
   Vorschau der Überarbeitung). Versionswiederherstellung erscheint als System-Marker
@@ -23,6 +22,20 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - KI-Chat: Header zeigt Artikel-Titel ("KI-Überarbeitung: <Titel>") via neuem
   `articleTitle`-Prop. Fallback auf Kanal-Bezeichnung wenn Titel fehlt
   (Slice-8-Kontext-Binding).
+
+### Changed (Sprint P2-A Closeout)
+- `docs/roadmap.md`: Slice 6 (Text-Editor) und Slice 8 (Chat + Versionen) im
+  Phase-2-Backlog von "⚠️ Teilweise" auf "✅ Abgeschlossen (2026-05-14, Sprint
+  P2-A)" mit Commit-Hashes (`bc6f205`, `581aaab`) aktualisiert.
+- `docs/forge-web-deviations.md`: Drei in Sprint 0 (Commit `b5c80f2`)
+  geschlossene Resilience-Abweichungen aus den offenen Einträgen in die
+  geschlossene Tabelle verschoben (`pipeline.ts` `sendNotification`-Catch,
+  `checkScraperHealth` bare catch, `withRetry`-Wrapper). Zwei neue offene
+  Einträge ergänzt: Client-Component-Logger (Browser-tauglicher Logger fehlt)
+  und Restbestand stiller Catches in Slices 23/25/26/27 (Sprint 0a geplant).
+- `docs/dev-prompts/OpenActions.md`: Backlog um zwei Punkte erweitert —
+  Sprint 0a (5 Restbestand-stille-Catches schließen) und Browser-tauglicher
+  Logger (mit Optionsvergleich pino/browser, consola, eigener Wrapper).
 
 ### Fixed
 - Editor-Autosave: Stiller Catch in `EditorView.tsx` und `ResultsTabs.tsx`-Autosave durch
