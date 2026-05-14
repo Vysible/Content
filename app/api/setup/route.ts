@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
-import { db } from '@/lib/db'
+import { prisma } from '@/lib/db'
 
 export async function GET() {
   return handler()
@@ -11,13 +11,13 @@ export async function POST() {
 }
 
 async function handler() {
-  const count = await db.user.count()
+  const count = await prisma.user.count()
   if (count > 0) {
     return NextResponse.json({ error: 'Setup bereits abgeschlossen' }, { status: 409 })
   }
 
   const password = await hash('admin123', 12)
-  await db.user.create({
+  await prisma.user.create({
     data: {
       email: 'admin@vysible.de',
       name: 'Administrator',
