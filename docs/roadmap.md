@@ -47,7 +47,7 @@ P1-Anforderungen aus Konzept v6, die in plan.md v6.1 fehlen (ADR-005).
 | `/api/projects` GET: `where: { createdById: session.user.id }` | FA-B-12 |
 | Audit-Log-Aktivitäten-Tab pro Projekt | FA-F-32 |
 
-### Sprint 2 — Tests (ca. 3–5 Tage)
+### Sprint 2 — Tests ✅ Abgeschlossen (2026-05-14)
 
 Ohne Tests ist jeder weitere Sprint ein Blindflug (NFA-16).
 

@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 import { writeAuditLog } from '@/lib/audit/logger'
+import { checkHwgGate } from '@/lib/compliance/hwg-gate'
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   const session = await requireAuth()
@@ -25,7 +26,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
   }
 
-  if (project.hwgFlag) {
+  const gate = checkHwgGate(project.hwgFlag)
+  if (gate.blocked) {
     await writeAuditLog({
       action:    'export.download',
       entity:    'Project',
@@ -33,7 +35,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       projectId: params.id,
       userId:    session.user.id,
       userEmail: session.user.email ?? undefined,
-      meta:      { blocked: true, reason: 'hwg_flag' },
+      meta:      { blocked: true, reason: gate.reason },
     })
     return NextResponse.json(
       { error: 'Export gesperrt: HWG-Compliance-Flag ist gesetzt. Bitte Inhalt prüfen und Flag zurücksetzen.' },

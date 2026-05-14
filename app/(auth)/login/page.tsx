@@ -92,7 +92,10 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="text-xs text-bordeaux bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <p
+              data-testid="login-error"
+              className="text-xs text-bordeaux bg-red-50 border border-red-200 rounded-lg px-3 py-2"
+            >
               {error}
             </p>
           )}
