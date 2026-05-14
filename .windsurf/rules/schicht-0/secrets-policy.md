@@ -1,0 +1,146 @@
+---
+trigger: always_on
+description: "Secrets and credentials must never appear in source code, tracked data files, tests, logs, prompts, or framework artefacts."
+---
+
+# Secrets Policy
+
+## Scope
+
+This rule applies to:
+- All source code files (`src/`, `tests/`, `scripts/`)
+- All tracked data files (e.g., `data/*.json` patterns)
+- All documentation, prompts, and fix-instructions
+- All test files and test fixtures
+- All log output and error messages
+- All framework artefacts and quality-script outputs
+
+## Rule
+
+1. **Storage** — API keys, session tokens, passwords, SMTP credentials, AWS access keys, and all other secrets live **only** in `.env` on the developer machine or in a deployment secret store. Never commit `.env`.
+
+2. **Source code** — Do not embed real credentials in any source files. Load via configuration classes or `process.env.VAR_NAME`.
+
+3. **Tracked JSON state files** — Data files that hold credentials must be gitignored. The committed counterpart is a `*.example` file with placeholders.
+   - All credential fields use the `*_env_key` indirection pattern: `{ "password_env_key": "SECRET_PASSWORD" }`, never `{ "password": "<value>" }`.
+   - This applies to **every** field that can carry a credential.
+
+4. **Tests** — Use `monkeypatch.setenv()`, not direct attribute assignment. Direct assignment violates the dependency-injection contract and triggers static-analysis secret detection.
+
+5. **Logs** — When logging headers, URLs, or errors, redact secrets. Use `[REDACTED]` for any value that could be a token, cookie, password, or access key.
+
+6. **Documentation, prompts, fix-instructions** — Never quote a real credential value verbatim, even as an example of "what to remove". Use the redaction pattern `AKIA****WD` (first 4 + last 2 chars) so the static scanner does not re-flag the document and the secret is not propagated through git history.
+
+7. **Quality-script artefacts** — Review outputs and data files embedding raw snippet fields containing literal secret values are **gitignored**. Never commit them, never paste their contents into chat or prompts without redaction.
+
+8. **Refusal** — If asked to paste a real key into the codebase or to commit credentials, refuse and point to `.env` and the project's configuration module.
+
+9. **Cursor / AI** — Do not suggest copying live cookies or API keys into chat or into tracked files. Always reference `.env` for local usage.
+
+## Rationale
+
+Secrets in version control are a permanent security liability — there is no way to rotate a leaked secret retroactively once it has been committed. Security and compliance requirements demand that credentials remain strictly outside all tracked artefacts. The `*_env_key` indirection pattern preserves configuration structure while keeping actual values in the environment.
+
+## Examples
+
+### ✅ Correct — Loading a secret in production code
+
+```typescript
+// via configuration class (canonical)
+import { AppSettings } from '../config/AppSettings';
+const settings = new AppSettings();
+const key = settings.API_KEY; // throws if missing
+
+// via process.env for helpers
+const password = process.env[sender.smtpPasswordEnvKey];
+if (!password) {
+  throw new Error(`Missing env var: ${sender.smtpPasswordEnvKey}`);
+}
+```
+
+### ✅ Correct — Mocking a secret in tests
+
+```typescript
+// Correct — env var stays the source of truth (Vitest)
+import { vi } from 'vitest';
+
+test('something', () => {
+  vi.stubEnv('API_KEY', 'fake-key-for-test');
+  const settings = new AppSettings();
+  // ...
+});
+```
+
+### ✅ Correct — Data file with indirection
+
+```json
+{
+  "smtp_user_env_key": "SMTP_USER",
+  "smtp_password_env_key": "SMTP_PASSWORD"
+}
+```
+
+### ✅ Correct — Redacted credential in documentation
+
+```markdown
+"The exposed key starts with AKIA and ends in **WD — rotate immediately."
+"Replace `AKIA****WD` in `data/senders.json:10` with empty string."
+```
+
+### ❌ Incorrect — Hardcoded secret in source
+
+```typescript
+// Forbidden — triggers static scanner
+const API_KEY = "sk-1234567890abcdef";
+```
+
+### ❌ Incorrect — Direct attribute assignment in test
+
+```typescript
+test('something', () => {
+  const settings = new AppSettings();
+  (settings as any).API_KEY = 'fake-key'; // violates DI contract
+});
+```
+
+### ❌ Incorrect — Inline secret in data file
+
+```json
+{
+  "smtp_password": "actual-secret-value"
+}
+```
+
+### ❌ Incorrect — Secret in log statement
+
+```typescript
+logger.info(`Request headers: ${JSON.stringify(headers)}`); // leaks cookies/tokens
+```
+
+## Enforcement
+
+- **Pre-commit secret scanner**: Run regex-based checks before every commit to detect credential patterns.
+- **Manual code review**: Reviewers must verify no secrets appear in diffs.
+- **Static analysis**: Pattern matching for `*_env_key` compliance in data files.
+
+## Exceptions
+
+There are **no legitimate exceptions** for committing secrets to version control. All credential values must remain in environment variables or secret stores only.
+
+## History / Discovered In
+
+This rule originated from a structured audit in the LeadScraper project, which identified five concrete leak patterns across data files, test fixtures, prompt files, and quality-output artefacts. The audit established the indirection pattern (`*_env_key` instead of inline values), the `data/` gitignore coverage, and the static scanner pattern. The detailed historical catalogue — sprint references, leak locations, and per-finding mitigations — is preserved in **ADR-003** in this repository.
+
+For consumer projects, the relevant signal is the **decision flow** above (Required Patterns and Pre-Commit Checklist): every commit must pass the secret-scan, and any inline-looking literal must use the indirection pattern or be explicitly justified.
+
+## Session-Renewal Procedure (Example)
+
+When handling authenticated sessions that expire (e.g., cookies), follow this procedure:
+
+1. Open a browser and navigate to the target service.
+2. Open DevTools (F12) → Network tab → refresh the page.
+3. Find any request → copy the authentication header or cookie value.
+4. Paste **only** into `.env` as `SERVICE_COOKIE=<value>`.
+5. Never paste the value into Python code, test files, or chat messages.
+
+*(This pattern was established for browser-session-based authentication — e.g., session cookies that need periodic renewal — and applies generally to any service requiring browser-based session capture.)*

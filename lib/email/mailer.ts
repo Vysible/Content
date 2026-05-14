@@ -1,45 +1,13 @@
 import nodemailer from 'nodemailer'
 import { prisma } from '@/lib/db'
 import { decrypt } from '@/lib/crypto/aes'
+import { withRetry } from '@/lib/utils/retry'
 
 export type EmailTrigger =
   | 'generation_complete'
   | 'draft_uploaded'
   | 'published'
   | 'share_approved'
-
-interface EmailConfig {
-  host: string
-  port: number
-  secure: boolean
-  user: string
-  encryptedPassword: string
-  recipients: string[] // bis zu 5
-}
-
-async function getEmailConfig(): Promise<EmailConfig | null> {
-  // SMTP-Config aus ApiKey-Tabelle (Provider HEDY wird als SMTP-Eintrag zweckentfremdet)
-  // Format: host:port:user:encryptedPassword, recipients in name
-  const key = await prisma.apiKey.findFirst({
-    where: { provider: 'HEDY', active: true, name: { startsWith: 'smtp:' } },
-  })
-  if (!key) return null
-
-  try {
-    const [, host, portStr, user] = key.name.split(':')
-    const port = parseInt(portStr ?? '587', 10)
-    return {
-      host,
-      port,
-      secure: port === 465,
-      user,
-      encryptedPassword: key.encryptedKey,
-      recipients: (key.model ?? '').split(',').filter(Boolean).slice(0, 5),
-    }
-  } catch {
-    return null
-  }
-}
 
 const TRIGGER_SUBJECTS: Record<EmailTrigger, string> = {
   generation_complete: 'Vysible: Generierung abgeschlossen',
@@ -53,14 +21,14 @@ export async function sendNotification(
   projectName: string,
   details?: string
 ): Promise<void> {
-  const config = await getEmailConfig()
+  const config = await prisma.smtpConfig.findFirst({ where: { active: true } })
   if (!config || config.recipients.length === 0) return
 
   let password: string
   try {
     password = decrypt(config.encryptedPassword)
-  } catch {
-    console.error('[Vysible] SMTP-Passwort konnte nicht entschlüsselt werden')
+  } catch (err: unknown) {
+    console.error('[Vysible] [FAIL] SMTP-Passwort konnte nicht entschlüsselt werden:', err)
     return
   }
 
@@ -74,15 +42,16 @@ export async function sendNotification(
   const subject = TRIGGER_SUBJECTS[trigger]
   const text = `Projekt: ${projectName}\n\n${details ?? ''}\n\nVysible – KI-Content-Plattform`
 
-  try {
-    await transporter.sendMail({
-      from: config.user,
-      to: config.recipients.join(', '),
-      subject,
-      text,
-    })
-    console.log(`[Vysible] E-Mail gesendet: ${trigger} für ${projectName}`)
-  } catch (err) {
-    console.error('[Vysible] E-Mail-Versand fehlgeschlagen:', err)
-  }
+  await withRetry(
+    () =>
+      transporter.sendMail({
+        from: config.user,
+        to: config.recipients.join(', '),
+        subject,
+        text,
+      }),
+    `smtp.sendMail(${trigger})`,
+  )
+
+  console.log(`[Vysible] E-Mail gesendet: ${trigger} für ${projectName}`)
 }

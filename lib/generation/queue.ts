@@ -1,9 +1,7 @@
 import { getJob, setStatus, emitEvent } from './job-store'
-import type { GenerationStep } from './types'
 
 const MAX_CONCURRENT = 3
 
-// Globaler Singleton
 const g = globalThis as unknown as {
   _vysibleQueue?: string[]
   _vysibleRunning?: number
@@ -33,12 +31,11 @@ export function getRunningCount(): number {
  * Versucht, den Job direkt zu starten. Falls alle Slots belegt sind,
  * wird der Job in die Warteschlange eingereiht und die Queue-Position
  * als SSE-Event gemeldet.
- * Gibt `true` zurück wenn sofort gestartet, `false` wenn eingereiht.
  */
-export function tryEnqueue(
+export async function tryEnqueue(
   jobId: string,
-  runner: () => Promise<void>
-): boolean {
+  runner: () => Promise<void>,
+): Promise<boolean> {
   if (getRunning() < MAX_CONCURRENT) {
     runNow(jobId, runner)
     return true
@@ -47,21 +44,18 @@ export function tryEnqueue(
   queue.push(jobId)
   const position = queue.length
 
-  setStatus(jobId, 'queued')
-  emitEvent(jobId, {
+  await setStatus(jobId, 'queued')
+  await emitEvent(jobId, {
     type: 'queue_position',
     data: { position },
     timestamp: new Date().toISOString(),
   })
 
-  // Runner für später merken – wir speichern ihn über einen Closure in queue
-  // Da wir nur jobId in der queue halten, brauchen wir eine Runner-Map
   runnerMap.set(jobId, runner)
 
   return false
 }
 
-// Runner-Map: jobId → async fn
 const runnerMapG = globalThis as unknown as { _vysibleRunnerMap?: Map<string, () => Promise<void>> }
 if (!runnerMapG._vysibleRunnerMap) runnerMapG._vysibleRunnerMap = new Map()
 const runnerMap: Map<string, () => Promise<void>> = runnerMapG._vysibleRunnerMap
@@ -84,23 +78,27 @@ function dequeueNext(): void {
 
   if (!runner) return
 
-  const job = getJob(nextJobId)
-  if (!job || job.status === 'error') return
+  // Queue-Status und Positionen aktualisieren (fire-and-forget, unkritisch)
+  getJob(nextJobId)
+    .then((job) => {
+      if (!job || job.status === 'error') return
 
-  // Queue-Positionen der wartenden Jobs aktualisieren
-  queue.forEach((id, idx) => {
-    emitEvent(id, {
-      type: 'queue_position',
-      data: { position: idx + 1 },
-      timestamp: new Date().toISOString(),
+      const updatePositions = queue.map((id, idx) =>
+        emitEvent(id, {
+          type: 'queue_position',
+          data: { position: idx + 1 },
+          timestamp: new Date().toISOString(),
+        }),
+      )
+      return Promise.all(updatePositions)
     })
-  })
+    .catch((err: unknown) => {
+      console.warn('[Vysible] [WARN] Queue-Positions-Update fehlgeschlagen:', err)
+    })
 
   runNow(nextJobId, runner)
 }
 
 export function estimatedQueueWaitSeconds(): number {
-  // Grobe Schätzung: ~30s pro laufendem Job
-  const waitingJobs = queue.length
-  return waitingJobs * 30
+  return queue.length * 30
 }

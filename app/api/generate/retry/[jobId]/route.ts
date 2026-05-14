@@ -8,7 +8,7 @@ import type { GenerationStep } from '@/lib/generation/types'
 export async function POST(_req: Request, { params }: { params: { jobId: string } }) {
   await requireAuth()
 
-  const job = getJob(params.jobId)
+  const job = await getJob(params.jobId)
   if (!job) {
     return NextResponse.json({ error: 'Job nicht gefunden' }, { status: 404 })
   }
@@ -26,8 +26,8 @@ export async function POST(_req: Request, { params }: { params: { jobId: string 
     return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
   }
 
-  retryPipeline(params.jobId, job.failedStep as GenerationStep, project).catch((err) => {
-    console.error('[Vysible] Unhandled retry error:', err)
+  retryPipeline(params.jobId, job.failedStep as GenerationStep, project).catch((err: unknown) => {
+    console.error('[Vysible] [FAIL] Unhandled retry error:', err)
   })
 
   return NextResponse.json({ ok: true })

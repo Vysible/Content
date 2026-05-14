@@ -12,7 +12,7 @@ export async function GET(req: Request, { params }: { params: { jobId: string } 
   await requireAuth()
 
   const { jobId } = params
-  const job = getJob(jobId)
+  const job = await getJob(jobId)
 
   if (!job) {
     return new Response('Job nicht gefunden', { status: 404 })

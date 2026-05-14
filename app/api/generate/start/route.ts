@@ -41,9 +41,9 @@ export async function POST(req: Request) {
     )
   }
 
-  const job = createJob(projectId)
+  const job = await createJob(projectId)
 
-  tryEnqueue(job.id, () => runGenerationPipeline(job.id, project))
+  await tryEnqueue(job.id, () => runGenerationPipeline(job.id, project))
 
   return NextResponse.json({ jobId: job.id })
 }

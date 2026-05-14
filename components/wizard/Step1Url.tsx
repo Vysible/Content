@@ -128,7 +128,7 @@ export function Step1Url({ data, onChange, onNext }: Step1Props) {
         <button
           onClick={onNext}
           disabled={!canProceed}
-          className="px-6 py-2 bg-cognac hover:bg-cognacDark text-white text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-cognac hover:bg-cognacDark text-black text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Weiter →
         </button>

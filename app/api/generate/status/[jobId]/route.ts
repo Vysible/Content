@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 export async function GET(_req: Request, { params }: { params: { jobId: string } }) {
   await requireAuth()
 
-  const job = getJob(params.jobId)
+  const job = await getJob(params.jobId)
   if (!job) {
     return NextResponse.json({ error: 'Job nicht gefunden' }, { status: 404 })
   }
