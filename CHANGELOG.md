@@ -14,6 +14,16 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `docs/dev-prompts/sprint-p2b-kalender-sharing.md` — Sprint-Prompt P2-B (Slice 7 + 10).
 - `docs/dev-prompts/sprint-p2c-email.md` — Sprint-Prompt P2-C (Slice 19).
 
+### Added
+- KI-Chat (`ChatPanel.tsx`): Sichtbarer Konversationsverlauf — jede Chip-Aktion und
+  Freitext-Anweisung erzeugt ein User-Bubble + Assistant-Bubble (80-Zeichen-Plain-Text-
+  Vorschau der Überarbeitung). Versionswiederherstellung erscheint als System-Marker
+  ("Version X wiederhergestellt"). Thread scrollt automatisch zum neuesten Eintrag
+  (Sprint P2-A, Sub-Slice B, Slice 8 — FA-F-23).
+- KI-Chat: Header zeigt Artikel-Titel ("KI-Überarbeitung: <Titel>") via neuem
+  `articleTitle`-Prop. Fallback auf Kanal-Bezeichnung wenn Titel fehlt
+  (Slice-8-Kontext-Binding).
+
 ### Fixed
 - Editor-Autosave: Stiller Catch in `EditorView.tsx` und `ResultsTabs.tsx`-Autosave durch
   geloggte Catch-Blöcke ersetzt. SaveIndicator wird jetzt aus `ResultsTabs` (per-Item-State)
@@ -23,6 +33,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `SharePanel.tsx`: Drei stille Catches (load/create/revoke) durch geloggte Catches
   ersetzt — `console.warn('[Vysible] …')` mit kontextuellem Fehlertext (Sprint P2-A,
   Forge-Regel `resilience §3a`).
+- `ChatPanel.tsx`: Stiller catch im send()-Pfad (`setError` only) durch
+  `console.error('[Vysible] Chat-Überarbeitung fehlgeschlagen', err)` + Error-Bubble
+  im Thread ergänzt (Forge-Regel `resilience §3a`).
 
 ### Changed
 - `docs/dev-prompts/Pre_Slice_Validation.md` (v1.2.0):

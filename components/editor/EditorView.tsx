@@ -14,6 +14,7 @@ interface Props {
   versionField: 'blog' | 'newsletter'
   initialContent: string
   saveState: SaveState
+  articleTitle?: string
   onUpdate: (updates: Partial<StoredTextResult>) => void
 }
 
@@ -24,6 +25,7 @@ export function EditorView({
   versionField,
   initialContent,
   saveState,
+  articleTitle,
   onUpdate,
 }: Props) {
   const [content, setContent] = useState(initialContent)
@@ -79,6 +81,7 @@ export function EditorView({
           versionField={versionField}
           currentContent={content}
           versions={versions}
+          articleTitle={articleTitle}
           onRevised={handleRevised}
         />
       </div>

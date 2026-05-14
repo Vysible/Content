@@ -291,6 +291,7 @@ function BlogTab({
                   versionField="blog"
                   initialContent={r.blog.html}
                   saveState={saveStates[globalIndex] ?? 'idle'}
+                  articleTitle={r.titel}
                   onUpdate={(updates) => onUpdate(globalIndex, updates)}
                 />
                 <div className="px-4 pb-4 flex items-center gap-3 flex-wrap">
@@ -419,6 +420,7 @@ function NewsletterTab({
                     versionField="newsletter"
                     initialContent={nl.body}
                     saveState={saveStates[globalIndex] ?? 'idle'}
+                    articleTitle={r.titel}
                     onUpdate={(updates) => onUpdate(globalIndex, updates)}
                   />
                 </Field>
