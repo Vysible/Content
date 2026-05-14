@@ -2,7 +2,15 @@ import { NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
 import { db } from '@/lib/db'
 
+export async function GET() {
+  return handler()
+}
+
 export async function POST() {
+  return handler()
+}
+
+async function handler() {
   const count = await db.user.count()
   if (count > 0) {
     return NextResponse.json({ error: 'Setup bereits abgeschlossen' }, { status: 409 })
