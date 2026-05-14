@@ -5,7 +5,7 @@
 Vysible ist eine browser-basierte KI-Content-Automationsplattform für Arzt- und Zahnarztpraxen im DACH-Raum. Single-Tenant, agentur-intern. Generiert 6-Monats-Content-Pakete (Blog, Newsletter, Social Media) aus einer Praxis-URL + Positionierungsdokument + Keywords.
 
 Vollständige Anforderungen: `KI_Content_Plattform_Anforderungen_v6.0` (Konzeptdokument)  
-Implementierungsplan: `plan.md` (v6.1 — erweitert v6.0 um Slices 20–27)  
+Implementierungsplan: `docs/dev-prompts/plan-v6.1.md` (v6.1 — erweitert v6.0 um Slices 20–27)  
 Architekturentscheidungen: `docs/decisions.md`  
 Bekannte Abweichungen: `docs/forge-web-deviations.md`
 
