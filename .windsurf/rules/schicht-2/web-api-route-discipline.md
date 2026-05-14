@@ -1,0 +1,73 @@
+---
+trigger: glob
+description: "API route handlers must be thin: no business logic, no direct DB calls."
+globs:
+  - "**/app/api/**/*.ts"
+  - "**/pages/api/**/*.ts"
+---
+
+# Web — API Route Discipline
+
+## Scope
+
+Applies to all Next.js API route handlers (`app/api/` and `pages/api/`).
+Pure utility functions and service layer code are out of scope.
+
+## Rule
+
+### 1. Thin Route Handlers
+
+Route handlers are request/response adapters only. They:
+- Parse and validate the incoming request
+- Call a service or use-case function
+- Return the response
+
+Business logic must live in `src/services/` or `src/use-cases/`, not in route files.
+
+**Positive example:**
+
+```typescript
+// app/api/users/route.ts — thin handler
+export async function POST(request: Request) {
+  const body = await request.json();
+  const validated = createUserSchema.parse(body); // validate only
+  const user = await userService.create(validated); // delegate to service
+  return Response.json(user, { status: 201 });
+}
+```
+
+**Anti-pattern:**
+
+```typescript
+// app/api/users/route.ts — fat handler (business logic inline)
+export async function POST(request: Request) {
+  const body = await request.json();
+  const existing = await db.user.findUnique({ where: { email: body.email } });
+  if (existing) throw new Error('Email taken');
+  const hashed = await bcrypt.hash(body.password, 10);
+  const user = await db.user.create({ data: { ...body, password: hashed } });
+  await emailService.sendWelcome(user.email); // 3 responsibilities in one handler
+  return Response.json(user);
+}
+```
+
+### 2. No Direct DB Calls
+
+Route handlers must not import `db` or `prisma` directly.
+All data access goes through a repository or service.
+
+**Anti-pattern:**
+
+```typescript
+import { db } from '@/lib/db'; // direct DB import in route file
+```
+
+### 3. Input Validation at the Boundary
+
+Every POST/PUT/PATCH handler validates input with a schema (Zod or equivalent)
+before passing data to the service layer.
+
+## Deliberately Omitted
+
+- GET handlers that return static config or health checks may be thin without a service layer.
+- File upload endpoints may access the filesystem adapter directly if no business logic exists.

@@ -1,0 +1,130 @@
+---
+alwaysApply: true
+description: "Architectural conflict resolution via documented precedence chain. Single Source of Truth per architecture domain."
+---
+
+# Governance Precedence
+
+## Scope
+
+Applies to any non-trivial project that has more than one architecture-relevant document. When multiple documents, ADRs, or code comments describe the same architectural concern, this rule determines which source is authoritative.
+
+---
+
+## Rule
+
+### Single Source of Truth per Architecture Domain
+
+Each architectural domain (data model, event processing, security policies, test strategy, API contracts, deployment topology) has **exactly one** designated authoritative source document.
+
+- The authoritative source is the only place where the rule is *defined*.
+- Code, subordinate documents, and implementations must *reference* that source — never duplicate or restate it.
+- Restating an architectural rule at a second location is an error: when the rule changes, only one location gets updated.
+
+### Default Precedence Chain
+
+When two sources describe the same concern and they conflict, the following chain determines which wins:
+
+```
+docs/decisions.md  (project ADRs)
+  → docs/architecture.md
+    → component-specific documents
+      → implementation (code + comments)
+```
+
+**The leftmost (higher) source always wins.** Implementation-level comments have the lowest authority; ADRs in `docs/decisions.md` have the highest.
+
+Rationale: ADRs are the living, dated record of architectural decisions. The architecture document is the stable narrative that summarizes them. When the two diverge, the ADR is younger, more specific, and more authoritative — the architecture document is at risk of being out of date.
+
+Practical consequences:
+- If an accepted ADR refines or revises a statement in `docs/architecture.md`, the ADR wins. The architecture document must then be updated to reflect the ADR — but this update is **maintenance, not a new decision**.
+- If a component-specific document contradicts an accepted ADR, the ADR wins — and the contradiction must be resolved, not silently ignored.
+- If a code comment suggests a behavior different from `docs/architecture.md`, the code comment is wrong.
+
+Deviations from this chain — for example, code that intentionally diverges from an ADR — must themselves be a new ADR. Undocumented divergence is not permitted.
+
+### Project Override
+
+Projects may adjust the default chain to fit their structure (e.g., a monorepo may insert a workspace-level document above `docs/architecture.md`). When a project adjusts the chain:
+
+1. Document the adjusted chain in `docs/decisions.md` as an explicit ADR.
+2. Reference it in `docs/architecture.md` so readers know where to look.
+3. The adjusted chain applies for the lifetime of the project unless superseded by a new ADR.
+
+### DRY for Architecture Documentation
+
+Cross-cutting architectural rules (e.g., "all repository modules implement the Repository Protocol") are defined **once** in their designated authoritative document.
+
+- Downstream component documents reference the original definition — they do not restate it.
+- If a component needs a local clarification, it adds a pointer: *"See `docs/architecture.md §3.2` for the general rule; this component applies it as follows: ..."*
+
+### Decision Logging
+
+Treat a change as a decision candidate when it involves any of:
+- adoption or removal of a major technology
+- architectural pattern change
+- module boundary change
+- security or performance strategy shift
+- introduction of cross-cutting infrastructure
+
+When such a change occurs:
+- explicitly highlight whether it conflicts with existing decisions in `docs/decisions.md`
+- ask whether the decision should be recorded
+- generate a draft entry only after explicit confirmation — do not update `docs/decisions.md` automatically
+
+---
+
+## Rationale
+
+Multiple sources of truth guarantee contradictions. Without an explicit precedence chain, every architectural conflict becomes a debate about which document is "more right." That debate is expensive and unresolvable without pre-agreed rules. An explicit chain converts "which source wins?" from a negotiation into a lookup.
+
+DRY applied to documentation has the same motivation as DRY in code: a rule stated in two places will eventually diverge. One location is always updated; the other becomes stale and misleading.
+
+---
+
+## Examples
+
+### ✅ Correct: ADR refines architecture document, both stay consistent
+
+`docs/architecture.md` describes the persistence strategy in general terms. `docs/decisions.md` contains ADR-005 that revises the strategy for a specific subsystem (e.g., switching from SQLite to PostgreSQL). After ADR-005 is accepted, `docs/architecture.md` is updated to reflect the new state — the update is maintenance, not a new decision. Code follows ADR-005.
+
+### ✅ Correct: code comment defers to higher authority
+
+A module docstring says: *"For shared state lifecycle rules, see ADR-007 in `docs/decisions.md`."* The docstring does not restate the rule, only points to the authoritative source.
+
+### ❌ Incorrect: conflicting sources with no resolution
+
+A module docstring states: *"This module is responsible for all configuration defaults."* `docs/architecture.md` states: *"All configuration defaults live in the central settings class."* No precedence is documented. Developers disagree about which is correct. The conflict is silently ignored and both documents go stale independently.
+
+### ❌ Incorrect: restated rule that diverges
+
+`docs/architecture.md` defines the retry policy. Three component READMEs each copy-paste a paraphrase of the same policy. When the policy is updated in `docs/architecture.md`, two of the three READMEs are not updated. Readers of the component READMEs now follow the wrong policy.
+
+### ❌ Incorrect: code diverges from ADR without a new ADR
+
+An accepted ADR specifies that all repositories implement the `Repository` Protocol. A new repository class is added that does not implement the Protocol. No new ADR documents this divergence. The code is wrong; either the ADR must be revised by a new ADR (`Supersedes ADR-XXX`) or the new code must comply.
+
+---
+
+## Enforcement
+
+Code review. No automated enforcement is possible for document consistency — this is a structural discipline, not a code pattern.
+
+Reviewers should check:
+- Does the PR introduce a new architectural rule anywhere other than the designated authoritative document?
+- Does the PR silently contradict an existing entry in `docs/decisions.md`?
+- If a new precedence-level document is introduced, is the chain updated in `docs/decisions.md`?
+
+---
+
+## Exceptions
+
+None. A project that cannot commit to a single source of truth per domain has no reliable architecture documentation.
+
+---
+
+## History / Discovered In
+
+This rule originates from AlgoTrader's Conflict Resolution Rule and DRY Enforcement Rule, which mandated a strict document hierarchy for resolving ambiguity in a complex, multi-document codebase. The trading-domain specifics (particular roadmap files, domain concepts) were stripped; the structural pattern — precedence chain, single source per domain, DRY for documentation — is universally applicable.
+
+The DataCollector project independently arrived at the same pattern (`docs/architecture.md` and `docs/decisions.md` as paired sources, with explicit cross-references between them), confirming the principle generalizes beyond any single project type.

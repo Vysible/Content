@@ -1,0 +1,325 @@
+---
+alwaysApply: true
+description: "Resilience invariants: no silent exceptions, no disabled SSL, no retry-less IO. Mandatory for all network and filesystem operations."
+---
+
+# Resilience
+
+## Scope
+
+Applies to all code paths that perform IO: network (HTTP, SMTP, gRPC), filesystem, subprocess, and database calls. Pure functions with no IO are out of scope.
+
+## Why this rule exists
+
+Static analysis repeatedly surfaces three runtime-robustness defects in IO-heavy TypeScript projects:
+
+| Class | Failure mode | Detection |
+|-------|-------------|-----------|
+| Bare `catch {}` / `catch { /* ignored */ }` (silent failure) | Swallowed exceptions hide data loss and bugs from observability | regex / AST |
+| `rejectUnauthorized: false` hardcoded | Disabled certificate validation opens MITM and silent data corruption | regex |
+| External IO call without retry | Transient errors (429/503/timeout) turn into aborted runs | module-level grep |
+
+Each class causes a different kind of **silent production failure**. The rule below specifies hard prohibitions for each, with corrective code templates.
+
+This rule originated from concrete production findings across multiple projects; the historical findings catalogue and its mapping to the three classes is preserved in ADR-004.
+
+---
+
+## Rule
+
+### 3a. No Silent Exception Handlers
+
+Every `catch` block must produce an observable signal. "Observable" means **at least one of**: a log call at `warn` or `error`, a re-throw, or a structured return value carrying the error.
+
+#### Hard rules
+
+1. `catch (error: unknown)` is allowed **only** when paired with `logger.error(...)` and either a re-throw or a structured return value carrying the error.
+2. An empty `catch {}` block is **never** allowed.
+3. A `catch` block whose sole body is a comment or `/* ignored */` is **never** allowed.
+4. Error types must be as narrow as the call's documented contract permits — prefer `AxiosError`, `TypeError`, `SyntaxError`, a custom domain error, etc.
+
+#### Code template
+
+```typescript
+// ✅ Narrow type + log + re-throw (default for production code)
+try {
+  await riskyCall();
+} catch (exc: unknown) {
+  logger.error(`HTTP call to ${url} failed: ${exc}`);
+  throw exc;
+}
+
+// ✅ Truly optional cleanup — narrow type + warning
+try {
+  await optionalCleanup();
+} catch (exc: unknown) {
+  if (exc instanceof Error && exc.message.includes('ENOENT')) {
+    logger.warn(`Cleanup file missing (ignored): ${exc.message}`);
+  } else {
+    throw exc;
+  }
+}
+
+// ✅ Defaulting after broad catch — log + reason in return value
+try {
+  return parse(payload);
+} catch (exc: unknown) {
+  logger.warn(`Parse failed for payload-id=${payloadId}: ${exc}`);
+  return { value: null, error: String(exc) };
+}
+```
+
+```typescript
+// ❌ Silent swallow — finding immediately
+try {
+  riskyCall();
+} catch (error: unknown) {
+  // ignored
+}
+
+// ❌ Returning undefined on broad catch without logging
+try {
+  return parse(payload);
+} catch {
+  return undefined;
+}
+```
+
+#### Logger setup convention
+
+```typescript
+// Production code under src/<your-package>/
+import { logger } from '../utils/logger';
+```
+
+Never use `console.log()` for errors in production code. Use a structured logger.
+
+#### Regex pattern (pre-commit detection)
+
+```powershell
+# Empty or comment-only catch blocks in src/
+Select-String -Path "src" -Pattern "catch\s*\([^)]*\)\s*\{\s*\}" -Recurse
+# → Zero hits expected.
+
+# Bare catch without error binding (TypeScript allows catch {})
+Select-String -Path "src" -Pattern "}\s*catch\s*\{" -Recurse
+# → Zero hits expected.
+```
+
+---
+
+### 3b. No Disabled SSL Verification
+
+`rejectUnauthorized: false` must never appear as a literal in source code. SSL bypass must always come from a config setting, never from a hardcoded constant.
+
+#### Hard rules
+
+1. `rejectUnauthorized: false` as a literal is **forbidden** in `src/` and any backend code.
+2. If a script under `scripts/` genuinely needs to disable TLS (e.g., local debug against a self-signed cert), it must:
+   - Use `rejectUnauthorized: false // eslint-disable-line -- reason: <one-line justification>`
+   - Live under `scripts/` only — never under `src/` or `backend/`
+   - Be documented in the file docstring as a debug-only tool
+3. Production SSL behaviour must be driven by a config class (e.g., `AppSettings`), defaulting to `true`.
+
+#### Code template
+
+```typescript
+// ✅ Driven by config, defaults to true
+import https from 'node:https';
+const agent = new https.Agent({ rejectUnauthorized: config.SSL_VERIFY });
+const response = await fetch(url, { agent } as RequestInit);
+
+// ✅ axios variant — separate flag documented with reason
+import axios from 'axios';
+const client = axios.create({
+  httpsAgent: new https.Agent({ rejectUnauthorized: config.SCRAPING_SSL_VERIFY }),
+});
+
+// ✅ Custom CA when needed (rare)
+import fs from 'node:fs';
+const ca = fs.readFileSync('./certs/ca.pem');
+const agent = new https.Agent({ ca });
+```
+
+```typescript
+// ❌ Hardcoded — disables TLS for everyone, every environment
+const agent = new https.Agent({ rejectUnauthorized: false });
+axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
+```
+
+#### Regex pattern (pre-commit detection)
+
+```powershell
+# Hardcoded rejectUnauthorized: false outside config references
+Select-String -Path "src","backend" -Pattern "rejectUnauthorized\s*:\s*false" -Recurse |
+    Where-Object { $_.Line -notmatch "config\.|settings\.|AppSettings|eslint-disable" }
+# → Zero hits expected.
+```
+
+---
+
+### 3c. No Retry-less IO
+
+Every call that crosses a process boundary to a **third-party service** must wrap the request in a retry helper with exponential backoff.
+
+"Third-party service" means: external HTTP APIs, SMTP relays, RSS feeds, any service not owned by the running process. Internal localhost calls (e.g., service → its own scheduler) are out of scope.
+
+#### Hard rules
+
+1. **Retry budget**: maximum 3 attempts. More than 3 is wasteful and prolongs incidents.
+2. **No retry on 4xx except 429**: 400/401/403/404 are permanent — retrying corrupts logs and burns rate-limit budget.
+3. **Retry on**: 429, 5xx, network errors, `ECONNRESET`, `ETIMEDOUT`, `AbortError`.
+4. **Final failure must log at ERROR with full error detail** — operators need the stack trace.
+5. **Use `await sleep(ms)`** — never block the event loop with a synchronous sleep.
+6. **Per-call context string** in every log line so operators can grep (e.g., `"<service>.<operation>"` such as `"payment_api.charge"` or `"directory.fetch_page"`).
+
+#### Code template (async)
+
+```typescript
+import { logger } from '../utils/logger';
+
+const MAX_RETRIES = 3;        // tunable per project
+const BACKOFF_BASE_MS = 2000; // tunable per project
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  context: string,
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      return await fn();
+    } catch (exc: unknown) {
+      // 4xx (except 429) is permanent — do not retry
+      if (exc instanceof Response && exc.status >= 400 && exc.status < 500 && exc.status !== 429) {
+        logger.error(`Permanent HTTP ${exc.status} on ${context}: ${exc}`);
+        throw exc;
+      }
+      lastError = exc;
+      const wait = BACKOFF_BASE_MS ** attempt;
+      logger.warn(`Attempt ${attempt + 1}/${MAX_RETRIES} failed for ${context}: ${exc} — retrying in ${wait}ms`);
+      await sleep(wait);
+    }
+  }
+  logger.error(`All ${MAX_RETRIES} attempts failed for ${context}: ${lastError}`);
+  throw lastError;
+}
+```
+
+The `axios-retry` or `p-retry` packages are also acceptable; if used, configure explicit `retries: 3`, `retryDelay: exponentialDelay`, and a `retryCondition` that skips permanent 4xx errors.
+
+#### Regex pattern (pre-commit detection)
+
+```powershell
+# Check that every external HTTP client module has a retry symbol
+foreach ($f in Get-ChildItem -Path "src" -Recurse -Filter "*client*.ts","*fetcher*.ts","*enricher*.ts" | Select-Object -ExpandProperty FullName) {
+    $hits = Select-String -Path $f -Pattern "withRetry|p-retry|axios-retry|retry" -ErrorAction SilentlyContinue
+    if (-not $hits) { Write-Host "MISSING RETRY: $f" }
+}
+# → Zero "MISSING RETRY" lines expected.
+```
+
+---
+
+## Rationale
+
+**Silent exceptions (3a):** When a `catch` block silently discards an error, the failure becomes invisible — no log entry, no metric, no alert. Operators cannot distinguish "nothing happened" from "something failed quietly". Data loss, corrupted state, and missed nightly runs all look identical in a silent-swallow codebase. The fix costs one line (`logger.error(...)`) and pays for itself the first time an incident is debugged in minutes rather than hours.
+
+**Disabled SSL (3b):** Hardcoding `rejectUnauthorized: false` removes certificate validation for every caller in every environment. A single committer disabling TLS to work around a dev-environment cert issue silently disables security in production as well. Routing the flag through a config class makes the trade-off explicit, auditable, and environment-scoped. The `eslint-disable` escape hatch exists for the rare legitimate case, but it requires a documented reason.
+
+**Retry-less IO (3c):** Transient failures — 429 rate-limits, 503 overloads, TCP resets, DNS blips — are a normal part of calling any external service. Without a retry layer, every transient error aborts the entire operation: a nightly batch run fails because one external API request hit a quota window. Exponential backoff with a small retry budget absorbs these transients with negligible latency cost. The 4xx-skip rule ensures we don't retry programmer errors (wrong API key, malformed request) indefinitely.
+
+---
+
+## Examples
+
+### 3a — Silent Exceptions
+
+```typescript
+// ✅ Correct: narrow type, log, re-throw
+try {
+  data = await fetchPage(url);
+} catch (exc: unknown) {
+  logger.error(`Page fetch failed for ${url}: ${exc}`);
+  throw exc;
+}
+
+// ❌ Incorrect: broad silent swallow
+try {
+  data = await fetchPage(url);
+} catch {
+  // ignored
+}
+```
+
+### 3b — SSL Verification
+
+```typescript
+// ✅ Correct: config-driven, defaults to true
+import https from 'node:https';
+const agent = new https.Agent({ rejectUnauthorized: settings.SSL_VERIFY });
+const resp = await fetch(url, { agent } as RequestInit);
+
+// ❌ Incorrect: literal false disables TLS everywhere
+const agent = new https.Agent({ rejectUnauthorized: false });
+const resp = await fetch(url, { agent } as RequestInit);
+```
+
+### 3c — Retry-less IO
+
+```typescript
+// ✅ Correct: wrapped in retry helper
+const result = await withRetry(
+  () => client.fetchData(query),
+  'external_api.fetch_data',
+);
+
+// ❌ Incorrect: bare call with no retry
+const result = await client.fetchData(query);
+```
+
+---
+
+## Enforcement
+
+The following checks are implemented as pre-commit shell commands (PowerShell). AST-based checks are Phase 2+ territory.
+
+```powershell
+# 1) No empty/comment-only catch blocks in src/
+Select-String -Path "src","backend" -Pattern "catch\s*\([^)]*\)\s*\{\s*(//[^\n]*)?\s*\}" -Recurse
+
+# 2) No hardcoded rejectUnauthorized: false outside config references
+Select-String -Path "src","backend" -Pattern "rejectUnauthorized\s*:\s*false" -Recurse |
+    Where-Object { $_.Line -notmatch "config\.|settings\.|AppSettings|eslint-disable" }
+
+# 3) No bare catch {} (TypeScript syntax)
+Select-String -Path "src","backend" -Pattern "}\s*catch\s*\{" -Recurse
+
+# 4) Every external HTTP client module has a retry symbol
+foreach ($f in Get-ChildItem -Path "src" -Recurse -Filter "*client*.ts","*fetcher*.ts","*enricher*.ts" | Select-Object -ExpandProperty FullName) {
+    $hits = Select-String -Path $f -Pattern "withRetry|p-retry|axios-retry|retry" -ErrorAction SilentlyContinue
+    if (-not $hits) { Write-Host "MISSING RETRY: $f" }
+}
+```
+
+All four checks must return zero hits on a clean commit.
+
+---
+
+## Exceptions
+
+| Prohibition | Allowed exception |
+|-------------|------------------|
+| No silent catch | **None.** Always log or re-throw. There is no legitimate reason to silently discard an exception in production code. |
+| No disabled SSL | Allowed in `scripts/` (debug tools only) with `// eslint-disable` and a documented reason. Never in `src/` or `backend/`. |
+| No retry-less IO | Allowed for idempotent reads from the **local filesystem** (trivially reliable, O(1) latency). Not allowed for any network call. |
+
+---
+
+## History / Discovered In
+
+This rule was originally extracted from production findings in the LeadScraper project, where each of the three prohibition classes was documented with specific source-file locations and corrective patches. The detailed historical catalogue — sprint references, file paths, and root-cause analysis per finding — is preserved in **ADR-004** in this repository.
+
+For consumer projects, the relevant signal is the **classification** above: every IO-touching pull request should be reviewed against the three prohibitions, with zero new instances expected on protected branches.

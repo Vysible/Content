@@ -1,0 +1,203 @@
+---
+alwaysApply: true
+description: "Avoid duplicate implementations. Reuse via abstraction (interface, helper module, base class). Exception: interface-based polymorphism is legitimate."
+---
+
+# No Duplication
+
+## Scope
+
+Applies to all production source code (`src/`, `backend/`, or equivalent). Test code is explicitly excluded — tests may repeat setup for clarity. Data files and migration scripts are out of scope.
+
+## Rule
+
+Before writing any new function, class, constant, or configuration value: **search the codebase for an existing implementation first.**
+
+If an equivalent already exists: use it, extend it, or move it to a shared location. Never create a second copy.
+
+Cross-module duplication is worse than intra-module duplication. A shared helper module is always preferred over copy-paste across two separate modules.
+
+### Mandatory Pre-Write Checklist
+
+Before implementing anything, answer these questions:
+
+1. **Does this function already exist?**
+   ```bash
+   grep -rn "function <functionName>\|const <functionName>" src/
+   ```
+   If found: import and reuse. Do not rewrite.
+
+2. **Does this constant / path / default already exist?**
+   Check the central config class (e.g., `AppSettings`, `Settings`) first.
+   Check shared model files for reusable interface/type definitions.
+   If found: import from there. Do not redefine locally.
+
+3. **Does this utility already exist in a private helper?**
+   Private helpers (unexported, module-local) in one module must **not** be imported by other modules. If two modules need the same helper, move it to the appropriate shared location and export it from there.
+
+### Refactoring Obligation
+
+If you discover an existing duplicate while working on a task:
+
+1. Flag it explicitly: `⚠️ DUPLICATION DETECTED: <location A> and <location B>`
+2. Consolidate before adding new code — do not leave the duplicate in place
+3. Update all call sites
+4. Run the test suite to verify nothing broke
+
+---
+
+## Rationale
+
+Duplication multiplies the surface for bugs: when a bug exists in copied logic, it must be fixed in every copy — and one copy is always missed. It increases the cost of every future change, since intent is spread across locations. It obscures ownership: two implementations of the same concept create ambiguity about which is authoritative.
+
+The pre-write checklist is the primary enforcement mechanism. It costs thirty seconds and prevents hours of future debugging.
+
+---
+
+## Hotspot Table
+
+These patterns have historically produced duplicates across projects. Be especially vigilant when working in these areas. Before adding code in any of these categories, grep for an existing implementation first.
+
+| Category | Canonical location (per project) | Do NOT redefine in | Discovered in |
+|----------|----------------------------------|-------------------|---------------|
+| Storage adapter read/write (file, DB, CSV) | Dedicated repository/adapter module | CLI commands, routers, schedulers | Initial audit |
+| Dependency wiring / container setup | Central DI container or `index.ts` entry point | Individual business modules | Initial audit |
+| Runtime config & defaults | Central settings class (`AppSettings` or equivalent) | Individual modules | Initial audit |
+| Shared domain model instantiation | Injected via constructor | Do not instantiate inline in callers | Initial audit |
+| External service model name / version string | Central config | Do not hardcode in call sites | Initial audit |
+| Domain-specific extractors (field extraction logic) | Dedicated extractor module | Do not copy into new scrapers or stages | Initial audit |
+| Follow-up / queue read logic | Dedicated scheduler module | Routers / handlers (call the module, don't re-implement) | Sprint P35 |
+| Schema / data validation logic | Dedicated validator module | Scripts, routers (import only) | Sprint P36 |
+| Stage/step handoff in multi-step processing | Pipeline orchestrator | Individual stage modules | Initial audit |
+| HTTP client wrapper | Shared HTTP client adapter | Every module that needs HTTP | Initial audit |
+
+---
+
+## Examples
+
+### ✅ Correct: shared helper
+
+```typescript
+// shared location: src/utils/fileUtils.ts
+import { glob } from 'glob';
+
+export async function findLatestFile(directory: string, pattern: string): Promise<string | null> {
+  const files = (await glob(`${directory}/${pattern}`)).sort();
+  return files.at(-1) ?? null;
+}
+```
+
+```typescript
+// consuming module A — imports, does not reimplement
+import { findLatestFile } from '../utils/fileUtils';
+
+const latest = await findLatestFile(OUTPUT_DIR, '*.csv');
+```
+
+### ✅ Correct: interface with two implementers (polymorphism, not duplication)
+
+```typescript
+// interfaces/Extractor.ts
+export interface Extractor {
+  extract(raw: string): Record<string, unknown>;
+}
+```
+
+```typescript
+// emailExtractor.ts
+export class EmailExtractor implements Extractor {
+  extract(raw: string): Record<string, unknown> {
+    // email-specific logic
+  }
+}
+
+// addressExtractor.ts
+export class AddressExtractor implements Extractor {
+  extract(raw: string): Record<string, unknown> {
+    // address-specific logic
+  }
+}
+```
+
+Both `extract()` implementations are **polymorphism** — they implement an interface and intentionally differ in body. This is not duplication.
+
+### ❌ Incorrect: two functions with 80%+ overlap in different modules
+
+```typescript
+// moduleA.ts
+function _fetchPendingItems(db: Db) {
+  return db.query(Item).where({ status: 'pending' });
+}
+
+// moduleB.ts  ← copy-paste with minor rename
+function _getOpenItems(db: Db) {
+  return db.query(Item).where({ status: 'pending' });
+}
+```
+
+Consolidate into a shared query function and import it in both modules.
+
+---
+
+## Enforcement
+
+This rule is `alwaysApply: true`. Enforcement is primarily via **code review** and the mandatory pre-write checklist above.
+
+Static tools that complement this rule (configure per project as needed):
+
+- **`jscpd`** — detects copy-pasted code blocks across the codebase
+- **`ts-prune`** — detects unused exports that may indicate abandoned duplicate implementations
+- **Duplicate function name scan** — a simple grep for function names appearing in ≥2 files catches accidental copy-paste
+
+When a static scanner reports a duplicate function name, apply the decision tree in the "Distinguishing Real Duplicates from Polymorphism" section before acting.
+
+---
+
+## Exceptions
+
+### Interface-based polymorphism
+
+Two or more classes implementing the same `interface` **may** have methods with identical signatures and similar structure. This is by design — it is the Strategy or Adapter pattern. It is **not** duplication and must not be consolidated.
+
+Decision rule: if there is an `interface` declaring the method, the implementations are polymorphism. Leave them alone.
+
+#### Anti-pattern: Pseudo-Interface-Excuse
+
+The interface exception protects **legitimate** polymorphism. It must not be used to retroactively justify duplicate code that has no real polymorphic purpose. The test is not "does an interface exist?" but "is there a runtime reason to swap implementations?"
+
+Examples of misuse:
+
+- **Two near-identical implementations declared under an interface with no swap-point.** If `XyzAdapterA` and `XyzAdapterB` are 95% identical and the codebase only ever instantiates one of them (the other is "for later"), this is duplication wearing an interface costume. Consolidate.
+- **Interface introduced after the duplication exists, to retrofit the exception.** If two duplicate classes existed first and an interface was added on top to silence a duplication finding, the interface does not legitimize the duplication. Remove the duplication, then keep the interface if it is genuinely useful.
+- **Interface with a single implementer.** An `interface` that has only one concrete implementation is not polymorphism — it is over-engineering. Polymorphism requires at least two genuine alternatives that exist for different real use cases.
+
+The honest test before invoking the Protocol exception:
+
+1. *Are there at least two implementations that are actually instantiated and used in different contexts?*
+2. *Does each implementation differ in **substance** (not just identifier names or trivial method bodies)?*
+3. *Is there a real runtime decision that selects between them — configuration, dependency injection, plugin loading?*
+
+If any answer is "no", it is not polymorphism. Treat it as duplication.
+
+### Test code
+
+Test modules may repeat setup, fixture construction, and assertion logic for clarity. DRY in tests is often counterproductive — overly abstracted tests become hard to read and debug. Test helpers should be local to the test module unless they are broadly reused (in which case, a shared `conftest.py` fixture is appropriate).
+
+---
+
+## Distinguishing Real Duplicates from Polymorphism
+
+Before consolidating any two implementations, answer:
+
+1. **Is there an `interface` declaring this method?** → polymorphism, leave alone.
+2. **Do the implementations have the same input/output contract but no interface?** → introduce an `interface` in the appropriate `interfaces/` module rather than merging the bodies.
+3. **Do they share the same body (≥80% identical lines) with no interface?** → real duplicate, consolidate per "Refactoring Obligation" above.
+4. **Same name but unrelated semantics?** → rename one to clarify intent, do not merge.
+
+---
+
+## History / Discovered In
+
+This rule was originally extracted from production findings in the LeadScraper project, where a structured audit identified seven concrete duplication patterns spanning storage adapters, dependency wiring, runtime configuration, domain-model instantiation, and external-service configuration. The detailed historical catalogue — sprint references, file paths, and consolidation strategies per finding — is preserved in **ADR-005** in this repository.
+
+For consumer projects, the relevant signal is the **decision flow** above (Distinguishing Real Duplicates from Polymorphism): every code review should walk the four-question checklist before consolidating or duplicating an implementation.

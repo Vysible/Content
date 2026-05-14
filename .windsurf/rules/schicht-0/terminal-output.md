@@ -1,0 +1,325 @@
+---
+trigger: always_on
+description: "Structured terminal output conventions: color coding, error semantics, Windows UTF-8/stdout setup. Mandatory for all CLI and log output."
+---
+
+# Terminal Output and Error Handling
+
+> **Note on `forge_trigger: always`:** The source rule (DataCollector) uses `alwaysApply: false` because not all DataCollector code is CLI-facing. Forge overrides this to `always` because the Windows stdout encoding trap manifests silently and is brutal to debug. Having this rule always in context for Windows consumers is worth the token cost.
+
+## Scope
+
+Applies to all code that produces terminal output: CLI commands, log statements, exception messages, and progress indicators. Pure library code that never writes to stdout/stderr is out of scope.
+
+---
+
+## Rule
+
+### Color Coding
+
+Use consistent colors across severity levels. Recommended convention (chalk library):
+
+| Level | Color | Use Case | chalk style |
+|-------|-------|----------|------------|
+| **ERROR** | Red | System failures, exceptions, critical errors | `chalk.bold.red` |
+| **WARNING** | Yellow | Missing dependencies, degraded performance, validation warnings | `chalk.yellow` |
+| **SUCCESS** | Green | Completed operations, milestones | `chalk.green` |
+| **INFO** | Default / dim | Normal operation logs, progress updates | `chalk.dim` or default |
+
+**Library recommendation:** [chalk](https://github.com/chalk/chalk) is the recommended library for colored terminal output in Node.js. Projects that use plain `console` for simpler needs may adopt the same color convention via ANSI codes — the convention is what matters, not the library.
+
+### Text Markers (Windows PowerShell Compatible)
+
+**Do NOT use emojis in terminal output** (unless the user explicitly requests them). Emojis break Windows cp1252 output before the UTF-8 setup is applied.
+
+Use text markers instead:
+
+| Marker | Meaning |
+|--------|---------|
+| `[OK]` | Success |
+| `[FAIL]` | Failure |
+| `[WARN]` | Warning |
+| `[INFO]` | Information |
+| `[SKIP]` | Skipped operation |
+
+### Warnings vs. Errors
+
+| Type | Behavior | Examples |
+|------|----------|----------|
+| **Warning** | Log, continue execution | Cache miss, degraded performance, data quality issues |
+| **Error** | Log, stop execution (or skip unit) | Auth failure, critical validation failure, DB connection failure |
+
+---
+
+## Windows stdout Setup (MANDATORY on Windows with Node.js CLI)
+
+**On Windows, Node.js may default to cp1252 for stdout/stderr in older terminals, breaking chalk/unicode output.**
+
+This causes:
+- Unicode characters (arrows, box-drawing) rendered as garbage in non-UTF-8 terminals
+- chalk color codes may appear as raw escape sequences in legacy consoles
+
+**Required for ALL CLI commands on Windows (PowerShell):**
+
+```powershell
+# Set once per PowerShell session
+$env:FORCE_COLOR = "1"
+
+# For full Unicode support: run in Windows Terminal or set code page
+chcp 65001
+```
+
+**In Node.js code — set stdout encoding explicitly when needed:**
+```typescript
+// Ensure UTF-8 output on Windows for chalk / unicode characters
+process.stdout.setEncoding('utf-8');
+process.stderr.setEncoding('utf-8');
+```
+
+**Alternative: Add to `.env` file:**
+```bash
+FORCE_COLOR=1
+```
+
+> **Rule for AI Agents:** When running CLI commands on Windows (detected via `process.platform === 'win32'`),
+> prefix with `$env:FORCE_COLOR=1;` if chalk output is expected.
+
+macOS and Linux use UTF-8 by default — this setup block is Windows-only.
+
+---
+
+## Output Buffer Pattern
+
+During execution, collect warnings and errors in memory and display a summary at the end. This prevents interleaved progress output from burying important messages.
+
+```typescript
+import chalk from 'chalk';
+
+class ExecutionSummary {
+  private warnings: string[] = [];
+  private errors: string[] = [];
+
+  addWarning(message: string): void {
+    this.warnings.push(message);
+    console.log(chalk.yellow(`[WARN] ${message}`));
+  }
+
+  addError(message: string): void {
+    this.errors.push(message);
+    console.log(chalk.bold.red(`[FAIL] ${message}`));
+  }
+
+  displaySummary(): void {
+    console.log(chalk.bold('\n=== EXECUTION SUMMARY ==='));
+
+    if (this.warnings.length > 0) {
+      console.log(chalk.yellow(`\nWarnings (${this.warnings.length}):`));
+      for (const w of this.warnings) {
+        console.log(chalk.yellow(`  [WARN] ${w}`));
+      }
+    }
+
+    if (this.errors.length > 0) {
+      console.log(chalk.bold.red(`\nErrors (${this.errors.length}):`));
+      for (const e of this.errors) {
+        console.log(chalk.bold.red(`  [FAIL] ${e}`));
+      }
+    }
+
+    if (this.warnings.length === 0 && this.errors.length === 0) {
+      console.log(chalk.green('[OK] No warnings or errors'));
+    }
+  }
+}
+
+// Usage in CLI
+const summary = new ExecutionSummary();
+
+for (const item of items) {
+  try {
+    await process(item);
+  } catch (e: unknown) {
+    if (e instanceof ApiError) {
+      summary.addError(`API error for ${item}: ${e.message}`);
+    } else if (e instanceof DataQualityError) {
+      summary.addWarning(`Data quality issue for ${item}: ${e instanceof Error ? e.message : String(e)}`);
+    } else {
+      throw e;
+    }
+  }
+}
+
+summary.displaySummary();
+```
+
+---
+
+## Progress Indicators (ora / cli-progress)
+
+For long-running operations, use a spinner or progress bar rather than per-item print statements:
+
+```typescript
+import ora from 'ora';
+
+const spinner = ora('Processing...').start();
+
+for (let i = 0; i < items.length; i++) {
+  spinner.text = `Processing ${items[i]} (${i + 1}/${items.length})`;
+  await processItem(items[i]);
+}
+
+spinner.succeed('All items processed');
+```
+
+---
+
+## Exception Handling
+
+```typescript
+import chalk from 'chalk';
+
+// Custom exception formatting for CLI output
+try {
+  await processItem(item);
+} catch (e: unknown) {
+  const message = e instanceof Error ? e.message : String(e);
+  const name = e instanceof Error ? e.constructor.name : 'Error';
+  console.log(chalk.bold.red(`\n[FAIL] Exception during processing:`));
+  console.log(`  Item:  ${item}`);
+  console.log(`  Error: ${name}: ${message}`);
+  console.log(`  Details: Check logs for full traceback`);
+
+  // Log full stack to file — terminal gets the summary, log file gets the detail
+  logger.error(`Processing failed for ${item}`, { error: e });
+}
+```
+
+---
+
+## Logging Integration
+
+Terminal output complements logging — it does not replace it.
+
+```typescript
+import chalk from 'chalk';
+import { logger } from '../utils/logger';
+
+// Terminal: user-friendly summary
+console.log(chalk.green('[OK] Operation completed'));
+
+// Log: detailed structured context
+logger.info('Operation completed', { item, rows: n, durationMs: ms });
+```
+
+For projects not using chalk, the same split applies: `console.log()` for user-facing terminal output, a structured logger for detailed context.
+
+---
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success (may include warnings) |
+| `1` | Failure (errors encountered) |
+| `2` | Invalid arguments |
+| `3` | Infrastructure connection failure (DB, broker, etc.) |
+
+---
+
+## Examples
+
+### ✅ Correct: chalk-styled output with text markers
+
+```typescript
+import chalk from 'chalk';
+
+console.log(chalk.green('[OK] Ingestion completed (250 rows)'));
+console.log(chalk.yellow('[WARN] Cache miss, fetching from API'));
+console.log(chalk.bold.red('[FAIL] Database connection failed: timeout'));
+```
+
+### ✅ Correct: plain console with consistent level semantics
+
+```typescript
+console.info('[OK] Ingestion completed (250 rows)');
+console.warn('[WARN] Cache miss, fetching from API');
+console.error('[FAIL] Database connection failed: timeout');
+```
+
+### ❌ Incorrect: emojis without confirmed UTF-8 terminal (Windows crash risk)
+
+```typescript
+console.log('✅ Ingestion completed');   // may corrupt on Windows cp1252 terminal
+console.log('⚠️ Cache miss');
+console.log('❌ Database failed');
+```
+
+### ❌ Incorrect: mixed or absent color conventions
+
+```typescript
+console.log('ERROR: something failed');           // no color, no marker
+console.log(chalk.blue('Error occurred'));         // wrong color for error level
+```
+
+---
+
+## Summary Format
+
+Standard end-of-run summary template:
+
+```
+=== EXECUTION SUMMARY ===
+
+Warnings (2):
+  [WARN] Item TSLA: 5 missing entries detected
+  [WARN] API rate limit approaching (95/100 calls)
+
+Errors (1):
+  [FAIL] Item GME: Database constraint violation (duplicate key)
+
+Performance:
+  Total items processed: 500
+  Successful:            497
+  Failed:                3
+  Total duration:        1250s (20m 50s)
+```
+
+---
+
+## Rationale
+
+Consistent terminal output is professional and scannable. When every severity level uses the same color and marker convention across all projects, operators recognize error states instantly without reading the full message.
+
+The Windows UTF-8 trap has caused debugging sessions measured in hours. Python's default `cp1252` encoding on Windows silently corrupts Rich output, causing the logging handler to enter an infinite error loop that looks like a hung process. The fix is a one-line environment variable — but only if the developer knows it exists. Having this rule always in context ensures Windows consumers are never surprised.
+
+---
+
+## Enforcement
+
+**Color convention and text markers:** Code review. No automated enforcement for output style.
+
+**stdout encoding on Windows:** Can be verified at application startup with a diagnostic check (document but don't mandate implementation in Phase 1). A Phase 4 cookiecutter template will pre-configure this.
+
+chalk's auto-detection handles CI environments where no TTY is available — `NO_COLOR` / non-TTY output falls back to plain text automatically.
+
+---
+
+## Exceptions
+
+| Rule | Exception |
+|------|-----------|
+| stdout encoding on Windows | None. Always required when running on Windows with unicode output. |
+| Color coding | CI/non-TTY environments — chalk handles this automatically via TTY detection (`FORCE_COLOR`, `NO_COLOR`). |
+| Text markers over emojis | If the user explicitly requests emoji output, emojis are allowed **only after** UTF-8 terminal support is confirmed. |
+
+---
+
+## History / Discovered In
+
+This rule originated in the DataCollector project (Python). The Windows encoding trap was adapted for Node.js:
+
+- **Original symptom (Python):** Rich logging handler enters an infinite error loop; process appears hung.
+- **Node.js equivalent:** chalk/unicode characters render as garbage in legacy Windows cmd.exe (cp1252 code page).
+- **Fix (Node.js):** Run in Windows Terminal (UTF-8 by default), or set `chcp 65001` / `process.stdout.setEncoding('utf-8')`.
+
+The `forge_trigger: always` override is a deliberate Forge-level decision: because this failure is silent and platform-specific, all Forge consumer projects on Windows must have the rule in context at all times.

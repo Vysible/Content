@@ -1,0 +1,68 @@
+---
+alwaysApply: false
+description: "OAuth tokens must never appear in localStorage, URL params, or logs."
+globs:
+  - "**/auth/**/*.ts"
+  - "**/lib/auth/**/*.ts"
+---
+
+# Web — OAuth Token Handling
+
+## Scope
+
+Applies to all authentication and session management code.
+Covers token storage, transmission, and logging.
+
+## Rule
+
+### 1. Tokens Only in httpOnly Cookies
+
+Access tokens and refresh tokens are stored exclusively in httpOnly, Secure, SameSite=Lax cookies.
+
+Never stored in:
+- `localStorage` or `sessionStorage` (XSS risk)
+- URL query parameters (leaks to server logs and browser history)
+- Non-httpOnly cookies
+
+**Positive example (NextAuth.js v5):**
+
+```typescript
+// auth.ts — NextAuth handles httpOnly cookie storage automatically
+export const { auth, signIn, signOut } = NextAuth({
+  providers: [GitHub({ clientId: process.env.AUTH_GITHUB_ID, clientSecret: process.env.AUTH_GITHUB_SECRET })],
+});
+```
+
+**Anti-pattern:**
+
+```typescript
+localStorage.setItem('access_token', token); // XSS readable
+document.cookie = `token=${token}`; // missing httpOnly, Secure
+```
+
+### 2. Tokens Never in Logs
+
+Token values must not appear in `console.log`, `logger.info`, error messages,
+or any observable output.
+
+**Anti-pattern:**
+
+```typescript
+console.log('Got token:', accessToken); // token in logs
+throw new Error(`Auth failed for token ${token}`); // token in error message
+```
+
+### 3. AuthProvider Interface (ADR-W004)
+
+All authentication calls go through `AuthProvider` interface — not directly
+to the OAuth library. This isolates the NextAuth.js v5 RC dependency.
+
+```typescript
+import type { AuthProvider } from '@/interfaces/AuthProvider';
+// Never: import { auth } from 'next-auth' directly in business logic
+```
+
+## Deliberately Omitted
+
+- PKCE flow details are outside this rule — handled by the OAuth library.
+- Token rotation strategy is an application-level decision.

@@ -29,7 +29,6 @@ async function handler() {
   return NextResponse.json({
     message: 'Admin-User angelegt',
     email: 'admin@vysible.de',
-    password: 'admin123',
-    hint: 'Passwort nach erstem Login ändern!',
+    hint: 'Passwort nach erstem Login ändern! Standard: admin123',
   })
 }
