@@ -47,4 +47,17 @@ EXPOSE 3000
 ENV PORT=3000 HOSTNAME="0.0.0.0"
 
 # Migrationen als root, dann Server als nextjs
-CMD ["sh", "-c", "for i in 1 2 3 4 5; do echo \"[Startup] Migration attempt $i...\"; node node_modules/prisma/build/index.js migrate deploy && echo '[Startup] Migration OK' && break; echo '[Startup] Migration failed, retrying in 5s...'; sleep 5; done; exec su-exec nextjs node server.js"]
+# Prisma migrate deploy mit Retry (DB evtl. noch nicht bereit). Exit 1 wenn alle Versuche fehlschlagen.
+CMD ["sh", "-c", "\
+  migrated=0; \
+  for i in 1 2 3 4 5; do \
+    echo \"[Startup] Migration attempt $i/5...\"; \
+    node node_modules/prisma/build/index.js migrate deploy \
+      && echo '[Startup] Migration OK' && migrated=1 && break; \
+    echo '[Startup] Migration failed, retrying in 5s...'; sleep 5; \
+  done; \
+  if [ \"$migrated\" = \"0\" ]; then \
+    echo '[Startup] FATAL: Migration failed after 5 attempts — container will not start'; \
+    exit 1; \
+  fi; \
+  exec su-exec nextjs node server.js"]
