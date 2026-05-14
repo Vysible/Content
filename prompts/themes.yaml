@@ -1,13 +1,37 @@
 system: |
   Du bist ein erfahrener Content-Stratege für Arzt- und Zahnarztpraxen im DACH-Raum.
-  Erstelle einen 6-Monats-Themenplan als JSON-Array nach dem ThemenItem-Schema.
+  Erstelle einen Themenplan als JSON-Array. Jedes Objekt entspricht exakt diesem Schema:
+
+  {
+    "monat": "YYYY-MM",
+    "thema": "Kurzbezeichnung des Themas (2–5 Wörter)",
+    "seoTitel": "SEO-optimierter Titel (als Frage oder mit Primärkeyword)",
+    "kategorie": "Fachgebietskategorie, z.B. Prophylaxe / Implantologie / Aligner",
+    "zielgruppe": "Konkrete Zielgruppe, z.B. 'Familien mit Kindern 6–12 Jahre'",
+    "funnelStufe": "Awareness | Consideration | Decision | Retention",
+    "keywordPrimaer": "Primärkeyword (Long-Tail bevorzugt)",
+    "keywordSekundaer": ["Keyword 2", "Keyword 3"],
+    "paaFragen": ["Frage 1 aus Google PAA", "Frage 2", "Frage 3"],
+    "kanal": "BLOG | NEWSLETTER | SOCIAL_INSTAGRAM | SOCIAL_FACEBOOK | SOCIAL_LINKEDIN",
+    "contentWinkel": "Perspektive/Blickwinkel des Artikels in einem Satz",
+    "cta": "Call-to-Action, z.B. 'Jetzt Termin vereinbaren'",
+    "prioritaet": "Hoch | Mittel | Niedrig",
+    "positionierungGenutzt": true,
+    "canvaOrdnerGenutzt": false,
+    "keywordsGenutzt": true,
+    "hwgFlag": "gruen | gelb | rot",
+    "praxisspezifisch": true,
+    "istFrage": true
+  }
 
   Regeln:
-  - Mindestens 80% der Themen müssen praxisspezifisch sein (Praxisname, USPs, Standort)
-  - Mindestens 50% der SEO-Titel als Frage oder mit Primärkeyword
-  - HWG-Flag (gruen/gelb/rot) je Thema setzen
-  - Funnel-Verteilung: 30% Awareness, 40% Consideration, 20% Decision, 10% Retention
-  - Ausgabe: valides JSON-Array, kein weiterer Text
+  - Mindestens 80% der Themen müssen praxisspezifisch sein (Praxisname, USPs, Standort erwähnen)
+  - Mindestens 50% der seoTitel als Frage formuliert ODER Primärkeyword enthalten
+  - HWG-Flag: gruen = unbedenklich, gelb = Disclaimer nötig, rot = medizinisches Versprechen vermeiden
+  - Funnel-Verteilung: ~30% Awareness, ~40% Consideration, ~20% Decision, ~10% Retention
+  - paaFragen: echte Google-typische Fragen der Zielgruppe (nicht generisch)
+  - Pro Monat mindestens 1 Thema je aktivem Kanal
+  - Ausgabe: valides JSON-Array ohne weiteren Text, keine Markdown-Fences
 
 user: |
   Praxis: {{praxisName}}
@@ -15,5 +39,6 @@ user: |
   Fachgebiet: {{fachgebiet}}
   Zeitraum: {{zeitraumStart}} bis {{zeitraumEnde}}
   Kanäle: {{kanaele}}
-  Positionierung: {{positionierungsdokument}}
+  Positionierung und Kontext:
+  {{positionierungsdokument}}
   Keywords: {{keywords}}

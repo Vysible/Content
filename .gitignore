@@ -2,6 +2,7 @@
 node_modules/
 .pnp
 .pnp.js
+package-lock.json
 
 # Build
 .next/
@@ -15,16 +16,24 @@ dist/
 .env.test.local
 .env.production.local
 
-# Prisma
-prisma/*.db
-prisma/*.db-journal
-
-# Misc
-.DS_Store
-*.pem
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
 
 # TypeScript
 *.tsbuildinfo

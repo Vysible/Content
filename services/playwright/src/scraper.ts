@@ -104,7 +104,7 @@ const MEDICAL_KEYWORDS = [
   'implant', 'aligner', 'invisalign', 'prophylax', 'bleaching', 'veneer',
   'zahnersatz', 'prothese', 'brücke', 'krone', 'wurzelkanal', 'zahnspange',
   'kfo', 'kieferorthopäd', 'parodontitis', 'parodontol',
-  'gynäkolog', 'frauenartz', 'dermatolog', 'hautarzt',
+  'gynäkolog', 'frauenarzt', 'dermatolog', 'hautarzt',
   'internist', 'allgemeinmedizin', 'hausarzt', 'kardiolog',
 ]
 
