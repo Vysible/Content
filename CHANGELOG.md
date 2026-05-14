@@ -5,6 +5,12 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `ContentCalendar.tsx`: Stiller `try/finally`-Block in `handleDrop` durch
+  `catch` mit UI-Rollback ersetzt — bei API-Fehler springt das Item zum
+  Ursprungsmonat zurück und `console.error('[Vysible] …')` wird geloggt
+  (Sprint P2-B, Sub-Slice A, Slice 7 — Forge `resilience §3a`).
+
 ### Added
 - `docs/dev-prompts/Pre_Sprint_Review.md` (v2.1.0) — fachliche Sprint-Prompt-Prüfung
   mit 8 Checks (Scope, Abhängigkeiten, ADRs, Forge-Regeln, FA-/NFA-IDs, Code-Realität,

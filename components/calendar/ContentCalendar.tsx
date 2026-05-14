@@ -73,23 +73,27 @@ export function ContentCalendar({ projectId, textResults }: Props) {
       e.preventDefault()
       if (dragIndex === null) return
 
+      const snapshot = items
       const updated = items.map((item) =>
         item.index === dragIndex ? { ...item, monat: targetMonat } : item
       )
       setItems(updated)
       setDragIndex(null)
 
-      // Persistieren
       setSaving(true)
       try {
         const movedItem = updated.find((i) => i.index === dragIndex)
         if (movedItem) {
-          await fetch(`/api/projects/${projectId}/results`, {
+          const res = await fetch(`/api/projects/${projectId}/results`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ index: movedItem.index, updates: { monat: targetMonat } }),
           })
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
         }
+      } catch (err: unknown) {
+        console.error('[Vysible] Kalender-Verschiebung konnte nicht gespeichert werden:', err)
+        setItems(snapshot)
       } finally {
         setSaving(false)
       }
