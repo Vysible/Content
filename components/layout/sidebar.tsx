@@ -18,6 +18,8 @@ function VysibleLogo({ className }: { className?: string }) {
 const navItems = [
   { href: '/', label: 'Dashboard', icon: '⊞' },
   { href: '/projects', label: 'Projekte', icon: '◈' },
+  { href: '/projects/new', label: 'Neues Projekt', icon: '+' },
+  { href: '/kpi', label: 'Social-KPIs', icon: '↗' },
   { href: '/settings/api-keys', label: 'API-Keys', icon: '⚿' },
   { href: '/settings/password', label: 'Passwort', icon: '⚙' },
 ]
