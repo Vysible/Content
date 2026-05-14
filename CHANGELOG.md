@@ -20,6 +20,13 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   da Sprint 2 abgeschlossen. Abgrenzung zum neuen `Pre_Sprint_Review.md` ergänzt.
 
 ### Added (Sprints)
+- Slice 13 — Blog-Gliederungsschritt (Phase-1-Restarbeiten, FA-KI-04):
+  - `prompts/blog-outline.yaml` NEU — Gliederungs-Prompt (H1 + 3–5 H2 + je 1 Satz, HWG-konform, ~150–200 Wörter)
+  - `lib/generation/texts.ts` MOD: `generateBlogOutlines()` (exportiert) — Gliederung für alle Blog-Themen; Gliederung als Kontext an `generateBlogPost()` übergeben
+  - `lib/generation/types.ts` MOD: `GENERATION_STEPS` um `blog_outline_done` erweitert (zwischen `plans_done` und `texts_done`); `STEP_LABELS` ergänzt
+  - `lib/generation/pipeline.ts` MOD: `blog_outline_done`-Step ausgeführt, Outline in `PipelineCtx` gespeichert, SSE-Event `blog_outline_done` emittiert; `texts_done` erhält `blogOutlines` und `canvaContext` aus Context
+  - CostEntry mit `step: 'blog-outline'` pro Blog-Thema in DB
+
 - Slice 9 — Export-Dateinamen-Konvention (Phase-1-Restarbeiten):
   - `lib/export/zip.ts` MOD: `filename()` nutzt deutsches Monatsformat "Apr2027" statt numerischem "202704"
   - `lib/export/zip.ts` MOD: `deriveFilePrefix()` (exportiert) — erste 3 Großbuchstaben des ersten signifikanten Worts; Titel/Gattungsbegriffe werden übersprungen; Umlaut-Normalisierung; Fallback "PRX"

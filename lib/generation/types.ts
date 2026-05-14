@@ -6,6 +6,7 @@ export const GENERATION_STEPS = [
   'keywords_loaded',
   'themes_done',
   'plans_done',
+  'blog_outline_done',
   'texts_done',
 ] as const
 
@@ -51,5 +52,6 @@ export const STEP_LABELS: Record<GenerationStep, string> = {
   keywords_loaded:       'Keywords geladen',
   themes_done:           'Themenplan erstellt',
   plans_done:            'Redaktionspläne erstellt',
+  blog_outline_done:     'Blog-Gliederungen erstellt',
   texts_done:            'Texte generiert',
 }

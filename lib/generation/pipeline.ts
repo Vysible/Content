@@ -2,7 +2,7 @@ import { emitEvent, setStatus, getJob, resetForRetry } from './job-store'
 import { logger } from '@/lib/utils/logger'
 import { GENERATION_STEPS, type GenerationStep, type JobState } from './types'
 import { generateThemes } from './themes'
-import { generateTexts } from './texts'
+import { generateTexts, generateBlogOutlines } from './texts'
 import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
 import { scrapeUrl } from '@/lib/scraper/client'
@@ -26,6 +26,8 @@ interface PipelineCtx {
   scrapeResult?: ScrapeResult
   themes?: ThemenItem[]
   positioningContext?: string
+  blogOutlines?: Record<string, string>
+  canvaContext?: string
 }
 
 export async function runGenerationPipeline(jobId: string, project: Project): Promise<void> {
@@ -148,6 +150,30 @@ async function runStep(
       await emitEvent(jobId, { type: 'plans_done', timestamp: now() })
       break
 
+    case 'blog_outline_done': {
+      const themes =
+        ctx.themes ??
+        ((project.themeResults as unknown as ThemenItem[] | null) ?? [])
+
+      const positioningContext =
+        ctx.positioningContext ??
+        buildContext({
+          positioningDocument: project.positioningDocument ?? undefined,
+          keywords: project.keywords,
+          themenPool: project.themenPool ?? undefined,
+        }).systemContext
+
+      const outlines = await generateBlogOutlines({ themes, project, positioningContext })
+      ctx.blogOutlines = outlines
+
+      await emitEvent(jobId, {
+        type: 'blog_outline_done',
+        data: { count: Object.keys(outlines).length },
+        timestamp: now(),
+      })
+      break
+    }
+
     case 'texts_done': {
       const themes =
         ctx.themes ??
@@ -161,7 +187,13 @@ async function runStep(
           themenPool: project.themenPool ?? undefined,
         }).systemContext
 
-      const textResults = await generateTexts({ project, themes, positioningContext })
+      const textResults = await generateTexts({
+        project,
+        themes,
+        positioningContext,
+        blogOutlines: ctx.blogOutlines,
+        canvaContext: ctx.canvaContext,
+      })
 
       await prisma.project.update({
         where: { id: project.id },

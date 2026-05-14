@@ -20,10 +20,11 @@ interface TextsInput {
   themes: ThemenItem[]
   positioningContext: string
   canvaContext?: string
+  blogOutlines?: Record<string, string>
 }
 
 export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
-  const { project, themes, positioningContext } = input
+  const { project, themes, positioningContext, blogOutlines } = input
   const results: TextResult[] = []
 
   const socialChannels = project.channels.filter((c) => c.startsWith('SOCIAL_')) as Array<
@@ -41,7 +42,8 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
     }
 
     if (theme.kanal === 'BLOG') {
-      result.blog = await generateBlogPost({ theme, project, positioningContext })
+      const outline = blogOutlines?.[theme.monat]
+      result.blog = await generateBlogPost({ theme, project, positioningContext, outline })
     }
 
     if (theme.kanal === 'NEWSLETTER') {
@@ -63,12 +65,63 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
   return results
 }
 
+export async function generateBlogOutlines(args: {
+  themes: ThemenItem[]
+  project: Project
+  positioningContext: string
+}): Promise<Record<string, string>> {
+  const { themes, project, positioningContext } = args
+  const blogThemes = themes.filter((t) => t.kanal === 'BLOG')
+  const outlines: Record<string, string> = {}
+
+  for (const theme of blogThemes) {
+    const prompt = loadPrompt('blog-outline', {
+      thema: theme.thema,
+      praxisName: project.praxisName ?? project.praxisUrl,
+      seoTitel: theme.seoTitel,
+      keywordPrimaer: theme.keywordPrimaer,
+      paaFragen: theme.paaFragen.join('\n'),
+      positionierungsdokument: positioningContext.slice(0, 4_000),
+    })
+
+    const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
+
+    const outline = await withRetry(async () => {
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL,
+        max_tokens: 512,
+        system: prompt.system,
+        messages: [{ role: 'user', content: prompt.user }],
+      })
+
+      await trackCost({
+        projectId: project.id,
+        model: DEFAULT_MODEL,
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens,
+        step: 'blog-outline',
+      })
+
+      return extractText(response)
+    }, `anthropic.generateBlogOutline(${theme.monat})`)
+
+    outlines[theme.monat] = outline
+  }
+
+  return outlines
+}
+
 async function generateBlogPost(args: {
   theme: ThemenItem
   project: Project
   positioningContext: string
+  outline?: string
 }): Promise<BlogPost> {
-  const { theme, project, positioningContext } = args
+  const { theme, project, positioningContext, outline } = args
+
+  const outlineContext = outline
+    ? `\n\nGliederung (bitte einhalten):\n${outline}`
+    : ''
 
   const prompt = loadPrompt('blog', {
     thema: theme.thema,
@@ -76,7 +129,7 @@ async function generateBlogPost(args: {
     seoTitel: theme.seoTitel,
     keywordPrimaer: theme.keywordPrimaer,
     paaFragen: theme.paaFragen.join('\n'),
-    positionierungsdokument: positioningContext.slice(0, 6_000),
+    positionierungsdokument: positioningContext.slice(0, 6_000) + outlineContext,
     tonalitaet: 'professionell, empathisch, verständlich',
   })
 
