@@ -26,9 +26,11 @@ interface Props {
   themes: ThemenItem[]
   textResults: StoredTextResult[]
   channels: string[]
+  wpConfigured?: boolean
+  hwgFlag?: string
 }
 
-export function ResultsTabs({ projectId, themes, textResults, channels }: Props) {
+export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, hwgFlag }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('themen')
   const [results, setResults] = useState<StoredTextResult[]>(textResults)
   const [sort, setSort] = useState<SortKey>('monat')
@@ -123,6 +125,8 @@ export function ResultsTabs({ projectId, themes, textResults, channels }: Props)
           onUpdate={(index, updates) => autosave(index, updates)}
           saveStates={saveStates}
           allResults={results}
+          wpConfigured={wpConfigured}
+          hwgFlag={hwgFlag}
         />
       )}
       {activeTab === 'newsletter' && (
@@ -245,12 +249,16 @@ function BlogTab({
   allResults,
   saveStates,
   onUpdate,
+  wpConfigured,
+  hwgFlag,
 }: {
   projectId: string
   results: StoredTextResult[]
   allResults: StoredTextResult[]
   saveStates: Record<number, SaveState>
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
+  wpConfigured: boolean
+  hwgFlag?: string
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
   const [seoOpen, setSeoOpen] = useState<number | null>(null)
@@ -297,8 +305,11 @@ function BlogTab({
                 <div className="px-4 pb-4 flex items-center gap-3 flex-wrap">
                   <WordPressDraftButton
                     projectId={projectId}
-                    title={r.blog.titel}
-                    html={r.blog.html}
+                    blogMarkdown=""
+                    blogHtml={r.blog.html}
+                    wpConfigured={wpConfigured}
+                    hwgFlag={hwgFlag}
+                    initialStatus={r.blogStatus === 'in_wordpress' ? 'in_wordpress' : 'ausstehend'}
                   />
                   <button
                     onClick={(e) => { e.stopPropagation(); setSeoOpen(isSeoOpen ? null : globalIndex) }}

@@ -1,5 +1,6 @@
 import { requireAuth } from '@/lib/auth/session'
-import { createWordPressDraft } from '@/lib/wordpress/client'
+import { createWpDraft } from '@/lib/wordpress/client'
+import { blogToGutenbergHtml, htmlToGutenbergFreeform, extractH1Title, extractTitleFromHtml } from '@/lib/wordpress/formatter'
 import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
 import { writeAuditLog } from '@/lib/audit/logger'
@@ -10,20 +11,24 @@ import { NextResponse } from 'next/server'
 export async function POST(req: Request) {
   const session = await requireAuth()
 
-  const { projectId, title, html, categories } = await req.json()
-  if (!projectId || !title || !html) {
-    return NextResponse.json({ error: 'projectId, title und html erforderlich' }, { status: 400 })
+  const { projectId, blogMarkdown, blogHtml, hwgDisclaimer, title: explicitTitle } = await req.json()
+  if (!projectId || (!blogMarkdown && !blogHtml)) {
+    return NextResponse.json({ error: 'projectId und blogMarkdown oder blogHtml erforderlich' }, { status: 400 })
   }
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    select: { name: true, hwgFlag: true },
+    select: { name: true, hwgFlag: true, wpUrl: true },
   })
 
-  const gate = checkHwgGate(project?.hwgFlag ?? false)
+  if (!project) {
+    return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
+  }
+
+  const gate = checkHwgGate(project.hwgFlag ?? false)
   if (gate.blocked) {
     await writeAuditLog({
-      action:    'export.download',
+      action:    'wordpress.draft_blocked',
       entity:    'Project',
       entityId:  projectId,
       projectId: projectId,
@@ -37,15 +42,43 @@ export async function POST(req: Request) {
     )
   }
 
-  const draft = await createWordPressDraft(projectId, title, html, categories ?? [])
+  let title: string
+  let gutenbergHtml: string
+
+  if (blogMarkdown) {
+    title = explicitTitle || extractH1Title(blogMarkdown) || 'Neuer Blog-Beitrag'
+    gutenbergHtml = blogToGutenbergHtml(blogMarkdown, hwgDisclaimer ?? '')
+  } else {
+    title = explicitTitle || extractTitleFromHtml(blogHtml) || 'Neuer Blog-Beitrag'
+    gutenbergHtml = htmlToGutenbergFreeform(blogHtml, hwgDisclaimer ?? '')
+  }
+
+  const draft = await createWpDraft(projectId, title, gutenbergHtml)
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: { wpDraftPostId: String(draft.id) },
+  })
+
+  await writeAuditLog({
+    action:    'wordpress.draft_created',
+    entity:    'Project',
+    entityId:  projectId,
+    projectId: projectId,
+    userId:    session.user.id,
+    userEmail: session.user.email ?? undefined,
+    meta:      { wpPostId: draft.id, wpUrl: project.wpUrl },
+  })
 
   await sendNotification(
     'draft_uploaded',
-    project?.name ?? projectId,
+    project.name ?? projectId,
     `WordPress Draft: "${title}" — ${draft.link}`,
   ).catch((err: unknown) => {
-    logger.warn({ err, projectId }, 'E-Mail-Benachrichtigung für WordPress-Draft fehlgeschlagen')
+    logger.warn({ err, projectId }, '[Vysible] E-Mail-Benachrichtigung für WordPress-Draft fehlgeschlagen')
   })
 
-  return NextResponse.json(draft)
+  const editUrl = `${project.wpUrl?.replace(/\/$/, '')}/wp-admin/post.php?post=${draft.id}&action=edit`
+
+  return NextResponse.json({ wpPostId: draft.id, editUrl, link: draft.link })
 }

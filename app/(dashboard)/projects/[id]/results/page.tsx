@@ -23,6 +23,8 @@ export default async function ResultsPage({ params }: { params: { id: string } }
       themeResults: true,
       textResults: true,
       status: true,
+      wpUrl: true,
+      hwgFlag: true,
     },
   })
 
@@ -62,6 +64,8 @@ export default async function ResultsPage({ params }: { params: { id: string } }
         themes={themes}
         textResults={textResults}
         channels={project.channels}
+        wpConfigured={!!project.wpUrl}
+        hwgFlag={project.hwgFlag ? 'rot' : undefined}
       />
     </div>
   )

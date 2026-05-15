@@ -5,12 +5,31 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Added
+- **Sprint P3-D — WordPress REST API Connector (Slice 22):**
+  - `lib/wordpress/client.ts`: Vollständiger WP REST API Client mit Basic Auth
+    (Application Passwords), `withRetry`, Logger. `createWpDraft()` + `testWpConnection()`.
+  - `lib/wordpress/formatter.ts`: Gutenberg-Block-Konverter (Markdown → wp:heading,
+    wp:paragraph, wp:list, wp:paragraph.disclaimer). HTML-Freeform-Fallback.
+  - `app/api/wordpress/draft/route.ts`: Draft-Upload mit HWG-Gate, AuditLog,
+    wpDraftPostId-Tracking, sendNotification.
+  - `app/api/wordpress/settings/route.ts`: WP-Credentials speichern (AES-256).
+  - `app/api/wordpress/test/route.ts`: Verbindungstest (`/wp-json/wp/v2/users/me`).
+  - `app/(dashboard)/settings/wordpress/page.tsx`: Settings-UI (URL + Username +
+    Application Password + Test-Button).
+  - `components/results/WordPressDraftButton.tsx`: Vollständige Komponente mit
+    HWG-Gate-Block, WP-Draft-Status, HTML-Copy-Fallback, Fehleranzeige.
+  - `prisma/schema.prisma`: `wpDraftPostId` auf Project-Modell.
+  - Settings-Tab "WordPress" in `/settings`-Navigation.
+  - AuditAction-Typen: `wordpress.draft_created`, `wordpress.draft_blocked`.
+
 ### Changed
 - CI: `prisma generate` Schritt in GitHub Actions hinzugefügt (TypeScript-Types verfügbar)
 - Deploy-Workflow: Veralteter Branch-Trigger entfernt
 - Typographie-Fix: Deutsche Anführungszeichen als HTML-Entities in ApiKeyList + GenerationProgress
 - ESLint-Konfiguration hinzugefügt (next/core-web-vitals)
 - Sprint P3-C Prompt archiviert
+- Sprint P3-D Prompt archiviert, Roadmap Slice 22 auf ✅ gesetzt
 
 ### Added
 - Settings Hub-Seite (`/settings`) mit Tab-Navigation: API-Keys, Canva, E-Mail,

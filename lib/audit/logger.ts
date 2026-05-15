@@ -22,7 +22,9 @@ export type AuditAction =
   | 'admin.user.create'
   | 'praxis.approve'
   | 'praxis.comment'
-  | 'praxis.invite';
+  | 'praxis.invite'
+  | 'wordpress.draft_created'
+  | 'wordpress.draft_blocked';
 
 interface AuditParams {
   action: AuditAction;

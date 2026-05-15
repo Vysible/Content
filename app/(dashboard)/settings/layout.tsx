@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 const settingsTabs = [
   { href: '/settings/api-keys', label: 'API-Keys' },
   { href: '/settings/canva', label: 'Canva' },
+  { href: '/settings/wordpress', label: 'WordPress' },
   { href: '/settings/smtp', label: 'E-Mail (SMTP)' },
   { href: '/settings/billing', label: 'Kosten & Abrechnung' },
   { href: '/settings/users', label: 'Benutzer' },

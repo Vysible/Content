@@ -60,6 +60,7 @@ model Project {
   keywords            String[]
   canvaFolderId       String?
   wpUrl               String?
+  wpDraftPostId       String?
   ktListId            String?
   apiKeyId            String?
   apiKey              ApiKey?  @relation("ProjectApiKey", fields: [apiKeyId], references: [id], onDelete: SetNull)

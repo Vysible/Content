@@ -13,7 +13,7 @@
 | **0** | Foundation | ✅ Abgeschlossen | Auth, Docker, SSL, YAML, AES-256, KI-Adapter |
 | **1** | Core MVP | ~70 % | Content-Paket generiert, ZIP heruntergeladen, Quality-Kriterien erfüllt |
 | **2** | Collaboration & Integration | ~85 % | Feedback-Loop, Social Drafts, E-Mail aktiv |
-| **3** | Erweiterungen | ~55 % | Hedy, Praxis-Portal, WordPress, KlickTipp, KPI |
+| **3** | Erweiterungen | ~65 % | Hedy, Praxis-Portal, WordPress, KlickTipp, KPI |
 | **4** | Quality & Scale | 0 % | Stabiler Betrieb mit 10+ Projekten |
 
 ---
@@ -109,7 +109,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | 27 | Kosten-Tracking pro Kunde (CSV-Export, Marge-Kalkulation) | ✅ Abgeschlossen (2026-05-15, Sprint P3-A) |
 | 20 | Hedy-Integration (Transkript → Positionierungsdokument) | ✅ Abgeschlossen (2026-05-15, Sprint P3-B) |
 | 21 | Praxis-Portal (lesen, kommentieren, freigeben) | ✅ Abgeschlossen (2026-05-15, Sprint P3-C) |
-| 22 | WordPress REST API Connector | P1 |
+| 22 | WordPress REST API Connector | ✅ Abgeschlossen (2026-05-15, Sprint P3-D) |
 | 23 | KlickTipp Newsletter Connector | P1 |
 | 24 | KPI-Dashboard + automatischer Monatsreport | P1 |
 | 25 | Fachgebiet-Templates + Klon-Funktion | P2 |

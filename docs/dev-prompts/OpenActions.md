@@ -150,9 +150,9 @@
    Akzeptiert im PSR von Sprint P2-E (Option A) — kein Sicherheits-/Compliance-
    Bezug, nur UI-Hygiene. Aufwand: ~1 Stunde im Rahmen von Slice 18.
 
-4. **WP/KT-Status-Felder in `StoredTextResult` ergänzen** (Kalender-Badge, Slice 7)
+4. **KT-Status-Feld in `StoredTextResult` ergänzen** (Kalender-Badge, Slice 7)
 
-   `ContentCalendar.tsx` ist darauf vorbereitet: WP/KT-Badge wird angezeigt wenn `wpDraftStatus` / `ktStatus` im `StoredTextResult`-Typ vorhanden sind. Aktuell fehlen diese Felder — WP-Status gehört zu Slice 22 (WordPress-Connector), KT-Status zu Slice 23 (KlickTipp-Connector). Nach Implementierung dieser Slices: Felder in `lib/generation/results-store.ts` ergänzen und Kalender-Karte zeigt automatisch den zweiten Badge.
+   `ContentCalendar.tsx` ist darauf vorbereitet: WP/KT-Badge wird angezeigt wenn `wpDraftStatus` / `ktStatus` im `StoredTextResult`-Typ vorhanden sind. WP-Integration ist seit Sprint P3-D (Slice 22) implementiert — `blogStatus: 'in_wordpress'` wird aus `StoredTextResult` gelesen und in der Blog-Ansicht angezeigt. Das separate `wpDraftPostId`-Feld lebt auf dem Project-Modell. KT-Status gehört zu Slice 23 (KlickTipp-Connector). Nach Implementierung: `ktStatus`-Feld in `lib/generation/results-store.ts` ergänzen.
 
 5. **Themen-Quality-Gate refaktorisieren** (`lib/generation/themes-schema.ts` Z. 33–53)
 
