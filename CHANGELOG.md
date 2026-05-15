@@ -6,6 +6,13 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- `.env.example`: Canva-OAuth-2.0-Block ergaenzt (`CANVA_CLIENT_ID`,
+  `CANVA_CLIENT_SECRET`) mit Hinweis auf Canva Developer Portal und
+  Redirect-URIs fuer Dev + Prod.
+- `docs/dev-prompts/OpenActions.md`: Neuer Abschnitt "Sprint P2-E" mit
+  zwei Einmal-Aktionen (Canva Developer Portal + DB-Migration); Sprint-0-
+  und P2-E-DB-Migrations-Punkte als erledigt markiert (alle 7 Migrationen
+  auf Live-DB verifiziert via `_prisma_migrations`).
 - Sprint P2-E Closeout (Slice 17): `docs/dev-prompts/archive/sprint-p2e-canva.md`
   archiviert (Sprint-Prompt aus aktivem Verzeichnis entfernt); `docs/roadmap.md`
   Slice 17 auf "✅ Abgeschlossen (2026-05-15, Sprint P2-E)" gesetzt, Phase-2-
