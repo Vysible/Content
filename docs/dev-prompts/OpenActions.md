@@ -131,15 +131,15 @@
 
 ## Backlog / Tech-Debt (nicht sprintgebunden)
 
-1. **Sprint 0a — Restbestand stiller Catches schließen** (Forge-Regel `resilience §3a`)
+1. **Sprint 0a — Restbestand stiller Catches schließen** (Forge-Regel `resilience §3a`) — noch 2 offen
 
-   Fünf `.catch(() => {})` aus Slices 23/25/26/27, eingeführt vor Forge-Migration. Alle dokumentiert in `docs/forge-web-deviations.md` (Status: `Accepted`, Timeline: Sprint 0a).
+   Zwei `.catch(() => {})` aus Slices 26/27, eingeführt vor Forge-Migration. Alle dokumentiert in `docs/forge-web-deviations.md` (Status: `Accepted`, Timeline: Sprint 0a).
 
-   - `components/layout/TokenWarningBanner.tsx:21` (Slice 26)
+   - ~~`components/layout/TokenWarningBanner.tsx:21` (Slice 26)~~ **✅ Geschlossen (Sprint P3-H)**
    - `components/wizard/TemplateSelector.tsx:23` (Slice 25)
    - ~~`lib/klicktipp/client.ts:34` (Slice 23)~~ **✅ Geschlossen (Sprint P3-E)**
-   - `lib/tokens/expiry-checker.ts:21` (Slice 26)
-   - `lib/costs/reporter.ts:56` (Slice 27)
+   - ~~`lib/tokens/expiry-checker.ts:21` (Slice 26)~~ **✅ Bereits gefixt vor Sprint P3-H (staler Eintrag)**
+   - ~~`lib/costs/reporter.ts:56` (Slice 27)~~ **✅ Geschlossen (Sprint P3-F)**
 
    Pattern: catch durch `(err: unknown) => { logger.warn(...) }` (Server) bzw. `console.warn('[Vysible] …', err)` (Client) ersetzen. Aufwand: ~1–2 Stunden.
 

@@ -1,0 +1,36 @@
+﻿specialty: dermatologie
+displayName: "Dermatologie & Ästhetische Medizin"
+defaultCategories:
+  - Hautkrebs-Früherkennung
+  - Akne & Rosacea
+  - Ästhetische Dermatologie
+  - Neurodermitis & Allergologie
+  - Laserbehandlungen
+  - Anti-Aging
+seasonalTopics:
+  januar: "Winterhaut pflegen"
+  februar: "Valentinstag + Hautpflege-Routine"
+  april: "Frühjahrssonne + UV-Schutz"
+  mai: "Muttertag + Hautpflege-Geschenktipps"
+  juni: "Sommercheck — Melanom-Früherkennung"
+  august: "Sonnenschaden erkennen"
+  september: "Sommer-Rückblick Hautpflege"
+  oktober: "Herbst-Hauterneuerung"
+  november: "Winter-Skincare starten"
+  dezember: "Jahresabschluss + Hautcheck"
+defaultKeywords:
+  - "Hautarzt [Ort]"
+  - "Dermatologie [Ort]"
+  - "Botox [Ort]"
+  - "Hautkrebsscreening [Ort]"
+  - "Akne Behandlung"
+hwgHighRiskCategories:
+  - Ästhetische Dermatologie
+  - Laserbehandlungen
+  - Anti-Aging
+defaultCta: "Beratungstermin vereinbaren"
+defaultFunnelDistribution:
+  awareness: "35%"
+  consideration: "35%"
+  decision: "20%"
+  retention: "10%"

@@ -6,6 +6,32 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Fachgebiet-Templates (Slice 25, Sprint P3-G):** 4 YAML-Vorlagen (`zahnarzt`, `kfo`, `gynaekologe`, `dermatologie`) im neuen `FachgebietTemplate`-Format mit `defaultKeywords`, `defaultCategories`, `seasonalTopics`, `hwgHighRiskCategories`. `lib/templates/loader.ts` auf `FachgebietTemplate`-Interface umgestellt.
+- **Template-Vorbelegung im Wizard:** `TemplateSelector.tsx` überarbeitet — wählt Fachgebiet-Vorlage und belegt Keywords + Fachgebiet automatisch vor.
+- **Klon-Funktion (Slice 25, Sprint P3-G):** `POST /api/projects/clone` korrigiert (kopiert kein `positioningDocument` mehr, setzt `clonedFrom` + `hedyImportHighlight`). `CloneProjectButton.tsx` in Projektliste.
+- **Hedy-Import-Highlight-Banner:** `HedyImportHighlightBanner.tsx` — erscheint nach Klon auf Projektdetail-Seite, verweist auf Hedy-Transkript-Import für Positionierungsworkshop.
+- **Prisma-Migration** `20260515210000_add_clone_fields_to_project`: `Project.clonedFrom` (String?) + `Project.hedyImportHighlight` (Boolean, default false).
+
+### Fixed
+- **`components/wizard/TemplateSelector.tsx:23` stiller Catch** (forge-web-deviations §3a) geschlossen: `.catch(() => {})` → `console.warn('[Vysible] …', err)`.
+- **Klon-Route kopierte `positioningDocument`** (Bug): wird jetzt korrekt weggelassen.
+
+### Added
+- **Token-Ablauf-Warnsystem (Slice 26, Sprint P3-H):**
+  - `lib/tokens/expiry-checker.ts`: `ExpiryLevel`-Typ + `TokenExpiryStatus`-Interface + `getExpiryLevel()`. `getAllTokenExpiryStatuses()` prüft jetzt sowohl `ApiKey.expiresAt` als auch `CanvaToken.expiresAt`. `checkTokenExpiry()` auf 4-stufige Eskalation umgestellt (E-Mail nur bei `urgent`/`critical`, nicht bei `warning`).
+  - `app/api/tokens/status/route.ts`: NEU — `GET /api/tokens/status`, auth-geschützt, gibt alle `TokenExpiryStatus`-Einträge mit `level !== 'ok'` zurück.
+  - `lib/email/mailer.ts` + `lib/email/templates/notification.ts`: `token_expiring` zu `EmailTrigger` und `TRIGGER_SUBJECTS` hinzugefügt.
+
+### Fixed
+- **`components/layout/TokenWarningBanner.tsx:21` stiller Catch** (forge-web-deviations §3a) geschlossen: `.catch(() => {})` → `console.warn('[Vysible] Token-Status konnte nicht geladen werden', err)`.
+- **`TokenWarningBanner`**: Endpoint von `/api/api-keys/expiring` auf `/api/tokens/status` umgestellt. Farbcodierung nach Level (gelb/orange/rot/dunkelrot). One-Click-Reauth pro Token (CANVA → `/settings/canva`, andere → `/settings/api-keys`).
+
+### Changed
+- **Sprint P3-H Closeout (Slice 26):** `docs/roadmap.md` Slice 26 auf ✅ gesetzt. `docs/forge-web-deviations.md` `TokenWarningBanner.tsx:21` als geschlossen + `expiry-checker.ts:21` als staler Eintrag markiert. `docs/dev-prompts/OpenActions.md` Sprint-0a-Punkte aktualisiert. Sprint-Prompt nach `docs/dev-prompts/archive/` verschoben.
+- **Sprint P3-G Closeout (Slice 25):** `docs/roadmap.md` Slice 25 auf ✅ gesetzt. `docs/forge-web-deviations.md` `TemplateSelector.tsx:23` als geschlossen markiert. Sprint-Prompt nach `docs/dev-prompts/archive/` verschoben.
+- **Sprint P3-F Closeout (Slice 24):** `docs/roadmap.md` Slice 24 auf ✅ gesetzt. `docs/dev-prompts/OpenActions.md` `lib/costs/reporter.ts:56` als geschlossen markiert. Sprint-Prompt nach `docs/dev-prompts/archive/` verschoben.
+
+### Added
 - **Sprint P3-F — Sub-Slice B: Reporter + Cron + PDF-Download (Slice 24):**
   - `lib/costs/reporter.ts`: `generateMonthlyReport` → `Promise<string>` (pdfPath), pdfkit-PDF via `buildReportPdf`. Neue Funktion `sendMonthlyReport` (DB-Upsert, History ≤12, E-Mail). `checkCostThreshold` Trigger korrigiert (`cost_threshold_exceeded`). Encoding-Bugs behoben.
   - `lib/cron/scheduler.ts`: Cron-Job erweitert — `sendMonthlyReport` nach `generateMonthlyReport`, try/catch statt bare `.catch`.

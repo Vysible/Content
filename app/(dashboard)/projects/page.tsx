@@ -1,6 +1,7 @@
 import { Header } from '@/components/layout/header'
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
+import { CloneProjectButton } from '@/components/projects/CloneProjectButton'
 import Link from 'next/link'
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
@@ -68,33 +69,37 @@ export default async function ProjectsPage() {
             const end = new Date(p.planningEnd).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })
 
             return (
-              <Link
-                key={p.id}
-                href={`/projects/${p.id}`}
-                className="block bg-white border border-stone rounded-xl p-4 hover:shadow-sm transition group"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${status.cls}`}>
-                        {status.label}
-                      </span>
-                      <h3 className="font-semibold text-sm text-nachtblau group-hover:text-cognac transition truncate">
-                        {p.name}
-                      </h3>
+              <div key={p.id} className="relative bg-white border border-stone rounded-xl hover:shadow-sm transition">
+                <Link
+                  href={`/projects/${p.id}`}
+                  className="block p-4 group"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${status.cls}`}>
+                          {status.label}
+                        </span>
+                        <h3 className="font-semibold text-sm text-nachtblau group-hover:text-cognac transition truncate">
+                          {p.name}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-stahlgrau mt-1">
+                        {p.praxisName && <>{p.praxisName} · </>}
+                        {start} – {end}
+                      </p>
                     </div>
-                    <p className="text-xs text-stahlgrau mt-1">
-                      {p.praxisName && <>{p.praxisName} · </>}
-                      {start} – {end}
-                    </p>
+                    <div className="flex items-center gap-1 flex-shrink-0 text-sm">
+                      {p.channels.map((ch: string) => (
+                        <span key={ch} title={ch} className="text-stahlgrau">{CHANNEL_ICONS[ch] ?? '◦'}</span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0 text-sm">
-                    {p.channels.map((ch: string) => (
-                      <span key={ch} title={ch} className="text-stahlgrau">{CHANNEL_ICONS[ch] ?? '◦'}</span>
-                    ))}
-                  </div>
+                </Link>
+                <div className="absolute top-3 right-3">
+                  <CloneProjectButton projectId={p.id} projectName={p.name} />
                 </div>
-              </Link>
+              </div>
             )
           })}
         </div>

@@ -111,9 +111,9 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | 21 | Praxis-Portal (lesen, kommentieren, freigeben) | ✅ Abgeschlossen (2026-05-15, Sprint P3-C) |
 | 22 | WordPress REST API Connector | ✅ Abgeschlossen (2026-05-15, Sprint P3-D) |
 | 23 | KlickTipp Newsletter Connector | ✅ Abgeschlossen (2026-05-15, Sprint P3-E) |
-| 24 | KPI-Dashboard + automatischer Monatsreport | P1 |
-| 25 | Fachgebiet-Templates + Klon-Funktion | P2 |
-| 26 | Token-Ablauf-Warnsystem | P2 |
+| 24 | KPI-Dashboard + automatischer Monatsreport | ✅ Abgeschlossen (2026-05-15, Sprint P3-F) |
+| 25 | Fachgebiet-Templates + Klon-Funktion | ✅ Abgeschlossen (2026-05-15, Sprint P3-G) |
+| 26 | Token-Ablauf-Warnsystem | ✅ Abgeschlossen (2026-05-15, Sprint P3-H) |
 
 ---
 

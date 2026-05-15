@@ -79,6 +79,8 @@ model Project {
   auditLogs           AuditLog[]
   invitationTokens    InvitationToken[]
   contentApprovals    ContentApproval[]
+  clonedFrom          String?
+  hedyImportHighlight Boolean       @default(false)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 

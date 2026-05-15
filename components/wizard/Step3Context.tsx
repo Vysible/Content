@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import type { WizardData } from './NewProjectWizard'
 import { HedyImport } from './HedyImport'
-import { TemplateSelector } from './TemplateSelector'
+import { TemplateSelector, type FachgebietApiItem } from './TemplateSelector'
 import { KeywordReview } from './KeywordReview'
 import { CanvaFolderSelector } from './CanvaFolderSelector'
 
@@ -63,11 +63,15 @@ export function Step3Context({
 
       {/* Fachgebiet-Template (Slice 25) */}
       <TemplateSelector
-        onSelect={async (slug) => {
-          const res = await fetch(`/api/projects/templates`)
-          const templates = await res.json()
-          const tpl = templates.find((t: { slug: string }) => t.slug === slug)
-          if (tpl) onChange({ fachgebiet: tpl.fachgebiet })
+        onSelect={(tpl: FachgebietApiItem | null) => {
+          if (!tpl) {
+            onChange({ fachgebiet: '', keywords: [] })
+            return
+          }
+          onChange({
+            fachgebiet: tpl.specialty,
+            keywords: tpl.defaultKeywords,
+          })
         }}
       />
 

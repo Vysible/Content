@@ -6,6 +6,8 @@ import { z } from 'zod'
 
 const schema = z.object({
   apiKeyId: z.string().nullable().optional(),
+  positioningDocument: z.string().optional(),
+  hedyImportHighlight: z.boolean().optional(),
 })
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -48,13 +50,18 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   try {
+    const updateData: Record<string, unknown> = {}
+    if ('apiKeyId' in parsed.data) updateData.apiKeyId = parsed.data.apiKeyId ?? null
+    if (parsed.data.positioningDocument !== undefined) updateData.positioningDocument = parsed.data.positioningDocument
+    if (parsed.data.hedyImportHighlight !== undefined) updateData.hedyImportHighlight = parsed.data.hedyImportHighlight
+
     const updated = await prisma.project.update({
       where: { id: params.id },
-      data: { apiKeyId: parsed.data.apiKeyId ?? null },
+      data: updateData,
       select: { id: true, apiKeyId: true },
     })
 
-    logger.info({ projectId: params.id, apiKeyId: parsed.data.apiKeyId }, 'Projekt-API-Key aktualisiert')
+    logger.info({ projectId: params.id }, 'Projekt-Settings aktualisiert')
 
     return NextResponse.json(updated)
   } catch (err: unknown) {

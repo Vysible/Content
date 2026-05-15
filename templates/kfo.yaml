@@ -1,31 +1,31 @@
-name: Kieferorthopädie Standard
-fachgebiet: KFO
-channels:
-  - BLOG
-  - NEWSLETTER
-  - SOCIAL_INSTAGRAM
-keywords:
-  - Kieferorthopädie
-  - Zahnspange
+﻿specialty: kfo
+displayName: Kieferorthopädie
+defaultCategories:
+  - Brackets & Spangen
   - Aligner
-  - Invisalign
-  - Brackets
-positioningDocument: |
-  # Positionierungsvorlage: Kieferorthopädie
-
-  ## Leistungsschwerpunkte
-  - Festsitzende Apparaturen (Brackets, Bänder)
-  - Herausnehmbare Aligner-Therapie
-  - Frühbehandlung ab 6 Jahren
-  - Erwachsenenbehandlung
-
-  ## Zielgruppe
-  Eltern mit Kindern 8–16 Jahre, Erwachsene mit ästhetischem Interesse.
-
-  ## Tonalität
-  Modern, jugendlich-frisch, kompetent.
-
-  ## USPs
-  - Unsichtbare Aligner-Therapie
-  - Zertifizierter Invisalign-Anbieter
-  - Digitale 3D-Planung
+  - Frühbehandlung Kinder
+  - Erwachsenen-KFO
+  - Retainer & Retention
+seasonalTopics:
+  januar: "Neujahrsvorsatz gesundes Lächeln"
+  februar: "Valentinstag + Traumlächeln"
+  april: "Vor den Sommerferien — Kontrolle"
+  juni: "Schuljahresende + neue Behandlung starten"
+  august: "Schulstart + KFO-Check"
+  september: "Herbst-Kontrolltermin"
+  november: "Weihnachten mit neuem Lächeln"
+  dezember: "Behandlung jetzt starten — ins neue Jahr starten"
+defaultKeywords:
+  - "Kieferorthopäde [Ort]"
+  - "Aligner Erwachsene Kosten"
+  - "Brackets Kinder Kosten"
+  - "Zahnkorrektur ohne Spange"
+  - "Invisalign [Ort]"
+hwgHighRiskCategories:
+  - Erwachsenen-KFO
+defaultCta: "Beratungstermin vereinbaren"
+defaultFunnelDistribution:
+  awareness: "35%"
+  consideration: "40%"
+  decision: "15%"
+  retention: "10%"

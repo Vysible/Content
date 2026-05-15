@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { GenerateSection } from './GenerateSection'
 import { ReviewPanel } from '@/components/project/ReviewPanel'
 import { AuditLogTab } from '@/components/project/AuditLogTab'
+import { HedyImportHighlightBanner } from '@/components/project/HedyImportHighlightBanner'
 
 const CHANNEL_LABELS: Record<string, string> = {
   BLOG: 'Blog',
@@ -37,6 +38,11 @@ export default async function ProjectPage({ params }: { params: { id: string } }
         title={project.name}
         subtitle={`${project.praxisName ?? project.praxisUrl} · ${start} – ${end}`}
       />
+
+      {/* Hedy-Import-Highlight (nach Klon) */}
+      {project.hedyImportHighlight && (
+        <HedyImportHighlightBanner projectId={project.id} />
+      )}
 
       {/* Generierungs-Bereich */}
       <div className="mb-6">

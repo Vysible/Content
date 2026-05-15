@@ -1,31 +1,34 @@
-name: Gynäkologie Standard
-fachgebiet: GYNAEKOLOGE
-channels:
-  - BLOG
-  - NEWSLETTER
-  - SOCIAL_INSTAGRAM
-keywords:
-  - Frauenarzt
-  - Gynäkologie
-  - Frauengesundheit
-  - Vorsorge
-  - Geburtshilfe
-positioningDocument: |
-  # Positionierungsvorlage: Gynäkologische Praxis
-
-  ## Leistungsschwerpunkte
-  - Vorsorgeuntersuchungen und Krebsvorsorge
-  - Beratung Verhütung und Familienplanung
-  - Schwangerschaftsbegleitung
-  - Wechseljahresmedizin
-
-  ## Zielgruppe
-  Frauen 18–65 Jahre, Schwangere, Frauen in den Wechseljahren.
-
-  ## Tonalität
-  Einfühlsam, diskret, kompetent, modern.
-
-  ## USPs
-  - Vertrauensvolle Atmosphäre
-  - Kurze Wartezeiten
-  - Umfassende Beratung
+﻿specialty: gynaekologe
+displayName: "Gynäkologie & Geburtshilfe"
+defaultCategories:
+  - Schwangerschaft & Geburt
+  - Vorsorge & Früherkennung
+  - Hormonelle Gesundheit
+  - Familienplanung
+  - Wechseljahre
+  - Minimal-invasive Chirurgie
+seasonalTopics:
+  januar: "Gesundheitsvorsätze Frauengesundheit"
+  februar: "Herzgesundheit Frauen"
+  maerz: "Weltfrauentag (8. März) + Frauengesundheit"
+  april: "Frühjahrs-Vorsorgecheck"
+  mai: "Muttertag + Familienplanung"
+  juni: "Sommer + Reisegesundheit Schwangerschaft"
+  oktober: "Brustkrebsmonat — Früherkennung"
+  november: "Wechseljahre — offen sprechen"
+  dezember: "Jahresvorsorge vor Jahreswechsel"
+defaultKeywords:
+  - "Frauenarzt [Ort]"
+  - "Gynäkologie [Ort]"
+  - "Schwangerschaft Vorsorge"
+  - "Wechseljahre Behandlung"
+  - "Hormontherapie [Ort]"
+hwgHighRiskCategories:
+  - Hormonelle Gesundheit
+  - Wechseljahre
+defaultCta: "Termin vereinbaren"
+defaultFunnelDistribution:
+  awareness: "40%"
+  consideration: "35%"
+  decision: "15%"
+  retention: "10%"

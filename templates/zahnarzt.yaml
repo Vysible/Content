@@ -1,32 +1,37 @@
-name: Zahnarzt Standard
-fachgebiet: ZAHNARZT
-channels:
-  - BLOG
-  - NEWSLETTER
-  - SOCIAL_INSTAGRAM
-  - SOCIAL_FACEBOOK
-keywords:
-  - Zahnarzt
-  - Zahnarztpraxis
-  - Zahngesundheit
-  - Prophylaxe
-  - Zähne
-positioningDocument: |
-  # Positionierungsvorlage: Zahnarztpraxis
-
-  ## Leistungsschwerpunkte
-  - Prophylaxe und professionelle Zahnreinigung
-  - Ästhetische Zahnmedizin (Bleaching, Veneers)
+﻿specialty: zahnarzt
+displayName: Zahnarzt
+defaultCategories:
   - Implantologie
-  - Kinderzahnheilkunde
-
-  ## Zielgruppe
-  Familien im lokalen Einzugsgebiet, Erwachsene 25–55 Jahre, gesundheitsbewusst.
-
-  ## Tonalität
-  Warm, vertrauenswürdig, kompetent, nicht zu akademisch.
-
-  ## USPs
-  - Angstpatienten willkommen
-  - Modernste Technik (DVT, CEREC)
-  - Kurze Wartezeiten
+  - Aligner & Invisalign
+  - Prophylaxe
+  - Zahnästhetik
+  - Zahnerhalt
+  - Kinderzahnmedizin
+seasonalTopics:
+  januar: "Neujahrsvorsätze + Prophylaxe-Check"
+  februar: "Valentinstag + Zähne bleichen"
+  maerz: "Frühjahrsputz für die Zähne"
+  april: "Frühjahrscheck Zahngesundheit"
+  mai: "Muttertag + Zahnästhetik"
+  juni: "Urlaubscheck vor Fernreise"
+  juli: "Sommerferien + Kinderzahngesundheit"
+  august: "Back-to-school Vorbereitung"
+  september: "Herbst-Prophylaxe-Check"
+  oktober: "Weltzahnarzttag (20. Oktober)"
+  november: "Weihnachtslächeln vorbereiten"
+  dezember: "Jahresabschluss + Vorsorge-Erinnerung"
+defaultKeywords:
+  - "Zahnarzt [Ort]"
+  - "Aligner Kosten"
+  - "Zahnimplantat Erfahrungen"
+  - "Zähne bleichen Zahnarzt"
+  - "Prophylaxe Zahnreinigung"
+hwgHighRiskCategories:
+  - Implantologie
+  - Zahnästhetik
+defaultCta: "Termin vereinbaren"
+defaultFunnelDistribution:
+  awareness: "30%"
+  consideration: "40%"
+  decision: "20%"
+  retention: "10%"

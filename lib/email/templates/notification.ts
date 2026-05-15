@@ -7,6 +7,7 @@ const TRIGGER_SUBJECTS: Record<EmailTrigger, string> = {
   share_approved: 'Vysible: Freigabe erteilt',
   cost_threshold_exceeded: 'Vysible: Kosten-Schwellwert überschritten',
   monthly_report: 'Vysible: Automatischer Monatsreport verfügbar',
+  token_expiring: 'Vysible: API-Token läuft bald ab',
 }
 
 function escapeHtml(value: string): string {
