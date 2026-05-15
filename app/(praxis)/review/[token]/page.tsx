@@ -10,7 +10,6 @@ interface TextResult {
   blog?: { title: string; html: string }
   newsletter?: { subject: string; body: string }
   socialPosts?: string[]
-  blogStatus?: string
 }
 
 interface Session {
@@ -19,6 +18,7 @@ interface Session {
   projectId: string
   projectName: string
   textResults: TextResult[]
+  approvals: Record<number, string>
 }
 
 export default function PraxisReviewPage() {
@@ -28,6 +28,7 @@ export default function PraxisReviewPage() {
   const [activeIdx, setActiveIdx] = useState(0)
 
   useEffect(() => {
+    // Token is only used once to initiate the session (sets httpOnly cookie)
     fetch('/api/praxis/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -58,7 +59,7 @@ export default function PraxisReviewPage() {
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone/30">
-        <p className="text-stahlgrau animate-pulse">Lade…</p>
+        <p className="text-stahlgrau animate-pulse">Lade...</p>
       </div>
     )
   }
@@ -102,10 +103,8 @@ export default function PraxisReviewPage() {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="font-semibold text-nachtblau">{current.topic}</h2>
                     <ApprovalButton
-                      token={token}
-                      projectId={session.projectId}
                       contentIndex={activeIdx}
-                      initialStatus={current.blogStatus}
+                      initialStatus={session.approvals[activeIdx]}
                     />
                   </div>
 
@@ -145,7 +144,7 @@ export default function PraxisReviewPage() {
 
                 <div className="bg-white rounded-xl border border-stone p-4">
                   <h3 className="text-sm font-semibold text-nachtblau mb-3">Kommentare</h3>
-                  <CommentThread token={token} projectId={session.projectId} contentIndex={activeIdx} />
+                  <CommentThread contentIndex={activeIdx} />
                 </div>
               </div>
             )}

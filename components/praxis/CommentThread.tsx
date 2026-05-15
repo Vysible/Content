@@ -12,25 +12,23 @@ interface Comment {
 }
 
 interface CommentThreadProps {
-  token: string
-  projectId: string
   contentIndex: number
 }
 
-export function CommentThread({ token, projectId, contentIndex }: CommentThreadProps) {
+export function CommentThread({ contentIndex }: CommentThreadProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
 
   useEffect(() => {
-    fetch(`/api/praxis/comments?token=${token}&projectId=${projectId}`)
+    fetch('/api/praxis/comments')
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setComments(data.filter((c: Comment) => c.contentIndex === contentIndex))
         }
       })
-  }, [token, projectId, contentIndex])
+  }, [contentIndex])
 
   async function handleSend() {
     if (!text.trim()) return
@@ -38,7 +36,7 @@ export function CommentThread({ token, projectId, contentIndex }: CommentThreadP
     const res = await fetch('/api/praxis/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, projectId, contentIndex, text }),
+      body: JSON.stringify({ contentIndex, text }),
     })
     if (res.ok) {
       const comment = await res.json()
@@ -67,7 +65,7 @@ export function CommentThread({ token, projectId, contentIndex }: CommentThreadP
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Kommentar eingeben…"
+          placeholder="Kommentar eingeben..."
           className="flex-1 border border-stone rounded-lg px-3 py-2.5 min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-tiefblau"
         />
         <button

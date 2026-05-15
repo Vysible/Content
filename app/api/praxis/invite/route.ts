@@ -17,16 +17,29 @@ export async function POST(req: Request) {
   const project = await prisma.project.findUnique({ where: { id: projectId }, select: { name: true } })
   if (!project) return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
 
-  const inviteExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  const inviteToken = randomUUID()
-
+  // Upsert PraxisUser (inviteToken/inviteExpires kept for legacy compat)
+  const inviteExpires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24h — legacy field
   const praxisUser = await prisma.praxisUser.upsert({
-    where: { email_projectId: { email, projectId } } as never,
-    update: { name, inviteExpires, inviteToken },
-    create: { projectId, email, name, inviteExpires, inviteToken },
+    where: { email_projectId: { email, projectId } },
+    update: { name, inviteExpires },
+    create: { projectId, email, name, inviteExpires },
   })
 
-  const inviteUrl = `${process.env.NEXTAUTH_URL}/praxis/review/${praxisUser.inviteToken}`
+  // Create InvitationToken (24h TTL)
+  const token = randomUUID()
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+  const invitation = await prisma.invitationToken.create({
+    data: {
+      token,
+      projectId,
+      praxisUserId: praxisUser.id,
+      email,
+      expiresAt,
+    },
+  })
+
+  const inviteUrl = `${process.env.NEXTAUTH_URL}/review/${invitation.token}`
 
   await sendNotification(
     'share_approved',
@@ -38,11 +51,11 @@ export async function POST(req: Request) {
 
   await writeAuditLog({
     action: 'praxis.invite',
-    entity: 'PraxisUser',
-    entityId: praxisUser.id,
+    entity: 'InvitationToken',
+    entityId: invitation.id,
     projectId,
     meta: { email },
   })
 
-  return NextResponse.json({ inviteToken: praxisUser.inviteToken, inviteUrl })
+  return NextResponse.json({ inviteToken: invitation.token, inviteUrl })
 }

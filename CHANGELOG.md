@@ -12,6 +12,22 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `.env.example`: Dokumentationsblöcke für Hedy (Slice 20) und KlickTipp (Slice 23)
   ergänzt — beide nutzen DB-gespeicherte AES-256-Credentials, nicht `.env`-Variablen.
 
+- Sprint P3-C Drift-Fix — Praxis-Portal Architektur-Alignment:
+  - `InvitationToken`-Modell: Separates Modell mit eigenem Lifecycle (TTL, usedAt,
+    Audit-Referenz). Einladungstoken 24h gültig (zuvor 7 Tage).
+  - `ContentApproval`-Modell: Queryable DB-Feld statt JSON-Blob in `textResults`.
+    Indexiert nach `[projectId, status]` für Dashboard-Badge-Queries.
+  - Cookie-basierte Praxis-Session: Token ist nur noch einmaliger Login-Initiator.
+    Danach signierter httpOnly-Cookie (jose JWT, 7 Tage, SameSite=Lax).
+    API-Routen lesen `projectId` aus Cookie (Mandantentrennung gesichert).
+  - `lib/praxis/session.ts` NEU: `getPraxisSession()` / `setPraxisSession()`.
+  - `PRAXIS_SESSION_SECRET` als neuer `.env`-Eintrag dokumentiert.
+  - Datenmigrations-Script: `scripts/migrate-praxis-drift.ts`.
+
+### Breaking (Praxis-Portal API)
+- `/api/praxis/comments` und `/api/praxis/approve`: `token`-Parameter entfernt.
+  Auth erfolgt nun via httpOnly-Cookie (automatisch nach erstem Token-Login).
+
 - Sprint P3-C (Slice 21) — Praxis-Portal Härting + Dashboard-Badge:
   - `app/api/praxis/invite/route.ts` MOD: Einladungstoken via `crypto.randomUUID()`
     statt `cuid()` (kryptographisch sicher); AuditLog-Eintrag (`praxis.invite`).

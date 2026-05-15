@@ -75,6 +75,8 @@ model Project {
   costReports         CostReport[]
   generationJobs      GenerationJob[]
   auditLogs           AuditLog[]
+  invitationTokens    InvitationToken[]
+  contentApprovals    ContentApproval[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -189,13 +191,50 @@ model PraxisUser {
   name           String
   emailEncrypted String?   // AES-256-GCM, Format: v1:iv:tag:cipher
   nameEncrypted  String?   // AES-256-GCM, Format: v1:iv:tag:cipher
+  // @deprecated — wird durch InvitationToken-Modell ersetzt (Drift-Fix P3-C)
   inviteToken    String    @unique @default(cuid())
+  // @deprecated — wird durch InvitationToken.expiresAt ersetzt
   inviteExpires  DateTime
   active         Boolean   @default(false)
   createdAt      DateTime  @default(now())
 
+  invitations      InvitationToken[]
+  contentApprovals ContentApproval[]
+
+  @@unique([email, projectId])
   @@index([inviteToken])
   @@index([projectId])
+}
+
+model InvitationToken {
+  id           String    @id @default(cuid())
+  token        String    @unique
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  praxisUserId String?
+  praxisUser   PraxisUser? @relation(fields: [praxisUserId], references: [id], onDelete: Cascade)
+  email        String
+  expiresAt    DateTime
+  usedAt       DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([token])
+  @@index([projectId])
+}
+
+model ContentApproval {
+  id            String      @id @default(cuid())
+  projectId     String
+  project       Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contentIndex  Int
+  status        String      @default("ausstehend")
+  approvedAt    DateTime?
+  approvedById  String?
+  approvedBy    PraxisUser? @relation(fields: [approvedById], references: [id])
+  createdAt     DateTime    @default(now())
+
+  @@unique([projectId, contentIndex])
+  @@index([projectId, status])
 }
 
 model Comment {
