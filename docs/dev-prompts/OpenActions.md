@@ -1,5 +1,29 @@
 # Offene Punkte
 
+## Sprint P3-E — KlickTipp Auth-Validierung (Slice 23)
+
+> **Status:** Implementierung abgeschlossen. Auth-Schema (Session-Token via
+> `POST /account/login`) wurde **nicht** gegen echten KlickTipp-Account getestet.
+> Vor erstem produktivem Einsatz zwingend durchführen.
+
+**Manuelle Vorab-Aktion (einmalig):**
+1. KlickTipp-Credentials in Vysible hinterlegen: `/settings/klicktipp`
+2. Verbindungstest klicken → `[OK] Verbunden` bestätigt Session-Auth funktioniert.
+3. Eine Test-Kampagne mit einem echten Newsletter anlegen → KT-Kampagnen-ID
+   erscheint im Ergebnis + Link zur KT-Bearbeitungsseite ist klickbar.
+4. In KlickTipp prüfen: Kampagne erscheint als Draft, `{{unsubscribe_link}}`
+   wird im E-Mail-Preview korrekt aufgelöst.
+
+**Falls Auth fehlschlägt (HTTP 401 beim Login):**
+- KT-REST-API für diesen Account auf Basic Auth umgestellt? → `lib/klicktipp/client.ts`
+  `ktLogin()` durch Basic-Auth-Header ersetzen:
+  ```typescript
+  headers: { Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}` }
+  ```
+- Dann: erneuter Test.
+
+---
+
 ## Sprint P3-B — Hedy-Integration (Slice 20) — Acceptance-Verifikation
 
 > **Status:** Implementierung abgeschlossen (Slice 20 Sub-A + Sub-B). Verifikation
@@ -113,7 +137,7 @@
 
    - `components/layout/TokenWarningBanner.tsx:21` (Slice 26)
    - `components/wizard/TemplateSelector.tsx:23` (Slice 25)
-   - `lib/klicktipp/client.ts:34` (Slice 23)
+   - ~~`lib/klicktipp/client.ts:34` (Slice 23)~~ **✅ Geschlossen (Sprint P3-E)**
    - `lib/tokens/expiry-checker.ts:21` (Slice 26)
    - `lib/costs/reporter.ts:56` (Slice 27)
 

@@ -1,77 +1,119 @@
 import { prisma } from '@/lib/db'
 import { decrypt } from '@/lib/crypto/aes'
-import { formatNewsletterHtml } from './newsletter-formatter'
+import { withRetry } from '@/lib/utils/retry'
+import { logger } from '@/lib/utils/logger'
 
-async function getKtCredentials(): Promise<{ username: string; password: string }> {
+const KT_BASE = 'https://api.klicktipp.com'
+
+export interface KtCampaignInput {
+  name: string
+  subjectA: string
+  subjectB?: string
+  htmlBody: string
+  listId: string
+  senderName?: string
+  senderEmail?: string
+}
+
+export interface KtCampaignResult {
+  campaignId: string
+  editUrl: string
+}
+
+export async function loadKtCredentials(): Promise<string> {
   const apiKey = await prisma.apiKey.findFirst({
-    where: { provider: 'KLICKTIPP', active: true, name: { startsWith: 'kt:' } },
+    where: { provider: 'KLICKTIPP', active: true },
     orderBy: { createdAt: 'desc' },
   })
-  if (!apiKey) throw new Error('Kein Klick-Tipp API-Key gefunden')
-
-  // name format: kt:username
-  const username = apiKey.name.split(':')[1]
-  const password = decrypt(apiKey.encryptedKey)
-  return { username, password }
+  if (!apiKey) throw new Error('Kein KlickTipp API-Key gefunden')
+  return decrypt(apiKey.encryptedKey)
 }
 
 async function ktLogin(username: string, password: string): Promise<string> {
-  const res = await fetch('https://api.klicktipp.com/account/login', {
+  const res = await fetch(`${KT_BASE}/account/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   })
-  if (!res.ok) throw new Error(`Klick-Tipp Login fehlgeschlagen: ${res.status}`)
-  const data = await res.json()
-  return data.sessid as string
+  if (!res.ok) throw new Error(`KlickTipp Login fehlgeschlagen: ${res.status}`)
+  const data = await res.json() as { sessid?: string }
+  if (!data.sessid) throw new Error('KlickTipp Login: kein sessid in Antwort')
+  return data.sessid
 }
 
 async function ktLogout(sessid: string): Promise<void> {
-  await fetch('https://api.klicktipp.com/account/logout', {
+  await fetch(`${KT_BASE}/account/logout`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ sessid }),
-  }).catch(() => {})
+  }).catch((exc: unknown) => {
+    logger.warn({ exc }, '[Vysible] KlickTipp-Logout fehlgeschlagen (ignoriert)')
+  })
 }
 
-export async function createKlickTippCampaign(opts: {
-  projectId: string
-  listId: string
-  subject: string
-  body: string
-  senderName: string
-  senderEmail: string
-}): Promise<{ campaignId: string }> {
-  const { username, password } = await getKtCredentials()
-  const sessid = await ktLogin(username, password)
+export async function createKlickTippCampaign(
+  credentials: string,
+  input: KtCampaignInput,
+): Promise<KtCampaignResult> {
+  if (!input.htmlBody.includes('{{unsubscribe_link}}')) {
+    throw new Error('KT-HTML muss {{unsubscribe_link}} enthalten — KT API lehnt sonst ab')
+  }
 
-  try {
-    const html = formatNewsletterHtml(opts.subject, opts.body)
+  return withRetry(async () => {
+    const [username, password] = credentials.split(':')
+    const sessid = await ktLogin(username, password)
 
-    const res = await fetch('https://api.klicktipp.com/campaign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessid,
-        name: opts.subject,
-        subject: opts.subject,
-        from_name: opts.senderName,
-        from_email: opts.senderEmail,
-        reply_to: opts.senderEmail,
-        content: html,
-        listids: [opts.listId],
-        status: '2', // draft
-      }),
-    })
+    try {
+      const res = await fetch(`${KT_BASE}/campaign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessid,
+          name: input.name,
+          subject: input.subjectA,
+          ...(input.subjectB ? { subject_b: input.subjectB } : {}),
+          ...(input.senderName ? { from_name: input.senderName } : {}),
+          ...(input.senderEmail
+            ? { from_email: input.senderEmail, reply_to: input.senderEmail }
+            : {}),
+          content: input.htmlBody,
+          listids: [input.listId],
+          status: '2',
+        }),
+      })
 
-    if (!res.ok) {
-      const body = await res.text()
-      throw new Error(`Klick-Tipp Kampagne Fehler ${res.status}: ${body.slice(0, 200)}`)
+      if (res.status === 401) {
+        throw new Error('KlickTipp-Credentials ungültig')
+      }
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        throw new Error(`KT API HTTP ${res.status}: ${body.slice(0, 200)}`)
+      }
+
+      const data = await res.json() as { id?: string | number; campaignid?: string | number }
+      const campaignId = String(data.id ?? data.campaignid ?? '')
+      logger.info({ campaignId }, '[Vysible] KlickTipp-Kampagne erstellt')
+
+      return {
+        campaignId,
+        editUrl: `https://app.klicktipp.com/campaigns/${campaignId}/edit`,
+      }
+    } finally {
+      await ktLogout(sessid)
     }
+  }, 'klicktipp.create_campaign')
+}
 
-    const data = await res.json()
-    return { campaignId: String(data.id ?? data.campaignid ?? 'unknown') }
-  } finally {
+export async function testKtConnection(
+  credentials: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const [username, password] = credentials.split(':')
+    const sessid = await ktLogin(username, password)
     await ktLogout(sessid)
+    return { ok: true }
+  } catch (exc: unknown) {
+    logger.warn({ exc }, '[Vysible] KlickTipp-Verbindungstest fehlgeschlagen')
+    return { ok: false, error: exc instanceof Error ? exc.message : String(exc) }
   }
 }

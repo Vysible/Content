@@ -24,7 +24,9 @@ export type AuditAction =
   | 'praxis.comment'
   | 'praxis.invite'
   | 'wordpress.draft_created'
-  | 'wordpress.draft_blocked';
+  | 'wordpress.draft_blocked'
+  | 'klicktipp.campaign_created'
+  | 'klicktipp.campaign_blocked';
 
 interface AuditParams {
   action: AuditAction;

@@ -62,6 +62,7 @@ model Project {
   wpUrl               String?
   wpDraftPostId       String?
   ktListId            String?
+  ktCampaignId        String?
   apiKeyId            String?
   apiKey              ApiKey?  @relation("ProjectApiKey", fields: [apiKeyId], references: [id], onDelete: SetNull)
   scrapedData         Json?

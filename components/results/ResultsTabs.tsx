@@ -27,10 +27,11 @@ interface Props {
   textResults: StoredTextResult[]
   channels: string[]
   wpConfigured?: boolean
+  ktConfigured?: boolean
   hwgFlag?: string
 }
 
-export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, hwgFlag }: Props) {
+export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, hwgFlag }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('themen')
   const [results, setResults] = useState<StoredTextResult[]>(textResults)
   const [sort, setSort] = useState<SortKey>('monat')
@@ -136,6 +137,8 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
           onUpdate={(index, updates) => autosave(index, updates)}
           saveStates={saveStates}
           allResults={results}
+          ktConfigured={ktConfigured}
+          hwgFlag={hwgFlag}
         />
       )}
       {activeTab === 'social' && (
@@ -347,12 +350,16 @@ function NewsletterTab({
   allResults,
   saveStates,
   onUpdate,
+  ktConfigured,
+  hwgFlag,
 }: {
   projectId: string
   results: StoredTextResult[]
   allResults: StoredTextResult[]
   saveStates: Record<number, SaveState>
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
+  ktConfigured: boolean
+  hwgFlag?: string
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
 
@@ -438,10 +445,15 @@ function NewsletterTab({
                 <div className="pt-2">
                   <KlickTippButton
                     projectId={projectId}
-                    subject={nl.betreffA}
-                    body={nl.body}
-                    senderName="Vysible"
-                    senderEmail="noreply@vysible.de"
+                    subjectA={nl.betreffA}
+                    subjectB={nl.betreffB}
+                    preheader={nl.preheader}
+                    newsletterMarkdown={nl.body}
+                    ktConfigured={ktConfigured}
+                    hwgFlag={hwgFlag}
+                    initialStatus={
+                      r.newsletterStatus === 'kt_kampagne' ? 'kt_kampagne' : 'ausstehend'
+                    }
                   />
                 </div>
               </div>

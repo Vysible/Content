@@ -12,21 +12,27 @@ import type { ThemenItem } from '@/lib/generation/themes-schema'
 export default async function ResultsPage({ params }: { params: { id: string } }) {
   await requireAuth()
 
-  const project = await prisma.project.findUnique({
-    where: { id: params.id },
-    select: {
-      id: true,
-      name: true,
-      praxisName: true,
-      praxisUrl: true,
-      channels: true,
-      themeResults: true,
-      textResults: true,
-      status: true,
-      wpUrl: true,
-      hwgFlag: true,
-    },
-  })
+  const [project, ktApiKey] = await Promise.all([
+    prisma.project.findUnique({
+      where: { id: params.id },
+      select: {
+        id: true,
+        name: true,
+        praxisName: true,
+        praxisUrl: true,
+        channels: true,
+        themeResults: true,
+        textResults: true,
+        status: true,
+        wpUrl: true,
+        hwgFlag: true,
+      },
+    }),
+    prisma.apiKey.findFirst({
+      where: { provider: 'KLICKTIPP', active: true },
+      select: { id: true },
+    }),
+  ])
 
   if (!project) notFound()
 
@@ -65,6 +71,7 @@ export default async function ResultsPage({ params }: { params: { id: string } }
         textResults={textResults}
         channels={project.channels}
         wpConfigured={!!project.wpUrl}
+        ktConfigured={!!ktApiKey}
         hwgFlag={project.hwgFlag ? 'rot' : undefined}
       />
     </div>
