@@ -5,6 +5,16 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Added
+- **Sprint P3-F — Sub-Slice A: KPI-Dashboard (Slice 24):**
+  - `prisma/schema.prisma`: `MonthlyReport`-Modell für PDF-Report-History (`period`, `pdfPath`, `generatedAt`, `sentAt`). Migration: `20260515190000_add_monthly_report`.
+  - `app/api/kpi/route.ts`: GET-Route um `monthlyReports`-Array und Error-Handling erweitert.
+  - `components/kpi/MonthlyOverview.tsx`: Server-Komponente — 7 globale KPI-Karten aus `GlobalKpis`.
+  - `components/kpi/ProjectKPICard.tsx`: Server-Komponente — Pro-Projekt-Kostenkarte mit Status-Badge und CostChart-Sparkline.
+  - `components/kpi/CostChart.tsx`: Client-Komponente — SVG-Sparkline (6 Monate) mit Hover-Tooltip.
+  - `app/(dashboard)/kpi/page.tsx`: MonthlyOverview + ProjectKPICard-Grid + Monatsreport-Archiv-Sektion ergänzt.
+  - `.gitignore`: `reports/`-Verzeichnis ignoriert (generierte PDFs).
+
 ### Fixed
 - **CI:** `deploy.yml` Race Condition behoben — Deploy-Webhook feuerte parallel zu CI
   (nach ~7s), Coolify verwendete gecachtes Image statt neu zu bauen. Fix: `workflow_run`-

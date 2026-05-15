@@ -266,6 +266,14 @@ model CostReport {
   @@index([projectId])
 }
 
+model MonthlyReport {
+  id          String    @id @default(cuid())
+  period      String    @unique  // Format: "2026-05" (JJJJ-MM)
+  pdfPath     String
+  generatedAt DateTime  @default(now())
+  sentAt      DateTime?
+}
+
 model AuditLog {
   id         String   @id @default(cuid())
   projectId  String?
