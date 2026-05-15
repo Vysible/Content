@@ -1,4 +1,5 @@
 import { getAnthropicClient, getOpenAIClient } from '@/lib/ai/client'
+import { withRetry } from '@/lib/utils/retry'
 import { trackCost } from '@/lib/costs/tracker'
 import yaml from 'js-yaml'
 import fs from 'fs'
@@ -51,12 +52,15 @@ export async function generateImageBrief(opts: {
     .replace('{{canvaOrdner}}', opts.canvaOrdner ?? 'nicht angegeben')
 
   const client = await getAnthropicClient()
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 512,
-    system: prompt.system,
-    messages: [{ role: 'user', content: userMsg }],
-  })
+  const response = await withRetry(
+    () => client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 512,
+      system: prompt.system,
+      messages: [{ role: 'user', content: userMsg }],
+    }),
+    'image-brief.generate',
+  )
 
   await trackCost({
     projectId: opts.projectId,
@@ -86,8 +90,8 @@ export async function generateImageBrief(opts: {
         quality: 'standard',
       })
       brief.dallePrompt = imgResponse.data?.[0]?.url ?? undefined
-    } catch {
-      // DALL-E fehler sind nicht kritisch
+    } catch (err: unknown) {
+      console.warn('[Vysible] DALL-E Bild-Generierung fehlgeschlagen (nicht kritisch):', err)
     }
   }
 

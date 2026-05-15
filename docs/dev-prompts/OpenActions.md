@@ -215,3 +215,25 @@
    - `middleware.ts`: `/impressum` und `/datenschutz` zur Public-Allowlist hinzufügen (analog `/share/*`).
 
    Aufwand: ~2–3 Stunden (Texte liefert Betreiber).
+
+9. **Prisma-Migration `20260515220000_add_meta_linkedin_providers` auf Prod-DB anwenden** (BLOCKING für META/LINKEDIN-Nutzung)
+
+   Migration wurde lokal manuell erstellt (DB war nicht erreichbar). Sie muss via SSH auf der Prod-DB angewendet werden, bevor META/LINKEDIN-API-Keys funktionieren.
+
+   Empfohlenes Vorgehen:
+   ```bash
+   # Via SSH auf dem Hostinger VPS:
+   psql $DATABASE_URL -c "ALTER TYPE \"Provider\" ADD VALUE IF NOT EXISTS 'META';"
+   psql $DATABASE_URL -c "ALTER TYPE \"Provider\" ADD VALUE IF NOT EXISTS 'LINKEDIN';"
+   # Danach Prisma Migrations-Tabelle aktualisieren:
+   pnpm prisma migrate deploy
+   ```
+   Alternativ direkt in Coolify-Shell oder via `pnpm prisma migrate deploy` im Container-Environment.
+
+   **Solange diese Migration nicht applied ist:** Prisma wirft einen Fehler wenn `provider: 'META'` oder `provider: 'LINKEDIN'` in `findFirst`-Queries verwendet wird.
+
+10. **Forge §3c-Scan: `lib/ai/client.ts` als False Positive dokumentiert**
+
+    Der automatische Forge-Compliance-Scan (`*client*.ts` → `withRetry` prüfen) erkennt `lib/ai/client.ts` als fehlend. `lib/ai/client.ts` ist jedoch eine **reine Factory** (gibt Anthropic/OpenAI-Client-Instanzen zurück, macht keine externen Calls). Die tatsächlichen API-Calls sind in `lib/generation/texts.ts`, `lib/generation/themes.ts` etc. — alle mit `withRetry` gesichert.
+
+    Maßnahme: Scan-Pattern verfeinern oder `lib/ai/client.ts` explizit als Factory kommentieren (`// forge-scan: factory-only, no external calls`). Kein Handlungsbedarf bzgl. Resilience.

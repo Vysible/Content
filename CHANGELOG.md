@@ -18,6 +18,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `components/calendar/ContentCalendar.tsx`: `veroeffentlicht` → blaues Badge, `fehler` → rotes Badge in Kalender-Ansicht.
   - `app/(dashboard)/settings/api-keys/SocialTokenStatusSection.tsx`: Von CANVA-ApiKey-Rows auf META/LINKEDIN-ApiKeys umgestellt; Canva-Deprecated-Hinweis mit Link zu `/settings/canva`; Leer-Zustand ("API-Key hinterlegen"); stiller Catch geschlossen (forge §3a).
 
+### Fixed
+- **Forge §3c + §3a — `lib/image/brief-generator.ts`:** `messages.create`-Call in `withRetry` gekapselt (Forge §3c). Comment-only `catch { // DALL-E fehler... }` durch `console.warn('[Vysible] DALL-E...', err)` ersetzt (Forge §3a).
+
 ### Changed
 - **Sprint P2-F Closeout (Slice 18):** `docs/roadmap.md` Slice 18 auf ✅ gesetzt. `docs/forge-web-deviations.md` Restbestand-stiller-Catches-Kategorie vollständig geschlossen (`SocialTokenStatusSection.tsx:42` in Geschlossene aufgenommen). `docs/dev-prompts/OpenActions.md` Punkt 3 (`SocialTokenStatusSection`) als erledigt markiert; PSR-WARNs P2-F als Punkte 6 + 7 dokumentiert. Sprint-Prompt nach `docs/dev-prompts/archive/` verschoben.
 
