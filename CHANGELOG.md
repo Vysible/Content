@@ -28,6 +28,24 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   auf `userId` + FK `CanvaToken_userId_fkey ON DELETE CASCADE`).
   `prisma migrate deploy` gegen die Live-DB steht aus
   (siehe OpenActions.md Sprint 0).
+- Sprint P2-E (Slice 17, Work-in-Progress): erste Bausteine für
+  Canva OAuth 2.0 Flow:
+  - `lib/canva/auth.ts`: `buildAuthorizeUrl`, `exchangeCodeForToken`,
+    `persistCanvaToken`, `getValidCanvaToken` (mit 5-min-Refresh-Puffer),
+    `isCanvaConnected`, `getCanvaConnectionStatus`, `disconnectCanva`.
+    AES-256-GCM-Verschlüsselung für Access-/Refresh-Token,
+    `withRetry`-Wrap auf allen Canva-API-Calls, strukturierte Logs
+    ohne Token-Echo.
+  - `app/api/canva/oauth/route.ts`: Initiiert OAuth-Flow mit
+    httpOnly-State-Cookie (CSRF-Schutz, 10-min-TTL, single-use).
+  - `app/api/canva/oauth/callback/route.ts`: State-Validierung,
+    Code-gegen-Token-Tausch, Persistierung; sauberes Error-Handling.
+  - Ergänzt das bereits committete `CanvaToken`-Schema.
+  - Offen für Sprint P2-E (siehe `docs/dev-prompts/sprint-p2e-canva.md`):
+    Settings-UI `/settings/canva`, Ordner-Such-UI, Asset-Listing-Endpunkt;
+    `safeReadError` in `lib/canva/auth.ts` enthält noch einen bare
+    `catch` ohne Logging (Forge-Regel `resilience §3a`-Verstoß),
+    Fix im P2-E-Self-Review.
 - Alle offenen Sprint-Prompts (P2-E, P3-A, P3-B, P3-C, P3-D, P3-E, P3-F, P3-G)
   und `Example_Prompt.md` enthalten jetzt einen
   `## CRITICAL: Sprint Closeout (Pflicht vor Commit)`-Block direkt vor
