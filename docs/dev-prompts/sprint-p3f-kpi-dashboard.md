@@ -90,6 +90,7 @@ Get-ChildItem lib -Name "cron*","scheduler*" -ErrorAction SilentlyContinue
 - [ ] `lib/cron/scheduler.ts` erweitert: `sendMonthlyReport` nach `generateMonthlyReport`-Aufruf
 - [ ] Report-History: max. 12 Reports gespeichert (älteste löschen)
 - [ ] `node-cron` bereits installiert (`^4.2.1`) — kein `pnpm add` nötig
+- [ ] `reports/` in `.gitignore` eingetragen (generierte PDFs nicht committen)
 - [ ] Alle Catches loggen — kein stiller Catch
 - [ ] TypeScript strict: 0 Fehler
 - [ ] Tests grün
