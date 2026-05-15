@@ -10,6 +10,7 @@ export type EmailTrigger =
   | 'draft_uploaded'
   | 'published'
   | 'share_approved'
+  | 'cost_threshold_exceeded'
 
 export async function sendPasswordResetMail(toEmail: string, resetUrl: string): Promise<void> {
   const config = await prisma.smtpConfig.findFirst({ where: { active: true } })

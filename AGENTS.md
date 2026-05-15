@@ -11,7 +11,7 @@ Bekannte Abweichungen: `docs/forge-web-deviations.md`
 
 ## Aktueller Stand (Mai 2026)
 
-**Forge-Web:** Integriert, Maturity `DEVELOPMENT`. Alle Regeln in `.cursor/rules/` aktiv.
+**Forge-Web:** Integriert, Maturity `DEVELOPMENT`. Alle Regeln in `.windsurf/rules/` aktiv.
 
 **Implementierungsstand (grob):**
 
@@ -68,8 +68,8 @@ prisma/schema.prisma      DB-Schema
 
 ## Governance-Regeln (verbindlich für alle KI-Agenten)
 
-Die vollständigen Regeln liegen in `.cursor/rules/` (Cursor injiziert sie automatisch).  
-Bei Arbeit **ohne Cursor** (z.B. Claude API, ChatGPT, Windsurf) gelten diese Kernprinzipien zwingend:
+Die vollständigen Regeln liegen in `.windsurf/rules/` (Windsurf injiziert sie automatisch).  
+Bei Arbeit **ohne Windsurf** (z.B. Claude API, ChatGPT, Cursor) gelten diese Kernprinzipien zwingend:
 
 ### Sicherheit
 - **Keine Secrets im Code.** API-Keys, Passwörter, Tokens ausschliesslich via `process.env`. Nie hardcoden, nie committen.

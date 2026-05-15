@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { calcCostEur } from '@/config/model-prices'
 import { logger } from '@/lib/utils/logger'
+import { checkCostThreshold } from './threshold-checker'
 
 interface TrackCostParams {
   projectId?: string
@@ -26,4 +27,10 @@ export async function trackCost(params: TrackCostParams): Promise<void> {
   })
 
   logger.info({ step: params.step, model: params.model, inputTokens: params.inputTokens, outputTokens: params.outputTokens, costEur }, 'CostEntry tracked')
+
+  if (params.projectId) {
+    checkCostThreshold(params.projectId).catch((err: unknown) => {
+      logger.warn({ err }, '[Vysible] Schwellwert-Check nach trackCost fehlgeschlagen')
+    })
+  }
 }

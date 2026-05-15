@@ -5,6 +5,7 @@ const TRIGGER_SUBJECTS: Record<EmailTrigger, string> = {
   draft_uploaded: 'Vysible: Entwurf hochgeladen',
   published: 'Vysible: Content veröffentlicht',
   share_approved: 'Vysible: Freigabe erteilt',
+  cost_threshold_exceeded: 'Vysible: Kosten-Schwellwert überschritten',
 }
 
 function escapeHtml(value: string): string {

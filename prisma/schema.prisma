@@ -143,6 +143,13 @@ model CostEntry {
   @@index([timestamp])
 }
 
+model CostSettings {
+  id              String   @id @default(cuid())
+  monthlyAlertEur Float    @default(50.0)
+  alertEnabled    Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
 model ShareLink {
   id           String   @id @default(cuid())
   projectId    String

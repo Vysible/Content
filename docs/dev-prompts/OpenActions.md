@@ -4,13 +4,15 @@
 
 1. **Canva Developer Portal: OAuth-App anlegen + Redirect-URIs registrieren**
 
+   ⚠️ **BLOCKIERT** — Canva Developer API steht noch nicht zur Verfügung. Erst ausführen wenn Canva-Zugang besteht.
+
    Einmalige manuelle Aktion unter https://www.canva.com/developers/ :
    - Neue App anlegen (OAuth 2.0, Scope: `asset:read design:content:read`).
    - Redirect-URIs eintragen:
      - Dev:  `http://localhost:3000/api/canva/oauth/callback`
      - Prod: `https://vysible.cloud/api/canva/oauth/callback`
    - `CANVA_CLIENT_ID` und `CANVA_CLIENT_SECRET` aus dem Portal in `.env`
-     (lokal) und in Coolify (Prod → Environment Variables) eintragen.
+     (lokal) und in Coolify (App `nndzr03dlpcfony81kja6lb6` → Environment Variables) eintragen.
    - Vorlage: `.env.example` — Abschnitt "Canva OAuth 2.0".
 
 2. ~~**`prisma migrate deploy` für `CanvaToken`-Migration gegen Live-DB**~~
@@ -30,30 +32,41 @@
 
 ---
 
+## Sprint P3-A — Kosten-Tracking (benötigt laufende DB)
+
+1. ~~**Prisma-Migration ausführen** (CostSettings-Modell)~~
+   **✅ Erledigt (2026-05-15)** — Migration `20260515110000_add_cost_settings` applied
+   via SSH → psql auf DB-Container `s7q3ix0pj9ztc2n8koblu0dz`.
+   Prisma Client lokal via `pnpm prisma generate` regeneriert. TypeScript: 0 Fehler.
+
+---
+
 ## Sprint 3 (benötigt laufende DB / VPS-Zugriff)
 
-1. **Prisma-Migration ausführen** (Sprint 3 — PII-Felder):
-   ```powershell
-   npx prisma migrate deploy
-   ```
-   Migration-Datei: `prisma/migrations/20260514202000_pii_encryption_fields/migration.sql`
+1. ~~**Prisma-Migration ausführen** (Sprint 3 — PII-Felder)~~
+   **✅ Erledigt (2026-05-14)** — Migration `20260514202000_pii_encryption_fields` applied
+   (verifiziert in `_prisma_migrations`).
 
-2. **PII-Datenmigration ausführen** (einmalig, nach migrate deploy):
-   ```powershell
-   pnpm ts-node --compiler-options '{"module":"CommonJS"}' scripts/migrate-pii.ts
-   ```
-   Idempotent — kann mehrfach ausgeführt werden, bereits migrierte Einträge werden übersprungen.
+2. ~~**PII-Datenmigration ausführen**~~
+   **✅ Erledigt (2026-05-15)** — `scripts/migrate-pii.ts` via SSH-Tunnel (localhost:5433 → Prod-DB)
+   ausgeführt. 1 User verschlüsselt (`emailEncrypted` + `nameEncrypted` gesetzt).
+   Verifiziert via `_prisma_migrations` + direkter DB-Abfrage.
 
 ---
 
 ## Sprint 0
 
-Drei offene Punkte (benötigen laufende DB)
 1. ~~prisma migrate deploy muss gegen die Live-DB ausgeführt werden~~
-   **✅ Erledigt (2026-05-15)** — Alle 7 Migrationen applied (inkl. PII-Felder + CanvaToken).
+   **✅ Erledigt (2026-05-15)** — Alle 8 Migrationen applied (inkl. PII-Felder + CanvaToken + CostSettings).
    Verifiziert via `_prisma_migrations`-Tabelle auf DB-Container `s7q3ix0pj9ztc2n8koblu0dz`.
 
-2. SMTP-Datenmigration: Bestehende HEDY-ApiKey-SMTP-Einträge müssen einmalig in SmtpConfig übertragen werden (kann über Prisma Studio gemacht werden)
+2. **SMTP-Datenmigration** — Bestehende HEDY-ApiKey-SMTP-Einträge einmalig in `SmtpConfig`-Tabelle übertragen.
+   ⚠️ **Nur notwendig wenn** HEDY-ApiKey-Einträge mit SMTP-Daten in der DB vorhanden sind.
+   Durchführung: Prisma Studio (`pnpm prisma studio`) → `ApiKey`-Tabelle prüfen → SMTP-Werte manuell in `SmtpConfig` anlegen.
+
+3. **`COOLIFY_APP_UUID` in `.env` aktualisieren** — Aktuell: `f58gu47l7uwwchjhhd25c0gy` (alte App).
+   Prod-App seit kurzem: `nndzr03dlpcfony81kja6lb6` (läuft unter `https://vysible.cloud`).
+   Eintragen: `COOLIFY_APP_UUID=nndzr03dlpcfony81kja6lb6`
 
 ---
 

@@ -6,6 +6,40 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- Sprint P3-A (Slice 27) — Kosten-Tracking pro Kunde:
+  - `prisma/schema.prisma`: `CostSettings`-Modell hinzugefügt (Schwellwert-Konfiguration).
+    Migration `20260515110000_add_cost_settings` erstellt und auf Prod-DB applied
+    (via SSH → psql direkt im DB-Container `s7q3ix0pj9ztc2n8koblu0dz` auf VPS 72.62.115.121).
+  - `lib/costs/threshold-checker.ts` NEU: Prüft nach jedem `trackCost()`-Call ob
+    monatliche Kosten den konfigurierten Schwellwert überschreiten; sendet E-Mail
+    via `sendNotification('cost_threshold_exceeded', ...)` wenn Schwellwert erreicht.
+    Non-fatal: Fehler werden geloggt, kein Rethrow.
+  - `lib/costs/tracker.ts` MOD: `checkCostThreshold()` nach DB-Write aufgerufen
+    (non-fatal, catch mit `logger.warn`).
+  - `lib/email/mailer.ts` MOD: `EmailTrigger` um `'cost_threshold_exceeded'` erweitert.
+  - `lib/email/templates/notification.ts` MOD: Subject für `cost_threshold_exceeded`
+    hinzugefügt ("Vysible: Kosten-Schwellwert überschritten").
+  - `app/api/settings/cost-threshold/route.ts` NEU: GET + PUT für Schwellwert-
+    Konfiguration (nur ADMIN). Erstellt `CostSettings`-Eintrag wenn noch nicht vorhanden.
+  - `app/(dashboard)/settings/billing/page.tsx` NEU: Billing-Dashboard mit globaler
+    Übersicht (Gesamtkosten, laufender Monat, Ø pro Paket), Pro-Projekt-Tabelle,
+    Marge-Kalkulation und Schwellwert-Konfiguration. Nur für ADMIN-User.
+  - `components/kpi/CostBreakdownTable.tsx` NEU: Client-Komponente für Pro-Projekt-
+    Kosten-Tabelle mit CSV-Download-Button pro Projekt.
+  - `components/kpi/MarginCalculator.tsx` NEU: Client-Komponente für Marge-Kalkulation
+    (Kundenpreis eingeben → Marge % + Gewinn/Monat berechnen).
+  - `components/kpi/CostThresholdConfig.tsx` NEU: Client-Komponente für Schwellwert-
+    Konfiguration (Schwellwert in €, Toggle für Warnungen aktiv/inaktiv, Speichern-Button).
+
+### Changed
+- Sprint 3 Abschluss (PII-Verschlüsselung): `scripts/migrate-pii.ts` via SSH-Tunnel gegen
+  Prod-DB ausgeführt — 1 User (`emailEncrypted` + `nameEncrypted`) verschlüsselt.
+  Coolify API Token in `.env` eingetragen (war Platzhalter). `COOLIFY_APP_UUID` auf neue
+  Prod-App `nndzr03dlpcfony81kja6lb6` (vysible.cloud) hinzuweisen.
+- Sprint P3-A Closeout (Slice 27): `docs/dev-prompts/archive/sprint-p3a-kosten-tracking.md`
+  archiviert; `docs/roadmap.md` Slice 27 auf "✅ Abgeschlossen (2026-05-15, Sprint P3-A)"
+  gesetzt, Phase-3-Fortschritt von ~15 % auf ~30 % angehoben; `docs/dev-prompts/OpenActions.md`
+  um Sprint-P3-A-Abschnitt ergänzt (DB-Migration für CostSettings-Modell).
 - `.env.example`: Canva-OAuth-2.0-Block ergaenzt (`CANVA_CLIENT_ID`,
   `CANVA_CLIENT_SECRET`) mit Hinweis auf Canva Developer Portal und
   Redirect-URIs fuer Dev + Prod.

@@ -111,7 +111,7 @@ Wenn du die KI-IDE für die Weiterentwicklung nutzt, füge am Anfang jedes neuen
 ```
 Lies zuerst: AGENTS.md, docs/architecture.md, docs/roadmap.md, docs/decisions.md
 Projektkontext ist vollständig in diesen Dateien beschrieben.
-Forge-Regeln in .cursor/rules/ sind verbindlich.
+Forge-Regeln in .windsurf/rules/ sind verbindlich.
 ```
 
 Entwicklungsprompts für einzelne Features findest du in `docs/dev-prompts/`.
