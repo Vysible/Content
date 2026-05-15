@@ -5,6 +5,14 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **CI:** pnpm-Versionskonflikt behoben — redundante `version: 9` aus `ci.yml`
+  entfernt (`package.json` `packageManager` ist Single Source of Truth).
+- **CI:** Node.js 20 → 22 LTS in `ci.yml` und `forge-sync.yml` (GitHub Actions
+  erzwingt Node 24 ab 2026-06-02, Node 20 wird 2026-09-16 entfernt).
+- **CI:** `forge-sync.yml` `force_sync` default von String `'false'` auf Boolean
+  `false` korrigiert (YAML-Lint-Fix aus Forge-Web Template-Update).
+
 ### Added
 - **Sprint P3-E — KlickTipp Newsletter Connector (Slice 23):**
   - `lib/klicktipp/client.ts`: Vollständiger KT-Client mit Session-Auth, `withRetry`,

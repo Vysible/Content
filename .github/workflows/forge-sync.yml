@@ -25,7 +25,7 @@ on:
       force_sync:
         description: 'Force sync even if conflicts detected (skips deviation guard)'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install ForgeWeb at requested version
         # Uses npm global install — works in CI without SSH key configuration.
