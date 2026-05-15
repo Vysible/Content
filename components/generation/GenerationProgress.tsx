@@ -74,7 +74,7 @@ export function GenerationProgress({ jobId, onComplete }: Props) {
               onClick={retry}
               className="text-xs px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
-              Ab „{STEP_LABELS[failedStep as keyof typeof STEP_LABELS]}" wiederholen
+              Ab &bdquo;{STEP_LABELS[failedStep as keyof typeof STEP_LABELS]}&ldquo; wiederholen
             </button>
           )}
         </div>

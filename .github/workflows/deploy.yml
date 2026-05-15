@@ -3,7 +3,6 @@ name: Deploy to Coolify
 on:
   push:
     branches:
-      - claude/migrate-app-to-server-cqjn5
       - main
 
 jobs:

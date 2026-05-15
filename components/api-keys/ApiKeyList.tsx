@@ -81,7 +81,7 @@ export function ApiKeyList({ initialKeys }: { initialKeys: ApiKey[] }) {
   if (keys.length === 0) {
     return (
       <div className="text-center py-12 text-stahlgrau text-sm">
-        Noch keine API-Keys konfiguriert. Klicke auf „Key hinzufügen".
+        Noch keine API-Keys konfiguriert. Klicke auf &bdquo;Key hinzufügen&ldquo;.
       </div>
     )
   }

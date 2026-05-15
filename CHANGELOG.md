@@ -5,6 +5,13 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Changed
+- CI: `prisma generate` Schritt in GitHub Actions hinzugefügt (TypeScript-Types verfügbar)
+- Deploy-Workflow: Veralteter Branch-Trigger entfernt
+- Typographie-Fix: Deutsche Anführungszeichen als HTML-Entities in ApiKeyList + GenerationProgress
+- ESLint-Konfiguration hinzugefügt (next/core-web-vitals)
+- Sprint P3-C Prompt archiviert
+
 ### Added
 - Settings Hub-Seite (`/settings`) mit Tab-Navigation: API-Keys, Canva, E-Mail,
   Kosten & Abrechnung, Benutzer, Passwort. Sidebar zeigt nun einen einzelnen
