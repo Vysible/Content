@@ -22,8 +22,9 @@ export function Sidebar() {
 
   return (
     <aside className="w-56 flex-shrink-0 bg-nachtblau text-creme flex flex-col h-screen sticky top-0">
-      <div className="flex items-center px-4 py-5 border-b border-tiefblau">
-        <Image src="/logo.png" alt="Vysible" width={120} height={40} className="object-contain" priority />
+      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-tiefblau">
+        <Image src="/logo.png" alt="" width={32} height={32} className="object-contain flex-shrink-0" priority />
+        <span className="font-bold text-sm tracking-wide">Vysible</span>
       </div>
 
       {/* Navigation */}
