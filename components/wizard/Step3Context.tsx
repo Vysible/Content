@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import type { WizardData } from './NewProjectWizard'
 import { HedyImport } from './HedyImport'
 import { TemplateSelector } from './TemplateSelector'
+import { KeywordReview } from './KeywordReview'
 
 // Geschätzte Tokens: 1 Token ≈ 4 Zeichen (Deutsch)
 const MAX_POSITIONING_CHARS = 4_000 * 4
@@ -11,13 +12,22 @@ const MAX_POSITIONING_CHARS = 4_000 * 4
 interface Step3Props {
   data: WizardData
   onChange: (updates: Partial<WizardData>) => void
+  projectIdForKeywordReview?: string
+  locationForKeywordReview?: string
   onBack: () => void
   onSubmit: () => void
   submitting: boolean
 }
 
-export function Step3Context({ data, onChange, onBack, onSubmit, submitting }: Step3Props) {
-  const [keywordInput, setKeywordInput] = useState('')
+export function Step3Context({
+  data,
+  onChange,
+  projectIdForKeywordReview,
+  locationForKeywordReview,
+  onBack,
+  onSubmit,
+  submitting,
+}: Step3Props) {
   const [activeTab, setActiveTab] = useState<'eingeben' | 'hochladen'>('eingeben')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -41,18 +51,6 @@ export function Step3Context({ data, onChange, onBack, onSubmit, submitting }: S
       setActiveTab('eingeben')
     }
     reader.readAsText(file, 'utf-8')
-  }
-
-  function addKeyword() {
-    const kw = keywordInput.trim()
-    if (kw && !data.keywords.includes(kw)) {
-      onChange({ keywords: [...data.keywords, kw] })
-    }
-    setKeywordInput('')
-  }
-
-  function removeKeyword(kw: string) {
-    onChange({ keywords: data.keywords.filter((k) => k !== kw) })
   }
 
   return (
@@ -142,29 +140,15 @@ export function Step3Context({ data, onChange, onBack, onSubmit, submitting }: S
       {/* Keywords */}
       <div>
         <label className="block text-xs font-medium text-anthrazit mb-1">Keywords <span className="text-stahlgrau font-normal">(optional)</span></label>
-        <div className="flex gap-2 mb-2">
-          <input
-            type="text"
-            value={keywordInput}
-            onChange={(e) => setKeywordInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addKeyword() } }}
-            placeholder="Keyword eingeben, Enter oder Komma"
-            className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
-          />
-          <button onClick={addKeyword} disabled={!keywordInput.trim()} className="px-3 py-2 bg-stone hover:bg-gray-200 text-sm rounded-lg transition disabled:opacity-50">
-            +
-          </button>
-        </div>
-        {data.keywords.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {data.keywords.map((kw) => (
-              <span key={kw} className="flex items-center gap-1 px-2 py-0.5 bg-tiefblau text-white text-xs rounded-full">
-                {kw}
-                <button onClick={() => removeKeyword(kw)} className="hover:text-stone transition leading-none">×</button>
-              </span>
-            ))}
-          </div>
-        )}
+        <KeywordReview
+          projectId={projectIdForKeywordReview}
+          location={locationForKeywordReview}
+          initialKeywords={data.keywords}
+          onConfirm={({ keywords, paaQuestions }) => {
+            const merged = Array.from(new Set([...keywords, ...paaQuestions]))
+            onChange({ keywords: merged })
+          }}
+        />
       </div>
 
       {/* Themen-Pool */}

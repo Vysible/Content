@@ -1,7 +1,17 @@
-import { prisma } from '@/lib/db'
-import { decrypt } from '@/lib/crypto/aes'
+import { withRetry } from '@/lib/utils/retry'
 import { trackCost } from '@/lib/costs/tracker'
 import { logger } from '@/lib/utils/logger'
+import { prisma } from '@/lib/db'
+import { decrypt } from '@/lib/crypto/aes'
+
+const DATASEO_BASE = 'https://api.dataforseo.com/v3'
+const USD_TO_EUR = 0.92
+
+export interface DataForSeoKeyword {
+  keyword: string
+  searchVolume: number | null
+  cpc: number | null
+}
 
 export interface KeywordSuggestion {
   keyword: string
@@ -10,92 +20,202 @@ export interface KeywordSuggestion {
   type: 'autocomplete' | 'paa'
 }
 
+interface DataForSeoSerpSubItem {
+  title?: string
+}
+
+interface DataForSeoResultItem {
+  keyword?: string
+  search_volume?: number
+  cpc?: number
+  type?: string
+  items?: DataForSeoSerpSubItem[]
+}
+
+interface DataForSeoTask {
+  cost?: number
+  result?: Array<{
+    items?: DataForSeoResultItem[]
+  }>
+}
+
+interface DataForSeoResponse {
+  tasks?: DataForSeoTask[]
+  status_code?: number
+  status_message?: string
+}
+
 interface DataForSeoCredentials {
   login: string
   password: string
 }
 
-async function getCredentials(): Promise<DataForSeoCredentials> {
+async function getCredentials(createdById?: string): Promise<DataForSeoCredentials> {
   const apiKey = await prisma.apiKey.findFirst({
-    where: { provider: 'DATASEO', active: true },
+    where: {
+      provider: 'DATASEO',
+      active: true,
+      ...(createdById ? { createdById } : {}),
+    },
+    orderBy: { createdAt: 'desc' },
   })
-  if (!apiKey) throw new Error('Kein aktiver DataForSEO-API-Key konfiguriert')
-  // Format: login:password (AES-verschlüsselt)
+
+  if (!apiKey) {
+    throw new Error('Kein aktiver DataForSEO-API-Key konfiguriert')
+  }
+
   const decrypted = decrypt(apiKey.encryptedKey)
   const [login, password] = decrypted.split(':')
-  if (!login || !password) throw new Error('DataForSEO-Key muss Format login:password haben')
+  if (!login || !password) {
+    throw new Error('DataForSEO-Key muss Format login:password haben')
+  }
+
   return { login, password }
 }
 
-function authHeader(creds: DataForSeoCredentials): string {
-  return 'Basic ' + Buffer.from(`${creds.login}:${creds.password}`).toString('base64')
+function getCostUsd(data: DataForSeoResponse): number {
+  return data.tasks?.reduce((sum, task) => sum + (task.cost ?? 0), 0) ?? 0
 }
 
-/** PAA + Autocomplete für Fachgebiet + Standort, max 5 Results je Typ */
+function parseKeywordsForKeywords(data: DataForSeoResponse): DataForSeoKeyword[] {
+  const items = data.tasks?.[0]?.result?.[0]?.items ?? []
+  return items
+    .map((item) => ({
+      keyword: item.keyword ?? '',
+      searchVolume: item.search_volume ?? null,
+      cpc: item.cpc ?? null,
+    }))
+    .filter((item) => Boolean(item.keyword))
+}
+
+function parsePaaFromSerp(data: DataForSeoResponse): string[] {
+  const items = data.tasks?.[0]?.result?.[0]?.items ?? []
+  return items
+    .filter((item) => item.type === 'people_also_ask')
+    .flatMap((item) => item.items?.map((subItem) => subItem.title?.trim() ?? '') ?? [])
+    .filter(Boolean)
+    .slice(0, 10)
+}
+
+export async function fetchKeywordsForKeywords(
+  keywords: string[],
+  location: string,
+  projectId: string | undefined,
+  authHeader: string,
+): Promise<DataForSeoKeyword[]> {
+  return withRetry(async () => {
+    const response = await fetch(`${DATASEO_BASE}/keywords_data/google_ads/keywords_for_keywords/live`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${authHeader}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([
+        {
+          keywords,
+          language_code: 'de',
+          location_name: location || 'Germany',
+        },
+      ]),
+    })
+
+    if (!response.ok) {
+      throw new Error(`DataForSEO HTTP ${response.status}`)
+    }
+
+    const data = await response.json() as DataForSeoResponse
+    const costUsd = getCostUsd(data)
+    if (costUsd > 0) {
+      await trackCost({
+        projectId,
+        model: 'dataseo',
+        inputTokens: 0,
+        outputTokens: 0,
+        costEur: costUsd * USD_TO_EUR,
+        step: 'dataseo',
+      })
+    }
+
+    return parseKeywordsForKeywords(data)
+  }, 'dataseo.keywords_for_keywords')
+}
+
+export async function fetchPaaQuestions(
+  keyword: string,
+  location: string,
+  projectId: string | undefined,
+  authHeader: string,
+): Promise<string[]> {
+  return withRetry(async () => {
+    const response = await fetch(`${DATASEO_BASE}/serp/google/organic/live/advanced`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${authHeader}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([
+        {
+          keyword,
+          language_code: 'de',
+          location_name: location || 'Germany',
+          depth: 10,
+        },
+      ]),
+    })
+
+    if (!response.ok) {
+      throw new Error(`DataForSEO PAA HTTP ${response.status}`)
+    }
+
+    const data = await response.json() as DataForSeoResponse
+    const costUsd = getCostUsd(data)
+    if (costUsd > 0) {
+      await trackCost({
+        projectId,
+        model: 'dataseo',
+        inputTokens: 0,
+        outputTokens: 0,
+        costEur: costUsd * USD_TO_EUR,
+        step: 'dataseo',
+      })
+    }
+
+    return parsePaaFromSerp(data)
+  }, 'dataseo.serp_paa')
+}
+
+/** Backward-compatible helper for existing project keywords route */
 export async function fetchKeywordSuggestions(
   fachgebiet: string,
   standort: string,
-  projectId?: string
+  projectId?: string,
+  createdById?: string,
 ): Promise<KeywordSuggestion[]> {
-  const creds = await getCredentials()
   const query = `${fachgebiet} ${standort}`.trim()
+  const seedKeyword = query || fachgebiet
+  if (!seedKeyword) return []
 
-  const results: KeywordSuggestion[] = []
-
-  // Autocomplete
   try {
-    const res = await fetch('https://api.dataforseo.com/v3/keywords_data/google/search_volume/live', {
-      method: 'POST',
-      headers: {
-        Authorization: authHeader(creds),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([{ keywords: [query], language_code: 'de', location_code: 2276 }]),
-    })
+    const creds = await getCredentials(createdById)
+    const authHeader = Buffer.from(`${creds.login}:${creds.password}`).toString('base64')
+    const keywords = await fetchKeywordsForKeywords([seedKeyword], standort || 'Germany', projectId, authHeader)
+    const paaQuestions = await fetchPaaQuestions(seedKeyword, standort || 'Germany', projectId, authHeader)
 
-    if (res.ok) {
-      const data = await res.json()
-      const items = data?.tasks?.[0]?.result ?? []
-      for (const item of items.slice(0, 5)) {
-        results.push({
-          keyword: item.keyword,
-          searchVolume: item.search_volume,
-          cpc: item.cpc,
-          type: 'autocomplete',
-        })
-      }
-
-      // Kosten tracken
-      const cost = data?.tasks?.[0]?.cost ?? 0
-      if (cost > 0 && projectId) {
-        await trackCost({ projectId, model: 'dataseo', inputTokens: 0, outputTokens: 0, step: 'dataseo' })
-      }
+    const result: KeywordSuggestion[] = []
+    for (const item of keywords) {
+      result.push({
+        keyword: item.keyword,
+        searchVolume: item.searchVolume ?? undefined,
+        cpc: item.cpc ?? undefined,
+        type: 'autocomplete',
+      })
     }
-  } catch (err: unknown) {
-    logger.warn({ err }, 'DataForSEO Autocomplete nicht erreichbar — graceful degradation')
-  }
-
-  // PAA-Fragen via Related Keywords
-  try {
-    const res = await fetch('https://api.dataforseo.com/v3/keywords_data/google/related_keywords/live', {
-      method: 'POST',
-      headers: {
-        Authorization: authHeader(creds),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([{ keyword: query, language_code: 'de', location_code: 2276, depth: 1 }]),
-    })
-
-    if (res.ok) {
-      const data = await res.json()
-      const items = data?.tasks?.[0]?.result?.[0]?.items ?? []
-      for (const item of items.filter((i: { keyword: string }) => i.keyword?.includes('?')).slice(0, 5)) {
-        results.push({ keyword: item.keyword, type: 'paa' })
-      }
+    for (const question of paaQuestions) {
+      result.push({ keyword: question, type: 'paa' })
     }
+    return result
   } catch (err: unknown) {
-    logger.warn({ err }, 'DataForSEO PAA nicht erreichbar — graceful degradation')
+    logger.warn({ err }, 'DataForSEO Keyword Suggestions nicht erreichbar — graceful degradation')
+    return []
   }
-
-  return results
 }

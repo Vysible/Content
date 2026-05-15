@@ -30,6 +30,24 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `ShareAccess.tsx`: Social-Media-Abschnitt im Kunden-Freigabelink — Instagram,
   Facebook und LinkedIn Posts mit Text und Zeichenzahl-Anzeige (Limit-Überschreitung
   in Rot), pro Monat gruppiert, read-only (Sprint P2-B, Sub-Slice B, Slice 10).
+- Sprint P2-D (Slice 11a): Neue API-Route `POST /api/dataseo/keywords`
+  (`app/api/dataseo/keywords/route.ts`) für DataForSEO-Keyword-Recherche
+  inkl. Session-Auth, DATASEO-Key-Lookup aus `ApiKey`, AES-Decrypt und
+  kombinierter Antwort aus Keyword-Daten + PAA-Fragen.
+- Wizard Schritt 3: Neue Client-Komponente `components/wizard/KeywordReview.tsx`
+  mit editierbarer Keyword-Liste, optionalem DataForSEO-Abruf per Button,
+  12s Timeout-Fallback und togglebaren PAA-Chips; in `Step3Context` integriert.
+- DataForSEO-Client erweitert (`lib/dataseo/client.ts`) um echte Live-Calls:
+  `fetchKeywordsForKeywords()` und `fetchPaaQuestions()` mit `withRetry`,
+  Parsern für API-Responses und Cost-Tracking (`step: 'dataseo'`).
+
+### Changed
+- `lib/costs/tracker.ts`: `trackCost()` akzeptiert optional `costEur`, damit
+  nicht tokenbasierte Provider-Kosten (z.B. DataForSEO) direkt aus API-Kosten
+  in `CostEntry.costEur` persistiert werden koennen.
+- `app/api/projects/[id]/keywords/route.ts`: DataForSEO-Suggestions laufen
+  weiterhin ueber den bestehenden Endpunkt, jetzt user-spezifisch ueber `session.user.id`
+  beim API-Key-Lookup.
 
 ### Fixed
 - Slice 19 (Sub-Slice A): Stille `sendNotification(...).catch(() => {})`-Stellen

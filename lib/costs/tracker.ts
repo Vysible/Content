@@ -8,10 +8,11 @@ interface TrackCostParams {
   inputTokens: number
   outputTokens: number
   step: string
+  costEur?: number
 }
 
 export async function trackCost(params: TrackCostParams): Promise<void> {
-  const costEur = calcCostEur(params.model, params.inputTokens, params.outputTokens)
+  const costEur = params.costEur ?? calcCostEur(params.model, params.inputTokens, params.outputTokens)
 
   await prisma.costEntry.create({
     data: {

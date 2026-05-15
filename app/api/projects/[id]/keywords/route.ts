@@ -4,7 +4,7 @@ import { fetchKeywordSuggestions } from '@/lib/dataseo/client'
 import { NextResponse } from 'next/server'
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  await requireAuth()
+  const session = await requireAuth()
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
@@ -18,7 +18,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   const suggestions = await fetchKeywordSuggestions(
     project.fachgebiet ?? 'Arztpraxis',
     standort,
-    params.id
+    params.id,
+    session.user.id,
   )
 
   return NextResponse.json({ suggestions })

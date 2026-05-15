@@ -123,7 +123,14 @@ export function NewProjectWizard() {
       )}
       {step === 3 && (
         <>
-          <Step3Context data={data} onChange={update} onBack={() => setStep(2)} onSubmit={handleSubmit} submitting={submitting} />
+          <Step3Context
+            data={data}
+            onChange={update}
+            locationForKeywordReview={data.praxisName}
+            onBack={() => setStep(2)}
+            onSubmit={handleSubmit}
+            submitting={submitting}
+          />
           {error && (
             <p className="mt-3 text-xs text-bordeaux bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
           )}
