@@ -82,8 +82,26 @@ model Project {
   createdBy   User        @relation(fields: [createdById], references: [id])
   costEntries CostEntry[]
 
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+
   @@index([status])
   @@index([createdById])
+  @@index([clientId])
+}
+
+model Client {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  canvaFolderId   String?
+  canvaBrandKitId String?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  projects Project[]
+
+  @@index([name])
 }
 
 model GenerationJob {
