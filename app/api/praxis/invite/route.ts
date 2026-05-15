@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { sendNotification } from '@/lib/email/mailer'
+import { logger } from '@/lib/utils/logger'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -24,7 +25,13 @@ export async function POST(req: Request) {
 
   const inviteUrl = `${process.env.NEXTAUTH_URL}/praxis/review/${praxisUser.inviteToken}`
 
-  await sendNotification('share_approved', project.name, `Einladungslink: ${inviteUrl} — Empfänger: ${name} <${email}>`).catch(() => {})
+  await sendNotification(
+    'share_approved',
+    project.name,
+    `Einladungslink: ${inviteUrl} — Empfänger: ${name} <${email}>`,
+  ).catch((err: unknown) => {
+    logger.warn({ err, projectId }, 'E-Mail-Benachrichtigung für Praxis-Einladung fehlgeschlagen')
+  })
 
   return NextResponse.json({ inviteToken: praxisUser.inviteToken, inviteUrl })
 }

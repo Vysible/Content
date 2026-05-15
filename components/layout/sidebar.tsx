@@ -24,6 +24,7 @@ const navItems = [
   { href: '/kpi', label: 'Social-KPIs', icon: '↗' },
   { href: '/analytics', label: 'Web-Analytics', icon: '≋' },
   { href: '/settings/api-keys', label: 'API-Keys', icon: '⚿' },
+  { href: '/settings/smtp', label: 'E-Mail-Benachrichtigungen', icon: '✉' },
   { href: '/settings/password', label: 'Passwort', icon: '⚙' },
 ]
 

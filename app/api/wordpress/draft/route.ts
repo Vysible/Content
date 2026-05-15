@@ -4,6 +4,7 @@ import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
 import { writeAuditLog } from '@/lib/audit/logger'
 import { checkHwgGate } from '@/lib/compliance/hwg-gate'
+import { logger } from '@/lib/utils/logger'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -38,7 +39,13 @@ export async function POST(req: Request) {
 
   const draft = await createWordPressDraft(projectId, title, html, categories ?? [])
 
-  await sendNotification('draft_uploaded', project?.name ?? projectId, `WordPress Draft: "${title}" — ${draft.link}`).catch(() => {})
+  await sendNotification(
+    'draft_uploaded',
+    project?.name ?? projectId,
+    `WordPress Draft: "${title}" — ${draft.link}`,
+  ).catch((err: unknown) => {
+    logger.warn({ err, projectId }, 'E-Mail-Benachrichtigung für WordPress-Draft fehlgeschlagen')
+  })
 
   return NextResponse.json(draft)
 }

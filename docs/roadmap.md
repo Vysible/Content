@@ -97,7 +97,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | Slice 11a | DataForSEO Keyword-Review-UI | ⚠️ Stub |
 | Slice 17 | Canva OAuth 2.0 Flow + Ordner-Such-UI | ⚠️ Stub |
 | Slice 18 | Social Drafts UI + Provider-Hacks bereinigen | ⚠️ Stub |
-| Slice 19 | E-Mail: HTML-Mails, restliche Trigger, SMTP-UI | ⚠️ Teilweise |
+| Slice 19 | E-Mail: HTML-Mails, restliche Trigger, SMTP-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-C) |
 
 ---
 

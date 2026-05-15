@@ -18,7 +18,13 @@ export async function checkTokenExpiry(): Promise<void> {
     const daysLeft = Math.ceil(
       ((key.expiresAt?.getTime() ?? 0) - Date.now()) / (1000 * 60 * 60 * 24)
     )
-    await sendNotification('generation_complete', 'System', `API-Key "${key.name}" (${key.provider}) läuft in ${daysLeft} Tagen ab.`).catch(() => {})
+    await sendNotification(
+      'generation_complete',
+      'System',
+      `API-Key "${key.name}" (${key.provider}) läuft in ${daysLeft} Tagen ab.`,
+    ).catch((err: unknown) => {
+      logger.warn({ err, keyId: key.id }, 'E-Mail-Benachrichtigung für Token-Warnung fehlgeschlagen')
+    })
     logger.warn({ keyId: key.id, provider: key.provider, daysLeft }, 'Token expiry warning')
   }
 }

@@ -60,7 +60,11 @@ Zwei offene Punkte (benötigen laufende DB)
 
    Nach Einführung: Sprint-Prompt-Self-Review-Regeln präzisieren ("`logger.*` in Server, `loggerClient.*` in Client").
 
-3. **Themen-Quality-Gate refaktorisieren** (`lib/generation/themes-schema.ts` Z. 33–53)
+3. **WP/KT-Status-Felder in `StoredTextResult` ergänzen** (Kalender-Badge, Slice 7)
+
+   `ContentCalendar.tsx` ist darauf vorbereitet: WP/KT-Badge wird angezeigt wenn `wpDraftStatus` / `ktStatus` im `StoredTextResult`-Typ vorhanden sind. Aktuell fehlen diese Felder — WP-Status gehört zu Slice 22 (WordPress-Connector), KT-Status zu Slice 23 (KlickTipp-Connector). Nach Implementierung dieser Slices: Felder in `lib/generation/results-store.ts` ergänzen und Kalender-Karte zeigt automatisch den zweiten Badge.
+
+4. **Themen-Quality-Gate refaktorisieren** (`lib/generation/themes-schema.ts` Z. 33–53)
 
    Aktueller Zustand: `validateThemenQuality()` enthält zwei hardcoded Schwellwerte (`0.8` praxisspezifisch, `0.5` SEO-Titel-Quote) und kippt den gesamten Pipeline-Run bei Unterschreitung. Quelle der Werte: `docs/dev-prompts/plan-v6.1.md` Z. 525.
 

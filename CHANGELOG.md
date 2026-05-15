@@ -6,6 +6,16 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- `docs/dev-prompts/archive/sprint-p2c-email.md`: Sprint-Prompt P2-C nach
+  Abschluss archiviert; aktive Datei aus `docs/dev-prompts/` entfernt.
+- Slice 19 (Sprint P2-C): SMTP-Settings unter `/settings/smtp` mit Admin-Schutz,
+  Formular + Testmail-Flow (`[OK]/[FAIL]`) sowie neuen API-Routen
+  `/api/settings/smtp` (GET/POST/PUT) und `/api/settings/smtp/test`.
+- `lib/email/templates/notification.ts`: Einheitliches HTML-Mail-Template für
+  Benachrichtigungen (`generation_complete`, `draft_uploaded`, `published`,
+  `share_approved`) bei gleichzeitigem Text-Fallback im Mailversand.
+- `lib/email/smtp-config.ts`: Geteilter Helper für Empfänger-Validierung
+  (trim, max. 5, Basis-E-Mail-Format) zur Wiederverwendung in SMTP-APIs.
 - `ShareAccess.tsx`: Newsletter-Abschnitt im Kunden-Freigabelink — Betreff A/B,
   Preheader und Body (HTML) werden read-only angezeigt, Abschnitt nur sichtbar
   wenn Daten vorhanden (Sprint P2-B, Sub-Slice B, Slice 10 — FA-F-26).
@@ -14,6 +24,13 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   in Rot), pro Monat gruppiert, read-only (Sprint P2-B, Sub-Slice B, Slice 10).
 
 ### Fixed
+- Slice 19 (Sub-Slice A): Stille `sendNotification(...).catch(() => {})`-Stellen
+  in `app/api/wordpress/draft/route.ts`, `lib/tokens/expiry-checker.ts`,
+  `lib/costs/reporter.ts`, `app/api/praxis/invite/route.ts`,
+  `app/api/klicktipp/campaign/route.ts` sowie `lib/generation/pipeline.ts`
+  durch geloggte non-fatal Catches (`logger.warn`) ersetzt (`resilience §3a`).
+- Sidebar: Neuer Navigationseintrag „E-Mail-Benachrichtigungen“ unter
+  `/settings/smtp` ergänzt.
 - `ShareAccess.tsx`: `verify()` hatte `try/finally` ohne `catch` — Netzwerkfehler
   wurden still geschluckt. Neu: `catch` zeigt "Verbindungsfehler"-Meldung und
   loggt via `console.error('[Vysible] …')` (Option A, Sprint P2-B — Forge `resilience §3a`).
@@ -53,6 +70,11 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `docs/dev-prompts/OpenActions.md`: Backlog um zwei Punkte erweitert —
   Sprint 0a (5 Restbestand-stille-Catches schließen) und Browser-tauglicher
   Logger (mit Optionsvergleich pino/browser, consola, eigener Wrapper).
+- `docs/roadmap.md`: Slice 19 im Phase-2-Backlog auf
+  "✅ Abgeschlossen (2026-05-15, Sprint P2-C)" gesetzt.
+- `docs/dev-prompts/OpenActions.md`: temporären P2-C-Nachlaufblock nach
+  Umsetzung entfernt; verbleibende offene Punkte bleiben in den
+  sprintübergreifenden Abschnitten.
 
 ### Changed (Sprint-Prompt-Vorlagen Self-Review-Regel präzisiert)
 - `docs/dev-prompts/sprint-p2b-kalender-sharing.md`: Self-Review-Bullet

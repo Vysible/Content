@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { decrypt } from '@/lib/crypto/aes'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
+import { buildNotificationHtml, getNotificationSubject } from './templates/notification'
 
 export type EmailTrigger =
   | 'generation_complete'
@@ -58,13 +59,6 @@ export async function sendPasswordResetMail(toEmail: string, resetUrl: string): 
   logger.info('Passwort-Reset-Mail gesendet')
 }
 
-const TRIGGER_SUBJECTS: Record<EmailTrigger, string> = {
-  generation_complete: 'Vysible: Generierung abgeschlossen',
-  draft_uploaded:      'Vysible: Entwurf hochgeladen',
-  published:           'Vysible: Content veröffentlicht',
-  share_approved:      'Vysible: Freigabe erteilt',
-}
-
 export async function sendNotification(
   trigger: EmailTrigger,
   projectName: string,
@@ -88,8 +82,9 @@ export async function sendNotification(
     auth: { user: config.user, pass: password },
   })
 
-  const subject = TRIGGER_SUBJECTS[trigger]
+  const subject = getNotificationSubject(trigger)
   const text = `Projekt: ${projectName}\n\n${details ?? ''}\n\nVysible – KI-Content-Plattform`
+  const html = buildNotificationHtml(trigger, projectName, details)
 
   await withRetry(
     () =>
@@ -98,6 +93,7 @@ export async function sendNotification(
         to: config.recipients.join(', '),
         subject,
         text,
+        html,
       }),
     `smtp.sendMail(${trigger})`,
   )

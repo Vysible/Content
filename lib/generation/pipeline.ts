@@ -233,7 +233,7 @@ async function runStep(
 
       // §3a: Fehler im E-Mail-Versand werden geloggt, blockieren nicht die Pipeline
       sendNotification('generation_complete', project.name).catch((err: unknown) => {
-        logger.error({ err }, 'E-Mail-Benachrichtigung nach Generierung fehlgeschlagen')
+        logger.warn({ err, projectId: project.id }, 'E-Mail-Benachrichtigung nach Generierung fehlgeschlagen')
       })
 
       await emitEvent(jobId, {

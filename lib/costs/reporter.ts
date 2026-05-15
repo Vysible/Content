@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { getProjectCosts } from './aggregator'
 import { sendNotification } from '@/lib/email/mailer'
+import { logger } from '@/lib/utils/logger'
 import PDFDocument from 'pdfkit'
 
 const COST_THRESHOLD_EUR = Number(process.env.COST_THRESHOLD_EUR ?? '10')
@@ -53,7 +54,13 @@ export async function generateMonthlyReport(month: string): Promise<void> {
 export async function checkCostThreshold(projectId: string): Promise<void> {
   const costs = await getProjectCosts(projectId)
   if (costs.currentMonthEur >= COST_THRESHOLD_EUR) {
-    await sendNotification('generation_complete', costs.projectName, `Kostenschwelle erreicht: ${costs.currentMonthEur.toFixed(4)} €`).catch(() => {})
+    await sendNotification(
+      'generation_complete',
+      costs.projectName,
+      `Kostenschwelle erreicht: ${costs.currentMonthEur.toFixed(4)} €`,
+    ).catch((err: unknown) => {
+      logger.warn({ err, projectId }, 'E-Mail-Benachrichtigung für Kostenschwelle fehlgeschlagen')
+    })
   }
 }
 

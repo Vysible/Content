@@ -2,6 +2,7 @@ import { requireAuth } from '@/lib/auth/session'
 import { createKlickTippCampaign } from '@/lib/klicktipp/client'
 import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
+import { logger } from '@/lib/utils/logger'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -29,7 +30,13 @@ export async function POST(req: Request) {
     senderEmail,
   })
 
-  await sendNotification('draft_uploaded', project.name, `Klick-Tipp Kampagne (Draft): "${subject}" — ID: ${result.campaignId}`).catch(() => {})
+  await sendNotification(
+    'draft_uploaded',
+    project.name,
+    `Klick-Tipp Kampagne (Draft): "${subject}" — ID: ${result.campaignId}`,
+  ).catch((err: unknown) => {
+    logger.warn({ err, projectId }, 'E-Mail-Benachrichtigung für Klick-Tipp-Kampagne fehlgeschlagen')
+  })
 
   return NextResponse.json(result)
 }
