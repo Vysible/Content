@@ -19,6 +19,11 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   `docs/roadmap.md` Slice 11a auf
   `✅ Abgeschlossen (2026-05-15, Sprint P2-D · Commit 14906ad)` gesetzt.
   Erste vollständige Anwendung des 4-Schritt-Workflows aus `Sprint_Closeout.md`.
+- `prisma/schema.prisma`: Neues Modell `CanvaToken` (verschlüsselte
+  AccessToken/RefreshToken, `expiresAt`, `scope`, `userId`-Unique-Relation
+  zu `User`) als Schema-Vorbereitung für Sprint P2-E (Canva OAuth 2.0,
+  Slice 17). Noch keine Prisma-Migration generiert; Verwendung folgt im
+  P2-E-Implementierungs-Commit.
 - Alle offenen Sprint-Prompts (P2-E, P3-A, P3-B, P3-C, P3-D, P3-E, P3-F, P3-G)
   und `Example_Prompt.md` enthalten jetzt einen
   `## CRITICAL: Sprint Closeout (Pflicht vor Commit)`-Block direkt vor
