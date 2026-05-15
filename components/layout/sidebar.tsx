@@ -1,19 +1,11 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 
-function VysibleLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} aria-label="Vysible">
-      <circle cx="50" cy="50" r="50" fill="currentColor" />
-      <circle cx="37" cy="32" r="7" fill="#F6F1E9" />
-      <path d="M 49 30 L 65 30 L 58 86 L 50 86 Z" fill="#F6F1E9" />
-    </svg>
-  )
-}
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: '⊞' },
@@ -34,10 +26,8 @@ export function Sidebar() {
 
   return (
     <aside className="w-56 flex-shrink-0 bg-nachtblau text-creme flex flex-col h-screen sticky top-0">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-tiefblau">
-        <VysibleLogo className="w-8 h-8 text-cognac" />
-        <span className="font-bold text-sm tracking-wide">Vysible</span>
+      <div className="flex items-center px-4 py-5 border-b border-tiefblau">
+        <Image src="/logo.png" alt="Vysible" width={120} height={40} className="object-contain" priority />
       </div>
 
       {/* Navigation */}
