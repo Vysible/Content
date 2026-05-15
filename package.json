@@ -67,5 +67,6 @@
     "typescript": "^5.6.3",
     "vitest": "^4.1.6"
   },
-  "packageManager": "pnpm@9.14.2"
+  "packageManager": "pnpm@9.14.2",
+  "author": "Prof. Dr.-Ing. Kai Daniel (U-Glow GmbH / prelytics)"
 }

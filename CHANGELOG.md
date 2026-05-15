@@ -6,6 +6,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Urheber-Attribution:** `package.json` `author`-Feld auf „Prof. Dr.-Ing. Kai Daniel (U-Glow GmbH / prelytics)" gesetzt. Sidebar zeigt © Prof. Dr.-Ing. Kai Daniel über dem Abmelden-Button. Praxis-Portal-Footer: „Erstellt von U-Glow GmbH (prelytics) · Powered by Vysible".
+
+### Added
 - **Fachgebiet-Templates (Slice 25, Sprint P3-G):** 4 YAML-Vorlagen (`zahnarzt`, `kfo`, `gynaekologe`, `dermatologie`) im neuen `FachgebietTemplate`-Format mit `defaultKeywords`, `defaultCategories`, `seasonalTopics`, `hwgHighRiskCategories`. `lib/templates/loader.ts` auf `FachgebietTemplate`-Interface umgestellt.
 - **Template-Vorbelegung im Wizard:** `TemplateSelector.tsx` überarbeitet — wählt Fachgebiet-Vorlage und belegt Keywords + Fachgebiet automatisch vor.
 - **Klon-Funktion (Slice 25, Sprint P3-G):** `POST /api/projects/clone` korrigiert (kopiert kein `positioningDocument` mehr, setzt `clonedFrom` + `hedyImportHighlight`). `CloneProjectButton.tsx` in Projektliste.

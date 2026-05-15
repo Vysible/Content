@@ -51,6 +51,9 @@ export function Sidebar() {
 
       {/* Abmelden */}
       <div className="p-2 border-t border-tiefblau">
+        <p className="text-center text-[10px] text-stahlgrau/60 px-2 pt-1 pb-2 leading-tight">
+          © Prof. Dr.-Ing. Kai Daniel 😊
+        </p>
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-stahlgrau hover:bg-tiefblau hover:text-creme transition"

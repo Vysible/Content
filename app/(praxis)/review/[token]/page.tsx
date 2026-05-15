@@ -151,6 +151,10 @@ export default function PraxisReviewPage() {
           </div>
         )}
       </div>
+
+      <footer className="border-t border-stone/40 mt-8 py-4 text-center text-xs text-stahlgrau/50">
+        Erstellt von <span className="font-medium">U-Glow GmbH (prelytics)</span> · Powered by Vysible
+      </footer>
     </div>
   )
 }
