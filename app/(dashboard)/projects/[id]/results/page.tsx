@@ -12,7 +12,7 @@ import type { ThemenItem } from '@/lib/generation/themes-schema'
 export default async function ResultsPage({ params }: { params: { id: string } }) {
   await requireAuth()
 
-  const [project, ktApiKey, metaApiKey, linkedInApiKey] = await Promise.all([
+  const [project, globalKtKey, metaApiKey, linkedInApiKey] = await Promise.all([
     prisma.project.findUnique({
       where: { id: params.id },
       select: {
@@ -26,6 +26,7 @@ export default async function ResultsPage({ params }: { params: { id: string } }
         status: true,
         wpUrl: true,
         hwgFlag: true,
+        ktApiKeyId: true,
       },
     }),
     prisma.apiKey.findFirst({ where: { provider: 'KLICKTIPP', active: true }, select: { id: true } }),
@@ -70,7 +71,7 @@ export default async function ResultsPage({ params }: { params: { id: string } }
         textResults={textResults}
         channels={project.channels}
         wpConfigured={!!project.wpUrl}
-        ktConfigured={!!ktApiKey}
+        ktConfigured={!!(project.ktApiKeyId || globalKtKey)}
         metaConfigured={!!metaApiKey}
         linkedInConfigured={!!linkedInApiKey}
         hwgFlag={project.hwgFlag ? 'rot' : undefined}
