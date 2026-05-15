@@ -20,28 +20,10 @@
 
 ## EXECUTE FIRST — Pre-Slice Validation (Pflicht)
 
-Lies `docs/dev-prompts/Pre_Slice_Validation.md` vollständig und führe die Checks aus:
-
-```powershell
-# Check A — Working Tree
-git status --porcelain
-
-# Check B — TypeScript
-node node_modules/typescript/bin/tsc --noEmit
-
-# Check C — Roadmap: Vorgänger P3-E abgeschlossen?
-Select-String "P3-E.*✅|Sprint P3-E.*✅" docs/roadmap.md -i
-
-# Check D — CHANGELOG
-Select-String "\[Unreleased\]" CHANGELOG.md
-
-# Check E — Tests
-pnpm test --run
-```
-
-Bei **Hard-FAIL (A, B oder E):** SOFORT STOP. Kein weiterer Befehl. Kein weiterer Check. Keine Parallelisierung.  
-Ausgabe: `HARD-FAIL: Check [X] — [Grund]` + erforderliche Aktion für den User. Dann **await User-Freigabe**.  
-Bei **5/5 PASS:** Exploration starten.
+Lies und führe `docs/dev-prompts/Pre_Slice_Validation.md` vollständig aus
+(Phase 0 — PSR + Phase 1 — technische Gates).
+Bei FAIL in einer Phase: SOFORT STOP. Kein weiterer Befehl.
+Bei GO: Exploration starten.
 
 ---
 

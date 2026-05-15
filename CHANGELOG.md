@@ -6,6 +6,44 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Sprint P3-E — KlickTipp Newsletter Connector (Slice 23):**
+  - `lib/klicktipp/client.ts`: Vollständiger KT-Client mit Session-Auth, `withRetry`,
+    `{{unsubscribe_link}}`-Guard vor API-Call, `loadKtCredentials()`, `testKtConnection()`.
+    Stiller Catch L34 (`ktLogout`) durch `logger.warn` ersetzt (schließt `docs/forge-web-deviations.md`-Eintrag).
+  - `lib/klicktipp/newsletter-formatter.ts`: Neues `formatForKlickTipp()` mit KT-kompatiblem
+    Tabellenlayout, Inline-CSS, Preheader, optionalem CTA-Button, `{{unsubscribe_link}}`-Footer,
+    DSGVO-Footer (Praxisname + Website), Markdown → E-Mail-HTML-Konvertierung.
+  - `app/api/klicktipp/campaign/route.ts`: Vollständige Route mit HWG-Gate, AuditLog,
+    Credentials laden + entschlüsseln, `formatForKlickTipp`, `ktCampaignId`-Tracking,
+    sendNotification.
+  - `app/api/klicktipp/settings/route.ts`: KT-Credentials speichern (AES-256, Format
+    `username:password`). Standard-Listen-ID via `ApiKey.model`.
+  - `app/api/klicktipp/test/route.ts`: Verbindungstest (Session-Login + Logout).
+  - `app/(dashboard)/settings/klicktipp/page.tsx`: Settings-UI (Benutzername + Passwort +
+    Standard-Listen-ID + Test-Button).
+  - `components/results/KlickTippButton.tsx`: Vollständige Komponente mit `ktConfigured`-Guard,
+    HWG-Gate-Block, Ladezustand, Erfolg mit KT-Edit-Link, Fehleranzeige.
+  - `prisma/schema.prisma`: `ktCampaignId` auf Project-Modell.
+  - Migration `20260515150000_add_kt_campaign_id_to_project`.
+  - Settings-Tab "KlickTipp" in `/settings`-Navigation.
+  - AuditAction-Typen: `klicktipp.campaign_created`, `klicktipp.campaign_blocked`.
+  - `ResultsTabs`: `ktConfigured` + `hwgFlag` an `NewsletterTab` und `KlickTippButton` durchgereicht.
+  - Results-Page (`/projects/[id]/results`): KLICKTIPP ApiKey-Check für `ktConfigured`.
+
+- **Sprint P3-E — Sprint Closeout:**
+  - Roadmap Slice 23 auf ✅ gesetzt.
+  - `docs/forge-web-deviations.md`: `lib/klicktipp/client.ts:34` aus offenen Abweichungen entfernt.
+  - `docs/dev-prompts/OpenActions.md`: Punkt `lib/klicktipp/client.ts:34` als geschlossen markiert.
+
+### Changed
+- **Sprint-Prompt-Bereinigung — EXECUTE FIRST Duplikations-Entfernung:**
+  - 9 aktive Sprint-Prompts: Duplizierte 5-Gate-Inline-Commands (Checks A–E) durch
+    4-Zeilen-Referenz auf `Pre_Slice_Validation.md` ersetzt.
+  - PSR wird nun automatisch via PSV Phase 0 erzwungen — kein Shortcut mehr möglich.
+  - Betrifft: `sprint-p2f`, `sprint-p3e`–`sprint-p3h`, `sprint-p4a`–`sprint-p4d`.
+  - Archivierte Prompts nicht angefasst (historisch).
+
+### Added
 - **Sprint P3-D — WordPress REST API Connector (Slice 22):**
   - `lib/wordpress/client.ts`: Vollständiger WP REST API Client mit Basic Auth
     (Application Passwords), `withRetry`, Logger. `createWpDraft()` + `testWpConnection()`.
