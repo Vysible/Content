@@ -317,6 +317,20 @@ PHASE 1 — Technische Gates
 
 ---
 
+## Verwandte Dokumente
+
+| Datei | Wann |
+|---|---|
+| `Pre_Sprint_Review.md` | Wird von **Phase 0** dieser Datei automatisch aufgerufen — fachliche Sprint-Prompt-Prüfung. |
+| **`Sprint_Closeout.md`** | **Nach** der Sprint-Implementierung, **vor** dem Commit-Vorschlag — verbindlicher 4-Schritt-Abschluss (Roadmap, OpenActions, Prompt-Archivierung, CHANGELOG). |
+
+Der Agent ist verpflichtet, am Ende eines Sprints `Sprint_Closeout.md` aufzurufen,
+**bevor** er einen Commit-Vorschlag formuliert. Hintergrund: In Sprint P2-C
+(2026-05-15) wurde die Prompt-Archivierung übersehen; `Sprint_Closeout.md`
+schließt diese Lücke prozessual.
+
+---
+
 ## Changelog dieser Datei
 
 | Version | Änderung |
@@ -324,3 +338,4 @@ PHASE 1 — Technische Gates
 | v1.0.0 | Initial — 4 Checks (A–D) für Vysible. Ersetzt Forge-interne Pre_Slice_Validation. |
 | v1.1.0 | Check E (Vitest) aktiviert — Sprint 2 abgeschlossen (2026-05-14). |
 | v1.2.0 | Phase 0 (PSR) als Auto-Aufruf integriert. Whitelist für `docs/dev-prompts/`, `docs/forge-migration-audit.md`, `docs/ERROR-Log.md` in Check A. Override-Syntax `GO trotz WARN: ...` für Phase-0-WARN-Fälle. |
+| v1.3.0 | Verweis auf `Sprint_Closeout.md` ergänzt — Closeout-Schritte sind ab sofort verbindlich vor jedem Commit-Vorschlag auszuführen (Reaktion auf den fehlenden Archivierungs-Schritt in Sprint P2-C). |

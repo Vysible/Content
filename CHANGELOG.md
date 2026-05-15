@@ -6,6 +6,14 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- `docs/dev-prompts/Sprint_Closeout.md` (v1.0.0) — verbindlicher 4-Schritt-
+  Abschluss-Workflow (Roadmap, OpenActions, Prompt-Archivierung, CHANGELOG),
+  als Reaktion auf den übersehenen Archivierungs-Schritt in Sprint P2-C.
+  Output-Format mit PASS/FAIL pro Schritt, Hard-STOP wenn Closeout
+  unvollständig.
+- `docs/dev-prompts/Pre_Slice_Validation.md` (v1.3.0) — Verweis auf
+  `Sprint_Closeout.md` ergänzt; der Closeout ist ab sofort verbindlich
+  vor jedem Commit-Vorschlag auszuführen.
 - `docs/dev-prompts/archive/sprint-p2c-email.md`: Sprint-Prompt P2-C nach
   Abschluss archiviert; aktive Datei aus `docs/dev-prompts/` entfernt.
 - Slice 19 (Sprint P2-C): SMTP-Settings unter `/settings/smtp` mit Admin-Schutz,
