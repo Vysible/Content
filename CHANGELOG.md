@@ -6,6 +6,12 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- Settings Hub-Seite (`/settings`) mit Tab-Navigation: API-Keys, Canva, E-Mail,
+  Kosten & Abrechnung, Benutzer, Passwort. Sidebar zeigt nun einen einzelnen
+  "Einstellungen"-Link statt 4 lose Unterlinks.
+- `.env.example`: Dokumentationsblöcke für Hedy (Slice 20) und KlickTipp (Slice 23)
+  ergänzt — beide nutzen DB-gespeicherte AES-256-Credentials, nicht `.env`-Variablen.
+
 - Sprint P3-C (Slice 21) — Praxis-Portal Härting + Dashboard-Badge:
   - `app/api/praxis/invite/route.ts` MOD: Einladungstoken via `crypto.randomUUID()`
     statt `cuid()` (kryptographisch sicher); AuditLog-Eintrag (`praxis.invite`).

@@ -23,10 +23,7 @@ const navItems = [
   { href: '/praxis-portal', label: 'Praxis-Portal', icon: '⊕' },
   { href: '/kpi', label: 'Social-KPIs', icon: '↗' },
   { href: '/analytics', label: 'Web-Analytics', icon: '≋' },
-  { href: '/settings/api-keys', label: 'API-Keys', icon: '⚿' },
-  { href: '/settings/canva', label: 'Canva-Verbindung', icon: '◇' },
-  { href: '/settings/smtp', label: 'E-Mail-Benachrichtigungen', icon: '✉' },
-  { href: '/settings/password', label: 'Passwort', icon: '⚙' },
+  { href: '/settings', label: 'Einstellungen', icon: '⚙' },
 ]
 
 export function Sidebar() {
