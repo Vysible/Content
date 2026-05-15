@@ -20,7 +20,16 @@ export interface KtCampaignResult {
   editUrl: string
 }
 
-export async function loadKtCredentials(): Promise<string> {
+export async function loadKtCredentials(projectId?: string): Promise<string> {
+  if (projectId) {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { ktApiKey: { select: { encryptedKey: true, active: true } } },
+    })
+    if (project?.ktApiKey?.active) {
+      return decrypt(project.ktApiKey.encryptedKey)
+    }
+  }
   const apiKey = await prisma.apiKey.findFirst({
     where: { provider: 'KLICKTIPP', active: true },
     orderBy: { createdAt: 'desc' },

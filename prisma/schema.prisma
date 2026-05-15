@@ -42,6 +42,7 @@ model ApiKey {
   createdById  String
   createdBy    User      @relation(fields: [createdById], references: [id])
   projectsUsing Project[] @relation("ProjectApiKey")
+  ktProjects    Project[] @relation("ProjectKtApiKey")
 
   @@index([provider, active])
 }
@@ -91,9 +92,13 @@ model Project {
   clientId    String?
   client      Client?  @relation(fields: [clientId], references: [id])
 
+  ktApiKeyId  String?
+  ktApiKey    ApiKey?  @relation("ProjectKtApiKey", fields: [ktApiKeyId], references: [id], onDelete: SetNull)
+
   @@index([status])
   @@index([createdById])
   @@index([clientId])
+  @@index([ktApiKeyId])
 }
 
 model Client {

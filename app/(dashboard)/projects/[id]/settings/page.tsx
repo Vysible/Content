@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { ProjectApiKeySettings } from './ProjectApiKeySettings'
+import { ProjectKlickTippSettings } from './ProjectKlickTippSettings'
 
 export default async function ProjectSettingsPage({ params }: { params: { id: string } }) {
   await requireAuth()
@@ -26,11 +27,14 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
         title={`Einstellungen — ${project.name}`}
         subtitle="Projekt-spezifische Konfiguration"
       />
-      <ProjectApiKeySettings
-        projectId={project.id}
-        initialApiKeyId={project.apiKeyId}
-        apiKeys={apiKeys}
-      />
+      <div className="space-y-6">
+        <ProjectApiKeySettings
+          projectId={project.id}
+          initialApiKeyId={project.apiKeyId}
+          apiKeys={apiKeys}
+        />
+        <ProjectKlickTippSettings projectId={project.id} />
+      </div>
     </div>
   )
 }

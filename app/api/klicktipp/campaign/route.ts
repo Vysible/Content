@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
   let credentials: string
   try {
-    credentials = await loadKtCredentials()
+    credentials = await loadKtCredentials(projectId)
   } catch (exc: unknown) {
     logger.error({ exc, projectId }, '[Vysible] KT-Credentials nicht gefunden')
     return NextResponse.json({ error: 'Kein KlickTipp API-Key konfiguriert' }, { status: 400 })
