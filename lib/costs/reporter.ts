@@ -1,61 +1,53 @@
+import PDFDocument from 'pdfkit'
+import { createWriteStream } from 'node:fs'
+import path from 'node:path'
+import fs from 'node:fs/promises'
 import { prisma } from '@/lib/db'
-import { getProjectCosts } from './aggregator'
+import { getGlobalKpis, getProjectCosts } from './aggregator'
+import type { GlobalKpis } from './aggregator'
 import { sendNotification } from '@/lib/email/mailer'
 import { logger } from '@/lib/utils/logger'
-import PDFDocument from 'pdfkit'
 
 const COST_THRESHOLD_EUR = Number(process.env.COST_THRESHOLD_EUR ?? '10')
+const REPORT_DIR = path.join(process.cwd(), 'reports')
 
-export async function generateMonthlyReport(month: string): Promise<void> {
-  const projects = await prisma.project.findMany({ select: { id: true, name: true } })
+export async function generateMonthlyReport(month: string): Promise<string> {
+  await fs.mkdir(REPORT_DIR, { recursive: true })
+  const kpis = await getGlobalKpis()
+  const pdfPath = path.join(REPORT_DIR, `Report_${month}.pdf`)
+  await buildReportPdf(pdfPath, month, kpis)
+  logger.info({ month, pdfPath }, '[Vysible] Monatsreport generiert')
+  return pdfPath
+}
 
-  for (const project of projects) {
-    const costs = await getProjectCosts(project.id)
-    const prevReport = await prisma.costReport.findFirst({
-      where: { projectId: project.id, month },
-    })
-    if (prevReport) continue
-
-    await prisma.costReport.create({
-      data: {
-        projectId: project.id,
-        month,
-        totalEur: costs.totalEur,
-        breakdown: costs.byStep,
-      },
-    })
-  }
-
-  const globalReport = await prisma.costReport.findFirst({
-    where: { projectId: null, month },
+export async function sendMonthlyReport(month: string, pdfPath: string): Promise<void> {
+  await prisma.monthlyReport.upsert({
+    where: { period: month },
+    create: { period: month, pdfPath, sentAt: new Date() },
+    update: { sentAt: new Date() },
   })
-  if (!globalReport) {
-    const all = await prisma.costEntry.findMany({
-      where: {
-        timestamp: {
-          gte: new Date(`${month}-01T00:00:00.000Z`),
-          lt: new Date(
-            `${month.slice(0, 4)}-${String(Number(month.slice(5, 7)) + 1).padStart(2, '0')}-01T00:00:00.000Z`
-          ),
-        },
-      },
-    })
-    const allRows = all as Array<{ costEur: number; step: string }>
-    const totalEur = allRows.reduce((s, e) => s + e.costEur, 0)
-    const breakdown: Record<string, number> = {}
-    for (const e of allRows) breakdown[e.step] = (breakdown[e.step] ?? 0) + e.costEur
 
-    await prisma.costReport.create({
-      data: { projectId: null, month, totalEur, breakdown },
-    })
+  const reports = await prisma.monthlyReport.findMany({ orderBy: { generatedAt: 'asc' } })
+  if (reports.length > 12) {
+    const toDelete = reports.slice(0, reports.length - 12)
+    for (const r of toDelete) {
+      await prisma.monthlyReport.delete({ where: { id: r.id } })
+      await fs.unlink(r.pdfPath).catch((err: unknown) => {
+        logger.warn({ err }, '[Vysible] Altes Report-PDF konnte nicht gelöscht werden')
+      })
+    }
   }
+
+  await sendNotification('monthly_report', `Report ${month}`).catch((err: unknown) => {
+    logger.warn({ err }, '[Vysible] Monatsreport-E-Mail fehlgeschlagen — Report liegt in DB')
+  })
 }
 
 export async function checkCostThreshold(projectId: string): Promise<void> {
   const costs = await getProjectCosts(projectId)
   if (costs.currentMonthEur >= COST_THRESHOLD_EUR) {
     await sendNotification(
-      'generation_complete',
+      'cost_threshold_exceeded',
       costs.projectName,
       `Kostenschwelle erreicht: ${costs.currentMonthEur.toFixed(4)} €`,
     ).catch((err: unknown) => {
@@ -86,5 +78,30 @@ export async function buildCostPdf(projectId: string): Promise<Buffer> {
       doc.fontSize(10).text(`${step}: ${(eur as number).toFixed(4)} €`)
     }
     doc.end()
+  })
+}
+
+function buildReportPdf(pdfPath: string, month: string, kpis: GlobalKpis): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 40, size: 'A4' })
+    const stream = createWriteStream(pdfPath)
+    doc.pipe(stream)
+
+    doc.fontSize(18).font('Helvetica-Bold').text(`Monatsreport ${month}`, { align: 'center' })
+    doc.moveDown()
+    doc.fontSize(11).font('Helvetica')
+    doc.text(`Projekte gesamt: ${kpis.projectsTotal}  |  Aktiv: ${kpis.projectsActive}  |  Archiviert: ${kpis.projectsArchived}`)
+    doc.text(`Artikel: ${kpis.articlesGenerated}  |  Newsletter: ${kpis.newslettersGenerated}  |  Social: ${kpis.socialPostsGenerated}`)
+    doc.moveDown()
+    doc.fontSize(13).font('Helvetica-Bold').text('KI-Kosten')
+    doc.fontSize(11).font('Helvetica')
+    doc.text(`Laufender Monat: ${kpis.currentMonthEur.toFixed(4)} €`)
+    doc.text(`Letzter Monat:   ${kpis.lastMonthEur.toFixed(4)} €`)
+    doc.text(`Gesamt:          ${kpis.totalCostEur.toFixed(4)} €`)
+    doc.text(`Ø pro Paket:     ${kpis.avgCostPerPackage.toFixed(4)} €`)
+    doc.end()
+
+    stream.on('finish', resolve)
+    stream.on('error', reject)
   })
 }

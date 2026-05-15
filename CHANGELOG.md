@@ -6,6 +6,12 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Sprint P3-F — Sub-Slice B: Reporter + Cron + PDF-Download (Slice 24):**
+  - `lib/costs/reporter.ts`: `generateMonthlyReport` → `Promise<string>` (pdfPath), pdfkit-PDF via `buildReportPdf`. Neue Funktion `sendMonthlyReport` (DB-Upsert, History ≤12, E-Mail). `checkCostThreshold` Trigger korrigiert (`cost_threshold_exceeded`). Encoding-Bugs behoben.
+  - `lib/cron/scheduler.ts`: Cron-Job erweitert — `sendMonthlyReport` nach `generateMonthlyReport`, try/catch statt bare `.catch`.
+  - `app/api/kpi/report/[period]/route.ts`: NEU — PDF-Download-Route für gespeicherte Monatsreports.
+  - `lib/email/mailer.ts` + `lib/email/templates/notification.ts`: `monthly_report` zu `EmailTrigger` und `TRIGGER_SUBJECTS` hinzugefügt.
+  - `docs/forge-web-deviations.md`: Eintrag `lib/costs/reporter.ts:56` formal geschlossen (Sprint P3-F).
 - **Sprint P3-F — Sub-Slice A: KPI-Dashboard (Slice 24):**
   - `prisma/schema.prisma`: `MonthlyReport`-Modell für PDF-Report-History (`period`, `pdfPath`, `generatedAt`, `sentAt`). Migration: `20260515190000_add_monthly_report`.
   - `app/api/kpi/route.ts`: GET-Route um `monthlyReports`-Array und Error-Handling erweitert.

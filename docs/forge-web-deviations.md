@@ -13,7 +13,7 @@ Migrations-Datum: **2026-05-14**
 | Rule-ID | Datum | forge-web-Version | Status | Begründung | Timeline |
 |---|---|---|---|---|---|
 | `schicht-0/resilience` (§3a) — Client-Component-Logger | 2026-05-14 | 2.2.0 | Accepted | Client-Components nutzen `console.warn/error('[Vysible] …')` statt `logger.*`, weil `lib/utils/logger.ts` (`pino` mit `pino-pretty`-Transport) nur Server-side funktioniert. Konsistent mit AGENTS.md-Konvention. Alle catches loggen explizit — kein stiller Catch. Browser-tauglicher Logger (z.B. `pino/browser` oder isomorpher Wrapper) wird separat eingeführt. | Backlog |
-| `schicht-0/resilience` (§3a) — Restbestand stiller Catches | 2026-05-14 | 2.2.0 | Accepted | Vier stille `.catch(() => {})` aus Slices 25/26/27, eingeführt vor Forge-Migration: `components/layout/TokenWarningBanner.tsx:21`, `components/wizard/TemplateSelector.tsx:23`, `lib/tokens/expiry-checker.ts:21`, `lib/costs/reporter.ts:56`. Nicht im aktuellen Sprint-Scope. (`lib/klicktipp/client.ts:34` geschlossen in Sprint P3-E.) | Sprint 0a (geplant) |
+| `schicht-0/resilience` (§3a) — Restbestand stiller Catches | 2026-05-14 | 2.2.0 | Accepted | Drei stille `.catch(() => {})` aus Slices 25/26/27, eingeführt vor Forge-Migration: `components/layout/TokenWarningBanner.tsx:21`, `components/wizard/TemplateSelector.tsx:23`, `lib/tokens/expiry-checker.ts:21`. Nicht im aktuellen Sprint-Scope. (`lib/klicktipp/client.ts:34` geschlossen in Sprint P3-E. `lib/costs/reporter.ts:56` geschlossen in Sprint P3-F.) | Sprint 0a (geplant) |
 
 ---
 
