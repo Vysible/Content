@@ -1,3 +1,4 @@
+import { writeAuditLog } from '@/lib/audit/logger'
 import { prisma } from '@/lib/db'
 import { NextResponse } from 'next/server'
 
@@ -42,5 +43,15 @@ export async function POST(req: Request) {
       authorRole: 'praxis',
     },
   })
+
+  await writeAuditLog({
+    action: 'praxis.comment',
+    entity: 'Comment',
+    entityId: comment.id,
+    projectId,
+    userId: user.id,
+    meta: { contentIndex },
+  })
+
   return NextResponse.json(comment)
 }

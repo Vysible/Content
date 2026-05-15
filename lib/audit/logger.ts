@@ -19,7 +19,10 @@ export type AuditAction =
   | 'user.login'
   | 'user.logout'
   | 'admin.user.update'
-  | 'admin.user.create';
+  | 'admin.user.create'
+  | 'praxis.approve'
+  | 'praxis.comment'
+  | 'praxis.invite';
 
 interface AuditParams {
   action: AuditAction;

@@ -38,7 +38,10 @@ export default function PraxisReviewPage() {
         if (data.error) setError(data.error)
         else setSession(data)
       })
-      .catch(() => setError('Verbindungsfehler'))
+      .catch((err: unknown) => {
+        console.error('[Vysible] Praxis-Auth-Anfrage fehlgeschlagen', err)
+        setError('Verbindungsfehler')
+      })
   }, [token])
 
   if (error) {

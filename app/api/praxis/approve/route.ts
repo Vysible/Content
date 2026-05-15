@@ -1,4 +1,7 @@
+import { writeAuditLog } from '@/lib/audit/logger'
 import { prisma } from '@/lib/db'
+import { sendNotification } from '@/lib/email/mailer'
+import { logger } from '@/lib/utils/logger'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -26,6 +29,25 @@ export async function POST(req: Request) {
       data: { textResults: results as any },
     })
   }
+
+  const projectName = await prisma.project.findUnique({ where: { id: projectId }, select: { name: true } })
+
+  await writeAuditLog({
+    action: 'praxis.approve',
+    entity: 'Project',
+    entityId: projectId,
+    projectId,
+    userId: user.id,
+    meta: { contentIndex },
+  })
+
+  await sendNotification(
+    'share_approved',
+    projectName?.name ?? projectId,
+    `Praxis-Freigabe erteilt für Inhalt #${contentIndex + 1} durch ${user.name}`,
+  ).catch((err: unknown) => {
+    logger.warn({ err, projectId }, 'E-Mail-Benachrichtigung für Praxis-Freigabe fehlgeschlagen')
+  })
 
   return NextResponse.json({ ok: true })
 }

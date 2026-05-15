@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto'
 import { requireAuth } from '@/lib/auth/session'
+import { writeAuditLog } from '@/lib/audit/logger'
 import { prisma } from '@/lib/db'
 import { sendNotification } from '@/lib/email/mailer'
 import { logger } from '@/lib/utils/logger'
@@ -16,11 +18,12 @@ export async function POST(req: Request) {
   if (!project) return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
 
   const inviteExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  const inviteToken = randomUUID()
 
   const praxisUser = await prisma.praxisUser.upsert({
     where: { email_projectId: { email, projectId } } as never,
-    update: { name, inviteExpires },
-    create: { projectId, email, name, inviteExpires },
+    update: { name, inviteExpires, inviteToken },
+    create: { projectId, email, name, inviteExpires, inviteToken },
   })
 
   const inviteUrl = `${process.env.NEXTAUTH_URL}/praxis/review/${praxisUser.inviteToken}`
@@ -31,6 +34,14 @@ export async function POST(req: Request) {
     `Einladungslink: ${inviteUrl} — Empfänger: ${name} <${email}>`,
   ).catch((err: unknown) => {
     logger.warn({ err, projectId }, 'E-Mail-Benachrichtigung für Praxis-Einladung fehlgeschlagen')
+  })
+
+  await writeAuditLog({
+    action: 'praxis.invite',
+    entity: 'PraxisUser',
+    entityId: praxisUser.id,
+    projectId,
+    meta: { email },
   })
 
   return NextResponse.json({ inviteToken: praxisUser.inviteToken, inviteUrl })

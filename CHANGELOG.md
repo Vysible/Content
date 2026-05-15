@@ -6,6 +6,33 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- Sprint P3-C (Slice 21) — Praxis-Portal Härting + Dashboard-Badge:
+  - `app/api/praxis/invite/route.ts` MOD: Einladungstoken via `crypto.randomUUID()`
+    statt `cuid()` (kryptographisch sicher); AuditLog-Eintrag (`praxis.invite`).
+  - `app/api/praxis/approve/route.ts` MOD: AuditLog-Eintrag (`praxis.approve`) +
+    E-Mail-Benachrichtigung an Agentur bei Praxis-Freigabe via `sendNotification`.
+  - `app/api/praxis/comments/route.ts` MOD: AuditLog-Eintrag (`praxis.comment`)
+    bei neuem Kommentar.
+  - `app/(dashboard)/page.tsx` MOD: Neuer StatCard "Praxis-Kommentare" mit
+    rotem Badge-Punkt wenn > 0. Zählt Praxis-Kommentare der eigenen Projekte.
+  - `lib/audit/logger.ts` MOD: `AuditAction` um `praxis.approve`, `praxis.comment`,
+    `praxis.invite` erweitert.
+
+### Fixed
+- Sprint P3-C: `app/(praxis)/review/[token]/page.tsx` — stiller Catch durch
+  geloggte Variante ersetzt (`console.error('[Vysible] ...')`, resilience §3a).
+- Sprint P3-C: Touch-Targets in `ApprovalButton.tsx` und `CommentThread.tsx`
+  auf min. 44px (`min-h-[44px]`) angehoben (plan.md NFA-Pflicht).
+
+### Changed
+- `.windsurf/rules/schicht-0/command-result-interpretation.md` NEU: Regel für
+  Post-Tool-Call-Response-Disziplin, PowerShell-Select-String-Semantik und
+  Known-Long-Running-Commands (verhindert stille Agent-Stalls).
+- Sprint P3-C Closeout: `docs/dev-prompts/archive/sprint-p3c-praxis-portal.md`
+  archiviert; `docs/roadmap.md` Slice 21 auf "✅ Abgeschlossen (2026-05-15,
+  Sprint P3-C)" gesetzt, Phase-3-Fortschritt von ~45 % auf ~55 % angehoben.
+
+### Added
 - Sprint P3-A (Slice 27) — Kosten-Tracking pro Kunde:
   - `prisma/schema.prisma`: `CostSettings`-Modell hinzugefügt (Schwellwert-Konfiguration).
     Migration `20260515110000_add_cost_settings` erstellt und auf Prod-DB applied

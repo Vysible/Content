@@ -68,12 +68,12 @@ export function CommentThread({ token, projectId, contentIndex }: CommentThreadP
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Kommentar eingeben…"
-          className="flex-1 border border-stone rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-tiefblau"
+          className="flex-1 border border-stone rounded-lg px-3 py-2.5 min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-tiefblau"
         />
         <button
           onClick={handleSend}
           disabled={sending || !text.trim()}
-          className="px-3 py-1.5 bg-tiefblau text-white text-sm rounded-lg hover:bg-nachtblau disabled:opacity-50"
+          className="px-4 py-2.5 min-h-[44px] bg-tiefblau text-white text-sm rounded-lg hover:bg-nachtblau disabled:opacity-50"
         >
           Senden
         </button>
