@@ -85,6 +85,10 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
       throw new Error(`Qualitätsprüfung fehlgeschlagen: ${validation.reason}`)
     }
 
+    if (validation.warning) {
+      logger.warn({ projectId: project.id, warning: validation.warning }, 'Themen-SEO-Qualitätshinweis (kein Abbruch)')
+    }
+
     return items
   }, `anthropic.generateThemes(${project.id})`)
 }

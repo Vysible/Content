@@ -22,6 +22,7 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `.gitignore`: `reports/`-Verzeichnis ignoriert (generierte PDFs).
 
 ### Fixed
+- **Themenplan-Generierung:** SEO-Titel-Qualitätsprüfung bricht Pipeline nicht mehr ab — Unterschreiten der 50%-Empfehlung wird als Warnung geloggt (`Themen-SEO-Qualitätshinweis`) statt als Fehler behandelt. Harte Kriterien (leeres Array, <80% praxisspezifisch) bleiben Fehler mit Retry.
 - **CI:** `deploy.yml` Race Condition behoben — Deploy-Webhook feuerte parallel zu CI
   (nach ~7s), Coolify verwendete gecachtes Image statt neu zu bauen. Fix: `workflow_run`-
   Trigger statt `push` — Deploy startet erst nach erfolgreichem CI-Abschluss.
