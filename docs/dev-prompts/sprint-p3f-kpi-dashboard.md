@@ -10,11 +10,11 @@
 > **Abhängigkeitshinweis:**  
 > `lib/costs/aggregator.ts` wurde in Sprint P3-A implementiert und ist die einzige  
 > Datenquelle für alle KPI-Zahlen. Nicht neu implementieren — nur aufrufen.  
-> `lib/costs/reporter.ts` hat laut `docs/forge-web-deviations.md` einen stillen Catch  
-> (L56, Status: Accepted, Sprint 0a). Dieser Sprint schließt diese Lücke.
+> `lib/costs/reporter.ts` L56: `sendNotification.catch` loggt bereits via `logger.warn`  
+> (kein stiller Catch mehr). Der `docs/forge-web-deviations.md`-Eintrag ist dennoch formal zu schließen.
 
-> **Dependency-Check:** `puppeteer` muss im Projekt verfügbar sein (bereits für  
-> `lib/export/pdf.ts` eingesetzt — Exploration bestätigt). `node-cron` ggf. neu installieren.
+> **Dependency-Check:** `pdfkit` ist im Projekt verfügbar (`lib/export/pdf.ts` +  
+> `lib/costs/reporter.ts`). `node-cron` ist bereits installiert (`package.json ^4.2.1`).
 
 ---
 
@@ -42,9 +42,9 @@ Get-ChildItem app/(dashboard)/kpi -Recurse -Name -ErrorAction SilentlyContinue
 # Bestehende KPI-API-Routen (aus P3-A: /api/kpi/costs/*)
 Get-ChildItem app/api/kpi -Recurse -Name -ErrorAction SilentlyContinue
 
-# Puppeteer verfügbar?
-Select-String "puppeteer" package.json
-Get-Content lib/export/pdf.ts | Select-Object -First 30
+# pdfkit verfügbar? (Referenzimplementierung)
+Get-Content lib/export/pdf.ts | Select-Object -First 5
+Select-String "pdfkit" package.json
 
 # node-cron vorhanden?
 Select-String "node-cron\|nodeCron\|cron" package.json,lib,app -Recurse -i |
@@ -71,7 +71,7 @@ Get-ChildItem lib -Name "cron*","scheduler*" -ErrorAction SilentlyContinue
 
 | Datei | Lücke | Priorität |
 |---|---|---|
-| `lib/costs/reporter.ts` | Stiller Catch L56 + unvollständige Implementierung | MUSS |
+| `lib/costs/reporter.ts` | `deviations.md`-Eintrag formal schließen + `generateMonthlyReport` → `Promise<string>` (pdfPath) | MUSS |
 | `app/(dashboard)/kpi/page.tsx` | Fehlend | MUSS |
 | `components/kpi/CostChart.tsx` | Fehlend — Sparkline 6 Monate | MUSS |
 | `components/kpi/ProjectKPICard.tsx` | Fehlend | MUSS |
@@ -85,11 +85,11 @@ Get-ChildItem lib -Name "cron*","scheduler*" -ErrorAction SilentlyContinue
 ## CRITICAL: Self-review Checklist
 
 - [ ] Alle KPI-Zahlen kommen ausschliesslich aus `lib/costs/aggregator.ts` — kein direktes `db.costEntry.findMany` in Route-Handlern oder Komponenten
-- [ ] Stiller Catch in `lib/costs/reporter.ts` L56 → `logger.warn` (schließt deviations.md-Eintrag)
+- [ ] `deviations.md`-Eintrag `lib/costs/reporter.ts:56` formal geschlossen (catch loggt bereits — nur Eintrag entfernen)
 - [ ] PDF-Report: keine PII, keine verschlüsselten Keys in generiertem PDF
-- [ ] Cron-Job läuft im App-Prozess via Next.js `instrumentation.ts` oder äquivalentem Hook
+- [ ] `lib/cron/scheduler.ts` erweitert: `sendMonthlyReport` nach `generateMonthlyReport`-Aufruf
 - [ ] Report-History: max. 12 Reports gespeichert (älteste löschen)
-- [ ] `node-cron` via `pnpm add node-cron` installieren falls nicht vorhanden
+- [ ] `node-cron` bereits installiert (`^4.2.1`) — kein `pnpm add` nötig
 - [ ] Alle Catches loggen — kein stiller Catch
 - [ ] TypeScript strict: 0 Fehler
 - [ ] Tests grün
@@ -126,7 +126,7 @@ app/api/kpi/costs/                              NICHT anfassen (aus P3-A)
 ```prisma
 model MonthlyReport {
   id          String   @id @default(cuid())
-  period      String   @unique  // Format: "202506" (JJJJMM)
+  period      String   @unique  // Format: "2026-05" (JJJJ-MM) — konsistent mit CostReport
   pdfPath     String            // Lokaler Pfad oder relativer Pfad im Container
   generatedAt DateTime @default(now())
   sentAt      DateTime?
@@ -141,11 +141,11 @@ Migration: `pnpm prisma migrate dev --name add_monthly_report`
 // GET /api/kpi — globale KPI-Zusammenfassung
 // Auth-Check + Role-Check (nur eingeloggte Nutzer)
 // Kombiniert:
-//   - getGlobalCostSummary() aus aggregator.ts
+//   - getGlobalKpis() aus aggregator.ts  (liefert GlobalKpis — alle 7 KPIs)
 //   - db.project.count({ where: { archived: false } }) für aktive Projekte
 //   - db.comment.count(...) für ausstehende Praxis-Freigaben (aus Sprint P3-C)
 //   - Generierte Artefakt-Zahlen (Artikel / Newsletter / Social Posts kumuliert)
-// Response: { costs: GlobalCostSummary, projects: { total, active, archived },
+// Response: { kpis: GlobalKpis, projects: { total, active, archived },
 //             generatedContent: { articles, newsletters, socialPosts },
 //             pendingApprovals: number }
 ```
@@ -207,14 +207,14 @@ feat(kpi): KPI-Dashboard + Projektübersicht + CostChart-Sparkline (Slice 24 Sub
 ## Sub-Slice B — Reporter + Cron-Job + PDF + E-Mail-Versand
 
 **Aufwand:** ~5–6 Stunden  
-**Scope:** `lib/costs/reporter.ts` vervollständigen, puppeteer-PDF, Cron, Report-History.
+**Scope:** `lib/costs/reporter.ts` vervollständigen, pdfkit-PDF, Cron-Erweiterung, Report-History.
 
 ### IN
 
 ```
-lib/costs/reporter.ts                           MOD — stillen Catch schließen + vollständige Impl.
+lib/costs/reporter.ts                           MOD — deviations.md formal schließen + pdfkit-PDF + Promise<string>
+lib/cron/scheduler.ts                           MOD — sendMonthlyReport nach generateMonthlyReport-Aufruf
 app/api/kpi/report/[period]/route.ts            NEU — PDF-Download eines gespeicherten Reports
-app/instrumentation.ts                          MOD — Cron-Job registrieren (Next.js Hook)
 ```
 
 ### OUT
@@ -229,44 +229,37 @@ app/(dashboard)/kpi/page.tsx                    MOD nur für Report-History-Down
 
 ```typescript
 // lib/costs/reporter.ts
-// Stiller Catch L56 schließen → logger.warn
-// Vollständige Implementierung:
+// deviations.md-Eintrag reporter.ts:56 formal schließen
+// + generateMonthlyReport → pdfkit (architecture.md: kein puppeteer) + Promise<string>
 
-import puppeteer from 'puppeteer';
+import PDFDocument from 'pdfkit';
+import { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { logger } from '../utils/logger';
-import { getGlobalCostSummary } from './aggregator';
+import { getGlobalKpis } from './aggregator';
+import type { GlobalKpis } from './aggregator';
 import { sendNotification } from '../email/mailer';
 import { db } from '../db';
 
 const REPORT_DIR = path.join(process.cwd(), 'reports');
 
-export async function generateMonthlyReport(period: string): Promise<string> {
-  // period: "202506" (JJJJMM des abgelaufenen Monats)
+export async function generateMonthlyReport(month: string): Promise<string> {
+  // month: "2026-05" (JJJJ-MM) — konsistent mit scheduler.ts und CostReport-Modell
   await fs.mkdir(REPORT_DIR, { recursive: true });
 
-  const summary = await getGlobalCostSummary();
-  const html = buildReportHtml(period, summary);
-
-  const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
-  try {
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdfPath = path.join(REPORT_DIR, `Report_${period}.pdf`);
-    await page.pdf({ path: pdfPath, format: 'A4', margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' } });
-    logger.info({ period, pdfPath }, '[Vysible] Monatsreport generiert');
-    return pdfPath;
-  } finally {
-    await browser.close();
-  }
+  const kpis = await getGlobalKpis();
+  const pdfPath = path.join(REPORT_DIR, `Report_${month}.pdf`);
+  await buildReportPdf(pdfPath, month, kpis);
+  logger.info({ month, pdfPath }, '[Vysible] Monatsreport generiert');
+  return pdfPath;
 }
 
-export async function sendMonthlyReport(period: string, pdfPath: string): Promise<void> {
+export async function sendMonthlyReport(month: string, pdfPath: string): Promise<void> {
   // Report in DB speichern
   await db.monthlyReport.upsert({
-    where: { period },
-    create: { period, pdfPath, sentAt: new Date() },
+    where: { period: month },
+    create: { period: month, pdfPath, sentAt: new Date() },
     update: { sentAt: new Date() },
   });
 
@@ -283,60 +276,73 @@ export async function sendMonthlyReport(period: string, pdfPath: string): Promis
   }
 
   // E-Mail an alle Admins
-  await sendNotification('monthly_report', `Report ${period}`).catch((err: unknown) => {
+  await sendNotification('monthly_report', `Report ${month}`).catch((err: unknown) => {
     logger.warn({ err }, '[Vysible] Monatsreport-E-Mail fehlgeschlagen — Report liegt in DB');
   });
 }
 
-function buildReportHtml(period: string, summary: GlobalCostSummary): string {
-  // Einfaches HTML-Dokument für puppeteer-PDF
+function buildReportPdf(pdfPath: string, month: string, kpis: GlobalKpis): Promise<void> {
+  // pdfkit — kein puppeteer (architecture.md §Tech-Stack: kein puppeteer)
   // Enthält: Titel, Datum, globale KPI-Tabelle, Pro-Projekt-Aufschlüsselung
   // Kein PII — nur Projekt-IDs / Namen und Kostenzahlen
-  return `<!DOCTYPE html><html lang="de">...`; // vollständig implementieren
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+    const stream = createWriteStream(pdfPath);
+    doc.pipe(stream);
+
+    doc.fontSize(18).font('Helvetica-Bold').text(`Monatsreport ${month}`, { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(11).font('Helvetica');
+    doc.text(`Projekte gesamt: ${kpis.projectsTotal}  |  Aktiv: ${kpis.projectsActive}`);
+    doc.text(`Artikel: ${kpis.articlesGenerated}  |  Newsletter: ${kpis.newslettersGenerated}  |  Social: ${kpis.socialPostsGenerated}`);
+    doc.moveDown();
+    doc.fontSize(13).font('Helvetica-Bold').text('KI-Kosten');
+    doc.fontSize(11).font('Helvetica');
+    doc.text(`Laufender Monat: ${kpis.currentMonthEur.toFixed(4)} €`);
+    doc.text(`Letzter Monat:   ${kpis.lastMonthEur.toFixed(4)} €`);
+    doc.text(`Gesamt:          ${kpis.totalCostEur.toFixed(4)} €`);
+    doc.text(`Ø pro Paket:     ${kpis.avgCostPerPackage.toFixed(4)} €`);
+    doc.end();
+
+    stream.on('finish', resolve);
+    stream.on('error', reject);
+  });
 }
 ```
 
-> **Hinweis:** `buildReportHtml` vollständig implementieren mit allen KPIs aus plan.md.
-> Die Funktion-Signatur und Rückgabe ist fest — Inhalt nach plan.md-Spezifikation befüllen.
+> **Hinweis:** `buildReportPdf` vollständig implementieren mit allen KPIs aus `GlobalKpis`.
+> pdfkit-API: `doc.text()`, `doc.moveDown()`, `doc.fontSize()` — kein HTML, kein puppeteer.
 
-### B2 — Cron-Job (app/instrumentation.ts)
+### B2 — Cron-Job (lib/cron/scheduler.ts erweitern)
 
 ```typescript
-// app/instrumentation.ts
-// Next.js instrumentation hook — wird beim App-Start einmalig ausgeführt
-export async function register() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const { default: cron } = await import('node-cron');
-    const { generateMonthlyReport, sendMonthlyReport } = await import('../lib/costs/reporter');
-    const { logger } = await import('../lib/utils/logger');
+// lib/cron/scheduler.ts — MOD: sendMonthlyReport nach generateMonthlyReport
+// instrumentation.ts NICHT anfassen — delegiert bereits an startCronJobs()
 
-    // Jeden 1. des Monats um 08:00 Uhr
-    cron.schedule('0 8 1 * *', async () => {
-      const now = new Date();
-      // Vormonat berechnen
-      const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const period = `${prevMonth.getFullYear()}${String(prevMonth.getMonth() + 1).padStart(2, '0')}`;
+// Import-Zeile anpassen (bestehenden generateMonthlyReport-Import ergänzen):
+import { generateMonthlyReport, sendMonthlyReport } from '@/lib/costs/reporter'
 
-      try {
-        const pdfPath = await generateMonthlyReport(period);
-        await sendMonthlyReport(period, pdfPath);
-      } catch (exc: unknown) {
-        logger.error({ err: exc }, '[Vysible] Automatischer Monatsreport fehlgeschlagen');
-      }
-    });
-
-    logger.info('[Vysible] Monatsreport-Cron registriert (1. des Monats, 08:00)');
+// Cron-Job-Body ersetzen (0 6 1 * *):
+cron.schedule('0 6 1 * *', async () => {
+  const now = new Date()
+  const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  logger.info({ month }, '[Vysible] Cron: Monatsreport starten')
+  try {
+    const pdfPath = await generateMonthlyReport(month)
+    await sendMonthlyReport(month, pdfPath)
+  } catch (exc: unknown) {
+    logger.error({ err: exc, month }, '[Vysible] Automatischer Monatsreport fehlgeschlagen')
   }
-}
+})
 ```
 
-> **Hinweis:** `node-cron` installieren: `pnpm add node-cron` + `pnpm add -D @types/node-cron`
+> **Hinweis:** `node-cron` ist bereits installiert (`^4.2.1`). `instrumentation.ts` NICHT anfassen.
 
 ### B3 — Report-Download-Route
 
 ```typescript
 // app/api/kpi/report/[period]/route.ts
-// GET: ?period=202506
+// GET /api/kpi/report/2026-05  (period = JJJJ-MM als URL-Segment)
 // Auth-Check (nur eingeloggte Nutzer)
 // → db.monthlyReport.findUnique({ where: { period } })
 // → fs.readFile(report.pdfPath)
@@ -345,13 +351,13 @@ export async function register() {
 
 ### Acceptance Checklist
 
-- [ ] `generateMonthlyReport` generiert ein valides PDF mit allen KPIs
+- [ ] `generateMonthlyReport` generiert ein valides PDF (pdfkit) mit allen KPIs aus `GlobalKpis`
 - [ ] PDF enthält kein PII und keine verschlüsselten Keys
-- [ ] Cron-Job in `instrumentation.ts` registriert (Log-Eintrag beim App-Start sichtbar)
+- [ ] `lib/cron/scheduler.ts` erweitert: `sendMonthlyReport`-Aufruf nach `generateMonthlyReport`
 - [ ] Cron manuell ausgelöst → PDF in `reports/`-Verzeichnis vorhanden
 - [ ] E-Mail nach Report-Generierung versendet (logger.warn bei Fehler, kein Crash)
 - [ ] Report-History: Download-Links für die letzten ≤12 Reports funktionieren
-- [ ] Stiller Catch in `reporter.ts` L56 durch `logger.warn` ersetzt
+- [ ] `deviations.md`-Eintrag `reporter.ts:56` formal geschlossen
 - [ ] TypeScript: 0 Fehler
 
 ### Commit-Message
@@ -376,9 +382,9 @@ Select-String "db\.costEntry\." app/api/kpi,app/(dashboard)/kpi -Recurse -ErrorA
 Select-String "\.catch\(\(\)\s*=>\s*\{\s*\}\)" lib/costs/reporter.ts
 # → Zero Treffer
 
-# node-cron installiert
+# node-cron installiert (bereits vorhanden)
 Select-String "node-cron" package.json
-# → Treffer
+# → Treffer (^4.2.1)
 
 # Tests grün
 pnpm test --run
