@@ -6,6 +6,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **OpenActions: Rechtliche Pflichtseiten** — Backlog-Eintrag für Cookie-Disclaimer, Impressum (§ 5 TMG) und Datenschutzerklärung (DSGVO Art. 13/14) ergänzt, da Vysible öffentlich unter `https://vysible.cloud` erreichbar ist.
+
+### Added
 - **Urheber-Attribution:** `package.json` `author`-Feld auf „Prof. Dr.-Ing. Kai Daniel (U-Glow GmbH / prelytics)" gesetzt. Sidebar zeigt © Prof. Dr.-Ing. Kai Daniel über dem Abmelden-Button. Praxis-Portal-Footer: „Erstellt von U-Glow GmbH (prelytics) · Powered by Vysible".
 
 ### Added

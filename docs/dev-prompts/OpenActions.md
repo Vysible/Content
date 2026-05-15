@@ -192,3 +192,40 @@
    - **Begleitend:** Prompt in `prompts/themes.yaml` so anpassen, dass das Modell die deterministischen Felder (`istFrage`, `praxisspezifisch`) nicht mehr selbst befüllen muss — Reduktion der Schema-Komplexität.
 
    Aufwand grob: 1 Slice (~halber Tag inkl. Tests + UI). Kein Sicherheits- oder Compliance-Bezug, daher kein Sprint-1-Kandidat.
+
+6. **Meta-Business-Verifizierung + LinkedIn Developer App abschließen** (PSR P2-F WARN Check 2+8)
+
+   Externe Genehmigungen müssen vor echten API-Tests vorliegen. Code-Implementierung (Sprint P2-F) ist ohne sie möglich — End-to-End-Tests und reale Draft-Uploads erst danach.
+
+   - **Meta:** Business-Verifizierung unter https://business.facebook.com/settings/security beantragen (Vorlaufzeit: Wochen). Ohne Verifizierung lehnt die Graph API `published: false`-Posts ab.
+   - **LinkedIn:** Developer App mit `w_member_social`-Scope unter https://www.linkedin.com/developers/apps anlegen + Partner Review beantragen. Ohne Review nur Read-Scope verfügbar.
+
+   Lösungsvorschlag:
+   - Sofort beantragen (Vorlaufzeit dominiert den Zeitplan).
+   - Sobald genehmigt: Tokens in Vysible unter Einstellungen → API-Keys hinterlegen (Provider META / LINKEDIN).
+   - Abschluss-Check: `POST /api/projects/[id]/social-post` mit echtem Token gegen Test-Seite.
+
+7. **Sprint-Prompt P2-F ohne FA-*/NFA-*-IDs** (PSR P2-F WARN Check 5)
+
+   `docs/dev-prompts/sprint-p2f-social-media.md` referenziert nur "plan.md Slice 18" ohne explizite FA-*/NFA-*-Verweise. Vollständigkeit gegen Konzept v6.0 nicht maschinell prüfbar.
+
+   Lösungsvorschlag:
+   - Nach Sprint-Abschluss: Prompt nachträglich mit FA-*-IDs annotieren (z.B. `FA-F-29` Social-Drafts, `NFA-06` Resilience/Retry) als Referenz für spätere PSR-Läufe.
+   - Alternativ: `GENERATE-SPRINT-PROMPTS.md` anpassen, sodass FA-*-IDs bei der Prompt-Generierung aus plan-v6.1.md extrahiert werden.
+   - Aufwand: ~30 Minuten Dokumentation.
+
+8. **Cookie-Disclaimer, Impressum & TMG-konforme Pflichtseiten** (Rechtliches)
+
+   Da Vysible unter `https://vysible.cloud` öffentlich im Internet erreichbar ist, sind folgende Pflichtbestandteile nach deutschem Recht erforderlich:
+
+   - **Impressum** (§ 5 TMG): Muss verlinkt und von jeder Seite der App erreichbar sein. Inhalt: Betreiber, Anschrift, Kontakt, ggf. UStID.
+   - **Datenschutzerklärung** (DSGVO Art. 13/14): Informationspflichten über erhobene Daten, Zwecke, Drittanbieter (Anthropic/OpenAI API-Calls → Datenweitergabe an Dritte).
+   - **Cookie-Disclaimer / Consent-Banner**: Falls technisch nicht-notwendige Cookies oder Tracking-Technologien eingesetzt werden (z.B. Analytics). Auth.js-Session-Cookie ist notwendig und benötigt keinen Consent. Prüfen ob sonstige Cookies gesetzt werden.
+
+   Maßnahmen:
+   - Statische Seiten `/impressum` und `/datenschutz` anlegen (Next.js Route außerhalb `middleware.ts`-Schutz).
+   - Links im Footer der `(dashboard)/layout.tsx` + Login-Seite eintragen.
+   - Cookie-Situation prüfen: `document.cookie`-Analyse im Browser — falls nur `__Secure-next-auth.*` → kein Consent-Banner nötig.
+   - `middleware.ts`: `/impressum` und `/datenschutz` zur Public-Allowlist hinzufügen (analog `/share/*`).
+
+   Aufwand: ~2–3 Stunden (Texte liefert Betreiber).
