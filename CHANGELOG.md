@@ -14,6 +14,11 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `docs/dev-prompts/Pre_Slice_Validation.md` (v1.3.0) — Verweis auf
   `Sprint_Closeout.md` ergänzt; der Closeout ist ab sofort verbindlich
   vor jedem Commit-Vorschlag auszuführen.
+- Sprint P2-D Closeout: `docs/dev-prompts/archive/sprint-p2d-dataseo.md`
+  archiviert (Sprint-Prompt aus aktivem Verzeichnis entfernt);
+  `docs/roadmap.md` Slice 11a auf
+  `✅ Abgeschlossen (2026-05-15, Sprint P2-D · Commit 14906ad)` gesetzt.
+  Erste vollständige Anwendung des 4-Schritt-Workflows aus `Sprint_Closeout.md`.
 - Alle offenen Sprint-Prompts (P2-E, P3-A, P3-B, P3-C, P3-D, P3-E, P3-F, P3-G)
   und `Example_Prompt.md` enthalten jetzt einen
   `## CRITICAL: Sprint Closeout (Pflicht vor Commit)`-Block direkt vor

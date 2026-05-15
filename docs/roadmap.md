@@ -94,7 +94,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | Slice 8 | Chat + Versionen (Kontext-Binding, Chips, Versionierung) | ✅ Abgeschlossen (2026-05-14, Sprint P2-A · Commit 581aaab) |
 | Slice 7 | Kalender (Drag & Drop, Status-Farben) | ✅ Abgeschlossen (2026-05-14, Sprint P2-B · Commit b759c84) |
 | Slice 10 | Sharing (Newsletter + Social im Freigabelink) | ✅ Abgeschlossen (2026-05-14, Sprint P2-B · Commit 5f36b5f) |
-| Slice 11a | DataForSEO Keyword-Review-UI | ⚠️ Stub |
+| Slice 11a | DataForSEO Keyword-Review-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-D · Commit 14906ad) |
 | Slice 17 | Canva OAuth 2.0 Flow + Ordner-Such-UI | ⚠️ Stub |
 | Slice 18 | Social Drafts UI + Provider-Hacks bereinigen | ⚠️ Stub |
 | Slice 19 | E-Mail: HTML-Mails, restliche Trigger, SMTP-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-C) |
