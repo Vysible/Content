@@ -6,6 +6,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Fixed
+- **CI:** `deploy.yml` Race Condition behoben — Deploy-Webhook feuerte parallel zu CI
+  (nach ~7s), Coolify verwendete gecachtes Image statt neu zu bauen. Fix: `workflow_run`-
+  Trigger statt `push` — Deploy startet erst nach erfolgreichem CI-Abschluss.
 - **CI:** pnpm-Versionskonflikt behoben — redundante `version: 9` aus `ci.yml`
   entfernt (`package.json` `packageManager` ist Single Source of Truth).
 - **CI:** Node.js 20 → 22 LTS in `ci.yml` und `forge-sync.yml` (GitHub Actions
