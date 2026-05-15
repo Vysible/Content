@@ -22,8 +22,12 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `prisma/schema.prisma`: Neues Modell `CanvaToken` (verschlüsselte
   AccessToken/RefreshToken, `expiresAt`, `scope`, `userId`-Unique-Relation
   zu `User`) als Schema-Vorbereitung für Sprint P2-E (Canva OAuth 2.0,
-  Slice 17). Noch keine Prisma-Migration generiert; Verwendung folgt im
-  P2-E-Implementierungs-Commit.
+  Slice 17).
+- `prisma/migrations/20260515090000_canva_oauth_token/migration.sql`:
+  Zugehörige SQL-Migration (CREATE TABLE `CanvaToken` + Unique-Index
+  auf `userId` + FK `CanvaToken_userId_fkey ON DELETE CASCADE`).
+  `prisma migrate deploy` gegen die Live-DB steht aus
+  (siehe OpenActions.md Sprint 0).
 - Alle offenen Sprint-Prompts (P2-E, P3-A, P3-B, P3-C, P3-D, P3-E, P3-F, P3-G)
   und `Example_Prompt.md` enthalten jetzt einen
   `## CRITICAL: Sprint Closeout (Pflicht vor Commit)`-Block direkt vor
