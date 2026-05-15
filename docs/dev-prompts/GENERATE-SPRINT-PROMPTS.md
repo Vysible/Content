@@ -406,15 +406,14 @@ Dateiname-Schema: sprint-[phase-id]-[slug].md
 | `sprint-p3e-klicktipp.md` | Slice 23 — KlickTipp | 3 | Bereit |
 | `sprint-p3f-kpi-dashboard.md` | Slice 24 — KPI | 3 | Bereit |
 | `sprint-p3g-templates-klon.md` | Slice 25 — Templates | 3 | Bereit |
+| `sprint-p3h-token-warning.md` | Slice 26 — Token-Warning | 3 | Bereit |
+| `sprint-p2f-social-media.md` | Slice 18 — Social Media | 2 | Bereit |
+| `sprint-p4a-seo.md` | Slice 14 — SEO-Analyse | 4 | Bereit |
+| `sprint-p4b-bildbriefing.md` | Slice 15 — Bildbriefing | 4 | Bereit |
+| `sprint-p4c-nfa-haertung.md` | NFA-Härtung | 4 | Bereit |
+| `sprint-p4d-performance.md` | Performance & Stabilität | 4 | Bereit |
 
-**Noch zu generieren:**
-
-| Slice | Name | Phase | Nächster Prompt |
-|---|---|---|---|
-| Slice 26 | Token-Ablauf-Warnsystem | 3 | `sprint-p3h-token-warning.md` |
-| Slice 18 | Social Media Draft-Posting | 2 | `sprint-p2f-social-media.md` (⚠️ Meta-Verifizierung!) |
-| Slice 14 | SEO-Analyse | 4 | `sprint-p4a-seo.md` |
-| Slice 15 | Bildbriefing (erweitert) | 4 | `sprint-p4b-bildbriefing.md` |
+**Alle Prompts generiert.** Keine weiteren Slices offen.
 
 ---
 
