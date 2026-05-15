@@ -40,6 +40,20 @@ model ApiKey {
   @@index([provider, active])
 }
 
+model Client {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  canvaFolderId   String?
+  canvaBrandKitId String?
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  projects Project[]
+
+  @@index([name])
+}
+
 model Project {
   id                  String        @id @default(cuid())
   name                String
@@ -66,12 +80,15 @@ model Project {
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
+  clientId    String?
+  client      Client?     @relation(fields: [clientId], references: [id])
   createdById String
   createdBy   User        @relation(fields: [createdById], references: [id])
   costEntries CostEntry[]
 
   @@index([status])
   @@index([createdById])
+  @@index([clientId])
 }
 
 model CostEntry {
