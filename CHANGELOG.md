@@ -32,6 +32,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
     Konfiguration (Schwellwert in €, Toggle für Warnungen aktiv/inaktiv, Speichern-Button).
 
 ### Changed
+- Governance: HARD-FAIL-Verhalten in Pre-Slice Validation verschärft — alle 16 `sprint-*.md`
+  erhalten explizites `SOFORT STOP. Kein weiterer Befehl. Kein weiterer Check. Keine Parallelisierung.
+  Dann await User-Freigabe.` statt einfachem `STOP.`. Neue Schicht-0-Regel
+  `.windsurf/rules/schicht-0/sprint-validation-hardfail.md` als absolutes Agent-Verhaltensverbot.
 - Sprint 3 Abschluss (PII-Verschlüsselung): `scripts/migrate-pii.ts` via SSH-Tunnel gegen
   Prod-DB ausgeführt — 1 User (`emailEncrypted` + `nameEncrypted`) verschlüsselt.
   Coolify API Token in `.env` eingetragen (war Platzhalter). `COOLIFY_APP_UUID` auf neue

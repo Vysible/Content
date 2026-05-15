@@ -39,7 +39,8 @@ Select-String "\[Unreleased\]" CHANGELOG.md
 pnpm test --run
 ```
 
-Bei **Hard-FAIL (A, B oder E):** STOP.  
+Bei **Hard-FAIL (A, B oder E):** SOFORT STOP. Kein weiterer Befehl. Kein weiterer Check. Keine Parallelisierung.  
+Ausgabe: `HARD-FAIL: Check [X] — [Grund]` + erforderliche Aktion für den User. Dann **await User-Freigabe**.  
 Bei **5/5 PASS:** Exploration starten.
 
 ---

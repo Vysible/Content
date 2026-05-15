@@ -8,7 +8,7 @@
 > **Geltungsbereich:** Alle Sprints in `docs/roadmap.md`. Ersetzt die Forge-interne
 > `Pre_Slice_Validation.md` (Forge-intern = nicht für Konsumenten-Projekte gedacht).
 >
-> **Status:** v1.2.0
+> **Status:** v1.4.0
 
 ---
 
@@ -101,6 +101,10 @@ git status --porcelain
 | `docs/dev-prompts/` | Sprint-Prompts, Archiv-Verschiebungen, PSR-Berichte |
 | `docs/forge-migration-audit.md` | Audit-Notizen während aktiver Migration |
 | `docs/ERROR-Log.md` | Laufende Fehlernotizen |
+| `AGENTS.md` | Projekt-Meta-Datei, wird laufend aktualisiert |
+| `CHANGELOG.md` | Wird im selben Commit wie Code-Änderungen mitgenommen |
+| `README.md` | Dokumentations-Datei |
+| `docs/roadmap.md` | Sprint-Fortschritt, wird nach jedem Sprint aktualisiert |
 
 **Auswertung:**
 
@@ -109,7 +113,11 @@ $dirty = git status --porcelain
 $nonWhitelisted = $dirty | Where-Object {
   $_ -notmatch "docs/dev-prompts/" -and
   $_ -notmatch "docs/forge-migration-audit\.md" -and
-  $_ -notmatch "docs/ERROR-Log\.md"
+  $_ -notmatch "docs/ERROR-Log\.md" -and
+  $_ -notmatch "AGENTS\.md" -and
+  $_ -notmatch "CHANGELOG\.md" -and
+  $_ -notmatch "README\.md" -and
+  $_ -notmatch "docs/roadmap\.md"
 }
 ```
 
@@ -339,3 +347,4 @@ schließt diese Lücke prozessual.
 | v1.1.0 | Check E (Vitest) aktiviert — Sprint 2 abgeschlossen (2026-05-14). |
 | v1.2.0 | Phase 0 (PSR) als Auto-Aufruf integriert. Whitelist für `docs/dev-prompts/`, `docs/forge-migration-audit.md`, `docs/ERROR-Log.md` in Check A. Override-Syntax `GO trotz WARN: ...` für Phase-0-WARN-Fälle. |
 | v1.3.0 | Verweis auf `Sprint_Closeout.md` ergänzt — Closeout-Schritte sind ab sofort verbindlich vor jedem Commit-Vorschlag auszuführen (Reaktion auf den fehlenden Archivierungs-Schritt in Sprint P2-C). |
+| v1.4.0 | Check-A-Whitelist um `AGENTS.md`, `CHANGELOG.md`, `README.md`, `docs/roadmap.md` erweitert — persistente Docs-Dateien sollen Sprint-Starts nicht blockieren. |

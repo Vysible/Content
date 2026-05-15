@@ -35,7 +35,8 @@ Select-String "\[Unreleased\]" CHANGELOG.md
 # Erwartet: Treffer
 ```
 
-Bei **Hard-FAIL (A oder B):** STOP.  
+Bei **Hard-FAIL (A oder B):** SOFORT STOP. Kein weiterer Befehl. Kein weiterer Check. Keine Parallelisierung.  
+Ausgabe: `HARD-FAIL: Check [X] — [Grund]` + erforderliche Aktion für den User. Dann **await User-Freigabe**.  
 Bei **4/4 PASS:** Exploration starten.
 
 ---
