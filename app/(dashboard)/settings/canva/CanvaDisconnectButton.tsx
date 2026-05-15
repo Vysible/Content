@@ -18,7 +18,10 @@ export function CanvaDisconnectButton() {
     try {
       const res = await fetch('/api/canva/disconnect', { method: 'POST' })
       if (!res.ok) {
-        const json = (await res.json().catch(() => ({}))) as { error?: string }
+        const json = (await res.json().catch((err: unknown) => {
+          console.warn('[Vysible] Canva-Disconnect JSON-Parse fehlgeschlagen', err)
+          return {}
+        })) as { error?: string }
         throw new Error(json.error ?? `HTTP ${res.status}`)
       }
       router.refresh()

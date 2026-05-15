@@ -185,7 +185,8 @@ async function safeReadError(res: Response): Promise<string> {
   try {
     const text = await res.text()
     return text.slice(0, 200)
-  } catch {
+  } catch (err: unknown) {
+    logger.warn({ err, status: res.status }, '[Vysible] Canva-Fehler-Body konnte nicht gelesen werden')
     return '(kein Body)'
   }
 }

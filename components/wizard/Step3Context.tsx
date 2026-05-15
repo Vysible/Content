@@ -5,6 +5,7 @@ import type { WizardData } from './NewProjectWizard'
 import { HedyImport } from './HedyImport'
 import { TemplateSelector } from './TemplateSelector'
 import { KeywordReview } from './KeywordReview'
+import { CanvaFolderSelector } from './CanvaFolderSelector'
 
 // Geschätzte Tokens: 1 Token ≈ 4 Zeichen (Deutsch)
 const MAX_POSITIONING_CHARS = 4_000 * 4
@@ -164,6 +165,12 @@ export function Step3Context({
           className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac resize-none"
         />
       </div>
+
+      {/* Canva-Ordner (Slice 17) */}
+      <CanvaFolderSelector
+        value={data.canvaFolderId}
+        onChange={(folderId, folderName) => onChange({ canvaFolderId: folderId, canvaFolderName: folderName })}
+      />
 
       <div className="flex justify-between pt-2">
         <button onClick={onBack} className="px-4 py-2 text-sm text-stahlgrau hover:text-anthrazit transition">

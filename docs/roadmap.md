@@ -12,7 +12,7 @@
 |---|---|---|---|
 | **0** | Foundation | ✅ Abgeschlossen | Auth, Docker, SSL, YAML, AES-256, KI-Adapter |
 | **1** | Core MVP | ~70 % | Content-Paket generiert, ZIP heruntergeladen, Quality-Kriterien erfüllt |
-| **2** | Collaboration & Integration | ~45 % | Feedback-Loop, Social Drafts, E-Mail aktiv |
+| **2** | Collaboration & Integration | ~85 % | Feedback-Loop, Social Drafts, E-Mail aktiv |
 | **3** | Erweiterungen | ~15 % | Hedy, Praxis-Portal, WordPress, KlickTipp, KPI |
 | **4** | Quality & Scale | 0 % | Stabiler Betrieb mit 10+ Projekten |
 
@@ -95,7 +95,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | Slice 7 | Kalender (Drag & Drop, Status-Farben) | ✅ Abgeschlossen (2026-05-14, Sprint P2-B · Commit b759c84) |
 | Slice 10 | Sharing (Newsletter + Social im Freigabelink) | ✅ Abgeschlossen (2026-05-14, Sprint P2-B · Commit 5f36b5f) |
 | Slice 11a | DataForSEO Keyword-Review-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-D · Commit 14906ad) |
-| Slice 17 | Canva OAuth 2.0 Flow + Ordner-Such-UI | ⚠️ Stub |
+| Slice 17 | Canva OAuth 2.0 Flow + Ordner-Such-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-E) |
 | Slice 18 | Social Drafts UI + Provider-Hacks bereinigen | ⚠️ Stub |
 | Slice 19 | E-Mail: HTML-Mails, restliche Trigger, SMTP-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-C) |
 

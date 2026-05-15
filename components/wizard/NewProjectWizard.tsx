@@ -24,6 +24,8 @@ export interface WizardData {
   positioningDocument: string
   keywords: string[]
   themenPool: string
+  canvaFolderId: string | null
+  canvaFolderName: string | null
 }
 
 function buildDefaultProjectName(praxisName: string, start: string): string {
@@ -60,6 +62,8 @@ const INITIAL: WizardData = {
   positioningDocument: '',
   keywords: [],
   themenPool: '',
+  canvaFolderId: null,
+  canvaFolderName: null,
 }
 
 export function NewProjectWizard() {
@@ -98,6 +102,7 @@ export function NewProjectWizard() {
         positioningDocument: data.positioningDocument || undefined,
         themenPool: data.themenPool || undefined,
         keywords: data.keywords,
+        canvaFolderId: data.canvaFolderId ?? undefined,
       }),
     })
 

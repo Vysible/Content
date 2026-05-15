@@ -115,7 +115,7 @@ async function runStep(
     case 'canva_loaded': {
       if (project.canvaFolderId) {
         try {
-          const assets = await listFolderAssets(project.canvaFolderId)
+          const assets = await listFolderAssets(project.canvaFolderId, project.createdById)
           ctx.canvaContext = buildCanvaContext(assets)
           await emitEvent(jobId, {
             type: 'canva_loaded',
@@ -123,7 +123,9 @@ async function runStep(
             timestamp: now(),
           })
         } catch (err: unknown) {
-          // Canva-API nicht erreichbar → Fallback auf leeren Kontext, kein Hard-Fail
+          // Canva-API nicht erreichbar oder nicht verbunden → Fallback auf leeren
+          // Kontext, kein Hard-Fail. Pipeline läuft weiter, KI bekommt nur keine
+          // Asset-Namen als Kontext-Hinweis.
           logger.warn({ err, projectId: project.id }, 'Canva-API nicht erreichbar — Kontext leer')
           ctx.canvaContext = ''
           await emitEvent(jobId, {

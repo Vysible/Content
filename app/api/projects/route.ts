@@ -15,6 +15,7 @@ const createSchema = z.object({
   positioningDocument: z.string().optional(),
   themenPool: z.string().optional(),
   keywords: z.array(z.string()).default([]),
+  canvaFolderId: z.string().min(1).max(200).optional(),
 })
 
 export async function GET() {
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
       positioningDocument: data.positioningDocument ?? null,
       themenPool: data.themenPool ?? null,
       keywords: data.keywords,
+      canvaFolderId: data.canvaFolderId ?? null,
       createdById: session.user.id,
     },
     select: { id: true, name: true },

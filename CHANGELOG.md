@@ -6,6 +6,45 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- Sprint P2-E Closeout (Slice 17): `docs/dev-prompts/archive/sprint-p2e-canva.md`
+  archiviert (Sprint-Prompt aus aktivem Verzeichnis entfernt); `docs/roadmap.md`
+  Slice 17 auf "✅ Abgeschlossen (2026-05-15, Sprint P2-E)" gesetzt, Phase-2-
+  Fortschritt von ~45 % auf ~85 % angehoben; `docs/dev-prompts/OpenActions.md`
+  um Backlog-Eintrag "SocialTokenStatusSection auf OAuth-Modelle umstellen"
+  ergänzt (laut PSR Option A — Cleanup im Rahmen von Slice 18 / Sprint P2-F).
+- Sprint P2-E (Slice 17, Sub-Slice B) — Canva-Ordner-Abruf + Wizard-Selector + Kontext-Injektion:
+  - `lib/canva/client.ts` MOD: Stub durch echte OAuth-basierte API-Calls ersetzt.
+    Neue Funktion `listFolders(userId)` für das Wizard-Dropdown; bestehende
+    `listFolderAssets(folderId, userId)` hat jetzt eine zweite Parameter-Position
+    `userId` und holt Bearer-Token via `getValidCanvaToken(userId)` (statt
+    `ApiKey`-CANVA-Row). Beide Calls in `withRetry` (NFA-06, `resilience §3c`).
+    `buildCanvaContext()` limitiert auf 20 Asset-Namen (Token-Budget).
+    Neuer Helper `logCanvaError()` für non-fatales Logging.
+  - `lib/generation/pipeline.ts` MOD: `canva_loaded`-Step ruft jetzt
+    `listFolderAssets(project.canvaFolderId, project.createdById)` auf —
+    OAuth-Token des Projekt-Erstellers wird verwendet. Catch-Block bleibt
+    non-fatal (`logger.warn` + leerer Kontext).
+  - `app/api/canva/folders/route.ts` NEU: `GET /api/canva/folders` liefert
+    Ordner-Liste für Wizard-Dropdown. 401 wenn nicht eingeloggt, 200 mit
+    `{ connected: false, folders: [] }` wenn keine Canva-Verbindung,
+    502 bei Canva-API-Fehler (mit `logger.warn`, kein Token-Leak).
+  - `app/api/projects/[id]/canva/route.ts` MOD: `listFolderAssets`-Aufruf
+    auf neue Signatur umgestellt; `createdById` aus Projekt-Select; Fehler
+    werden jetzt strukturiert geloggt (`logger.warn` mit `projectId`).
+  - `app/api/projects/route.ts` MOD: `createSchema` akzeptiert optionalen
+    `canvaFolderId` (1–200 Zeichen); wird in `prisma.project.create` als
+    `canvaFolderId` persistiert.
+  - `components/wizard/CanvaFolderSelector.tsx` NEU: Client-Komponente für
+    Wizard-Step-3 mit vier Lade-Zuständen (loading / not_connected / load_error /
+    ready). Nicht verbunden → Soft-Hinweis mit Link auf `/settings/canva`,
+    kein Hard-Fail im Wizard. JSON-Parse-Fehler werden mit `console.warn`
+    geloggt (Forge `resilience §3a` konform).
+  - `components/wizard/NewProjectWizard.tsx` MOD: `WizardData` um
+    `canvaFolderId` / `canvaFolderName` erweitert; POST-Body sendet
+    `canvaFolderId`.
+  - `components/wizard/Step3Context.tsx` MOD: `<CanvaFolderSelector>` unter
+    "Themen-Pool" eingebaut; Wizard-State wird via `onChange` aktualisiert.
+
 - Sprint P2-E (Slice 17, Sub-Slice A) — Canva OAuth 2.0 Flow + Token-Storage:
   - `prisma/schema.prisma` MOD: Neues `CanvaToken`-Modell mit
     `encryptedAccessToken`, `encryptedRefreshToken`, `expiresAt`, `scope`;
@@ -126,6 +165,16 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   beim API-Key-Lookup.
 
 ### Fixed
+- Sprint P2-E: Zwei stille Catches im aktiven Sprint-Scope geschlossen
+  (`resilience §3a`):
+  - `app/(dashboard)/settings/canva/CanvaDisconnectButton.tsx:21`:
+    `res.json().catch(() => ({}))` → JSON-Parse-Fehler werden jetzt mit
+    `console.warn('[Vysible] Canva-Disconnect JSON-Parse fehlgeschlagen', err)`
+    geloggt (Client-Component-Pattern, konsistent mit der akzeptierten
+    Forge-Abweichung).
+  - `lib/canva/auth.ts` `safeReadError()`: bare `catch {}` durch
+    `catch (err: unknown) { logger.warn(...) }` ersetzt — Body-Lese-Fehler
+    sind jetzt sichtbar.
 - Slice 19 (Sub-Slice A): Stille `sendNotification(...).catch(() => {})`-Stellen
   in `app/api/wordpress/draft/route.ts`, `lib/tokens/expiry-checker.ts`,
   `lib/costs/reporter.ts`, `app/api/praxis/invite/route.ts`,
