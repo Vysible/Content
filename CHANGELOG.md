@@ -6,6 +6,37 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- Sprint P2-E (Slice 17, Sub-Slice A) — Canva OAuth 2.0 Flow + Token-Storage:
+  - `prisma/schema.prisma` MOD: Neues `CanvaToken`-Modell mit
+    `encryptedAccessToken`, `encryptedRefreshToken`, `expiresAt`, `scope`;
+    1:1-Relation zu `User` mit `onDelete: Cascade`.
+  - `prisma/migrations/20260515090000_canva_oauth_token/migration.sql`: SQL-Migration
+    (CreateTable + Unique-Index + FK).
+  - `lib/canva/auth.ts` NEU: OAuth-Helpers `buildAuthorizeUrl()`,
+    `exchangeCodeForToken()`, `persistCanvaToken()`, `getValidCanvaToken()` mit
+    Auto-Refresh (5-min-Puffer), `isCanvaConnected()`, `getCanvaConnectionStatus()`,
+    `disconnectCanva()`. Alle Canva-Token-Endpoint-Calls über `withRetry`
+    (NFA-06, `resilience.mdc §3c`). Access- und Refresh-Token AES-256-GCM
+    verschlüsselt via `lib/crypto/aes.ts` (ADR-003).
+  - `app/api/canva/oauth/route.ts` NEU: `GET /api/canva/oauth` initiiert den
+    OAuth-Flow, setzt httpOnly-State-Cookie (`canva_oauth_state`, 10min TTL,
+    SameSite=Lax) und redirected zur Canva-Authorize-URL mit Minimal-Scope
+    `asset:read design:content:read`.
+  - `app/api/canva/oauth/callback/route.ts` NEU: `GET .../callback` verifiziert
+    State (CSRF), tauscht Code gegen Token, persistiert verschlüsselt,
+    redirected zu `/settings/canva?connected=1`. State-Mismatch → 400,
+    Token-Exchange-Fehler → Redirect mit Error-Parameter (kein Klartext-Token
+    in Response oder Log).
+  - `app/api/canva/disconnect/route.ts` NEU: `POST /api/canva/disconnect`
+    entfernt die `CanvaToken`-Row des eingeloggten Users.
+  - `app/(dashboard)/settings/canva/page.tsx` NEU: Server Component zeigt
+    Verbindungsstatus (Verbunden + Ablaufdatum + Scope, oder Nicht verbunden +
+    Connect-Button). Error-Banner für OAuth-Fehler.
+  - `app/(dashboard)/settings/canva/CanvaDisconnectButton.tsx` NEU: Client
+    Component für Disconnect mit Confirm-Dialog und `router.refresh()`.
+  - `components/layout/sidebar.tsx` MOD: Neuer Navigationspunkt
+    "Canva-Verbindung" zwischen "API-Keys" und "E-Mail-Benachrichtigungen".
+
 - `docs/dev-prompts/Sprint_Closeout.md` (v1.0.0) — verbindlicher 4-Schritt-
   Abschluss-Workflow (Roadmap, OpenActions, Prompt-Archivierung, CHANGELOG),
   als Reaktion auf den übersehenen Archivierungs-Schritt in Sprint P2-C.
