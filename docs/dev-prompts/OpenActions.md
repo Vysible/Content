@@ -1,5 +1,40 @@
 # Offene Punkte
 
+## Sprint P3-B — Hedy-Integration (Slice 20) — Acceptance-Verifikation
+
+> **Status:** Implementierung abgeschlossen (Slice 20 Sub-A + Sub-B). Verifikation
+> erfordert echten Hedy-API-Key + mindestens eine Test-Session in der Hedy-App.
+> Bis dahin: Punkte als offen geführt.
+
+**Vorab-Aktion (einmalig, manuell):**
+1. Hedy API-Dokumentation prüfen: Auth-Schema verifizieren (Bearer-Token, API-Key-Header
+   oder MCP-spezifisches Format). URL: `https://api.hedy.bot/mcp`
+   Falls kein Bearer-Token → `buildHeaders()` in `lib/hedy/client.ts` anpassen.
+2. Hedy API-Key in Vysible hinterlegen: Einstellungen → API-Keys → Provider "Hedy" → Key eintragen.
+3. Test-Session in der Hedy-App anlegen (mind. 1 Session muss vorhanden sein).
+
+**Sub-Slice A — API-Route + Client + YAML:**
+
+- [ ] `GET /api/hedy/import?action=sessions` → Liste letzter 20 Sessions (Titel + Datum)
+- [ ] `GET /api/hedy/import?action=transcript&id=<id>` → Transkript-Text < 10s
+- [ ] `POST /api/hedy/import` → KI-Output enthält alle 8 Pflichtfelder (manuell prüfen)
+- [ ] `CostEntry` in DB nach KI-Call (step=`positioning_generation`)
+- [ ] Kein Hedy-Key → HTTP 422 mit Meldung "Hedy API-Key nicht konfiguriert"
+- [ ] Kein Prompt-Text im TypeScript — ausschliesslich in `prompts/positioning.yaml`
+- [ ] TypeScript: 0 Fehler
+
+**Sub-Slice B — HedyImport-Wizard-Komponente:**
+
+- [ ] 5-Schritt-Flow vollständig durchlaufbar (idle → select → transcript → generate → preview)
+- [ ] Session-Liste zeigt Titel + Datum lesbar ("TT.MM.JJJJ")
+- [ ] KI-Transformation: Ladezustand sichtbar ("[INFO] KI analysiert Transkript…")
+- [ ] Vorschau editierbar vor Speicherung (Textarea in Step preview)
+- [ ] Gespeichertes Dokument erscheint im Wizard als `positioningDocument` (identisch zu manuellem Upload)
+- [ ] Kein API-Key → freundliche Meldung "[WARN] Hedy nicht konfiguriert — …" ohne Hard-Fail
+- [ ] TypeScript: 0 Fehler
+
+---
+
 ## Sprint P2-E — Canva (externe Einmal-Aktionen, benötigen kein Deployment)
 
 1. **Canva Developer Portal: OAuth-App anlegen + Redirect-URIs registrieren**

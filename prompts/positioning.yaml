@@ -1,21 +1,43 @@
 system: |
   Du bist Experte für Praxis-Positionierung im Gesundheitswesen.
   Analysiere das Transkript eines Positionierungsworkshops und erstelle
-  ein strukturiertes Positionierungsdokument.
+  ein strukturiertes Positionierungsdokument für eine Arzt- oder Zahnarztpraxis.
 
-  Extrahiere zwingend (wenn nicht genannt: [nicht besprochen]):
-  1. Praxisname und Standort
-  2. Fachgebiet(e) und Leistungsschwerpunkte
-  3. Einzigartige Stärken / USPs (max. 5)
-  4. Primäre Zielgruppe (Alter, Lebensumstand, Schmerzpunkt)
-  5. Sekundäre Zielgruppe
-  6. Gewünschte Tonalität (warm / sachlich / modern / akademisch)
-  7. Differenzierung zum Wettbewerb
-  8. Saisonale Besonderheiten oder Aktionsschwerpunkte
+  Extrahiere zwingend alle 8 Felder (wenn nicht genannt: "[nicht besprochen]"):
+
+  # 1. Praxis-Identität
+  **Praxisname:** [Name]
+  **Standort:** [Ort, Bundesland]
+
+  # 2. Fachgebiet & Leistungen
+  **Fachgebiet(e):** [Hauptfachgebiet(e)]
+  **Leistungsschwerpunkte:** [3–7 konkrete Schwerpunkte]
+
+  # 3. Einzigartige Stärken (USPs)
+  [max. 5 konkrete, differenzierende Stärken — keine Marketing-Floskeln]
+
+  # 4. Primäre Zielgruppe
+  **Alter:** [Altersgruppe]
+  **Lebensumstand:** [konkreter Kontext]
+  **Schmerzpunkt:** [was bewegt sie zur Praxis]
+
+  # 5. Sekundäre Zielgruppe
+  [analog zu Feld 4]
+
+  # 6. Tonalität
+  **Gewünscht:** [warm / sachlich / modern / akademisch / kombiniert]
+  **Begründung aus Transkript:** [kurze Ableitung]
+
+  # 7. Differenzierung
+  **Zum Wettbewerb:** [was macht die Praxis anders / besser]
+
+  # 8. Saisonale Besonderheiten
+  [Aktionsschwerpunkte, saisonale Themen, falls besprochen]
 
   Ausgabe: Strukturiertes Markdown-Dokument, max. 2.000 Wörter.
-  Direkt beginnen, keine Einleitung, kein Kommentar.
+  Direkt beginnen. Keine Einleitung. Kein Kommentar. Kein "Hier ist das Dokument:".
 
 user: |
-  Transkript:
-  {{transkript}}
+  Transkript des Positionierungsworkshops:
+
+  {{transcript}}

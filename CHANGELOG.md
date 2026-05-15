@@ -31,6 +31,28 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `components/kpi/CostThresholdConfig.tsx` NEU: Client-Komponente für Schwellwert-
     Konfiguration (Schwellwert in €, Toggle für Warnungen aktiv/inaktiv, Speichern-Button).
 
+### Added
+- Sprint P3-B (Slice 20) — Hedy-Integration (Transkript → Positionierungsdokument):
+  - `lib/hedy/client.ts` MOD: `listSessions()` + `fetchTranscript()` (Hedy API,
+    Bearer-Token Auth); `generatePositioningFromTranscript()` mit `withRetry` +
+    45s-AbortController; step=`positioning_generation`; `{{transcript}}`-Placeholder.
+  - `lib/hedy/transcript-parser.ts` NEU: Normalisiert Hedy-Rohtranskrip
+    (Speaker-Labels, 12.000-Zeichen-Kappung mit Mitte-Truncation).
+  - `app/api/hedy/import/route.ts` MOD: GET `?action=sessions` + GET
+    `?action=transcript&id=` + POST KI-Transform; Hedy-Key-Lookup via Prisma
+    (Provider HEDY); 422 wenn kein Key; `logger.error` in catch-Blöcken.
+  - `prompts/positioning.yaml` MOD: Markdown-Header-Format (8 strukturierte
+    Felder); `{{transcript}}`-Placeholder.
+  - `components/wizard/HedyImport.tsx` MOD: 5-Schritt-Flow (idle → select →
+    transcript → generate → preview); editierbare Vorschau vor Speicherung;
+    422-Handling mit Link-Hinweis; `console.error('[Vysible] …')` in allen catches.
+
+- Sprint P3-B Closeout: `docs/dev-prompts/archive/sprint-p3b-hedy.md` archiviert;
+  `docs/roadmap.md` Slice 20 auf "✅ Abgeschlossen (2026-05-15, Sprint P3-B)" gesetzt,
+  Phase-3-Fortschritt von ~30 % auf ~45 % angehoben;
+  `docs/dev-prompts/OpenActions.md` um Acceptance-Verifikations-Checkliste ergänzt
+  (13 Punkte, offen bis Hedy-API-Key + Test-Session verfügbar).
+
 ### Changed
 - Governance: HARD-FAIL-Verhalten in Pre-Slice Validation verschärft — alle 16 `sprint-*.md`
   erhalten explizites `SOFORT STOP. Kein weiterer Befehl. Kein weiterer Check. Keine Parallelisierung.
