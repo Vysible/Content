@@ -659,6 +659,27 @@ Select-String "W-1[4-9]|W-20" ROADMAP.md | Select-String "Abgeschlossen"
 
 ---
 
+## CRITICAL: Sprint Closeout (Pflicht vor Commit)
+
+> **Verbindlich seit 2026-05-15.** Lies `docs/dev-prompts/Sprint_Closeout.md`
+> vollständig und führe die **4 Schritte aus, BEVOR der Auto-Commit-Block
+> unten ausgeführt wird**.
+
+| # | Schritt | Erwartung |
+|---|---|---|
+| 1 | Roadmap-Status aktualisieren | `docs/roadmap.md` (bzw. `ROADMAP.md`): Slice-Eintrag auf `✅ Abgeschlossen (YYYY-MM-DD, Sprint <ID>)` |
+| 2 | OpenActions bereinigen | `docs/dev-prompts/OpenActions.md`: Sprint-Nachlaufblock entfernen, echte Restpunkte in sprintübergreifenden Abschnitt verschieben |
+| 3 | Sprint-Prompt archivieren | `Move-Item <prompt-pfad> <archive-pfad>` — Verifikation: `git status` zeigt Rename-Eintrag (`R`) |
+| 4 | CHANGELOG-Closeout-Eintrag | `CHANGELOG.md` unter `[Unreleased]`: Archivierung + Roadmap-Update + ggf. OpenActions-Cleanup explizit dokumentieren |
+
+Vor dem ersten `git commit`-Aufruf gibt der Agent den **SPRINT CLOSEOUT-Bericht**
+(`4/4 PASS · GO`) aus. Format siehe `Sprint_Closeout.md` § "Output Format".
+
+Bei FAIL in einem Schritt: **HARD-STOP** — kein Commit, fehlenden Schritt
+zuerst ausführen.
+
+---
+
 ## Auto-Commit Block
 
 ```powershell

@@ -14,6 +14,12 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - `docs/dev-prompts/Pre_Slice_Validation.md` (v1.3.0) — Verweis auf
   `Sprint_Closeout.md` ergänzt; der Closeout ist ab sofort verbindlich
   vor jedem Commit-Vorschlag auszuführen.
+- Alle offenen Sprint-Prompts (P2-E, P3-A, P3-B, P3-C, P3-D, P3-E, P3-F) und
+  `Example_Prompt.md` enthalten jetzt einen
+  `## CRITICAL: Sprint Closeout (Pflicht vor Commit)`-Block direkt vor
+  dem Abschlussbericht bzw. Auto-Commit-Block — verbindlicher Verweis
+  auf den 4-Schritt-Workflow inkl. Hard-STOP-Regel bei FAIL. Schließt die
+  P2-C-Lücke prozessual für alle künftigen Sprints.
 - `docs/dev-prompts/archive/sprint-p2c-email.md`: Sprint-Prompt P2-C nach
   Abschluss archiviert; aktive Datei aus `docs/dev-prompts/` entfernt.
 - Slice 19 (Sprint P2-C): SMTP-Settings unter `/settings/smtp` mit Admin-Schutz,
