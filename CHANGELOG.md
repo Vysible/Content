@@ -77,6 +77,13 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
     `safeReadError` in `lib/canva/auth.ts` enthält noch einen bare
     `catch` ohne Logging (Forge-Regel `resilience §3a`-Verstoß),
     Fix im P2-E-Self-Review.
+- `docs/dev-prompts/GENERATE-SPRINT-PROMPTS.md` (v1.0): Meta-Anleitung,
+  wie aus `plan-v6.1.md` + `roadmap.md` + `decisions.md` +
+  `forge-web-deviations.md` + `OpenActions.md` neue Sprint-Slice-Prompts
+  im Vysible-Format generiert werden. Enthält Pflicht-Eingabedateien,
+  Reihenfolge-Ableitung, Format-Vorlage, Tier-Klassifikation,
+  Sub-Slice-Aufteilung, Resilience-/Sicherheits-Pflichtmuster,
+  Qualitätsprüfungs-Checkliste und Beispiel-Aufruf.
 - Alle offenen Sprint-Prompts (P2-E, P3-A, P3-B, P3-C, P3-D, P3-E, P3-F, P3-G)
   und `Example_Prompt.md` enthalten jetzt einen
   `## CRITICAL: Sprint Closeout (Pflicht vor Commit)`-Block direkt vor
