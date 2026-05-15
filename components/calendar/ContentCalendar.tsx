@@ -4,16 +4,17 @@ import { useState, useCallback } from 'react'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 import { BLOG_STATUS_LABELS, NEWSLETTER_STATUS_LABELS, SOCIAL_STATUS_LABELS } from '@/lib/generation/results-store'
 
-type StatusColor = 'gray' | 'yellow' | 'green' | 'blue'
+type StatusColor = 'gray' | 'yellow' | 'green' | 'blue' | 'red'
 
 const STATUS_COLORS: Record<string, StatusColor> = {
-  ausstehend:    'gray',
-  in_wordpress:  'yellow',
+  ausstehend:      'gray',
+  in_wordpress:    'yellow',
   veroeffentlicht: 'blue',
-  kt_kampagne:   'yellow',
-  versendet:     'blue',
-  hochgeladen:   'yellow',
-  freigegeben:   'green',
+  kt_kampagne:     'yellow',
+  versendet:       'blue',
+  hochgeladen:     'yellow',
+  freigegeben:     'green',
+  fehler:          'red',
 }
 
 const COLOR_CLASSES: Record<StatusColor, string> = {
@@ -21,6 +22,7 @@ const COLOR_CLASSES: Record<StatusColor, string> = {
   yellow: 'bg-amber-100 text-amber-800',
   green:  'bg-green-100 text-green-800',
   blue:   'bg-blue-100 text-blue-800',
+  red:    'bg-red-100 text-red-800',
 }
 
 const KANAL_LABELS: Record<string, string> = {

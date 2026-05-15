@@ -27,16 +27,31 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   else return NextResponse.json({ error: `Unbekannter Kanal: ${kanal}` }, { status: 400 })
 
   // Status aktualisieren
-  if (result.status === 'draft') {
-    const results = (project.textResults as unknown as StoredTextResult[] | null) ?? []
-    if (results[index]) {
-      results[index] = { ...results[index], socialStatus: 'hochgeladen' }
-      await prisma.project.update({
-        where: { id: params.id },
-        data: { textResults: JSON.parse(JSON.stringify(results)) },
-      })
+  const results = (project.textResults as unknown as StoredTextResult[] | null) ?? []
+  if (results[index]) {
+    if (result.status === 'draft') {
+      results[index] = {
+        ...results[index],
+        socialStatus: 'hochgeladen',
+        socialDraftId: result.draftId,
+        socialPlatform: result.platform,
+        socialError: undefined,
+      }
+    } else {
+      results[index] = {
+        ...results[index],
+        socialStatus: 'fehler',
+        socialPlatform: result.platform,
+        socialError: result.error,
+      }
     }
+    await prisma.project.update({
+      where: { id: params.id },
+      data: { textResults: JSON.parse(JSON.stringify(results)) },
+    })
+  }
 
+  if (result.status === 'draft') {
     await sendNotification('draft_uploaded', project.name, `${kanal} Draft hochgeladen`)
   }
 

@@ -96,7 +96,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | Slice 10 | Sharing (Newsletter + Social im Freigabelink) | ✅ Abgeschlossen (2026-05-14, Sprint P2-B · Commit 5f36b5f) |
 | Slice 11a | DataForSEO Keyword-Review-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-D · Commit 14906ad) |
 | Slice 17 | Canva OAuth 2.0 Flow + Ordner-Such-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-E) |
-| Slice 18 | Social Drafts UI + Provider-Hacks bereinigen | ⚠️ Stub |
+| Slice 18 | Social Drafts UI + Provider-Hacks bereinigen | ✅ Abgeschlossen (2026-05-15, Sprint P2-F) |
 | Slice 19 | E-Mail: HTML-Mails, restliche Trigger, SMTP-UI | ✅ Abgeschlossen (2026-05-15, Sprint P2-C) |
 
 ---

@@ -154,25 +154,11 @@
 
    Nach Einführung: Sprint-Prompt-Self-Review-Regeln präzisieren ("`logger.*` in Server, `loggerClient.*` in Client").
 
-3. **`SocialTokenStatusSection` auf OAuth-Modelle umstellen** (Slice 18)
+3. ~~**`SocialTokenStatusSection` auf OAuth-Modelle umstellen** (Slice 18)~~ **✅ Geschlossen (Sprint P2-F)**
 
-   `app/(dashboard)/settings/api-keys/SocialTokenStatusSection.tsx` queryt
-   aktuell `/api/api-keys` mit `provider: 'CANVA'` und zeigt deren `expiresAt`.
-   Seit Sprint P2-E (Slice 17) leben Canva-OAuth-Tokens jedoch in der
-   `CanvaToken`-Tabelle (eigene `expiresAt`, eigene Verbindungs-UI unter
-   `/settings/canva`). Alte `ApiKey`-Rows mit Provider CANVA können in der
-   DB orphaned bleiben — die Komponente zeigt dann veraltete Daten.
-
-   Empfohlener Cleanup in Sprint P2-F (Slice 18 — Social Media):
-   - Komponente erweitern, sodass sie aus `CanvaToken` (+ später Meta/LinkedIn-
-     Token-Tabellen) liest, statt aus `ApiKey`-Rows.
-   - Vorhandene `ApiKey`-Rows mit `provider: 'CANVA'` als deprecated markieren
-     (UI-Hinweis "ersetzt durch OAuth — `/settings/canva` nutzen").
-   - Migrationspfad für Bestandsdaten: keiner — alte Rows können stehenbleiben,
-     werden nur nicht mehr aktiv genutzt.
-
-   Akzeptiert im PSR von Sprint P2-E (Option A) — kein Sicherheits-/Compliance-
-   Bezug, nur UI-Hygiene. Aufwand: ~1 Stunde im Rahmen von Slice 18.
+   Komponente zeigt jetzt META/LINKEDIN-ApiKeys (Provider-Enum bereinigt).
+   CANVA-ApiKey-Rows deprecated — Hinweisbox mit Link zu `/settings/canva` ergänzt.
+   Stiller Catch `.catch(() => {})` durch `console.warn('[Vysible] …', err)` ersetzt.
 
 4. **KT-Status-Feld in `StoredTextResult` ergänzen** (Kalender-Badge, Slice 7)
 

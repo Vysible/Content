@@ -326,4 +326,6 @@ enum Provider {
   WORDPRESS
   HEDY
   CANVA
+  META
+  LINKEDIN
 }

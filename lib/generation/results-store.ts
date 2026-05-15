@@ -6,7 +6,7 @@ import type { TextResult } from './texts-schema'
 
 export type BlogStatus = 'ausstehend' | 'in_wordpress' | 'veroeffentlicht'
 export type NewsletterStatus = 'ausstehend' | 'kt_kampagne' | 'versendet'
-export type SocialStatus = 'ausstehend' | 'hochgeladen' | 'freigegeben'
+export type SocialStatus = 'ausstehend' | 'hochgeladen' | 'freigegeben' | 'veroeffentlicht' | 'fehler'
 
 export interface ContentVersion {
   content: string
@@ -17,6 +17,9 @@ export interface StoredTextResult extends TextResult {
   blogStatus?: BlogStatus
   newsletterStatus?: NewsletterStatus
   socialStatus?: SocialStatus
+  socialDraftId?: string
+  socialPlatform?: string
+  socialError?: string
   // Max. 10 Versionen je Artefakt (Slice 8)
   blogVersions?: ContentVersion[]
   newsletterVersions?: ContentVersion[]
@@ -38,4 +41,6 @@ export const SOCIAL_STATUS_LABELS: Record<SocialStatus, string> = {
   ausstehend: 'Ausstehend',
   hochgeladen: 'Hochgeladen',
   freigegeben: 'Freigegeben',
+  veroeffentlicht: 'Veröffentlicht',
+  fehler: 'Fehler',
 }

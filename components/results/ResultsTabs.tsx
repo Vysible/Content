@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { EditorView, type SaveState } from '@/components/editor/EditorView'
 import { SeoPanel } from '@/components/editor/SeoPanel'
 import { WordPressDraftButton } from '@/components/results/WordPressDraftButton'
 import { KlickTippButton } from '@/components/results/KlickTippButton'
+import { SocialPostButton } from '@/components/results/SocialPostButton'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
@@ -28,10 +29,12 @@ interface Props {
   channels: string[]
   wpConfigured?: boolean
   ktConfigured?: boolean
+  metaConfigured?: boolean
+  linkedInConfigured?: boolean
   hwgFlag?: string
 }
 
-export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, hwgFlag }: Props) {
+export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, metaConfigured = false, linkedInConfigured = false, hwgFlag }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('themen')
   const [results, setResults] = useState<StoredTextResult[]>(textResults)
   const [sort, setSort] = useState<SortKey>('monat')
@@ -143,9 +146,12 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
       )}
       {activeTab === 'social' && (
         <SocialTab
+          projectId={projectId}
           results={results.filter((r) => r.socialPosts?.length)}
           onUpdate={(index, updates) => autosave(index, updates)}
           allResults={results}
+          metaConfigured={metaConfigured}
+          linkedInConfigured={linkedInConfigured}
         />
       )}
       {activeTab === 'textentwuerfe' && (
@@ -482,14 +488,63 @@ const CHAR_LIMITS: Record<string, number> = {
 }
 
 function SocialTab({
+  projectId,
   results,
   allResults,
   onUpdate,
+  metaConfigured,
+  linkedInConfigured,
 }: {
+  projectId: string
   results: StoredTextResult[]
   allResults: StoredTextResult[]
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
+  metaConfigured: boolean
+  linkedInConfigured: boolean
 }) {
+  const [expiredProviders, setExpiredProviders] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    fetch('/api/tokens/status')
+      .then((r) => r.json())
+      .then((data: Array<{ provider: string; level: string }>) => {
+        const expired = new Set(
+          data.filter((t) => t.level === 'expired').map((t) => t.provider)
+        )
+        setExpiredProviders(expired)
+      })
+      .catch((err: unknown) => {
+        console.warn('[Vysible] Token-Status konnte nicht geladen werden', err)
+      })
+  }, [])
+
+  // Kanal → ob Token abgelaufen
+  function isTokenExpired(kanal: string): boolean {
+    if (kanal === 'SOCIAL_FACEBOOK' || kanal === 'SOCIAL_INSTAGRAM') {
+      return expiredProviders.has('META')
+    }
+    if (kanal === 'SOCIAL_LINKEDIN') return expiredProviders.has('LINKEDIN')
+    return false
+  }
+
+  // Kanal → ob überhaupt konfiguriert
+  function isConfigured(kanal: string): boolean {
+    if (kanal === 'SOCIAL_FACEBOOK' || kanal === 'SOCIAL_INSTAGRAM') return metaConfigured
+    if (kanal === 'SOCIAL_LINKEDIN') return linkedInConfigured
+    return false
+  }
+
+  // Lokale Post-Texte für Live-Updates vor Autosave
+  const [localTexts, setLocalTexts] = useState<Record<string, string>>(() => {
+    const map: Record<string, string> = {}
+    results.forEach((r, ri) => {
+      r.socialPosts?.forEach((post, pi) => {
+        map[`${ri}-${pi}`] = post.text
+      })
+    })
+    return map
+  })
+
   return (
     <div className="space-y-4">
       {results.map((r) => {
@@ -509,11 +564,14 @@ function SocialTab({
               />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {r.socialPosts?.map((post, pi) => {
+                const localKey = `${results.indexOf(r)}-${pi}`
+                const liveText = localTexts[localKey] ?? post.text
                 const limit = CHAR_LIMITS[post.kanal] ?? 999
-                const count = post.text.length
+                const count = liveText.length
                 const overLimit = count > limit
+                const configured = isConfigured(post.kanal)
 
                 return (
                   <div key={pi}>
@@ -529,11 +587,35 @@ function SocialTab({
                       }`}
                       defaultValue={post.text}
                       onChange={(e) => {
+                        setLocalTexts((prev) => ({ ...prev, [localKey]: e.target.value }))
                         const updatedPosts = [...(r.socialPosts ?? [])]
                         updatedPosts[pi] = { ...post, text: e.target.value }
                         onUpdate(globalIndex, { socialPosts: updatedPosts })
                       }}
                     />
+                    <div className="mt-2">
+                      {configured ? (
+                        <SocialPostButton
+                          projectId={projectId}
+                          index={globalIndex}
+                          kanal={post.kanal}
+                          text={liveText}
+                          currentStatus={r.socialStatus}
+                          currentDraftId={r.socialDraftId}
+                          currentPlatform={r.socialPlatform}
+                          currentError={r.socialError}
+                          tokenExpired={isTokenExpired(post.kanal)}
+                          onResult={(updates) => onUpdate(globalIndex, updates)}
+                        />
+                      ) : (
+                        <p className="text-xs text-stahlgrau italic">
+                          {KANAL_LABELS[post.kanal]} nicht konfiguriert —{' '}
+                          <a href="/settings/api-keys" className="text-tiefblau hover:underline">
+                            API-Key hinterlegen
+                          </a>
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )
               })}

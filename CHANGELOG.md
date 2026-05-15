@@ -6,6 +6,22 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Sprint P2-F — Social Media Draft-Posting (Slice 18):**
+  - `prisma/schema.prisma`: Provider-Enum um `META` und `LINKEDIN` erweitert (additive Migration `20260515220000_add_meta_linkedin_providers`).
+  - `lib/social/meta.ts`: `WORDPRESS`-Provider-Hack durch `META` ersetzt; `withRetry` auf alle Graph-API-Calls (`postFacebookDraft`, `postInstagramDraft`); stille Catches durch `logger.error` ersetzt.
+  - `lib/social/linkedin.ts`: `KLICKTIPP`-Provider-Hack durch `LINKEDIN` ersetzt; `withRetry` auf `ugcPosts`-Call; stiller Catch durch `logger.error` ersetzt.
+  - `lib/generation/results-store.ts`: `SocialStatus`-Typ auf 5 Zustände erweitert (`ausstehend`, `hochgeladen`, `freigegeben`, `veroeffentlicht`, `fehler`). `StoredTextResult` um `socialDraftId`, `socialPlatform`, `socialError` ergänzt.
+  - `app/api/projects/[id]/social-post/route.ts`: Vollständiges Status-Tracking — Erfolg setzt `socialStatus: 'hochgeladen'` + `socialDraftId` + `socialPlatform`; Fehler setzt `socialStatus: 'fehler'` + `socialError`.
+  - `components/results/SocialPostButton.tsx` NEU: Client-Komponente für Draft-Upload mit 4 Zuständen (idle/loading/success/error), Token-Expired-Deaktivierung, Retry-Button, "Erneut hochladen".
+  - `components/results/ResultsTabs.tsx`: `SocialTab` überarbeitet — `SocialPostButton` pro Post, Token-Status-Check via `/api/tokens/status` (expired → Button deaktiviert), "Nicht konfiguriert"-Hinweis wenn kein META/LINKEDIN-Key, live `localTexts`-State vor Autosave; neue Props `metaConfigured`, `linkedInConfigured`.
+  - `app/(dashboard)/projects/[id]/results/page.tsx`: META- und LINKEDIN-ApiKey-Lookup; `metaConfigured` + `linkedInConfigured` an `ResultsTabs` übergeben.
+  - `components/calendar/ContentCalendar.tsx`: `veroeffentlicht` → blaues Badge, `fehler` → rotes Badge in Kalender-Ansicht.
+  - `app/(dashboard)/settings/api-keys/SocialTokenStatusSection.tsx`: Von CANVA-ApiKey-Rows auf META/LINKEDIN-ApiKeys umgestellt; Canva-Deprecated-Hinweis mit Link zu `/settings/canva`; Leer-Zustand ("API-Key hinterlegen"); stiller Catch geschlossen (forge §3a).
+
+### Changed
+- **Sprint P2-F Closeout (Slice 18):** `docs/roadmap.md` Slice 18 auf ✅ gesetzt. `docs/forge-web-deviations.md` Restbestand-stiller-Catches-Kategorie vollständig geschlossen (`SocialTokenStatusSection.tsx:42` in Geschlossene aufgenommen). `docs/dev-prompts/OpenActions.md` Punkt 3 (`SocialTokenStatusSection`) als erledigt markiert; PSR-WARNs P2-F als Punkte 6 + 7 dokumentiert. Sprint-Prompt nach `docs/dev-prompts/archive/` verschoben.
+
+### Added
 - **OpenActions: Rechtliche Pflichtseiten** — Backlog-Eintrag für Cookie-Disclaimer, Impressum (§ 5 TMG) und Datenschutzerklärung (DSGVO Art. 13/14) ergänzt, da Vysible öffentlich unter `https://vysible.cloud` erreichbar ist.
 
 ### Added
