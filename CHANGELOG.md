@@ -6,6 +6,18 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **KlickTipp: Per-Projekt-Credentials (Slice KT-1):**
+  - `prisma/schema.prisma`: `ktApiKeyId` FK auf `Project` → eigener `ApiKey` pro Projekt (`ProjectKtApiKey`-Relation).
+  - `prisma/migrations/20260515140000_project_kt_api_key/`: Migration SQL (ADD COLUMN + FK + Index).
+  - `app/api/projects/[id]/klicktipp/route.ts` NEU: GET/POST/DELETE — speichert `username:password` AES-256-verschlüsselt als `ApiKey` mit `provider: KLICKTIPP`, verknüpft via `ktApiKeyId`.
+  - `app/(dashboard)/projects/[id]/settings/ProjectKlickTippSettings.tsx` NEU: Client-Komponente mit Benutzername/Passwort/Listen-ID-Formular.
+  - `app/(dashboard)/projects/[id]/settings/page.tsx`: `ProjectKlickTippSettings` eingebunden.
+  - `lib/klicktipp/client.ts`: `loadKtCredentials(projectId?)` — projektspezifischer Key zuerst, globaler Fallback.
+  - `app/api/klicktipp/campaign/route.ts`: `loadKtCredentials(projectId)` statt globalem Aufruf.
+
+### Fixed
+- **Sidebar Logo:** `public/logo.png` (V-Symbol) auf 32×32 px verkleinert (war 120×40) und `Vysible`-Schriftzug als separater `<span>` wiederhergestellt (`components/layout/sidebar.tsx`).
+- **KlickTipp optional in Ergebnisansicht:** `ktConfigured` prüft jetzt projektspezifischen `ktApiKeyId` sowie globalen KLICKTIPP-Key als Fallback — Button bleibt ohne jegliche Konfiguration deaktiviert (`app/(dashboard)/projects/[id]/results/page.tsx`). Meta- und LinkedIn-Keys aus Remote-Stand beibehalten.
 - **Sprint P4-C — NFA-Härtung: Rate-Limiting global (Sub-Slice A):**
   - `middleware.ts`: IP-basiertes Rate-Limiting (60 Req/Min) auf alle `/api/*`-Routen via `lib/ratelimit/index.ts`. SSE-Streams (`/api/generate/stream/*`) ausgeschlossen.
   - `next.config.mjs`: CSP + Security-Header auf allen Routen (`Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`).
