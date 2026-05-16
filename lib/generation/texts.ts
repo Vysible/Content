@@ -94,7 +94,7 @@ export async function generateBlogOutlines(args: {
         max_tokens: 512,
         system: prompt.system,
         messages: [{ role: 'user', content: prompt.user }],
-      })
+      }, { timeout: 120_000 })
 
       await trackCost({
         projectId: project.id,
@@ -144,7 +144,7 @@ async function generateBlogPost(args: {
       max_tokens: 4_096,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    })
+    }, { timeout: 120_000 })
 
     await trackCost({
       projectId: project.id,
@@ -185,7 +185,7 @@ async function generateNewsletter(args: {
       max_tokens: 2_048,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    })
+    }, { timeout: 120_000 })
 
     await trackCost({
       projectId: project.id,
@@ -248,7 +248,7 @@ async function generateSocialPosts(args: {
       max_tokens: 1_024,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    })
+    }, { timeout: 120_000 })
 
     await trackCost({
       projectId: project.id,
@@ -302,7 +302,7 @@ async function generateImageBrief(args: {
       max_tokens: 1_500,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    })
+    }, { timeout: 120_000 })
 
     await trackCost({
       projectId: project.id,

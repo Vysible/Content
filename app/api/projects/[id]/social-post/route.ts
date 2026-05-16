@@ -4,15 +4,31 @@ import { postFacebookDraft, postInstagramDraft } from '@/lib/social/meta'
 import { postLinkedInDraft } from '@/lib/social/linkedin'
 import { sendNotification } from '@/lib/email/mailer'
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import type { StoredTextResult } from '@/lib/generation/results-store'
+
+const postSchema = z.object({
+  index: z.number().int().min(0),
+  kanal: z.enum(['SOCIAL_FACEBOOK', 'SOCIAL_INSTAGRAM', 'SOCIAL_LINKEDIN']),
+  text: z.string().min(1).max(10_000),
+})
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   await requireAuth()
 
-  const { index, kanal, text } = await req.json()
-  if (typeof index !== 'number' || !kanal || !text) {
-    return NextResponse.json({ error: 'index, kanal und text erforderlich' }, { status: 400 })
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Ungültige Anfrage' }, { status: 400 })
   }
+
+  const parsed = postSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Ungültige Eingabe', details: parsed.error.flatten() }, { status: 400 })
+  }
+
+  const { index, kanal, text } = parsed.data
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },

@@ -5,6 +5,20 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Added
+- **Sprint P4-C — NFA-Härtung: Rate-Limiting global (Sub-Slice A):**
+  - `middleware.ts`: IP-basiertes Rate-Limiting (60 Req/Min) auf alle `/api/*`-Routen via `lib/ratelimit/index.ts`. SSE-Streams (`/api/generate/stream/*`) ausgeschlossen.
+  - `next.config.mjs`: CSP + Security-Header auf allen Routen (`Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`).
+- **Sprint P4-C — NFA-Härtung: DSGVO, Timeouts, Validierung (Sub-Slice B):**
+  - `app/api/projects/[id]/route.ts` NEU: `DELETE`-Handler — Ownership-Check, Audit-Log vor Löschung, `prisma.project.delete` (Cascade für GenerationJob/ShareLink/PraxisUser etc., SetNull für CostEntry/AuditLog intentional).
+  - `lib/generation/themes.ts`: `{ timeout: 120_000 }` auf `anthropic.messages.create` (generateThemes).
+  - `lib/generation/texts.ts`: `{ timeout: 120_000 }` auf alle 5 `anthropic.messages.create` Aufrufe (generateBlogOutlines, generateBlogPost, generateNewsletter, generateSocialPosts, generateImageBrief).
+  - `app/api/projects/[id]/social-post/route.ts`: Zod-Schema `postSchema` — ersetzt manuelle `typeof`-Checks für `index`, `kanal` (enum), `text`.
+- **Sprint P4-C — Closeout:**
+  - `docs/roadmap.md`: Sprint P4-C auf "✅ Abgeschlossen (2026-05-16)" gesetzt.
+  - `docs/dev-prompts/archive/sprint-p4c-nfa-haertung.md`: Sprint-Prompt archiviert (aus `docs/dev-prompts/` entfernt).
+  - `docs/dev-prompts/OpenActions.md`: Kein neuer Nachlaufblock für P4-C (kein offener Punkt entstanden).
+
 ### Changed
 - **Sprint Fix-A — F-020: `JSON.parse(JSON.stringify)` Serialisierungs-Anti-Pattern entfernt:**
   - `lib/generation/pipeline.ts`: 3 Stellen (scrape_done L85, themes_done L170, texts_done L232) durch `as unknown as Prisma.InputJsonValue` ersetzt. `import { Prisma } from '@prisma/client'` ergänzt.

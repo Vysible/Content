@@ -63,7 +63,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
       max_tokens: 8_192,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    })
+    }, { timeout: 120_000 })
 
     await trackCost({
       projectId: project.id,
