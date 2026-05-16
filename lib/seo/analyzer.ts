@@ -4,6 +4,8 @@ export interface SeoAnalysis {
   occurrences: number
   wordCount: number
   titlePresent: boolean
+  titleLength: number
+  titleLengthOk: boolean
   metaDescription: string
   metaDescriptionLength: number
   metaDescriptionOk: boolean
@@ -33,6 +35,8 @@ export function analyzeSeo(opts: {
   const density = wordCount > 0 ? (occurrences / wordCount) * 100 : 0
 
   const titlePresent = title.toLowerCase().includes(kw)
+  const titleLength = title.length
+  const titleLengthOk = titleLength >= 50 && titleLength <= 60
 
   const metaDescriptionLength = metaDescription.length
   const metaDescriptionOk = metaDescriptionLength >= 120 && metaDescriptionLength <= 160
@@ -44,6 +48,10 @@ export function analyzeSeo(opts: {
 
   const suggestions: string[] = []
   if (!titlePresent) suggestions.push(`Keyword "${keyword}" fehlt im Titel`)
+  if (!titleLengthOk) {
+    if (titleLength < 50) suggestions.push(`Titel zu kurz (${titleLength} Zeichen) — Ziel: 50–60`)
+    else suggestions.push(`Titel zu lang (${titleLength} Zeichen) — Ziel: 50–60`)
+  }
   if (density < 0.5) suggestions.push(`Keyword-Dichte zu gering (${density.toFixed(2)}%) — Ziel: 0,5–2%`)
   if (density > 3) suggestions.push(`Keyword-Dichte zu hoch (${density.toFixed(2)}%) — Risiko Keyword-Stuffing`)
   if (!metaDescriptionOk) {
@@ -56,6 +64,7 @@ export function analyzeSeo(opts: {
 
   let score = 100
   if (!titlePresent) score -= 20
+  if (!titleLengthOk) score -= 5
   if (density < 0.5 || density > 3) score -= 15
   if (!metaDescriptionOk) score -= 15
   if (headingsWithKeyword === 0 && headingMatches > 0) score -= 10
@@ -68,6 +77,8 @@ export function analyzeSeo(opts: {
     occurrences,
     wordCount,
     titlePresent,
+    titleLength,
+    titleLengthOk,
     metaDescription,
     metaDescriptionLength,
     metaDescriptionOk,

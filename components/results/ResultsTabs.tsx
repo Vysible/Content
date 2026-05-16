@@ -2,13 +2,14 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { EditorView, type SaveState } from '@/components/editor/EditorView'
-import { SeoPanel } from '@/components/editor/SeoPanel'
+import { SeoScoreCard } from '@/components/results/SeoScoreCard'
 import { WordPressDraftButton } from '@/components/results/WordPressDraftButton'
 import { KlickTippButton } from '@/components/results/KlickTippButton'
 import { SocialPostButton } from '@/components/results/SocialPostButton'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
+  StoredSeoResult,
   BlogStatus,
   NewsletterStatus,
   SocialStatus,
@@ -324,15 +325,16 @@ function BlogTab({
                     onClick={(e) => { e.stopPropagation(); setSeoOpen(isSeoOpen ? null : globalIndex) }}
                     className="text-xs text-tiefblau hover:underline"
                   >
-                    {isSeoOpen ? 'SEO schließen' : 'SEO-Analyse'}
+                    {isSeoOpen ? 'SEO-Analyse schließen ▲' : `SEO-Analyse ${r.seo ? '▼' : '+'}`}
                   </button>
                 </div>
                 {isSeoOpen && (
                   <div className="border-t border-stone">
-                    <SeoPanel
-                      title={r.blog.titel}
-                      html={r.blog.html}
-                      defaultKeyword={r.blog.keyword ?? ''}
+                    <SeoScoreCard
+                      projectId={projectId}
+                      index={globalIndex}
+                      seoData={r.seo}
+                      onUpdate={(seo: StoredSeoResult) => onUpdate(globalIndex, { seo })}
                     />
                   </div>
                 )}

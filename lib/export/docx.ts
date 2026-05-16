@@ -52,6 +52,25 @@ export async function buildDocx(
         children.push(new Paragraph({ text: line }))
       }
 
+      if (r.seo?.aiMetaDescription) {
+        children.push(
+          new Paragraph({ text: '' }),
+          new Paragraph({ text: 'Meta-Description (SEO)', heading: HeadingLevel.HEADING_3 }),
+          new Paragraph({
+            children: [new TextRun({ text: r.seo.aiMetaDescription, italics: true })],
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `Keyword-Dichte: ${r.seo.density}% · Titel-Länge: ${r.seo.titleLength} Zeichen · Score: ${r.seo.score}/100`,
+                color: '666666',
+                size: 18,
+              }),
+            ],
+          }),
+        )
+      }
+
       children.push(new Paragraph({ children: [new PageBreak()] }))
     }
   }

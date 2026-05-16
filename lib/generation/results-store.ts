@@ -3,6 +3,12 @@
  * Erweitert TextResult um Status-Felder die in textResults JSON mitgespeichert werden.
  */
 import type { TextResult } from './texts-schema'
+import type { SeoAnalysis } from '@/lib/seo/analyzer'
+
+export interface StoredSeoResult extends SeoAnalysis {
+  aiMetaDescription: string
+  analyzedAt: string // ISO timestamp
+}
 
 export type BlogStatus = 'ausstehend' | 'in_wordpress' | 'veroeffentlicht'
 export type NewsletterStatus = 'ausstehend' | 'kt_kampagne' | 'versendet'
@@ -23,6 +29,7 @@ export interface StoredTextResult extends TextResult {
   // Max. 10 Versionen je Artefakt (Slice 8)
   blogVersions?: ContentVersion[]
   newsletterVersions?: ContentVersion[]
+  seo?: StoredSeoResult
 }
 
 export const BLOG_STATUS_LABELS: Record<BlogStatus, string> = {
