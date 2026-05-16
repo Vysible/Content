@@ -243,7 +243,7 @@ export default function DatenschutzPage() {
               <P>
                 Diese Seite nutzt aus Gründen der Sicherheit eine SSL-Verschlüsselung. Eine
                 verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers
-                von „http://" auf „https://" wechselt.
+                von „http://“ auf „https://“ wechselt.
               </P>
             </Section>
 
@@ -342,7 +342,7 @@ export default function DatenschutzPage() {
             <Section title="Klick-Tipp">
               <P>
                 Wir nutzen Klick-Tipp für unser E-Mail-Marketing (KLICK-TIPP LIMITED,
-                15 Cambridge Court, 210 Shepherd's Bush Road, London W6 7NJ, UK). Eingegebene
+                15 Cambridge Court, 210 Shepherd’s Bush Road, London W6 7NJ, UK). Eingegebene
                 Daten (E-Mail-Adresse, Name) werden an Klick-Tipp übermittelt und in Deutschland
                 gespeichert. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO. Weitere Informationen:{' '}
                 <a

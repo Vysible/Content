@@ -5,6 +5,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `app/datenschutz/page.tsx`: ASCII `"` und `'` durch typografische Unicode-Zeichen ersetzt — behebt `react/no-unescaped-entities` ESLint-Fehler (CI lint-and-typecheck FAIL).
+
 ### Added
 - **Sprint P4-B — Bildbriefing erweitert (Slice 15):**
   - `lib/generation/texts-schema.ts` MOD: `ImageBriefSchema` um vier neue Felder erweitert — `stockSuchbegriffe` (3–5 englische Stock-Keywords), `dallePrompt` (DALL-E 3 Prompt-Text, nur bei HWG grün), `unsplashLinks` (Unsplash-Bild-URLs), `hwgParagraph11Check` (bool, §11-Prüfung durchgeführt). Alle neuen Felder abwärtskompatibel mit `.default([])` / `.optional()`.
