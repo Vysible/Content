@@ -6,6 +6,17 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Google Ads pro Projekt:**
+  - `lib/google-ads/client.ts` NEU: OAuth 2.0 Refresh-Token-Flow, Token-Cache, 3 parallele GAQL-Queries (Kampagnen, Keywords, Daily-Spend). `withRetry` auf Token-Fetch.
+  - `app/api/projects/[id]/google-ads/route.ts` NEU: GET — gibt Ads-Metriken zurück (503/422/502 Fehlercodes).
+  - `app/api/projects/[id]/settings/google-ads/route.ts` NEU: GET/PATCH — Customer-ID pro Projekt (normalisiert, Bindestriche entfernt).
+  - `app/(dashboard)/projects/[id]/google-ads/page.tsx` NEU: Ads-Seite pro Projekt.
+  - `components/google-ads/GoogleAdsDashboard.tsx` NEU: Stat-Cards, Kampagnen-Tabelle, Top-Keywords, Daily-Spend-Balken.
+  - `components/google-ads/GoogleAdsSetupGuide.tsx` NEU: 6-Schritt-Einrichtungsanleitung.
+  - `app/(dashboard)/projects/[id]/settings/ProjectGoogleAdsSettings.tsx` NEU.
+  - `prisma/schema.prisma`: `googleAdsCustomerId String?` auf Project-Modell.
+  - `prisma/migrations/20260516_add_google_ads_customer_id/migration.sql`: Migration-SQL (ADD COLUMN).
+  - `.env.example`: Google Ads Umgebungsvariablen dokumentiert.
 - **GA4 pro Projekt (Web-Analytics):**
   - `lib/ga4/client.ts` NEU: GA4 Data API v1beta — Service-Account-Auth (RS256 JWT, kein npm-Paket), Token-Cache (1h), Metriken: Sessions, Nutzer, Seitenaufrufe, Top-Pages, Traffic-Quellen, Daily-Sessions (28 Tage). `withRetry` auf Token-Fetch.
   - `app/api/projects/[id]/analytics/route.ts` NEU: GET — gibt GA4-Metriken zurück (503 wenn Service Account fehlt, 422 wenn Property-ID nicht hinterlegt, 502 bei API-Fehler).
@@ -18,6 +29,18 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `prisma/schema.prisma`: `ga4PropertyId String?` auf Project-Modell.
   - `prisma/migrations/20260516_add_ga4_property_id/migration.sql`: Migration-SQL (ADD COLUMN).
   - `.env.example`: `GA4_SERVICE_ACCOUNT_JSON` dokumentiert.
+- **Google Ads pro Projekt:**
+  - `lib/google-ads/client.ts` NEU: OAuth 2.0 Refresh-Token-Flow, Token-Cache, 3 parallele GAQL-Queries (Kampagnen, Keywords, Tagesausgaben). `withRetry` auf Token-Fetch. `cost_micros` → EUR.
+  - `app/api/projects/[id]/google-ads/route.ts` NEU: GET — gibt Ads-Metriken zurück (503/422/502).
+  - `app/api/projects/[id]/settings/google-ads/route.ts` NEU: GET/PATCH — Customer-ID pro Projekt (Bindestriche normalisiert).
+  - `app/(dashboard)/projects/[id]/google-ads/page.tsx` NEU: Ads-Seite pro Projekt.
+  - `components/google-ads/GoogleAdsDashboard.tsx` NEU: Stat-Cards, Kampagnen-Tabelle mit Status-Badge, Top-Keywords, Tagesausgaben-Balken.
+  - `components/google-ads/GoogleAdsSetupGuide.tsx` NEU: 6-Schritt-Einrichtungsanleitung.
+  - `app/(dashboard)/projects/[id]/settings/ProjectGoogleAdsSettings.tsx` NEU.
+  - `app/(dashboard)/projects/[id]/settings/page.tsx`: `ProjectGoogleAdsSettings` eingebunden.
+  - `prisma/schema.prisma`: `googleAdsCustomerId String?` auf Project-Modell.
+  - `prisma/migrations/20260516_add_google_ads_customer_id/migration.sql`: Migration-SQL.
+  - `.env.example`: Google Ads Variablen dokumentiert.
 
 ### Fixed
 - **Dockerfile Build-OOM:** `NODE_OPTIONS=--max-old-space-size=1536` im Builder-Stage gesetzt — verhindert OOM-Kill durch den Kernel bei `pnpm build` auf speicherbeschränkten VPS-Instanzen. `NEXT_TELEMETRY_DISABLED` vor beide Build-Schritte gezogen.

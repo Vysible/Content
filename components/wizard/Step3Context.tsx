@@ -241,6 +241,23 @@ export function Step3Context({
         </p>
       </div>
 
+      {/* Google Ads Customer-ID */}
+      <div>
+        <label className="block text-xs font-medium text-anthrazit mb-1">
+          Google Ads Customer-ID <span className="text-stahlgrau font-normal">(optional)</span>
+        </label>
+        <input
+          type="text"
+          value={data.googleAdsCustomerId}
+          onChange={(e) => onChange({ googleAdsCustomerId: e.target.value })}
+          placeholder="123-456-7890"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+        />
+        <p className="mt-1 text-xs text-stahlgrau">
+          Aus Google Ads oben rechts. Kann auch später in den Projekteinstellungen eingetragen werden.
+        </p>
+      </div>
+
       <div className="flex justify-between pt-2">
         <button onClick={onBack} className="px-4 py-2 text-sm text-stahlgrau hover:text-anthrazit transition">
           ← Zurück

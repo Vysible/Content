@@ -17,6 +17,7 @@ const createSchema = z.object({
   keywords: z.array(z.string()).default([]),
   canvaFolderId: z.string().min(1).max(200).optional(),
   ga4PropertyId: z.string().max(100).optional(),
+  googleAdsCustomerId: z.string().max(50).optional(),
 })
 
 export async function GET() {
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
       keywords: data.keywords,
       canvaFolderId: data.canvaFolderId ?? null,
       ga4PropertyId: data.ga4PropertyId ?? null,
+      googleAdsCustomerId: data.googleAdsCustomerId ?? null,
       createdById: session.user.id,
     },
     select: { id: true, name: true },

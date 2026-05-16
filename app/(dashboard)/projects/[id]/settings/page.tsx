@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/header'
 import { ProjectApiKeySettings } from './ProjectApiKeySettings'
 import { ProjectKlickTippSettings } from './ProjectKlickTippSettings'
 import { ProjectGA4Settings } from './ProjectGA4Settings'
+import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
 
 export default async function ProjectSettingsPage({ params }: { params: { id: string } }) {
   await requireAuth()
@@ -36,6 +37,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
         />
         <ProjectKlickTippSettings projectId={project.id} />
         <ProjectGA4Settings projectId={project.id} />
+        <ProjectGoogleAdsSettings projectId={project.id} />
       </div>
     </div>
   )
