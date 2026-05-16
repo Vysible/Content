@@ -128,6 +128,23 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 
 ---
 
+## Audit-Fix-Sprints (Basis: audit-2026-05-16.md)
+
+| Fix-ID | Name | Status |
+|---|---|---|
+| FIX-01 | HWG-Gate auf Social Posting | ✅ Abgeschlossen (2026-05-16, Sprint FIX-01) |
+| FIX-02 | Chat-Prompt in YAML auslagern (NFA-08) | ✅ Abgeschlossen (2026-05-16, Sprint FIX-02) |
+| FIX-03 | `/api/setup` absichern | ✅ Abgeschlossen (2026-05-16, Sprint FIX-03) |
+| FIX-04 | `retry.ts` auf Pino-Logger umstellen (NFA-11) | ✅ Abgeschlossen (2026-05-16, Sprint FIX-04) |
+| FIX-05 | PDF/DOCX-Upload für Positionierungsdokument (FA-F-05a) | ✅ Abgeschlossen (2026-05-16, Sprint FIX-05) |
+| FIX-06 | AES-Versions-Präfix für Key-Rotation (ADR-003) | ⏳ Offen |
+| FIX-07 | Test-Coverage erweitern (NFA-16) | ⏳ Offen |
+| FIX-08 | Audit-Log-Retention | ✅ Abgeschlossen (2026-05-16, Sprint FIX-08) |
+| FIX-09 | `positioningDocument` AES-Verschlüsselung | ⏳ Offen (nach FIX-06) |
+| FIX-10 | In-Memory-Queue DB-backed | ⏳ Backlog (nur bei Skalierung relevant) |
+
+---
+
 ## Offene strategische Entscheidungen (vor Phase 3 fällen)
 
 | Punkt | Optionen | Dringlichkeit |

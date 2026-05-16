@@ -10,9 +10,16 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - **FIX-01 HWG-Gate Social Posting:** `app/api/projects/[id]/social-post/route.ts` prüft jetzt `hwgFlag` vor jedem Draft-Post (FA-B-13). Bei gesetztem Flag: HTTP 403 + AuditLog `social.draft_blocked`. Konsistent mit Export-, WordPress- und KlickTipp-Gate.
 
 ### Added
+- **FIX-05 PDF/DOCX-Upload für Positionierungsdokument (FA-F-05a):**
+  - `app/api/projects/parse-document/route.ts` NEU: POST multipart/form-data — extrahiert Text aus PDF (`pdfjs-dist`), DOCX (`mammoth`), TXT/MD (Buffer). Auth via `requireAuth()`. File-Size-Check (max. 10 MB) vor Buffer-Allokation. Content-Type-Validierung. Truncation auf 16.000 Zeichen. Response: `{ text, truncated, originalLength }`.
+  - `components/wizard/Step3Context.tsx`: `accept`-Attribut auf `.txt,.md,.markdown,.pdf,.docx` erweitert. PDF/DOCX-Zweig ruft `/api/projects/parse-document` auf. `isUploading`-Spinner, `uploadError`-Anzeige, `truncatedHint` sichtbar. `alert()`-Stub vollständig entfernt.
+  - `next.config.mjs`: `webpack: config.resolve.alias['canvas'] = false` — verhindert Canvas-Bundle-Fehler durch pdfjs-dist in Node.js.
+  - `package.json`: `pdfjs-dist ^5.7.284` + `mammoth ^1.12.0` hinzugefügt.
 - **FIX-08 Audit-Log-Retention:** `lib/cron/scheduler.ts` — täglicher Cron 03:00 löscht `AuditLog`-Einträge älter als 30 Tage (`AUDIT_LOG_RETENTION_DAYS` ENV, Standard 30). `.env.example` ergänzt.
 
 ### Changed
+- `docs/roadmap.md`: Sektion "Audit-Fix-Sprints" NEU — FIX-01–FIX-10 mit Status; FIX-05 auf "✅ Abgeschlossen (2026-05-16, Sprint FIX-05)" gesetzt.
+- `docs/dev-prompts/archive/sprint-fix05-pdf-upload.md`: Sprint-Prompt FIX-05 nach Abschluss archiviert.
 - **FIX-04 retry.ts → pino (NFA-11):** `lib/utils/retry.ts` verwendet nun `logger.warn/error` statt `console`. Retry-Warnungen erscheinen als strukturiertes JSON in Produktions-Logs.
 - **FIX-02 Chat-Prompt in YAML ausgelagert (NFA-08):** `prompts/chat.yaml` NEU. `app/api/projects/[id]/chat/route.ts`: Inline-System-Prompt entfernt, `loadPrompt('chat', {...})` verwendet.
 - `lib/audit/logger.ts`: `AuditAction`-Union um `social.draft_blocked` und `social.draft_created` erweitert.

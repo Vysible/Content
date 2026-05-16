@@ -30,18 +30,49 @@ export function Step3Context({
   submitting,
 }: Step3Props) {
   const [activeTab, setActiveTab] = useState<'eingeben' | 'hochladen'>('eingeben')
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [truncatedHint, setTruncatedHint] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const positioningLength = data.positioningDocument.length
   const positioningTruncated = positioningLength > MAX_POSITIONING_CHARS
   const estimatedTokens = Math.round(positioningLength / 4)
 
-  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
 
+    setUploadError(null)
+    setTruncatedHint(false)
+
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('Datei zu groß (max. 10 MB)')
+      return
+    }
+
     if (file.name.endsWith('.pdf') || file.name.endsWith('.docx')) {
-      alert('PDF/DOCX-Import kommt in einem späteren Update. Bitte Text direkt einfügen.')
+      const formData = new FormData()
+      formData.append('file', file)
+      setIsUploading(true)
+      try {
+        const res = await fetch('/api/projects/parse-document', { method: 'POST', body: formData })
+        const data = await res.json() as { text?: string; truncated?: boolean; error?: string }
+        if (!res.ok || !data.text) {
+          setUploadError(data.error ?? 'Extraktion fehlgeschlagen')
+          return
+        }
+        onChange({ positioningDocument: data.text })
+        setActiveTab('eingeben')
+        if (data.truncated) {
+          setTruncatedHint(true)
+        }
+      } catch (err: unknown) {
+        console.warn('[Vysible] parse-document Fehler:', err)
+        setUploadError('Upload fehlgeschlagen. Bitte erneut versuchen.')
+      } finally {
+        setIsUploading(false)
+      }
       return
     }
 
@@ -110,15 +141,32 @@ export function Step3Context({
             className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac resize-none"
           />
         ) : (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="flex flex-col items-center justify-center gap-2 h-28 border-2 border-dashed border-stone rounded-lg cursor-pointer hover:border-cognac transition bg-creme"
-          >
-            <span className="text-2xl">⇪</span>
-            <p className="text-sm text-stahlgrau">TXT oder MD hochladen</p>
-            <p className="text-xs text-stahlgrau">PDF/DOCX-Import folgt in einem späteren Update</p>
-            <input ref={fileInputRef} type="file" accept=".txt,.md,.markdown" className="hidden" onChange={handleFileUpload} />
-          </div>
+          <>
+            <div
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+              className={`flex flex-col items-center justify-center gap-2 h-28 border-2 border-dashed rounded-lg transition bg-creme ${
+                isUploading
+                  ? 'border-stone cursor-wait opacity-70'
+                  : 'border-stone cursor-pointer hover:border-cognac'
+              }`}
+            >
+              {isUploading ? (
+                <p className="text-sm text-stahlgrau">Dokument wird verarbeitet …</p>
+              ) : (
+                <>
+                  <span className="text-2xl">⇪</span>
+                  <p className="text-sm text-stahlgrau">TXT, MD, PDF oder DOCX hochladen (max. 10 MB)</p>
+                </>
+              )}
+              <input ref={fileInputRef} type="file" accept=".txt,.md,.markdown,.pdf,.docx" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
+            </div>
+            {uploadError && (
+              <p className="text-xs text-bordeaux mt-1">[FAIL] {uploadError}</p>
+            )}
+            {truncatedHint && (
+              <p className="text-xs text-amber-700 mt-1">[WARN] Dokument wurde auf ~4.000 Tokens gekürzt.</p>
+            )}
+          </>
         )}
 
         {positioningTruncated && (
