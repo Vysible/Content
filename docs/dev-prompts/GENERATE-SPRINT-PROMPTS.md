@@ -439,10 +439,12 @@ Dateiname-Schema: sprint-[phase-id]-[slug].md
 | `sprint-p4d-performance.md` | Performance & Stabilität | 4 | Bereit |
 | `sprint-fix-a-codecleanup.md` | Code Cleanup — JSON.parse, Footer, Docs | Fix | ✅ Archiviert nach Abschluss |
 | `sprint-fix-b-quality-gate.md` | Themen-Quality-Gate Refactor | Fix | ✅ Archiviert nach Abschluss |
-| `sprint-fix05-pdf-upload.md` | FIX-05 — PDF/DOCX-Upload (FA-F-05a) | Fix | Bereit |
-| `sprint-fix06-aes-version-prefix.md` | FIX-06 — AES-256-GCM Versions-Präfix (ADR-003) | Fix | Bereit |
+| `sprint-fix05-pdf-upload.md` | FIX-05 — PDF/DOCX-Upload (FA-F-05a) | Fix | ✅ Archiviert nach Abschluss |
+| `sprint-fix06-aes-version-prefix.md` | FIX-06 — AES-256-GCM Versions-Präfix (ADR-003) | Fix | ✅ Archiviert nach Abschluss |
+| `sprint-fix07-test-coverage.md` | FIX-07 — Test-Coverage (NFA-16) | Fix | Bereit |
+| `sprint-fix09-positioning-doc-encrypt.md` | FIX-09 — positioningDocument AES-256-GCM | Fix | Bereit |
 
-**Alle Prompts generiert.** Fix-05 und Fix-06 (Schwere 2 aus Audit 2026-05-16) können vor P4-A abgearbeitet werden.
+**Nächste Prioritäten:** FIX-07 (Test-Coverage, unabhängig startbar) oder FIX-09 (positioningDocument-Verschlüsselung, empfohlen nach FIX-06 ✅).
 
 ---
 
