@@ -4,6 +4,8 @@ import { getAppConfig } from './app-config'
 import { loadPrompt } from './prompt-loader'
 import { withRetry } from '@/lib/utils/retry'
 import { searchUnsplash } from '@/lib/unsplash/client'
+import { prisma } from '@/lib/db'
+import { Prisma } from '@prisma/client'
 import {
   ImageBriefSchema,
   SocialResponseSchema,
@@ -61,6 +63,12 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
     }
 
     results.push(result)
+
+    // Partial save — so partial results survive if a later theme fails
+    await prisma.project.update({
+      where: { id: project.id },
+      data: { textResults: results as unknown as Prisma.InputJsonValue },
+    })
   }
 
   return results

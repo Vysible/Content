@@ -7,6 +7,7 @@ import { WordPressDraftButton } from '@/components/results/WordPressDraftButton'
 import { KlickTippButton } from '@/components/results/KlickTippButton'
 import { SocialPostButton } from '@/components/results/SocialPostButton'
 import { ImageBriefCard } from '@/components/results/ImageBriefCard'
+import { RegenerateButton } from '@/components/results/RegenerateButton'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
@@ -292,6 +293,14 @@ function BlogTab({
                 <p className="text-xs text-stahlgrau">{r.monat} · {r.blog?.wordCount ?? 0} Wörter</p>
               </div>
               <div className="flex items-center gap-3">
+                {!r.blog && (
+                  <RegenerateButton
+                    projectId={projectId}
+                    monat={r.monat}
+                    missing
+                    onSuccess={(result) => onUpdate(globalIndex, result)}
+                  />
+                )}
                 <StatusSelect
                   value={r.blogStatus ?? 'ausstehend'}
                   options={BLOG_STATUS_LABELS}
@@ -328,6 +337,11 @@ function BlogTab({
                   >
                     {isSeoOpen ? 'SEO-Analyse schließen ▲' : `SEO-Analyse ${r.seo ? '▼' : '+'}`}
                   </button>
+                  <RegenerateButton
+                    projectId={projectId}
+                    monat={r.monat}
+                    onSuccess={(result) => onUpdate(globalIndex, result)}
+                  />
                 </div>
                 {isSeoOpen && (
                   <div className="border-t border-stone">
@@ -390,6 +404,14 @@ function NewsletterTab({
                 <p className="text-xs text-stahlgrau">{r.monat}</p>
               </div>
               <div className="flex items-center gap-3">
+                {!r.newsletter && (
+                  <RegenerateButton
+                    projectId={projectId}
+                    monat={r.monat}
+                    missing
+                    onSuccess={(result) => onUpdate(globalIndex, result)}
+                  />
+                )}
                 <StatusSelect
                   value={r.newsletterStatus ?? 'ausstehend'}
                   options={NEWSLETTER_STATUS_LABELS}
@@ -451,7 +473,7 @@ function NewsletterTab({
                     onUpdate={(updates) => onUpdate(globalIndex, updates)}
                   />
                 </Field>
-                <div className="pt-2">
+                <div className="pt-2 flex items-center gap-3 flex-wrap">
                   <KlickTippButton
                     projectId={projectId}
                     subjectA={nl.betreffA}
@@ -463,6 +485,11 @@ function NewsletterTab({
                     initialStatus={
                       r.newsletterStatus === 'kt_kampagne' ? 'kt_kampagne' : 'ausstehend'
                     }
+                  />
+                  <RegenerateButton
+                    projectId={projectId}
+                    monat={r.monat}
+                    onSuccess={(result) => onUpdate(globalIndex, result)}
                   />
                 </div>
               </div>
@@ -560,11 +587,21 @@ function SocialTab({
                 <p className="font-medium text-sm">{r.titel}</p>
                 <p className="text-xs text-stahlgrau">{r.monat}</p>
               </div>
-              <StatusSelect
-                value={r.socialStatus ?? 'ausstehend'}
-                options={SOCIAL_STATUS_LABELS}
-                onChange={(v) => onUpdate(globalIndex, { socialStatus: v as SocialStatus })}
-              />
+              <div className="flex items-center gap-3">
+                {!r.socialPosts?.length && (
+                  <RegenerateButton
+                    projectId={projectId}
+                    monat={r.monat}
+                    missing
+                    onSuccess={(result) => onUpdate(globalIndex, result)}
+                  />
+                )}
+                <StatusSelect
+                  value={r.socialStatus ?? 'ausstehend'}
+                  options={SOCIAL_STATUS_LABELS}
+                  onChange={(v) => onUpdate(globalIndex, { socialStatus: v as SocialStatus })}
+                />
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -622,6 +659,15 @@ function SocialTab({
                   </div>
                 )
               })}
+              {(r.socialPosts?.length ?? 0) > 0 && (
+                <div className="pt-2">
+                  <RegenerateButton
+                    projectId={projectId}
+                    monat={r.monat}
+                    onSuccess={(result) => onUpdate(globalIndex, result)}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )
