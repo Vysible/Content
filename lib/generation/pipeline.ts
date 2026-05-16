@@ -224,6 +224,13 @@ async function runStep(
         positioningContext,
         blogOutlines: ctx.blogOutlines,
         canvaContext: ctx.canvaContext,
+        onThemeProgress: async (done, total, thema) => {
+          await emitEvent(jobId, {
+            type: 'connected',
+            data: { textsProgress: { done, total, thema } },
+            timestamp: now(),
+          })
+        },
       })
 
       await prisma.project.update({
