@@ -64,6 +64,8 @@ model Project {
   wpDraftPostId       String?
   ktListId            String?
   ktCampaignId        String?
+  ga4PropertyId       String?
+  googleAdsCustomerId String?
   apiKeyId            String?
   apiKey              ApiKey?  @relation("ProjectApiKey", fields: [apiKeyId], references: [id], onDelete: SetNull)
   scrapedData         Json?

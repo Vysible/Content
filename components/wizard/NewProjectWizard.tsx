@@ -26,6 +26,8 @@ export interface WizardData {
   themenPool: string
   canvaFolderId: string | null
   canvaFolderName: string | null
+  ga4PropertyId: string
+  googleAdsCustomerId: string
 }
 
 function buildDefaultProjectName(praxisName: string, start: string): string {
@@ -64,6 +66,8 @@ const INITIAL: WizardData = {
   themenPool: '',
   canvaFolderId: null,
   canvaFolderName: null,
+  ga4PropertyId: '',
+  googleAdsCustomerId: '',
 }
 
 export function NewProjectWizard() {
@@ -103,6 +107,8 @@ export function NewProjectWizard() {
         themenPool: data.themenPool || undefined,
         keywords: data.keywords,
         canvaFolderId: data.canvaFolderId ?? undefined,
+        ga4PropertyId: data.ga4PropertyId || undefined,
+        googleAdsCustomerId: data.googleAdsCustomerId || undefined,
       }),
     })
 

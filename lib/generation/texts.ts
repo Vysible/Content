@@ -24,10 +24,11 @@ interface TextsInput {
   positioningContext: string
   canvaContext?: string
   blogOutlines?: Record<string, string>
+  onThemeProgress?: (done: number, total: number, thema: string) => Promise<void>
 }
 
 export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
-  const { project, themes, positioningContext, blogOutlines } = input
+  const { project, themes, positioningContext, blogOutlines, onThemeProgress } = input
   const results: TextResult[] = []
 
   const socialChannels = project.channels.filter((c) => c.startsWith('SOCIAL_')) as Array<
@@ -35,7 +36,14 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
   >
 
   for (const theme of themes) {
-    const imageBrief = await generateImageBrief({ theme, project })
+    // imageBrief is the minimum viable unit — if it fails, skip the theme entirely
+    let imageBrief: TextResult['imageBrief']
+    try {
+      imageBrief = await generateImageBrief({ theme, project })
+    } catch (err) {
+      logger.error({ err, thema: theme.monat }, 'ImageBrief fehlgeschlagen — Thema übersprungen')
+      continue
+    }
 
     const result: TextResult = {
       monat: theme.monat,
@@ -45,30 +53,44 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
     }
 
     if (theme.kanal === 'BLOG') {
-      const outline = blogOutlines?.[theme.monat]
-      result.blog = await generateBlogPost({ theme, project, positioningContext, outline })
+      try {
+        const outline = blogOutlines?.[theme.monat]
+        result.blog = await generateBlogPost({ theme, project, positioningContext, outline })
+      } catch (err) {
+        logger.error({ err, thema: theme.monat }, 'Blog-Generierung fehlgeschlagen — Thema ohne Blog gespeichert')
+      }
     }
 
     if (theme.kanal === 'NEWSLETTER') {
-      result.newsletter = await generateNewsletter({ theme, project, positioningContext })
+      try {
+        result.newsletter = await generateNewsletter({ theme, project, positioningContext })
+      } catch (err) {
+        logger.error({ err, thema: theme.monat }, 'Newsletter-Generierung fehlgeschlagen — Thema ohne Newsletter gespeichert')
+      }
     }
 
     if (theme.kanal.startsWith('SOCIAL_') && socialChannels.length > 0) {
-      result.socialPosts = await generateSocialPosts({
-        theme,
-        project,
-        channels: socialChannels,
-        positioningContext,
-      })
+      try {
+        result.socialPosts = await generateSocialPosts({
+          theme,
+          project,
+          channels: socialChannels,
+          positioningContext,
+        })
+      } catch (err) {
+        logger.error({ err, thema: theme.monat }, 'Social-Generierung fehlgeschlagen — Thema ohne Social gespeichert')
+      }
     }
 
     results.push(result)
 
-    // Partial save — so partial results survive if a later theme fails
+    // Partial save after every theme — surviving themes are never lost
     await prisma.project.update({
       where: { id: project.id },
       data: { textResults: results as unknown as Prisma.InputJsonValue },
     })
+
+    await onThemeProgress?.(results.length, themes.length, theme.monat)
   }
 
   return results
@@ -102,7 +124,7 @@ export async function generateBlogOutlines(args: {
         max_tokens: 512,
         system: prompt.system,
         messages: [{ role: 'user', content: prompt.user }],
-      }, { timeout: 120_000 })
+      }, { timeout: 60_000 })
 
       await trackCost({
         projectId: project.id,
@@ -152,7 +174,7 @@ async function generateBlogPost(args: {
       max_tokens: 4_096,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    }, { timeout: 120_000 })
+    }, { timeout: 90_000 })
 
     await trackCost({
       projectId: project.id,
@@ -193,7 +215,7 @@ async function generateNewsletter(args: {
       max_tokens: 2_048,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    }, { timeout: 120_000 })
+    }, { timeout: 60_000 })
 
     await trackCost({
       projectId: project.id,
@@ -261,7 +283,7 @@ async function generateSocialPosts(args: {
       max_tokens: 1_024,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    }, { timeout: 120_000 })
+    }, { timeout: 45_000 })
 
     await trackCost({
       projectId: project.id,
@@ -315,7 +337,7 @@ async function generateImageBrief(args: {
       max_tokens: 1_500,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
-    }, { timeout: 120_000 })
+    }, { timeout: 60_000 })
 
     await trackCost({
       projectId: project.id,
