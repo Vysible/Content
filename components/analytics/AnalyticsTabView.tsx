@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 interface Project {
@@ -16,7 +16,7 @@ interface Props {
   googleAdsConfigured: boolean
 }
 
-type Tab = 'ga4' | 'google-ads' | 'social'
+type Tab = 'ga4' | 'google-ads' | 'social' | 'ki-kosten'
 
 function ConfigBadge({ configured }: { configured: boolean }) {
   return configured ? (
@@ -155,10 +155,125 @@ function SocialTab() {
   )
 }
 
+interface GlobalKpis {
+  projectsTotal: number
+  projectsActive: number
+  projectsArchived: number
+  articlesGenerated: number
+  newslettersGenerated: number
+  socialPostsGenerated: number
+  currentMonthEur: number
+  lastMonthEur: number
+  totalCostEur: number
+  avgCostPerPackage: number
+  pendingApprovals: number
+}
+
+interface MonthlyReport {
+  id: string
+  period: string
+  generatedAt: string
+}
+
+function KiKostenCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="bg-white border border-stone rounded-xl p-4">
+      <p className="text-xs text-stahlgrau mb-1">{label}</p>
+      <p className="text-xl font-bold text-nachtblau">{value}</p>
+      {sub && <p className="text-xs text-stahlgrau mt-0.5">{sub}</p>}
+    </div>
+  )
+}
+
+function KiKostenTab() {
+  const [kpis, setKpis] = useState<GlobalKpis | null>(null)
+  const [reports, setReports] = useState<MonthlyReport[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/kpi')
+      .then((r) => r.json())
+      .then((data) => {
+        setKpis(data.kpis ?? null)
+        setReports(data.monthlyReports ?? [])
+      })
+      .catch((err) => console.warn('[Vysible] KiKostenTab Ladefehler', err))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="bg-white border border-stone rounded-xl p-4 animate-pulse">
+            <div className="h-3 bg-stone/40 rounded w-24 mb-2" />
+            <div className="h-6 bg-stone/40 rounded w-16" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (!kpis) {
+    return <EmptyState text="KI-Kostendaten konnten nicht geladen werden." />
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <KiKostenCard
+          label="Projekte gesamt"
+          value={String(kpis.projectsTotal)}
+          sub={`${kpis.projectsActive} aktiv · ${kpis.projectsArchived} archiviert`}
+        />
+        <KiKostenCard label="Artikel generiert" value={String(kpis.articlesGenerated)} />
+        <KiKostenCard label="Newsletter generiert" value={String(kpis.newslettersGenerated)} />
+        <KiKostenCard label="Social Posts" value={String(kpis.socialPostsGenerated)} />
+        <KiKostenCard
+          label="Kosten lfd. Monat"
+          value={`${kpis.currentMonthEur.toFixed(4)} €`}
+          sub={`Vormonat: ${kpis.lastMonthEur.toFixed(4)} €`}
+        />
+        <KiKostenCard
+          label="Kosten gesamt"
+          value={`${kpis.totalCostEur.toFixed(4)} €`}
+          sub={`Ø ${kpis.avgCostPerPackage.toFixed(4)} € / Paket`}
+        />
+        <KiKostenCard label="Ausstehende Freigaben" value={String(kpis.pendingApprovals)} />
+      </div>
+
+      {reports.length > 0 && (
+        <div className="bg-white border border-stone rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-stone">
+            <h3 className="text-sm font-semibold text-nachtblau">Monatsreport-Archiv</h3>
+          </div>
+          <ul className="divide-y divide-stone">
+            {reports.map((r) => (
+              <li key={r.id} className="px-4 py-3 flex items-center justify-between">
+                <span className="text-sm font-medium">Report {r.period}</span>
+                <a href={`/api/kpi/report/${r.period}`} className="text-xs text-tiefblau hover:underline">
+                  PDF herunterladen
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="text-right">
+        <Link href="/kpi" className="text-xs text-cognac hover:underline font-medium">
+          Kostendiagnose & Projekt-Details →
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 const TABS: { key: Tab; label: string }[] = [
   { key: 'ga4',        label: 'Web-Analytics (GA4)' },
   { key: 'google-ads', label: 'Google Ads' },
   { key: 'social',     label: 'Social Media' },
+  { key: 'ki-kosten',  label: 'KI-Kosten' },
 ]
 
 export function AnalyticsTabView({ projects, ga4Configured, googleAdsConfigured }: Props) {
@@ -185,6 +300,7 @@ export function AnalyticsTabView({ projects, ga4Configured, googleAdsConfigured 
       {active === 'ga4'        && <GA4Tab        projects={projects} serviceConfigured={ga4Configured} />}
       {active === 'google-ads' && <GoogleAdsTab  projects={projects} serviceConfigured={googleAdsConfigured} />}
       {active === 'social'     && <SocialTab />}
+      {active === 'ki-kosten'  && <KiKostenTab />}
     </div>
   )
 }

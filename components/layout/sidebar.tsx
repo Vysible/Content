@@ -11,7 +11,6 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: '⊞' },
   { href: '/projects', label: 'Projekte', icon: '◈' },
   { href: '/praxis-portal', label: 'Praxis-Portal', icon: '⊕' },
-  { href: '/kpi', label: 'Social-KPIs', icon: '↗' },
   { href: '/analytics', label: 'Analysen', icon: '≋' },
   { href: '/settings', label: 'Einstellungen', icon: '⚙' },
 ]
