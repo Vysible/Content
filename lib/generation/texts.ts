@@ -91,7 +91,16 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
       data: { textResults: results as unknown as Prisma.InputJsonValue },
     })
 
-    await onThemeProgress?.(results.length, themes.length, theme.monat)
+    // Heartbeat — SSE connection alive; errors must not crash the generation
+    try {
+      await onThemeProgress?.(results.length, themes.length, theme.monat)
+    } catch (err) {
+      logger.warn({ err, thema: theme.monat }, 'onThemeProgress fehlgeschlagen — ignoriert')
+    }
+  }
+
+  if (results.length === 0 && themes.length > 0) {
+    throw new Error(`Alle ${themes.length} Themen fehlgeschlagen — kein Text generiert`)
   }
 
   return results
