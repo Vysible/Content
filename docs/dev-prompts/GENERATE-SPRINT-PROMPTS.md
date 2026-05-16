@@ -412,8 +412,10 @@ Dateiname-Schema: sprint-[phase-id]-[slug].md
 | `sprint-p4b-bildbriefing.md` | Slice 15 — Bildbriefing | 4 | Bereit |
 | `sprint-p4c-nfa-haertung.md` | NFA-Härtung | 4 | Bereit |
 | `sprint-p4d-performance.md` | Performance & Stabilität | 4 | Bereit |
+| `sprint-fix-a-codecleanup.md` | Code Cleanup — JSON.parse, Footer, Docs | Fix | Bereit |
+| `sprint-fix-b-quality-gate.md` | Themen-Quality-Gate Refactor | Fix | Bereit (nach Fix-A) |
 
-**Alle Prompts generiert.** Keine weiteren Slices offen.
+**Alle Prompts generiert.** Fix-A und Fix-B können vor P4-A abgearbeitet werden.
 
 ---
 

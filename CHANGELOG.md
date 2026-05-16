@@ -6,8 +6,25 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Sprint Fix-A Prompt:** `docs/dev-prompts/sprint-fix-a-codecleanup.md` — Sprint-Prompt für Code-Cleanup: JSON.parse(JSON.stringify)-Muster in `lib/generation/`, Dashboard-Footer Impressum/Datenschutz, forge-scan Kommentar `lib/ai/client.ts`, OpenActions-Bereinigung (F-020, Backlog #8/#10).
+- **Sprint Fix-B Prompt:** `docs/dev-prompts/sprint-fix-b-quality-gate.md` — Sprint-Prompt für Themen-Quality-Gate Refactor: `lib/generation/config.ts` mit ENV-Override, Magic Numbers aus `themes-schema.ts`, `istFrage` deterministisch in `themes.ts`, `prompts/themes.yaml` vereinfacht (Backlog #5).
 - **Roadmap Phase-4-Backlog:** `docs/roadmap.md` um Abschnitt „Phase-4-Backlog" ergänzt — Slice 14 (SEO-Analyse, Sprint P4-A) und Slice 15 (Bildbriefing erweitert, Sprint P4-B) eingetragen.
 - **Rechtliche Pflichtseiten (Rohtexte):** `docs/Impressum.txt` (§ 5 TMG) und `docs/dev-prompts/archive/Datenschutz.txt` (DSGVO Art. 13/14) als Quelltexte für spätere Web-Integration hinterlegt.
+
+### Added
+- **Sprint P4-A — SEO-Analyse (Slice 14):**
+  - `prompts/seo-analysis.yaml` NEU: KI-Prompt für Meta-Description-Generierung (HWG-konform, DACH-medizinisch, 150–160 Zeichen, Call-to-Action).
+  - `lib/seo/analyzer.ts` MOD: `SeoAnalysis`-Interface um `titleLength` und `titleLengthOk` (50–60 Zeichen Zielbereich) erweitert. Score-Abzug (-5) bei suboptimaler Titel-Länge ergänzt.
+  - `lib/seo/meta-generator.ts` NEU: `generateMetaDescription()` — KI-basierter Meta-Description-Generator. `withRetry` auf Anthropic-Call, `CostEntry` mit `step='seo_analysis'`, HTML-Stripping vor KI-Übergabe.
+  - `lib/generation/results-store.ts` MOD: `StoredSeoResult`-Interface (extends `SeoAnalysis` + `aiMetaDescription` + `analyzedAt`) + optionales `seo?`-Feld in `StoredTextResult`.
+  - `app/api/projects/[id]/seo/route.ts` NEU: `POST /api/projects/[id]/seo` — Auth + Ownership-Check, deterministische Analyse + KI-Meta-Description parallel, Ergebnis in `textResults[index].seo` persistiert. 401/403/404/400-Guards.
+  - `components/results/SeoScoreCard.tsx` NEU: Client-Komponente mit Ampel-Anzeige (grün/gelb/rot) für KW-Dichte, Keyword-im-Titel, Titel-Länge, Meta-Description-Länge; KI-Meta-Description mit Copy-Button; "Erneut analysieren"-Button; Fehler-Anzeige mit `console.warn('[Vysible]')`.
+  - `components/results/ResultsTabs.tsx` MOD: `SeoPanel` durch `SeoScoreCard` ersetzt im BlogTab — persistierte KI-Analyse statt client-only Quick-Check.
+  - `lib/export/docx.ts` MOD: Meta-Description-Abschnitt (KI-generiert) im DOCX-Export pro Blog-Artikel wenn `seo.aiMetaDescription` vorhanden.
+  - `__tests__/unit/seo/analyzer.test.ts` NEU: 8 Unit-Tests für `analyzeSeo()` (pure function, Keyword-Dichte, Titel-Check, Title-Länge, Meta-Description, Score, Idempotenz, Wortzählung).
+
+### Changed
+- **Sprint P4-A Closeout (Slice 14):** `docs/roadmap.md` Slice 14 auf ✅ Abgeschlossen (2026-05-16, Sprint P4-A) gesetzt. Phase 4 auf ~50 % aktualisiert. Sprint-Prompt nach `docs/dev-prompts/archive/` verschoben.
 
 ### Added
 - **Sprint P2-F — Social Media Draft-Posting (Slice 18):**
