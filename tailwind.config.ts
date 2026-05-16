@@ -17,7 +17,7 @@ const config: Config = {
         creme: '#F6F1E9',
         stone: '#E8E2D8',
         anthrazit: '#2D3748',
-        stahlgrau: '#9AA4B2',
+        stahlgrau: '#5A6478',
       },
       fontFamily: {
         display: ['system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
