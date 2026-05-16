@@ -67,3 +67,21 @@ These commands MUST be run with `Blocking: false` + `WaitMsBeforeAsync: 5000`:
 
 Commands that are fast and whose output determines the next step (e.g. `tsc --noEmit`,
 `git status`, `Select-String`) remain `Blocking: true`.
+
+### 5. Pre-Slice / Pre-Sprint Validations — Sequentielle Batches
+
+Validations-Checks (Pre-Slice, Pre-Sprint, Sprint-Closeout) werden in **kleinen sequentiellen Batches** ausgeführt — nicht alle auf einmal.
+
+**Maximale Batch-Größe: 2–3 Commands.**
+
+Nach jedem Batch:
+1. Status aller Commands ausgeben (PASS / FAIL / INCONCLUSIVE).
+2. Bei FAIL oder INCONCLUSIVE: STOP, User fragen — kein nächster Batch.
+3. Bei alle PASS: nächsten Batch starten.
+
+**Begründung:** Viele parallele Results gleichzeitig verarbeiten erhöht die Wahrscheinlichkeit
+von Entscheidungsparalyse (Null-Output). Sequentielle Batches reduzieren dieses Risiko
+strukturell — unabhängig von der Gesamt-Anzahl der Checks.
+
+**Ausnahme:** Wirklich unabhängige, nicht-validierende Tasks (z.B. forge-web-Änderung
+während Tests laufen) dürfen weiterhin parallel ausgeführt werden.

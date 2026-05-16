@@ -17,6 +17,7 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `.env.example` MOD: `THEMES_MIN_PRAXIS_QUOTE` und `THEMES_MIN_SEO_QUOTE` dokumentiert (auskommentiert).
 
 ### Fixed
+- **Windsurf-Regelwerk (command-result-interpretation, Rule 5):** Pre-Slice/Pre-Sprint Validations werden in sequentiellen Batches (max 2–3 Commands) ausgeführt — strukturelle Maßnahme gegen Entscheidungsparalyse. Auch in forge-web upstream verankert (`windsurf`-only, `b3a73ad`).
 - **Sprint Fix-A — Sub-Slice B:**
   - `app/(dashboard)/layout.tsx`: Footer mit Impressum/Datenschutz-Links ergänzt (`<a href="/impressum">` + `<a href="/datenschutz">`). Server Component bleibt Server Component (kein `'use client'` nötig). (Backlog #8 partial)
   - `lib/ai/client.ts`: `@forge-scan factory-only`-JSDoc-Kommentar ergänzt — verhindert CI-False-Positive beim Forge-§3c-Retry-Scan. (Backlog #10)

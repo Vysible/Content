@@ -164,20 +164,20 @@
 
    `ContentCalendar.tsx` ist darauf vorbereitet: WP/KT-Badge wird angezeigt wenn `wpDraftStatus` / `ktStatus` im `StoredTextResult`-Typ vorhanden sind. WP-Integration ist seit Sprint P3-D (Slice 22) implementiert — `blogStatus: 'in_wordpress'` wird aus `StoredTextResult` gelesen und in der Blog-Ansicht angezeigt. Das separate `wpDraftPostId`-Feld lebt auf dem Project-Modell. KT-Status gehört zu Slice 23 (KlickTipp-Connector). Nach Implementierung: `ktStatus`-Feld in `lib/generation/results-store.ts` ergänzen.
 
-5. **Themen-Quality-Gate refaktorisieren** (`lib/generation/themes-schema.ts` Z. 33–53)
-
-   Aktueller Zustand: `validateThemenQuality()` enthält zwei hardcoded Schwellwerte (`0.8` praxisspezifisch, `0.5` SEO-Titel-Quote) und kippt den gesamten Pipeline-Run bei Unterschreitung. Quelle der Werte: `docs/dev-prompts/plan-v6.1.md` Z. 525.
+5. **Themen-Quality-Gate refaktorisieren** (`lib/generation/themes-schema.ts` Z. 33–53) — **teilweise erledigt (Sprint Fix-B)**
 
    Beobachtetes Problem (Mai 2026, Praxis Zahnzentrum Warendorf): Lauf brach mit *"Nur 36% SEO-Titel als Frage/mit Keyword (Minimum 50%)"* ab. User kann nur "Wiederholen", nicht parametrieren oder teilakzeptieren.
 
-   Zu adressieren:
-   - **Magic Numbers extrahieren** → `lib/generation/config.ts` mit Defaults + Doc-Kommentar (Spec-Referenz), optional ENV-Override (`THEMES_MIN_SEO_QUOTE`, `THEMES_MIN_PRAXIS_QUOTE`).
-   - **`istFrage` deterministisch berechnen** statt vom LLM bewerten lassen. Z. B. `titel.trim().endsWith('?') || titel.toLowerCase().includes(keywordPrimaer.toLowerCase())`. Spart Token, eliminiert Self-Assessment-Bias.
-   - **Zwei Kriterien trennen:** "Frage" und "enthält Keyword" sind zwei verschiedene SEO-Eigenschaften. Aktuell kann ein Plan mit 100 % Keyword-Titeln und 0 % Fragen passieren — vermutlich nicht intendiert. Prüfen, ob getrennte Schwellwerte gewünscht sind.
-   - **Soft-Warn-Pfad in der UI:** Bei Schwellwert-Verfehlung Auswahl anbieten (Wiederholen vs. Akzeptieren mit Warning-Badge), statt Hard-Fail. Erfordert UI-Änderung in der Pipeline-Status-Komponente und ggf. neuen Job-Status (`QUALITY_WARNING`).
-   - **Begleitend:** Prompt in `prompts/themes.yaml` so anpassen, dass das Modell die deterministischen Felder (`istFrage`, `praxisspezifisch`) nicht mehr selbst befüllen muss — Reduktion der Schema-Komplexität.
+   Erledigte Teilpunkte (Sprint Fix-B, 2026-05-16):
+   - ~~**Magic Numbers extrahieren**~~ **✅** — `lib/generation/config.ts` mit `THEMES_CONFIG` (`minPraxisQuote: 0.8`, `minSeoQuote: 0.5`), ENV-Override via `THEMES_MIN_PRAXIS_QUOTE` / `THEMES_MIN_SEO_QUOTE`.
+   - ~~**`istFrage` deterministisch berechnen**~~ **✅** — `computeIstFrage()` in `lib/generation/themes.ts`; `istFrage` kein LLM-Pflichtfeld mehr.
+   - ~~**Prompt bereinigen**~~ **✅** — `prompts/themes.yaml` angepasst, `istFrage`-Beispiel entfernt.
 
-   Aufwand grob: 1 Slice (~halber Tag inkl. Tests + UI). Kein Sicherheits- oder Compliance-Bezug, daher kein Sprint-1-Kandidat.
+   Noch offen:
+   - **Zwei Kriterien trennen:** "Frage" und "enthält Keyword" sind zwei verschiedene SEO-Eigenschaften. Prüfen ob getrennte Schwellwerte gewünscht sind.
+   - **Soft-Warn-Pfad in der UI:** Bei Schwellwert-Verfehlung Auswahl anbieten (Wiederholen vs. Akzeptieren mit Warning-Badge), statt Hard-Fail. Erfordert UI-Änderung + ggf. neuen Job-Status (`QUALITY_WARNING`).
+
+   Aufwand Rest: ~halber Tag (UI-Änderung dominiert). Kein Sicherheits- oder Compliance-Bezug.
 
 6. **Meta-Business-Verifizierung + LinkedIn Developer App abschließen** (PSR P2-F WARN Check 2+8)
 
@@ -200,21 +200,24 @@
    - Alternativ: `GENERATE-SPRINT-PROMPTS.md` anpassen, sodass FA-*-IDs bei der Prompt-Generierung aus plan-v6.1.md extrahiert werden.
    - Aufwand: ~30 Minuten Dokumentation.
 
-8. **Cookie-Disclaimer, Impressum & TMG-konforme Pflichtseiten** (Rechtliches)
+8. **Cookie-Disclaimer, Impressum & TMG-konforme Pflichtseiten** (Rechtliches) — **teilweise erledigt (Sprint Fix-A)**
 
    Da Vysible unter `https://vysible.cloud` öffentlich im Internet erreichbar ist, sind folgende Pflichtbestandteile nach deutschem Recht erforderlich:
 
-   - **Impressum** (§ 5 TMG): Muss verlinkt und von jeder Seite der App erreichbar sein. Inhalt: Betreiber, Anschrift, Kontakt, ggf. UStID.
-   - **Datenschutzerklärung** (DSGVO Art. 13/14): Informationspflichten über erhobene Daten, Zwecke, Drittanbieter (Anthropic/OpenAI API-Calls → Datenweitergabe an Dritte).
-   - **Cookie-Disclaimer / Consent-Banner**: Falls technisch nicht-notwendige Cookies oder Tracking-Technologien eingesetzt werden (z.B. Analytics). Auth.js-Session-Cookie ist notwendig und benötigt keinen Consent. Prüfen ob sonstige Cookies gesetzt werden.
+   - **Impressum** (§ 5 TMG): Muss verlinkt und von jeder Seite der App erreichbar sein.
+   - **Datenschutzerklärung** (DSGVO Art. 13/14): Informationspflichten über erhobene Daten, Zwecke, Drittanbieter.
+   - **Cookie-Disclaimer / Consent-Banner**: Auth.js-Session-Cookie ist notwendig — kein Consent nötig. Prüfen ob sonstige Cookies gesetzt werden.
 
-   Maßnahmen:
-   - Statische Seiten `/impressum` und `/datenschutz` anlegen (Next.js Route außerhalb `middleware.ts`-Schutz).
-   - Links im Footer der `(dashboard)/layout.tsx` + Login-Seite eintragen.
-   - Cookie-Situation prüfen: `document.cookie`-Analyse im Browser — falls nur `__Secure-next-auth.*` → kein Consent-Banner nötig.
+   Erledigte Teilpunkte (Sprint Fix-A, 2026-05-16):
+   - ~~Links im Footer der `(dashboard)/layout.tsx` eintragen~~  **✅** — Footer mit `/impressum` + `/datenschutz` Links implementiert.
+
+   Noch offen:
+   - Statische Seiten `/impressum` und `/datenschutz` anlegen (Texte liefert Betreiber).
+   - Footer-Link auch in Login-Seite eintragen.
    - `middleware.ts`: `/impressum` und `/datenschutz` zur Public-Allowlist hinzufügen (analog `/share/*`).
+   - Cookie-Situation prüfen: `document.cookie`-Analyse im Browser.
 
-   Aufwand: ~2–3 Stunden (Texte liefert Betreiber).
+   Aufwand Rest: ~1–2 Stunden.
 
 9. ~~**Prisma-Migration `20260515220000_add_meta_linkedin_providers` auf Prod-DB anwenden** (BLOCKING für META/LINKEDIN-Nutzung)~~ **✅ Schema-Seite erledigt (Provider-Enum bereinigt, Sprint P2-F). Prod-DB-Anwendung manuell nötig — siehe SSH-Anleitung unten.**
 
