@@ -46,6 +46,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `docs/dev-prompts/OpenActions.md`: Kein neuer Nachlaufblock für P4-C (kein offener Punkt entstanden).
 
 ### Fixed
+- **Forge-Sync-Audit (2026-05-16):**
+  - `lib/hooks/useGenerationStream.ts:53+97`: Zwei Silent-catches (`catch {}` mit nur Kommentar) durch `catch (err: unknown) { console.warn('[Vysible] ...', err) }` ersetzt — konform mit Client-Component-Logger-Deviation.
+  - `lib/generation/themes.ts:135`: Silent-catch (`catch (_e) { /* ... */ }`) in `salvageTruncatedArray` durch `catch (e: unknown) { logger.warn(...) }` ersetzt.
+  - `docs/forge-web-deviations.md`: V-03 (`web-sse-pattern §3` — named SSE events) als Accepted-Deviation dokumentiert; Audit-Log-Eintrag ergänzt.
 - **Sidebar Logo:** `public/logo.png` (V-Symbol) auf 32×32 px verkleinert (war 120×40) und `Vysible`-Schriftzug als separater `<span>` wiederhergestellt (`components/layout/sidebar.tsx`).
 - **KlickTipp optional in Ergebnisansicht:** `ktConfigured` prüft jetzt projektspezifischen `ktApiKeyId` sowie globalen KLICKTIPP-Key als Fallback — Button bleibt ohne jegliche Konfiguration deaktiviert (`app/(dashboard)/projects/[id]/results/page.tsx`). Meta- und LinkedIn-Keys aus Remote-Stand beibehalten.
 

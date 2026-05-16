@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
+import { requireAuth } from '@/lib/auth/session'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  await requireAuth()
   return NextResponse.json({
     nodeEnv: process.env.NODE_ENV,
     hasNextauthSecret: !!process.env.NEXTAUTH_SECRET,

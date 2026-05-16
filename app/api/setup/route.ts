@@ -11,12 +11,20 @@ export async function POST() {
 }
 
 async function handler() {
+  const initialPassword = process.env.INITIAL_ADMIN_PASSWORD
+  if (!initialPassword) {
+    return NextResponse.json(
+      { error: 'Setup nicht konfiguriert — INITIAL_ADMIN_PASSWORD env var fehlt' },
+      { status: 503 },
+    )
+  }
+
   const count = await prisma.user.count()
   if (count > 0) {
     return NextResponse.json({ error: 'Setup bereits abgeschlossen' }, { status: 409 })
   }
 
-  const password = await hash('admin123', 12)
+  const password = await hash(initialPassword, 12)
   await prisma.user.create({
     data: {
       email: 'admin@vysible.de',
@@ -26,10 +34,5 @@ async function handler() {
     },
   })
 
-  return NextResponse.json({
-    message: 'Admin-User angelegt',
-    email: 'admin@vysible.de',
-    password: 'admin123',
-    hint: 'Passwort nach erstem Login ändern!',
-  })
+  return NextResponse.json({ message: 'Admin-User angelegt' })
 }

@@ -28,7 +28,9 @@ export type AuditAction =
   | 'klicktipp.campaign_created'
   | 'klicktipp.campaign_blocked'
   | 'klicktipp.credentials_saved'
-  | 'klicktipp.credentials_removed';
+  | 'klicktipp.credentials_removed'
+  | 'social.draft_blocked'
+  | 'social.draft_created';
 
 interface AuditParams {
   action: AuditAction;

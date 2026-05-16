@@ -50,8 +50,8 @@ export function useGenerationStream(jobId: string | null) {
         if (data.status === 'complete' || data.status === 'error') {
           stopPolling()
         }
-      } catch {
-        // Netzwerkfehler — beim nächsten Intervall erneut versuchen
+      } catch (err: unknown) {
+        console.warn('[Vysible] useGenerationStream: Polling-Netzwerkfehler — nächstes Intervall wird es erneut versuchen', err)
       }
     }, POLL_INTERVAL_MS)
   }, [jobId, stopPolling])
@@ -94,8 +94,8 @@ export function useGenerationStream(jobId: string | null) {
           es.close()
           stopPolling()
         }
-      } catch {
-        // Ungültiges JSON — ignorieren
+      } catch (err: unknown) {
+        console.warn('[Vysible] useGenerationStream: Ungültiges JSON in SSE-Nachricht ignoriert', err)
       }
     }
 

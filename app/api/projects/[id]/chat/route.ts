@@ -2,6 +2,7 @@ import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { getAnthropicClient } from '@/lib/ai/client'
 import { trackCost } from '@/lib/costs/tracker'
+import { loadPrompt } from '@/lib/generation/prompt-loader'
 import { DEFAULT_MODEL } from '@/config/model-prices'
 import { NextResponse } from 'next/server'
 import type { StoredTextResult, ContentVersion } from '@/lib/generation/results-store'
@@ -34,22 +35,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   const userMessage = chip ? CHIPS[chip] ?? message : message
 
-  const systemPrompt = `Du bist ein Content-Editor für Arzt- und Zahnarztpraxen.
-Der Nutzer möchte folgenden ${versionField === 'blog' ? 'Blog-Beitrag (HTML)' : 'Newsletter-Text'} überarbeiten.
-Gib NUR den überarbeiteten Text zurück – kein Kommentar, keine Erklärung.
-${versionField === 'blog' ? 'Behalte das HTML-Format bei.' : 'Behalte Betreff/Preheader/Body-Struktur bei.'}`
+  const contentType = versionField === 'blog' ? 'Blog-Beitrag (HTML)' : 'Newsletter-Text'
+  const formatHint = versionField === 'blog'
+    ? 'Behalte das HTML-Format bei.'
+    : 'Behalte Betreff/Preheader/Body-Struktur bei.'
+
+  const prompt = loadPrompt('chat', { contentType, formatHint, currentContent, userMessage })
 
   const anthropic = await getAnthropicClient()
   const response = await anthropic.messages.create({
     model: DEFAULT_MODEL,
     max_tokens: 2_048,
-    system: systemPrompt,
-    messages: [
-      {
-        role: 'user',
-        content: `Aktueller Inhalt:\n\n${currentContent}\n\n---\nAnfrage: ${userMessage}`,
-      },
-    ],
+    system: prompt.system,
+    messages: [{ role: 'user', content: prompt.user }],
   })
 
   await trackCost({

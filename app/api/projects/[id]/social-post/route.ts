@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db'
 import { postFacebookDraft, postInstagramDraft } from '@/lib/social/meta'
 import { postLinkedInDraft } from '@/lib/social/linkedin'
 import { sendNotification } from '@/lib/email/mailer'
+import { writeAuditLog } from '@/lib/audit/logger'
+import { checkHwgGate } from '@/lib/compliance/hwg-gate'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import type { StoredTextResult } from '@/lib/generation/results-store'
@@ -14,7 +16,7 @@ const postSchema = z.object({
 })
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  await requireAuth()
+  const session = await requireAuth()
 
   let body: unknown
   try {
@@ -32,9 +34,26 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { name: true, textResults: true },
+    select: { name: true, textResults: true, hwgFlag: true },
   })
   if (!project) return NextResponse.json({ error: 'Nicht gefunden' }, { status: 404 })
+
+  const gate = checkHwgGate(project.hwgFlag)
+  if (gate.blocked) {
+    await writeAuditLog({
+      action:    'social.draft_blocked',
+      entity:    'Project',
+      entityId:  params.id,
+      projectId: params.id,
+      userId:    session.user.id,
+      userEmail: session.user.email ?? undefined,
+      meta:      { blocked: true, reason: gate.reason, kanal },
+    })
+    return NextResponse.json(
+      { error: 'Social-Posting gesperrt: HWG-Compliance-Flag ist gesetzt. Bitte Inhalt prüfen und Flag zurücksetzen.' },
+      { status: 403 },
+    )
+  }
 
   let result
   if (kanal === 'SOCIAL_FACEBOOK') result = await postFacebookDraft(text)

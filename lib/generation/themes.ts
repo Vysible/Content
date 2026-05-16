@@ -132,7 +132,7 @@ function salvageTruncatedArray(text: string): ThemenItem[] {
         try {
           const result = ThemenItemSchema.safeParse(JSON.parse(text.slice(objStart, i + 1)))
           if (result.success) items.push(result.data)
-        } catch (_e) { /* ungültiges Objekt überspringen */ }
+        } catch (e: unknown) { logger.warn({ err: e, objStart, pos: i }, '[Vysible] salvageTruncatedArray: JSON.parse fehlgeschlagen — Objekt übersprungen') }
         objStart = -1
       }
     }
