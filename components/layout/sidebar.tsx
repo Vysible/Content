@@ -34,9 +34,9 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition',
+                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[0.9375rem] transition',
                 active
-                  ? 'bg-cognac text-white font-medium'
+                  ? 'bg-cognac text-nachtblau font-semibold'
                   : 'text-stahlgrau hover:bg-tiefblau hover:text-creme'
               )}
             >
@@ -51,7 +51,7 @@ export function Sidebar() {
       <div className="p-2 border-t border-tiefblau">
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-stahlgrau hover:bg-tiefblau hover:text-creme transition"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[0.9375rem] text-stahlgrau hover:bg-tiefblau hover:text-creme transition"
         >
           <span className="text-base leading-none">⎋</span>
           Abmelden
