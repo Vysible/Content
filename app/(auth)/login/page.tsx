@@ -195,6 +195,16 @@ export default function LoginPage() {
         <p className="mt-6 text-xs text-center text-stahlgrau">
           Agentur-internes System · Nur für autorisierte Nutzer
         </p>
+
+        <div className="mt-4 flex items-center justify-center gap-4">
+          <Link href="/impressum" className="text-xs text-stahlgrau hover:text-cognac transition">
+            Impressum
+          </Link>
+          <span className="text-stone text-xs">·</span>
+          <Link href="/datenschutz" className="text-xs text-stahlgrau hover:text-cognac transition">
+            Datenschutz
+          </Link>
+        </div>
       </div>
     </main>
   )
