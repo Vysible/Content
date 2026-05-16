@@ -7,6 +7,7 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ### Fixed
 - **Dockerfile Build-OOM:** `NODE_OPTIONS=--max-old-space-size=1536` im Builder-Stage gesetzt — verhindert OOM-Kill durch den Kernel bei `pnpm build` auf speicherbeschränkten VPS-Instanzen. `NEXT_TELEMETRY_DISABLED` vor beide Build-Schritte gezogen.
+- **`pdfjs-dist` v5 Build-Fehler (DOMMatrix):** `next.config.mjs` Webpack-Alias `pdfjs-dist` → Legacy-Build (`pdfjs-dist/legacy/build/pdf.mjs`). pdfjs v5 nutzt `DOMMatrix` (Browser-API) beim Modulimport — der Legacy-Build ist der offizielle Node.js-kompatible Pfad. Fehler war Ursache des Docker-Build-Abbruchs.
 
 ### Security
 - **FIX-06 AES-256-GCM Versions-Präfix (ADR-003):**

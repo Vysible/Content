@@ -1,7 +1,14 @@
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
   webpack: (config) => {
+    // pdfjs-dist v5 uses DOMMatrix (browser-only) — redirect to Node.js-compatible legacy build
+    config.resolve.alias['pdfjs-dist'] = path.resolve(__dirname, 'node_modules/pdfjs-dist/legacy/build/pdf.mjs')
     config.resolve.alias['canvas'] = false
     return config
   },
