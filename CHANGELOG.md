@@ -6,6 +6,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Roadmap Phase-4-Backlog:** `docs/roadmap.md` um Abschnitt „Phase-4-Backlog" ergänzt — Slice 14 (SEO-Analyse, Sprint P4-A) und Slice 15 (Bildbriefing erweitert, Sprint P4-B) eingetragen.
+- **Rechtliche Pflichtseiten (Rohtexte):** `docs/Impressum.txt` (§ 5 TMG) und `docs/dev-prompts/archive/Datenschutz.txt` (DSGVO Art. 13/14) als Quelltexte für spätere Web-Integration hinterlegt.
+
+### Added
 - **Sprint P2-F — Social Media Draft-Posting (Slice 18):**
   - `prisma/schema.prisma`: Provider-Enum um `META` und `LINKEDIN` erweitert (additive Migration `20260515220000_add_meta_linkedin_providers`).
   - `lib/social/meta.ts`: `WORDPRESS`-Provider-Hack durch `META` ersetzt; `withRetry` auf alle Graph-API-Calls (`postFacebookDraft`, `postInstagramDraft`); stille Catches durch `logger.error` ersetzt.

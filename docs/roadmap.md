@@ -117,6 +117,15 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 
 ---
 
+## Phase-4-Backlog (plan.md v6.1 — Quality & Scale)
+
+| Slice | Name | Status |
+|---|---|---|
+| 14 | SEO-Analyse (Keyword-Dichte, Meta-Description, Title-Tag) | 🔄 In Bearbeitung (Sprint P4-A) |
+| 15 | Bildbriefing erweitert | ⬜ Offen (Sprint P4-B) |
+
+---
+
 ## Offene strategische Entscheidungen (vor Phase 3 fällen)
 
 | Punkt | Optionen | Dringlichkeit |

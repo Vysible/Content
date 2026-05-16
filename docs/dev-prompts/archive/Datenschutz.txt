@@ -1,0 +1,373 @@
+Nachfolgend erhalten Sie Informationen über die Erhebung personenbezogener Daten bei Nutzung unserer Internetseite. Zu den personenbezogenen Daten gehören alle Daten, die auf Sie persönlich beziehbar sind (z. B. Name, Adresse, E-Mail-Adressen, Nutzerverhalten, IP-Adresse).
+
+
+NAME UND KONTAKTDATEN DES FÜR DIE VERARBEITUNG VERANTWORTLICHEN SOWIE DES BETRIEBLICHEN DATENSCHUTZBEAUFTRAGTEN GEMÄSS ARTIKEL 4 ABS. 7 DSGV
+
+
+Diese Datenschutz-Information gilt für die Datenverarbeitung durch:
+
+
+Verantwortlich ist:
+
+Vysible communication
+Vanessa Kohnert
+Im Gemeindegrund 14
+46147 Oberhausen
+kontakt@vysible.de
+
+
+Sie erreichen den/die zuständige/n Datenschutzbeauftragte/n unter:
+
+Datenschutzbeauftragte/r
+Vanessa Kohnert
+Im Gemeindegrund 14
+46147 Oberhausen
+kontakt@vysible.de
+
+
+SICHERHEIT UND SCHUTZ IHRER PERSONENBEZOGENEN DATEN
+Wir betrachten es als unsere vorrangige Aufgabe, die Vertraulichkeit der von Ihnen bereitgestellten personenbezogenen Daten zu wahren und diese vor unbefugten Zugriffen zu schützen. Deshalb wenden wir äußerste Sorgfalt und modernste Sicherheitsstandards an, um einen maximalen Schutz Ihrer personenbezogenen Daten zu gewährleisten.
+
+
+Als privatrechtliches Unternehmen unterliegen wir den Bestimmungen der europäischen Datenschutzgrundverordnung (DSGVO) und den Regelungen des Bundesdatenschutzgesetzes (BDSG). Wir haben technische und organisatorische Maßnahmen getroffen, die sicherstellen, dass die Vorschriften über den Datenschutz sowohl von uns, als auch von unseren externen Dienstleistern beachtet werden.
+
+
+BEGRIFFSBESTIMMUNGEN
+
+Der Gesetzgeber fordert, dass personenbezogene Daten auf rechtmäßige Weise, nach Treu und Glauben und in einer für die betroffene Person nachvollziehbaren Weise verarbeitet werden („Rechtmäßigkeit, Verarbeitung nach Treu und Glauben, Transparenz“). Um dies zu gewährleisten, informieren wir Sie über die einzelnen gesetzlichen Begriffsbestimmungen, die auch in dieser Datenschutzerklärung verwendet werden:
+
+
+PERSONENBEZOGENE DATEN
+„Personenbezogene Daten“ sind alle Informationen, die sich auf eine identifizierte oder identifizierbare natürliche Person (im Folgenden „betroffene Person“) beziehen; als identifizierbar wird eine natürliche Person angesehen, die direkt oder indirekt, insbesondere mittels Zuordnung zu einer Kennung wie einem Namen, zu einer Kennnummer, zu Standortdaten, zu einer Online-Kennung oder zu einem oder mehreren besonderen Merkmalen identifiziert werden kann, die Ausdruck der physischen, physiologischen, genetischen, psychischen, wirtschaftlichen, kulturellen oder sozialen Identität dieser natürlichen Person sind.
+
+
+VERARBEITUNG
+„Verarbeitung“ ist jeder, mit oder ohne Hilfe automatisierter Verfahren, ausgeführter Vorgang oder jede solche Vorgangsreihe im Zusammenhang mit personenbezogenen Daten wie das Erheben, das Erfassen, die Organisation, das Ordnen, die Speicherung, die Anpassung oder Veränderung, das Auslesen, das Abfragen, die Verwendung, die Offenlegung durch Übermittlung, Verbreitung oder eine andere Form der Bereitstellung, den Abgleich oder die Verknüpfung, die Einschränkung, das Löschen oder die Vernichtung.
+
+
+EINSCHRÄNKUNG DER VERARBEITUNG
+
+„Einschränkung der Verarbeitung“ ist die Markierung gespeicherter personenbezogener Daten mit dem Ziel, ihre künftige Verarbeitung einzuschränken.
+
+
+PROFILING
+
+„Profiling“ ist jede Art der automatisierten Verarbeitung personenbezogener Daten, die darin besteht, dass diese personenbezogenen Daten verwendet werden, um bestimmte persönliche Aspekte, die sich auf eine natürliche Person beziehen, zu bewerten, insbesondere um Aspekte bezüglich Arbeitsleistung, wirtschaftliche Lage, Gesundheit, persönliche Vorlieben, Interessen, Zuverlässigkeit, Verhalten, Aufenthaltsort oder Ortswechsel dieser natürlichen Person zu analysieren oder vorherzusagen.
+
+
+PSEUDONYMISIERUNG
+
+„Pseudonymisierung“ ist die Verarbeitung personenbezogener Daten in einer Weise, dass die personenbezogenen Daten ohne Hinzuziehung zusätzlicher Informationen nicht mehr einer spezifischen betroffenen Person zugeordnet werden können, sofern diese zusätzlichen Informationen gesondert aufbewahrt werden und technischen und organisatorischen Maßnahmen unterliegen, die gewährleisten, dass die personenbezogenen Daten nicht einer identifizierten oder identifizierbaren natürlichen Person zugewiesen werden können.
+
+
+DATEISYSTEM
+
+„Dateisystem“ ist jede strukturierte Sammlung personenbezogener Daten, die nach bestimmten Kriterien zugänglich sind, unabhängig davon, ob diese Sammlung zentral, dezentral oder nach funktionalen oder geografischen Gesichtspunkten geordnet geführt wird.
+
+
+VERANTWORTLICHER
+
+„Verantwortlicher“ ist eine natürliche oder juristische Person, Behörde, Einrichtung oder andere Stelle, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten entscheidet; sind die Zwecke und Mittel dieser Verarbeitung durch das Unionsrecht oder das Recht der Mitgliedstaaten vorgegeben, so können der Verantwortliche beziehungsweise die bestimmten Kriterien seiner Benennung nach dem Unionsrecht oder dem Recht der Mitgliedstaaten vorgesehen werden.
+
+
+AUFTRAGSVERARBEITER
+
+„Auftragsverarbeiter“ ist eine natürliche oder juristische Person, Behörde, Einrichtung oder andere Stelle, die personenbezogene Daten im Auftrag des Verantwortlichen verarbeitet.
+
+
+EMPFÄNGER
+
+„Empfänger“ ist eine natürliche oder juristische Person, Behörde, Einrichtung oder andere Stelle, denen personenbezogene Daten offengelegt werden, unabhängig davon, ob es sich bei ihr um einen Dritten handelt oder nicht. Behörden, die im Rahmen eines bestimmten Untersuchungsauftrags nach dem Unionsrecht oder dem Recht der Mitgliedstaaten möglicherweise personenbezogene Daten erhalten, gelten jedoch nicht als Empfänger; die Verarbeitung dieser Daten durch die genannten Behörden erfolgt im Einklang mit den geltenden Datenschutzvorschriften gemäß den Zwecken der Verarbeitung.
+
+
+DRITTER
+
+„Dritter“ ist eine natürliche oder juristische Person, Behörde, Einrichtung oder andere Stelle, außer der betroffenen Person, dem Verantwortlichen, dem Auftragsverarbeiter und den Personen, die unter der unmittelbaren Verantwortung des Verantwortlichen oder des Auftragsverarbeiters befugt sind, die personenbezogenen Daten zu verarbeiten.
+
+
+EINWILLIGUNG
+
+Eine „Einwilligung“ der betroffenen Person ist jede freiwillig für den bestimmten Fall, in informierter Weise und unmissverständlich abgegebene Willensbekundung in Form einer Erklärung oder einer sonstigen eindeutigen bestätigenden Handlung, mit der die betroffene Person zu verstehen gibt, dass sie mit der Verarbeitung der sie betreffenden personenbezogenen Daten einverstanden ist.
+
+
+RECHTMÄSSIGKEIT DER VERARBEITUNG
+
+Die Verarbeitung personenbezogener Daten ist nur rechtmäßig, wenn für die Verarbeitung eine Rechtsgrundlage besteht. Rechtsgrundlage für die Verarbeitung können gemäß Artikel 6 Abs. 1 lit. a – f DSGVO insbesondere sein:
+
+
+Die betroffene Person hat ihre Einwilligung zu der Verarbeitung der sie betreffenden personenbezogenen Daten für einen oder mehrere bestimmte Zwecke gegeben;
+die Verarbeitung ist für die Erfüllung eines Vertrags, dessen Vertragspartei die betroffene Person ist, oder zur Durchführung vorvertraglicher Maßnahmen erforderlich, die auf Anfrage der betroffenen Person erfolgen;
+die Verarbeitung ist zur Erfüllung einer rechtlichen Verpflichtung erforderlich, der der Verantwortliche unterliegt;
+die Verarbeitung ist erforderlich, um lebenswichtige Interessen der betroffenen Person oder einer anderen natürlichen Person zu schützen;
+die Verarbeitung ist für die Wahrnehmung einer Aufgabe erforderlich, die im öffentlichen Interesse liegt oder in Ausübung öffentlicher Gewalt erfolgt, die dem Verantwortlichen übertragen wurde;
+die Verarbeitung ist zur Wahrung der berechtigten Interessen des Verantwortlichen oder eines Dritten erforderlich, sofern nicht die Interessen oder Grundrechte und Grundfreiheiten der betroffenen Person, die den Schutz personenbezogener Daten erfordern, überwiegen, insbesondere dann, wenn es sich bei der betroffenen Person um ein Kind handelt.
+
+
+INFORMATION ÜBER DIE ERHEBUNG PERSONENBEZOGENER DATEN
+
+(1) Im Folgenden informieren wir über die Erhebung personenbezogener Daten bei Nutzung unserer Website. Wir erheben, speichern, nutzen, übermitteln oder löschen folgende personenbezogene Daten:
+
+
+Interessenten unserer Internetseite und Patienten unserer Praxis, die natürliche Personen sind
+Allen anderen natürlichen Personen, die in Kontakt mit unserer Praxis stehen (z.B. Bevollmächtigte von Patienten, Erziehungsberechtigte von Patienten, Mitarbeiter juristischer Personen, Besucher unserer Internetseite)
+Personenbezogene Daten sind z. B. Name, Adresse, E-Mail-Adressen, Nutzerverhalten. Wir verarbeiten personenbezogene Daten nur, soweit dies zur Bereitstellung dieser Webseite, sowie der von uns angebotenen Inhalte und Leistungen, erforderlich ist.
+
+
+(2) Bei einer Kontaktaufnahme mit uns per Telefon, E-Mail oder über ein Kontaktformular werden die von Ihnen mitgeteilten Daten (Ihre E-Mail-Adresse, ggf. Ihr Name und Ihre Telefonnummer) von uns gespeichert, um Ihre Fragen zu beantworten. Die in diesem Zusammenhang anfallenden Daten löschen wir, nachdem die Speicherung nicht mehr erforderlich ist, oder die Verarbeitung wird eingeschränkt, falls gesetzliche Aufbewahrungspflichten bestehen. Dritten werden diese Daten nicht zugänglich gemacht.
+
+
+(3) Angaben zu Kindern erheben wir nur dann, wenn diese durch die Erziehungsberechtigten in unserer Praxis als Patient vorgestellt werden.
+
+
+(4) Soweit wir für einzelne Funktionen unserer Webseite auf beauftragte Dienstleister zurückgreifen oder Ihre Daten für werbliche Zwecke nutzen möchten, werden wir Sie untenstehend im Detail über die jeweiligen Vorgänge informieren.
+
+
+ERHEBUNG PERSONENBEZOGENER DATEN BEI BESUCH UNSERER WEBSEITE
+
+Bei der bloß informatorischen Nutzung der Website, also wenn Sie sich nicht registrieren oder uns anderweitig Informationen übermitteln, erheben wir nur die personenbezogenen Daten, die Ihr Browser an unseren Server übermittelt. Wenn Sie unsere Website betrachten möchten, erheben wir die folgenden Daten, die für uns technisch erforderlich sind, um Ihnen unsere Website anzuzeigen und die Stabilität und Sicherheit zu gewährleisten (Rechtsgrundlage ist Art. 6 Abs. 1 S. 1 lit. f DSGVO):
+
+
+IP-Adresse
+Datum und Uhrzeit der Anfrage
+Zeitzonendifferenz zur Greenwich Mean Time (GMT)
+Inhalt der Anforderung (konkrete Seite)
+Zugriffsstatus/HTTP-Statuscode
+jeweils übertragene Datenmenge
+Website, von der die Anforderung kommt
+Browser
+Betriebssystem und dessen Oberfläche
+Sprache und Version der Browsersoftware.
+
+
+IHRE RECHTE
+
+Sie haben uns gegenüber folgende Rechte, hinsichtlich der bei uns über Sie gespeicherten Daten:
+
+Recht auf Berichtigung und Löschung
+Recht auf Auskunft
+Recht auf Einschränkung der Verarbeitung
+Recht auf Datenübertragbarkeit
+Recht auf Widerspruch gegen die Verarbeitung
+Sie haben die Möglichkeit, sich mit einer Beschwerde im Zusammenhang mit der Datenverarbeitung an die für uns zuständige Datenschutzaufsicht zu wenden:
+
+
+Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit
+Nordrhein-Westfalen
+Postfach 20 04 44
+40102 Düsseldorf
+Telefonzentrale: +49 (0)211 / 38424 – 0
+
+
+RECHTE DER BETROFFENEN PERSONEN
+
+(1) Sie haben das Recht, eine Bestätigung darüber zu verlangen, ob betreffende Daten verarbeitet werden und auf Auskunft über diese Daten sowie auf weitere Informationen und Kopie der Daten entsprechend Art. 15 DSGVO.
+
+
+(2) Sie haben entsprechend. Art. 16 DSGVO das Recht, die Vervollständigung der Sie betreffenden Daten oder die Berichtigung der Sie betreffenden unrichtigen Daten zu verlangen.
+
+
+(3) Sie haben nach Maßgabe des Art. 17 DSGVO das Recht zu verlangen, dass betreffende Daten unverzüglich gelöscht werden, bzw. alternativ nach Maßgabe des Art. 18 DSGVO eine Einschränkung der Verarbeitung der Daten zu verlangen.
+
+
+(4) Sie haben das Recht zu verlangen, dass die Sie betreffenden Daten, die Sie uns bereitgestellt haben nach Maßgabe des Art. 20 DSGVO zu erhalten und deren Übermittlung an andere Verantwortliche zu fordern.
+
+
+(5) Sie haben ferner gem. Art. 77 DSGVO das Recht, eine Beschwerde bei der zuständigen Aufsichtsbehörde einzureichen.
+
+
+WIDERRUFSRECHT
+
+Sie haben das Recht, erteilte Einwilligungen gem. Art. 7 Abs. 3 DSGVO mit Wirkung für die Zukunft zu widerrufen.
+
+
+WIDERSPRUCHSRECHT
+
+Sie können der künftigen Verarbeitung der Sie betreffenden Daten nach Maßgabe des Art. 21 DSGVO jederzeit widersprechen. Der Widerspruch kann insbesondere gegen die Verarbeitung für Zwecke der Direktwerbung erfolgen.
+
+
+EINSATZ VON COOKIES
+
+(1) Zusätzlich zu den zuvor genannten Daten werden bei der Nutzung unserer Website Cookies auf Ihrem Rechner gespeichert. Bei Cookies handelt es sich um kleine Textdateien, die auf Ihrer Festplatte dem von Ihnen verwendeten Browser zugeordnet gespeichert werden und durch welche der Stelle, die den Cookie setzt, bestimmte Informationen zufließen. Cookies können keine Programme ausführen oder Viren auf Ihren Computer übertragen. Sie dienen dazu, das Internetangebot insgesamt nutzerfreundlicher und effektiver zu machen.
+
+
+(2) Diese Website nutzt folgende Arten von Cookies, deren Umfang und Funktionsweise im Folgenden erläutert werden:
+
+
+Transiente Cookies (dazu 1.)
+Persistente Cookies (dazu 2.)
+Transiente Cookies werden automatisiert gelöscht, wenn Sie den Browser schließen. Dazu zählen insbesondere die Session-Cookies. Diese speichern eine sogenannte Session-ID, mit welcher sich verschiedene Anfragen Ihres Browsers der gemeinsamen Sitzung zuordnen lassen. Dadurch kann Ihr Rechner wiedererkannt werden, wenn Sie auf unsere Website zurückkehren. Die Session-Cookies werden gelöscht, wenn Sie sich ausloggen oder den Browser schließen.
+Persistente Cookies werden automatisiert nach einer vorgegebenen Dauer gelöscht, die sich je nach Cookie unterscheiden kann. Sie können die Cookies in den Sicherheitseinstellungen Ihres Browsers jederzeit löschen.
+Sie können Ihre Browser-Einstellung entsprechend Ihren Wünschen konfigurieren und z. B. die Annahme von Third-Party-Cookies oder allen Cookies ablehnen. Sog. „Third Party Cookies“ sind Cookies, die durch einen Dritten gesetzt wurden, folglich nicht durch die eigentliche Website auf der man sich gerade befindet. Wir weisen Sie darauf hin, dass Sie durch die Deaktivierung von Cookies eventuell nicht alle Funktionen dieser Website nutzen können.
+
+
+SERVER-LOG-FILES
+
+Der Provider der Seiten erhebt und speichert automatisch Informationen in so genannten Server Log-Files, die Ihr Browser automatisch an uns übermittelt. Dies sind:
+
+
+Browsertyp und Browserversion
+verwendetes Betriebssystem
+Referrer URL
+Hostname des zugreifenden Rechners
+Uhrzeit der Serveranfrage
+Diese Daten sind nicht bestimmten Personen zuzuordnen.
+Eine Zusammenführung dieser Daten mit anderen Datenquellen wird nicht vorgenommen. Wir behalten uns vor, diese Daten nachträglich zu prüfen, wenn uns konkrete Anhaltspunkte für eine rechtswidrige Nutzung bekannt werden.
+
+
+DATENSICHERHEIT
+
+Diese Seite nutzt aus Gründen der Sicherheit und zum Schutz der Übertragung vertraulicher Inhalte, wie zum Beispiel der Anfragen, die Sie an uns als Seitenbetreiber senden, eine SSL-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://“ auf „https://“ wechselt und an dem Schloss-Symbol in Ihrer Browserzeile.
+
+
+Wenn die SSL Verschlüsselung aktiviert ist, können die Daten, die Sie an uns übermitteln, nicht von Dritten mitgelesen werden.
+
+
+GOOGLE ANALYTICS
+
+(1) Diese Website benutzt Google Analytics, einen Webanalysedienst der Google Inc. („Google“). Google Analytics verwendet sog. „Cookies“, Textdateien, die auf Ihrem Computer gespeichert werden und die eine Analyse der Benutzung der Website durch Sie ermöglichen. Die durch den Cookie erzeugten Informationen über Ihre Benutzung dieser Website werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert. Im Falle der Aktivierung der IP-Anonymisierung auf dieser Website, wird Ihre IP-Adresse von Google jedoch innerhalb von Mitgliedstaaten der Europäischen Union oder in anderen Vertragsstaaten des Abkommens über den Europäischen Wirtschaftsraum zuvor gekürzt. Nur in Ausnahmefällen wird die volle IP-Adresse an einen Server von Google in den USA übertragen und dort gekürzt. Im Auftrag des Betreibers dieser Website wird Google diese Informationen benutzen, um Ihre Nutzung der Website auszuwerten, um Reports über die Website-Aktivitäten zusammenzustellen und um weitere mit der Website-Nutzung und der Internetnutzung verbundene Dienstleistungen gegenüber dem Website-Betreiber zu erbringen.
+
+
+(2) Die im Rahmen von Google Analytics von Ihrem Browser übermittelte IP-Adresse wird nicht mit anderen Daten von Google zusammengeführt.
+
+
+(3) Sie können die Speicherung der Cookies durch eine entsprechende Einstellung Ihrer Browser-Software verhindern; wir weisen Sie jedoch darauf hin, dass Sie in diesem Fall gegebenenfalls nicht sämtliche Funktionen dieser Website vollumfänglich werden nutzen können. Sie können darüber hinaus die Erfassung der durch das Cookie erzeugten und auf Ihre Nutzung der Website bezogenen Daten (inkl. Ihrer IP-Adresse) an Google sowie die Verarbeitung dieser Daten durch Google verhindern, indem sie das unter dem folgenden Link verfügbare Browser-Plug-in herunterladen und installieren: http://tools.google.com/dlpage/gaoptout?hl=de.
+
+
+(4) Diese Website verwendet Google Analytics mit der Erweiterung „_anonymizeIp()“. Dadurch werden IP-Adressen gekürzt weiterverarbeitet, eine Personenbeziehbarkeit kann damit ausgeschlossen werden. Soweit den über Sie erhobenen Daten ein Personenbezug zukommt, wird dieser also sofort ausgeschlossen und die personenbezogenen Daten damit umgehend gelöscht.
+
+
+(5) Wir nutzen Google Analytics, um die Nutzung unserer Website analysieren und regelmäßig verbessern zu können. Über die gewonnenen Statistiken können wir unser Angebot verbessern und für Sie als Nutzer interessanter ausgestalten. Für die Ausnahmefälle, in denen personenbezogene Daten in die USA übertragen werden, hat sich Google dem EU-US Privacy Shield unterworfen, www.privacyshield.gov/EU-US-Framework. Rechtsgrundlage für die Nutzung von Google Analytics ist Art. 6 Abs. 1 S. 1 lit. f DSGVO.
+
+
+(6) Informationen des Drittanbieters: Google Dublin, Google Ireland Ltd., Gordon House, Barrow Street, Dublin 4, Ireland, Fax: +353 (1) 436 1001.
+
+Nutzerbedingungen:
+
+www.google.com/analytics/terms/de.html, Übersicht zum Datenschutz: www.google.com/intl/de/analytics/learn/privacy.html, sowie die Datenschutzerklärung: http://www.google.de/intl/de/policies/privacy.
+
+
+(7) Wir haben mit Google einen Vertrag zur Auftragsdatenverarbeitung abgeschlossen.
+
+
+(8) Diese Website verwendet Google Analytics zudem für eine geräteübergreifende Analyse von Besucherströmen, die über eine User-ID durchgeführt wird. Sie können in Ihrem Kundenkonto unter „Meine Daten“, „persönliche Daten“ die geräteübergreifende Analyse Ihrer Nutzung deaktivieren.
+
+
+GOOGLE-TAG-MANAGER
+
+Diese Website benutzt den Google Tag Manager. Durch diesen Dienst können Website-Tags über eine Oberfläche verwalten werden. Der Google-Tag-Manager selbst setzt keine Cookies sondern lediglich Tags und erfasst keine personenbezogenen Daten. Der Dienst sorgt für die Auslösung anderer Tags, die ihrerseits unter Umständen Daten erfassen. Google Tag Manager greift jedoch nicht auf diese Daten zu. Wenn auf Domain- oder Cookie-Ebene eine Deaktivierung vorgenommen wurde, bleibt diese für alle Tracking-Tags bestehen, die mit Google-Tag-Manager implementiert werden.
+
+
+GOOGLE ADS
+
+Der Websitebetreiber verwendet Google Ads. Google Ads ist ein Online-Werbeprogramm der Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.
+
+
+Google Ads ermöglicht es uns Werbeanzeigen in der Google-Suchmaschine oder auf Drittwebseiten auszuspielen, wenn der Nutzer bestimmte Suchbegriffe bei Google eingibt (Keyword-Targeting). Ferner können zielgerichtete Werbeanzeigen anhand der bei Google vorhandenen Nutzerdaten (z. B. Standortdaten und Interessen) ausgespielt werden (Zielgruppen-Targeting). Wir als Websitebetreiber können diese Daten quantitativ auswerten, indem wir beispielsweise analysieren, welche Suchbegriffe zur Ausspielung unserer Werbeanzeigen geführt haben und wie viele Anzeigen zu entsprechenden Klicks geführt haben.
+
+
+Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
+
+
+Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://policies.google.com/privacy/frameworks und https://privacy.google.com/businesses/controllerterms/mccs/.
+
+
+META-PIXEL (EHEMALS FACEBOOK PIXEL)
+
+Diese Website nutzt zur Konversionsmessung der Besucheraktions-Pixel von Facebook/Meta. Anbieter dieses Dienstes ist die Meta Platforms Ireland Limited, 4 Grand Canal Square, Dublin 2, Irland. Die erfassten Daten werden nach Aussage von Facebook jedoch auch in die USA und in andere Drittländer übertragen.
+
+
+So kann das Verhalten der Seitenbesucher nachverfolgt werden, nachdem diese durch Klick auf eine Facebook-Werbeanzeige auf die Website des Anbieters weitergeleitet wurden. Dadurch können die Wirksamkeit der Facebook-Werbeanzeigen für statistische und Marktforschungszwecke ausgewertet werden und zukünftige Werbemaßnahmen optimiert werden.
+
+
+Die erhobenen Daten sind für uns als Betreiber dieser Website anonym, wir können keine Rückschlüsse auf die Identität der Nutzer ziehen. Die Daten werden aber von Facebook gespeichert und verarbeitet, sodass eine Verbindung zum jeweiligen Nutzerprofil möglich ist und Facebook die Daten für eigene Werbezwecke, entsprechend der Facebook-Datenverwendungsrichtlinie (https://de-de.facebook.com/about/privacy/) verwenden kann. Dadurch kann Facebook das Schalten von Werbeanzeigen auf Seiten von Facebook sowie außerhalb von Facebook ermöglichen. Diese Verwendung der Daten kann von uns als Seitenbetreiber nicht beeinflusst werden.
+
+
+Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
+
+
+Wir nutzen die Funktion des erweiterten Abgleichs innerhalb der Meta-Pixel.
+
+
+Der erweiterte Abgleich ermöglicht uns, verschiedene Arten von Daten (z. B. Wohnort, Bundesland, Postleitzahl, gehashte E-Mail-Adressen, Namen, Geschlecht, Geburtsdatum oder Telefonnummer) unserer Kunden und Interessenten, die wir über unsere Website sammeln an Meta (Facebook) zu übermitteln. Durch diese Aktivierung können wir unsere Werbekampagnen auf Facebook noch präziser auf Personen zuschneiden, die sich für unsere Angebote interessieren. Außerdem verbessert der erweiterte Abgleich Zuordnung von Webseiten-Conversions und erweitert Custom Audiences.
+
+
+Soweit mit Hilfe des hier beschriebenen Tools personenbezogene Daten auf unserer Website erfasst und an Facebook weitergeleitet werden, sind wir und die Meta Platforms Ireland Limited, 4 Grand Canal Square, Grand Canal Harbour, Dublin 2, Irland gemeinsam für diese Datenverarbeitung verantwortlich (Art. 26 DSGVO). Die gemeinsame Verantwortlichkeit beschränkt sich dabei ausschließlich auf die Erfassung der Daten und deren Weitergabe an Facebook. Die nach der Weiterleitung erfolgende Verarbeitung durch Facebook ist nicht Teil der gemeinsamen Verantwortung. Die uns gemeinsam obliegenden Verpflichtungen wurden in einer Vereinbarung über gemeinsame Verarbeitung festgehalten. Den Wortlaut der Vereinbarung finden Sie unter: https://www.facebook.com/legal/controller_addendum. Laut dieser Vereinbarung sind wir für die Erteilung der Datenschutzinformationen beim Einsatz des Facebook-Tools und für die datenschutzrechtlich sichere Implementierung des Tools auf unserer Website verantwortlich. Für die Datensicherheit der Facebook-Produkte ist Facebook verantwortlich. Betroffenenrechte (z. B. Auskunftsersuchen) hinsichtlich der bei Facebook verarbeiteten Daten können Sie direkt bei Facebook geltend machen. Wenn Sie die Betroffenenrechte bei uns geltend machen, sind wir verpflichtet, diese an Facebook weiterzuleiten.
+
+
+Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://www.facebook.com/legal/EU_data_transfer_addendum und https://de-de.facebook.com/help/566994660333381.
+
+
+In den Datenschutzhinweisen von Facebook finden Sie weitere Hinweise zum Schutz Ihrer Privatsphäre: https://de-de.facebook.com/about/privacy/.
+
+
+Sie können außerdem die Remarketing-Funktion „Custom Audiences” im Bereich Einstellungen für Werbeanzeigen unter https://www.facebook.com/ads/preferences/?entry_product=ad_settings_screen deaktivieren. Dazu müssen Sie bei Facebook angemeldet sein.
+
+
+Wenn Sie kein Facebook Konto besitzen, können Sie nutzungsbasierte Werbung von Facebook auf der Website der European Interactive Digital Advertising Alliance deaktivieren: http://www.youronlinechoices.com/de/praferenzmanagement/.
+
+
+HOTJAR
+
+Diese Website nutzt Hotjar. Anbieter ist die Hotjar Ltd., Level 2, St Julians Business Centre, 3, Elia Zammit Street, St Julians STJ 1000, Malta, Europe (Website: https://www.hotjar.com).
+
+
+Hotjar ist ein Werkzeug zur Analyse Ihres Nutzerverhaltens auf dieser Website. Mit Hotjar können wir u. a. Ihre Maus- und Scrollbewegungen und Klicks aufzeichnen. Hotjar kann dabei auch feststellen, wie lange Sie mit dem Mauszeiger auf einer bestimmten Stelle verblieben sind. Aus diesen Informationen erstellt Hotjar sogenannte Heatmaps, mit denen sich feststellen lässt, welche Websitebereiche vom Websitebesucher bevorzugt angeschaut werden.
+
+
+Des Weiteren können wir feststellen, wie lange Sie auf einer Seite verblieben sind und wann Sie sie verlassen haben. Wir können auch feststellen, an welcher Stelle Sie Ihre Eingaben in ein Kontaktformular abgebrochen haben (sog. Conversion-Funnels).
+
+
+Darüber hinaus können mit Hotjar direkte Feedbacks von Websitebesuchern eingeholt werden. Diese Funktion dient der Verbesserung der Webangebote des Websitebetreibers.
+
+
+Hotjar verwendet Technologien, die die Wiedererkennung des Nutzers zum Zwecke der Analyse des Nutzerverhaltens ermöglichen (z. B. Cookies oder Einsatz von Device-Fingerprinting).
+
+
+Soweit eine Einwilligung (Consent) eingeholt wurde, erfolgt der Einsatz deso. g.Dienstes ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 TTDSG. Die Einwilligung ist jederzeit widerrufbar. Soweit keine Einwilligung eingeholt wurde, erfolgt die Verwendung dieses Dienstes auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO; der Websitebetreiber hat ein berechtigtes Interesse an der Analyse des Nutzerverhaltens, um sowohl sein Webangebot als auch seine Werbung zu optimieren.
+
+
+DEAKTIVIEREN VON HOTJAR
+Wenn Sie die Datenerfassung durch Hotjar deaktivieren möchten, klicken Sie auf folgenden Link und folgen Sie den dortigen Anweisungen: https://www.hotjar.com/policies/do-not-track/
+
+
+Bitte beachten Sie, dass die Deaktivierung von Hotjar für jeden Browser bzw. für jedes Endgerät separat erfolgen muss.
+
+
+Nähere Informationen über Hotjar und zu den erfassten Daten entnehmen Sie der Datenschutzerklärung von Hotjar unter dem folgenden Link: https://www.hotjar.com/privacy
+
+Nutzung von Zapier und Make
+
+Wir nutzen die Automatisierungstools Zapier und Make, um bestimmte Prozesse auf unserer Webseite zu automatisieren. Diese Tools können personenbezogene Daten wie Namen und E-Mail-Adressen verarbeiten, wenn diese z. B. über Formulare auf unserer Webseite eingegeben werden. Zapier und Make agieren als Auftragsverarbeiter gemäß Art. 28 DSGVO. Die Datenübertragung erfolgt in Übereinstimmung mit den datenschutzrechtlichen Bestimmungen, insbesondere auf Grundlage von Standardvertragsklauseln, die den Datenschutz im Rahmen der DSGVO sicherstellen.
+
+Weitere Informationen zu den Datenschutzrichtlinien dieser Dienste finden Sie hier:
+
+Zapier Datenschutzerklärung https://zapier.com/privacy
+
+Make Datenschutzerklärung https://www.make.com/en/privacy-notice
+
+AUFTRAGSVERARBEITUNG
+Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.
+
+
+KLICK-TIPP
+
+Wir nutzen den Dienst Klick-Tipp für unser E-Mail-Marketing. Klick-Tipp ist ein Angebot der KLICK-TIPP LIMITED, 15 Cambridge Court, 210 Shepherd’s Bush Road, London W6 7NJ, United Kingdom. Wenn Sie sich für unseren Newsletter anmelden, werden die von Ihnen eingegebenen Daten (z.B. E-Mail-Adresse, Name) an Klick-Tipp übermittelt und auf Servern von Klick-Tipp in Deutschland gespeichert. Klick-Tipp verwendet diese Informationen zum Versand und zur statistischen Auswertung der Newsletter in unserem Auftrag. Für die Auswertung beinhalten die per E-Mail versendeten Newsletter sogenannte Web-Beacons bzw. Trackings-Pixel, die Ein-Pixel-Bilddateien darstellen, die auf unserer Website gespeichert sind. So können wir feststellen, ob eine Newsletter-Nachricht geöffnet und welche Links ggf. angeklickt wurden. Mit den so erlangten technischen Informationen können wir die Services und Ihre Nutzererfahrung verbessern. Die Auswertung des Newsletter und die Messung des Erfolgs erfolgen, vor allem auch über diese Web-Beacons, auf Grundlage unserer berechtigten Interessen gemäß Art. 6 Abs. 1 lit. f DSGVO.
+
+
+Sie können Ihre Einwilligung zum Empfang des Newsletters jederzeit widerrufen und den Newsletter abbestellen. Die Datenverarbeitung erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO. Ihre Daten werden solange gespeichert, wie Sie den Newsletter abonniert haben und darüber hinaus entsprechend den gesetzlichen Aufbewahrungspflichten.
+
+
+Weitere Informationen zum Datenschutz bei Klick-Tipp finden Sie in der Datenschutzerklärung von Klick-Tipp: https://www.klicktipp.com/de/datenschutzerklarung
+
+
+KONTAKTFORMULAR
+
+Wenn Sie uns per Kontaktformular Terminwünsche oder Anfragen zukommen lassen, werden die von Ihnen mitgeteilten Daten (E-Mail-Adresse, Name, Telefonnummer) gespeichert, um Ihre Fragen beantworten zu können. Diese Daten werden gelöscht, sobald sie nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten bestehen. Dritten werden diese Daten nicht zugänglich gemacht.
+
+
+AKTUALITÄT UND ÄNDERUNG DIESER DATENSCHUTZERKLÄRUNG
+
+Diese Datenschutzerklärung ist aktuell gültig und hat den Stand Oktober 2023
+
+
+Durch die Weiterentwicklung unserer Website und Angebote darüber oder aufgrund geänderter gesetzlicher beziehungsweise behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern. Die jeweils aktuelle Datenschutzerklärung kann jederzeit auf der Website unter vysible.de/datenschutzerklaerung von Ihnen abgerufen und ausgedruckt werden.
