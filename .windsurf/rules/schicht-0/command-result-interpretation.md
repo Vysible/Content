@@ -28,6 +28,20 @@ When a command shows `Step was canceled by user`:
 - Report: `[INCONCLUSIVE] Check [X] — cancelled by user`
 - Ask whether to retry, skip, or abort.
 
+### 2a. INCONCLUSIVE = Sofortiger Report, kein weiterer Tool-Call
+
+**INCONCLUSIVE ist ein vollständiger Stopp-Zustand für den laufenden Batch.**
+
+Wenn auch nur ein Ergebnis INCONCLUSIVE ist:
+1. **SOFORT** eine sichtbare Status-Antwort produzieren — vor jedem weiteren Tool-Call.
+2. Den Status aller Commands im Batch auflisten (PASS / FAIL / INCONCLUSIVE).
+3. Den User explizit fragen: retry / skip / abort.
+4. **Kein weiterer Tool-Call, kein weiteres Kommando** bis der User antwortet.
+
+**Keine Ausnahme.** Auch wenn die anderen Commands im Batch PASS waren.
+Auch wenn INCONCLUSIVE "wahrscheinlich harmlos" wirkt.
+Entscheidungsparalyse (= Null-Output nach Tool-Calls) ist ein Regelverstoß.
+
 ### 3. PowerShell Select-String: No Output = Pattern Not Found
 
 `Select-String` returns exit code 0 even when no match is found (unlike grep).
