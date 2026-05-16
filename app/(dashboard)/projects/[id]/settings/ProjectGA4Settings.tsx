@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { GA4SetupGuide } from '@/components/analytics/GA4SetupGuide'
 
 interface Props {
   projectId: string
@@ -86,6 +87,8 @@ export function ProjectGA4Settings({ projectId }: Props) {
           → Analytics ansehen
         </a>
       )}
+
+      <GA4SetupGuide />
     </div>
   )
 }

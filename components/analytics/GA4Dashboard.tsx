@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { GA4SetupGuide } from './GA4SetupGuide'
 
 interface GA4Metrics {
   sessions: number
@@ -76,24 +77,34 @@ export function GA4Dashboard({ projectId }: Props) {
 
   if (error) {
     const isNotConfigured = error.includes('Keine GA4-Property-ID')
+    const isNoServiceAccount = error.includes('Service Account nicht konfiguriert')
     return (
-      <div className="bg-white border border-stone rounded-xl p-8 text-center space-y-2">
-        <p className="text-nachtblau font-semibold">
-          {isNotConfigured ? 'GA4-Property-ID fehlt' : 'Analytics nicht verfügbar'}
-        </p>
-        <p className="text-sm text-stahlgrau">
-          {isNotConfigured
-            ? 'Keine GA4-Property-ID hinterlegt — bitte in den Projekteinstellungen eintragen.'
-            : error}
-        </p>
-        {isNotConfigured && (
-          <a
-            href={`/projects/${projectId}/settings`}
-            className="inline-block mt-3 px-4 py-2 text-sm bg-cognac hover:bg-cognacDark text-black font-semibold rounded-lg transition"
-          >
-            Zu den Einstellungen
-          </a>
-        )}
+      <div>
+        <div className="bg-white border border-stone rounded-xl p-6 space-y-2">
+          <p className="text-sm font-semibold text-nachtblau">
+            {isNotConfigured
+              ? 'GA4-Property-ID fehlt'
+              : isNoServiceAccount
+                ? 'GA4 Service Account nicht konfiguriert'
+                : 'Analytics nicht verfügbar'}
+          </p>
+          <p className="text-sm text-stahlgrau">
+            {isNotConfigured
+              ? 'Für dieses Projekt ist noch keine GA4-Property-ID hinterlegt.'
+              : isNoServiceAccount
+                ? 'Der GA4 Service Account (GA4_SERVICE_ACCOUNT_JSON) ist in Coolify noch nicht gesetzt.'
+                : error}
+          </p>
+          {(isNotConfigured || isNoServiceAccount) && (
+            <a
+              href={`/projects/${projectId}/settings`}
+              className="inline-block mt-2 px-4 py-2 text-sm bg-cognac text-black font-semibold rounded-lg hover:opacity-90 transition"
+            >
+              Zu den Einstellungen
+            </a>
+          )}
+        </div>
+        <GA4SetupGuide />
       </div>
     )
   }
