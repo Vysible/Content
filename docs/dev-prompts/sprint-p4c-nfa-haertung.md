@@ -104,7 +104,7 @@ Select-String "robots\|robotsTxt\|robot" lib/scraper -Recurse -i |
 - [ ] CSP-Header in `next.config.mjs` konfiguriert
 - [ ] DSGVO: Projekt-Löschung kaskadiert alle zugehörigen Daten (CostEntries, AuditLog, etc.)
 - [ ] Input-Validierung (Zod) auf allen POST/PUT-Routen die User-Input akzeptieren
-- [ ] Error-Boundaries: `error.tsx` in relevanten Route-Segmenten
+- [ ] Error-Boundaries: ✅ `app/(dashboard)/error.tsx` vorhanden · optional: `projects/[id]/error.tsx` prüfen
 - [ ] Request-Timeout auf externe Calls (KI, Scraper) mit AbortController
 - [ ] Kein stiller Catch eingeführt
 - [ ] Kein PII in Logs
@@ -114,10 +114,10 @@ Select-String "robots\|robotsTxt\|robot" lib/scraper -Recurse -i |
 
 ---
 
-## Sub-Slice A — Concurrency-Limiter + Rate-Limiting + CSP
+## Sub-Slice A — Rate-Limiting (Middleware) + CSP-Header
 
-**Aufwand:** ~5–6 Stunden  
-**Scope:** Infrastrukturelle Härtung: Concurrency, Rate-Limit, Security-Header.
+**Aufwand:** ~2–3 Stunden (Concurrency bereits erledigt)  
+**Scope:** Infrastrukturelle Härtung: Rate-Limit global in Middleware, CSP + Security-Header.
 
 ### IN
 
@@ -182,8 +182,9 @@ components/                                    NICHT anfassen (Sub-Slice B)
 
 ### Acceptance Checklist
 
-- [ ] 4. Generierung bei 3 laufenden → 429 mit verständlicher Meldung
-- [ ] 61. Request/Minute von gleicher IP → 429 mit Retry-After
+- [ ] 4. Generierung bei 3 laufenden → Job wird **gequeued** (Status `queued` in DB, SSE-Event `queue_position`)
+- [ ] 61. Request/Minute von gleicher IP auf `/api/*` → 429 mit `Retry-After`-Header
+- [ ] `/api/generate/stream/*` und `/api/healthz` nicht rate-limited (SSE-Verbindung stabil)
 - [ ] CSP-Header in Response-Headers sichtbar (DevTools → Network)
 - [ ] X-Frame-Options: DENY in Response
 - [ ] TypeScript: 0 Fehler
@@ -191,7 +192,7 @@ components/                                    NICHT anfassen (Sub-Slice B)
 ### Commit-Message
 
 ```
-feat(nfa): Concurrency-Limiter + Rate-Limiting + CSP-Header (Phase 4 NFA Sub-A)
+feat(nfa): Rate-Limiting (Middleware) + CSP-Header (Phase 4 NFA Sub-A)
 ```
 
 ---
@@ -204,59 +205,58 @@ feat(nfa): Concurrency-Limiter + Rate-Limiting + CSP-Header (Phase 4 NFA Sub-A)
 ### IN
 
 ```
-app/api/projects/[id]/route.ts                 MOD — DELETE: vollständige Kaskade + Audit
-lib/generation/pipeline.ts                     MOD — AbortController-Timeout auf KI-Calls
-app/(dashboard)/error.tsx                      NEU/PRÜFEN — Error-Boundary
-app/(dashboard)/projects/[id]/error.tsx        NEU — Projekt-spezifische Error-Boundary
-app/api/projects/[id]/seo/route.ts             MOD — Zod-Validierung (Beispiel-Route)
-app/api/projects/[id]/social-post/route.ts     MOD — Zod-Validierung
+app/api/projects/[id]/route.ts                 NEU — DELETE Handler (Route existiert noch nicht!)
+lib/generation/themes.ts                       MOD — AbortSignal.timeout(120_000) auf anthropic.messages.create
+lib/generation/texts.ts                        MOD — AbortSignal.timeout(120_000) auf anthropic.messages.create
+app/(dashboard)/error.tsx                      SKIP — bereits vollständig implementiert
+app/(dashboard)/projects/[id]/error.tsx        NEU — Projekt-spezifische Error-Boundary (optional)
+app/api/projects/[id]/social-post/route.ts     MOD — Zod-Validierung (ersetzt typeof-Checks)
 ```
 
 ### OUT
 
 ```
-lib/generation/concurrency.ts                  NICHT anfassen (Sub-Slice A)
+lib/generation/queue.ts                        NICHT anfassen (Concurrency bereits erledigt)
 middleware.ts                                  NICHT anfassen (Sub-Slice A)
 next.config.mjs                                NICHT anfassen (Sub-Slice A)
+app/(dashboard)/error.tsx                      NICHT anfassen (bereits fertig)
 ```
 
 ### B1 — DSGVO: Projekt-Löschung vollständig
 
 ```typescript
-// In app/api/projects/[id]/route.ts → DELETE Handler:
-// 1. Auth + Ownership-Check
-// 2. Audit-Log: "Projekt gelöscht" (vor Löschung!)
-// 3. Prisma-Transaction:
-//    - CostEntries (projectId) → löschen
-//    - AuditLogs (projectId) → löschen (nach Audit-Eintrag)
-//    - GenerationJobs (projectId) → löschen
-//    - ShareLinks (projectId) → löschen
-//    - Comments (projectId) → löschen
-//    - ContentApprovals (projectId) → löschen
-//    - InvitationTokens (projectId) → löschen
-//    - PraxisUsers (projectId? — prüfen) → löschen
-//    - Project selbst → löschen
-// 4. Logger: erfolgreiche Löschung
-// 5. Response: 204 No Content
+// In app/api/projects/[id]/route.ts → DELETE Handler (Route muss NEU erstellt werden):
+// 1. Auth + Ownership-Check (Project.createdById === session.user.id)
+// 2. Audit-Log: "project.delete" VOR der Löschung schreiben!
+// 3. prisma.project.delete({ where: { id } })
+//    Prisma-Cascade übernimmt automatisch:
+//      GenerationJob, ShareLink, PraxisUser, InvitationToken,
+//      ContentApproval, Comment → onDelete: Cascade ✅
 //
-// Prüfen: Prisma onDelete: Cascade auf allen Relationen?
-// Falls nicht: explizit in Transaction löschen
+//    NICHT explizit löschen (onDelete: SetNull — Daten bleiben erhalten!):
+//      CostEntry → SetNull (Kostenhistorie muss nach Projekt-Löschung erhalten bleiben)
+//      CostReport → SetNull (Kostenreport-Archiv)
+//      AuditLog → SetNull (Compliance-Audit-Trail darf NICHT gelöscht werden!)
+// 4. logger.info: erfolgreiche Löschung
+// 5. Response: 204 No Content
 ```
 
 ### B2 — Request-Timeout auf KI-Calls
 
 ```typescript
-// In lib/generation/pipeline.ts oder lib/ai/client.ts:
-// AbortController mit 120s Timeout für KI-Calls
-// Bei Timeout: AbortError → logger.error + sauberer Job-Status 'ERROR'
+// In lib/generation/themes.ts und lib/generation/texts.ts:
+// AbortSignal.timeout(120_000) direkt im anthropic.messages.create-Aufruf:
 
-const controller = new AbortController()
-const timeout = setTimeout(() => controller.abort(), 120_000)
-try {
-  const response = await fetch(url, { signal: controller.signal, ... })
-} finally {
-  clearTimeout(timeout)
-}
+const response = await anthropic.messages.create({
+  model: DEFAULT_MODEL,
+  max_tokens: 8_192,
+  system: prompt.system,
+  messages: [{ role: 'user', content: prompt.user }],
+  // @ts-expect-error -- Anthropic SDK akzeptiert signal als fetch-Option
+  signal: AbortSignal.timeout(120_000),
+})
+// Hinweis: Bei TimeoutError → withRetry fängt den Fehler ab → logger.error + Job-Status 'ERROR'
+// AbortSignal.timeout() ist bereits im Scraper-Client etabliert (90_000ms)
 ```
 
 ### B3 — Input-Validierung: Zod auf POST-Routen
@@ -281,35 +281,26 @@ export async function POST(req: Request, ...) {
 }
 ```
 
-Routen die Input-Validierung brauchen (Exploration bestätigt welche fehlen):
-- `/api/projects/[id]/social-post` — hat teilweise, Zod ergänzen
-- `/api/projects/[id]/seo` — neu (Sprint P4-A)
-- `/api/generate/start` — prüfen
-- `/api/hedy/import` — prüfen
-- `/api/projects/clone` — prüfen
+Routen die Input-Validierung brauchen (Exploration 2026-05-16):
+- `/api/projects/[id]/social-post` — **MUSS**: manuelle `typeof`-Checks → Zod-Schema ergänzen
+- `/api/projects/[id]/seo` — **OK**: manuelle Validierung ausreichend, kein Zod nötig
+- `/api/generate/start` — **OK**: `projectId`-Check vorhanden, kein Zod nötig
+- `/api/hedy/import` — **SOLL**: prüfen ob Body validiert wird
+- `/api/projects/clone` — **SOLL**: minimale Validierung vorhanden, Zod optional
 
-### B4 — Error-Boundaries
+### B4 — Error-Boundaries (SKIP für Dashboard — optional: Projekt-Detail)
 
-```typescript
-// app/(dashboard)/error.tsx — Globale Fehlergrenze für Dashboard
-'use client'
-
-export default function DashboardError({ error, reset }: { error: Error; reset: () => void }) {
-  return (
-    <div className="p-8 text-center">
-      <h2 className="text-lg font-bold text-red-700">Unerwarteter Fehler</h2>
-      <p className="text-sm text-gray-600 mt-2">{error.message}</p>
-      <button onClick={reset} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
-        Erneut versuchen
-      </button>
-    </div>
-  )
-}
-```
+> ✅ `app/(dashboard)/error.tsx` existiert bereits und ist vollständig implementiert
+> (gleiche Struktur wie das Sprint-Prompt-Template).
+>
+> **Optional:** `app/(dashboard)/projects/[id]/error.tsx` für projekt-spezifische
+> Fehler hinzufügen (gleiche Struktur: `'use client'`, `DashboardError`-Muster).
+> Nur erstellen wenn Exploration zeigt, dass die Projekt-Detail-Page keine separate
+> Boundary hat.
 
 ### Acceptance Checklist
 
-- [ ] Projekt-Löschung: alle zugehörigen Daten in DB gelöscht (kein Orphan)
+- [ ] Projekt-Löschung: Cascade-Relationen gelöscht (GenerationJob, ShareLink, PraxisUser, etc.) · CostEntry/AuditLog SetNull (projectId=null, Daten erhalten)
 - [ ] KI-Call > 120s → sauberer Abbruch mit Error-Status im Job
 - [ ] POST ohne Body / mit ungültigem Body → 400 mit Zod-Fehlern
 - [ ] Dashboard-Error: unerwarteter Serverfehler → freundliche Fehlermeldung + Retry
@@ -331,13 +322,13 @@ feat(nfa): DSGVO-Löschkaskade + Timeouts + Input-Validierung + Error-Boundaries
 # TypeScript fehlerfrei
 node node_modules/typescript/bin/tsc --noEmit
 
-# Concurrency-Limiter vorhanden
-Select-String "acquireGenerationSlot\|MAX_CONCURRENT" lib/generation -Recurse
+# Concurrency-Limiter vorhanden (queue.ts)
+Select-String "MAX_CONCURRENT\|tryEnqueue" lib/generation/queue.ts
 # → Mindestens 2 Treffer
 
-# Rate-Limiter vorhanden
-Select-String "checkRateLimit\|rate-limit" lib/utils,middleware.ts -Recurse -i
-# → Mindestens 2 Treffer
+# Rate-Limiter in Middleware vorhanden
+Select-String "rateLimit" middleware.ts
+# → Mindestens 1 Treffer
 
 # CSP-Header konfiguriert
 Select-String "Content-Security-Policy\|contentSecurityPolicy" next.config.mjs
