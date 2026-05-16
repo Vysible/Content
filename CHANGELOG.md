@@ -5,6 +5,14 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Sprint Fix-B — Themen-Quality-Gate: Magic Numbers + istFrage deterministisch (Backlog #5):**
+  - `lib/generation/config.ts` NEU: `THEMES_CONFIG` mit `minPraxisQuote` (Default 0.8) und `minSeoQuote` (Default 0.5), ENV-Override via `THEMES_MIN_PRAXIS_QUOTE` / `THEMES_MIN_SEO_QUOTE`.
+  - `lib/generation/themes-schema.ts` MOD: Hardcoded `0.8` und `0.5` durch `THEMES_CONFIG`-Werte ersetzt — Schwellwerte ohne Deployment änderbar. `istFrage` von Pflichtfeld zu `optional().default(false)` — wird nicht mehr vom LLM befüllt.
+  - `lib/generation/themes.ts` MOD: `computeIstFrage()` (export) — deterministisch `seoTitel.endsWith('?') || seoTitel.includes(keyword)`. Post-parse-Mapping setzt `istFrage` für alle Items, ersetzt LLM-Self-Assessment.
+  - `prompts/themes.yaml` MOD: `"istFrage": true` aus JSON-Schema-Beispiel entfernt (LLM muss das Feld nicht mehr befüllen). Guideline-Regel bleibt als Output-Hinweis für seoTitel-Formatierung.
+  - `.env.example` MOD: `THEMES_MIN_PRAXIS_QUOTE` und `THEMES_MIN_SEO_QUOTE` dokumentiert (auskommentiert).
+
 ### Fixed
 - `app/datenschutz/page.tsx`: ASCII `"` und `'` durch typografische Unicode-Zeichen ersetzt — behebt `react/no-unescaped-entities` ESLint-Fehler (CI lint-and-typecheck FAIL).
 

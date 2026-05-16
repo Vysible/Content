@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { ThemenItemSchema } from '@/lib/generation/themes-schema'
+import { computeIstFrage } from '@/lib/generation/themes'
 
 const validItem = {
   monat:                 '2027-01',
@@ -48,5 +49,30 @@ describe('ThemenItemSchema Validierung', () => {
   it('falsch formatiertes monat (nicht YYYY-MM) → Fehler', () => {
     const result = ThemenItemSchema.safeParse({ ...validItem, monat: 'Januar 2027' })
     expect(result.success).toBe(false)
+  })
+
+  it('istFrage fehlt → default false wird gesetzt', () => {
+    const { istFrage: _omit, ...withoutIstFrage } = validItem
+    const result = ThemenItemSchema.safeParse(withoutIstFrage)
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.istFrage).toBe(false)
+  })
+})
+
+describe('computeIstFrage', () => {
+  it('Frage-Format und Keyword → true', () => {
+    expect(computeIstFrage('Wie oft zahnarzt?', 'zahnarzt')).toBe(true)
+  })
+
+  it('nur Keyword (kein Fragezeichen) → true', () => {
+    expect(computeIstFrage('Prophylaxe beim Zahnarzt', 'zahnarzt')).toBe(true)
+  })
+
+  it('weder Keyword noch Fragezeichen → false', () => {
+    expect(computeIstFrage('Gesunde Ernährung für Patienten', 'Implantat')).toBe(false)
+  })
+
+  it('nur Frage-Format (kein Keyword) → true', () => {
+    expect(computeIstFrage('Was kostet eine Zahnreinigung?', 'reinigung')).toBe(true)
   })
 })

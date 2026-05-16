@@ -77,7 +77,10 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
       .map((b) => (b as { type: 'text'; text: string }).text)
       .join('')
 
-    const items = parseThemesJson(rawText)
+    const items = parseThemesJson(rawText).map((item) => ({
+      ...item,
+      istFrage: computeIstFrage(item.seoTitel, item.keywordPrimaer),
+    }))
     const validation = validateThemenQuality(items)
 
     if (!validation.ok) {
@@ -136,6 +139,19 @@ function salvageTruncatedArray(text: string): ThemenItem[] {
 
   if (items.length === 0) throw new Error('Keine gültigen Themen-Objekte in der Antwort gefunden')
   return items
+}
+
+/**
+ * Berechnet deterministisch ob ein SEO-Titel als Frage formuliert ist
+ * oder das Primärkeyword enthält. Ersetzt LLM-Self-Assessment für istFrage.
+ *
+ * Kriterien:
+ *   (a) seoTitel endet mit '?' → Frage-Format
+ *   (b) seoTitel enthält keywordPrimaer (case-insensitive) → Keyword-Präsenz
+ */
+export function computeIstFrage(seoTitel: string, keywordPrimaer: string): boolean {
+  const t = seoTitel.trim()
+  return t.endsWith('?') || t.toLowerCase().includes(keywordPrimaer.toLowerCase())
 }
 
 function extractStandort(scrapeResult?: ScrapeResult): string {

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { THEMES_CONFIG } from './config'
 
 export const ThemenItemSchema = z.object({
   // Pflichtfelder (plan.md)
@@ -22,7 +23,7 @@ export const ThemenItemSchema = z.object({
 
   // Qualitätsprüfungsfelder (intern)
   praxisspezifisch: z.boolean(),
-  istFrage: z.boolean(),                                  // seoTitel ist Frage oder enthält Keyword
+  istFrage: z.boolean().optional().default(false),       // seoTitel ist Frage oder enthält Keyword (post-parse berechnet)
 })
 
 export type ThemenItem = z.infer<typeof ThemenItemSchema>
@@ -34,16 +35,18 @@ export function validateThemenQuality(items: ThemenItem[]): { ok: boolean; reaso
   if (items.length === 0) return { ok: false, reason: 'Leeres Themen-Array' }
 
   const praxisPct = items.filter((i) => i.praxisspezifisch).length / items.length
-  if (praxisPct < 0.8) {
+  const minPraxis = THEMES_CONFIG.minPraxisQuote
+  if (praxisPct < minPraxis) {
     return {
       ok: false,
-      reason: `Nur ${Math.round(praxisPct * 100)}% praxisspezifisch (Minimum 80%)`,
+      reason: `Nur ${Math.round(praxisPct * 100)}% praxisspezifisch (Minimum ${Math.round(minPraxis * 100)}%)`,
     }
   }
 
   const seoPct = items.filter((i) => i.istFrage).length / items.length
-  const warning = seoPct < 0.5
-    ? `Nur ${Math.round(seoPct * 100)}% SEO-Titel als Frage/mit Keyword (Empfehlung: ≥50%)`
+  const minSeo = THEMES_CONFIG.minSeoQuote
+  const warning = seoPct < minSeo
+    ? `Nur ${Math.round(seoPct * 100)}% SEO-Titel als Frage/mit Keyword (Empfehlung: ≥${Math.round(minSeo * 100)}%)`
     : undefined
 
   return { ok: true, warning }

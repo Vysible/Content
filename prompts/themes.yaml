@@ -20,14 +20,13 @@ system: |
     "canvaOrdnerGenutzt": false,
     "keywordsGenutzt": true,
     "hwgFlag": "gruen | gelb | rot",
-    "praxisspezifisch": true,
-    "istFrage": true
+    "praxisspezifisch": true
   }
 
   Regeln:
   - Genau 1 Thema pro Monat pro aktivem Kanal
   - Mindestens 80% der Themen praxisspezifisch (Praxisname oder Standort erwähnen)
-  - Mindestens 50% der seoTitel als Frage oder mit Primärkeyword
+  - Formuliere mindestens 50% der seoTitel als Frage (endet mit ?) oder mit dem Primärkeyword
   - HWG-Flag: gruen = unbedenklich, gelb = Disclaimer nötig, rot = Versprechen vermeiden
   - Funnel: ~30% Awareness, ~40% Consideration, ~20% Decision, ~10% Retention
   - Alle Texte kurz halten (Zeichenlimits beachten)
