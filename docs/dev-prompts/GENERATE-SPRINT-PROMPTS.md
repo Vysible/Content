@@ -328,6 +328,31 @@ Der generierende Agent prüft jeden Prompt gegen diese Checkliste:
 
 ---
 
+## Schritt 8 — Sprint Closeout (nach jedem Sprint-Abschluss)
+
+Nach dem letzten Commit eines Sprints führt der Agent diese Schritte **in dieser Reihenfolge** aus:
+
+```powershell
+# 1. Abschlussbericht im Sprint-Prompt ausfüllen (Datum, Ergebnisse, Test-Status)
+#    → Bereits in Schritt 5 / Abschlussbericht-Template definiert
+
+# 2. Sprint-Prompt archivieren
+Move-Item docs/dev-prompts/[dateiname].md docs/dev-prompts/archive/[dateiname].md
+
+# 3. Referenztabelle in GENERATE-SPRINT-PROMPTS.md aktualisieren
+#    Status von "Bereit" → "✅ Archiviert nach Abschluss"
+
+# 4. Roadmap-Eintrag als ✅ markieren (falls zutreffend)
+#    Select-String "[Sprint-ID]" docs/roadmap.md → Status-Zeile anpassen
+```
+
+> **Warum:** Der `▶ ARCHIVIEREN`-Hinweis im Abschlussbericht-Template ist nur ein Erinnerungstext —
+> dieser Schritt stellt sicher, dass der Agent ihn **ausführt**, nicht nur dokumentiert.
+> Nicht archivierte Prompts verschmutzen `docs/dev-prompts/` und erzeugen falsche
+> Check-C-Treffer in nachfolgenden Pre-Slice-Validations.
+
+---
+
 ## Bekannte Sonderfälle
 
 ### Externer Blocker (Meta-Verifizierung, API-Vorab-Validierung)
@@ -413,7 +438,7 @@ Dateiname-Schema: sprint-[phase-id]-[slug].md
 | `sprint-p4c-nfa-haertung.md` | NFA-Härtung | 4 | Bereit |
 | `sprint-p4d-performance.md` | Performance & Stabilität | 4 | Bereit |
 | `sprint-fix-a-codecleanup.md` | Code Cleanup — JSON.parse, Footer, Docs | Fix | Bereit |
-| `sprint-fix-b-quality-gate.md` | Themen-Quality-Gate Refactor | Fix | Bereit (nach Fix-A) |
+| `sprint-fix-b-quality-gate.md` | Themen-Quality-Gate Refactor | Fix | ✅ Archiviert nach Abschluss |
 
 **Alle Prompts generiert.** Fix-A und Fix-B können vor P4-A abgearbeitet werden.
 
