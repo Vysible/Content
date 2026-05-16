@@ -3,8 +3,16 @@ import { prisma } from '@/lib/db'
 import { Header } from '@/components/layout/header'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ContentCalendar } from '@/components/calendar/ContentCalendar'
+import dynamic from 'next/dynamic'
 import type { StoredTextResult } from '@/lib/generation/results-store'
+
+const ContentCalendar = dynamic(
+  () => import('@/components/calendar/ContentCalendar').then((m) => m.ContentCalendar),
+  {
+    ssr: false,
+    loading: () => <div className="animate-pulse h-64 bg-stone rounded-xl" />,
+  },
+)
 
 export default async function CalendarPage({ params }: { params: { id: string } }) {
   await requireAuth()

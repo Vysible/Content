@@ -14,10 +14,21 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `app/(dashboard)/projects/[id]/settings/page.tsx`: `ProjectKlickTippSettings` eingebunden.
   - `lib/klicktipp/client.ts`: `loadKtCredentials(projectId?)` — projektspezifischer Key zuerst, globaler Fallback.
   - `app/api/klicktipp/campaign/route.ts`: `loadKtCredentials(projectId)` statt globalem Aufruf.
+- **Sprint P4-D — Performance & Stabilität (Sub-Slice A — DB):**
+  - `prisma/schema.prisma`: 4 neue composite Indexes — `Project[createdById, updatedAt]`, `CostEntry[projectId, timestamp]`, `AuditLog[projectId, createdAt]`, `GenerationJob[status, createdAt]`.
+  - `.env.example`: `connection_limit=10&pool_timeout=30` in DATABASE_URL-Vorlage dokumentiert.
+  - `app/api/projects/route.ts`: `orderBy` auf `updatedAt: 'desc'` umgestellt; `updatedAt` zum `select` ergänzt.
+  - `app/(dashboard)/projects/[id]/page.tsx`: `include:` durch explizites `select:` ersetzt — lädt keine JSON-Blobs (textResults, themeResults, scrapedData) mehr auf der Projektübersicht.
+  - `app/api/generate/stream/[jobId]/route.ts`: `logger` importiert; `abort`-Handler loggt Client-Disconnect via `logger.info`; bisherige silent catches mit `logger.warn` versehen.
+- **Sprint P4-D — Performance & Stabilität (Sub-Slice B — Bundle/Docker):**
+  - `docker-compose.prod.yml`: Memory-Limit für App-Container (`limits: memory: 1024m`, `reservations: 512m`).
+  - `app/(dashboard)/projects/[id]/calendar/page.tsx`: `ContentCalendar` via `next/dynamic` lazy-loaded (`ssr: false`, Skeleton-Loading).
+  - `components/editor/EditorView.tsx`: `RichTextEditor` (Tiptap) via `next/dynamic` lazy-loaded (`ssr: false`, Skeleton-Loading) — separater JS-Chunk, nicht im initialen Bundle.
+- **Sprint P4-D — Closeout:**
+  - `docs/roadmap.md`: Phase 4 auf "✅ Abgeschlossen" gesetzt; P4-D in Phase-4-Backlog eingetragen.
+  - `docs/dev-prompts/archive/sprint-p4d-performance.md`: Sprint-Prompt archiviert.
+  - `docs/dev-prompts/OpenActions.md`: Hinweis auf ausstehende `prisma migrate dev --name performance_indexes` ergänzt.
 
-### Fixed
-- **Sidebar Logo:** `public/logo.png` (V-Symbol) auf 32×32 px verkleinert (war 120×40) und `Vysible`-Schriftzug als separater `<span>` wiederhergestellt (`components/layout/sidebar.tsx`).
-- **KlickTipp optional in Ergebnisansicht:** `ktConfigured` prüft jetzt projektspezifischen `ktApiKeyId` sowie globalen KLICKTIPP-Key als Fallback — Button bleibt ohne jegliche Konfiguration deaktiviert (`app/(dashboard)/projects/[id]/results/page.tsx`). Meta- und LinkedIn-Keys aus Remote-Stand beibehalten.
 - **Sprint P4-C — NFA-Härtung: Rate-Limiting global (Sub-Slice A):**
   - `middleware.ts`: IP-basiertes Rate-Limiting (60 Req/Min) auf alle `/api/*`-Routen via `lib/ratelimit/index.ts`. SSE-Streams (`/api/generate/stream/*`) ausgeschlossen.
   - `next.config.mjs`: CSP + Security-Header auf allen Routen (`Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`).
@@ -30,6 +41,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `docs/roadmap.md`: Sprint P4-C auf "✅ Abgeschlossen (2026-05-16)" gesetzt.
   - `docs/dev-prompts/archive/sprint-p4c-nfa-haertung.md`: Sprint-Prompt archiviert (aus `docs/dev-prompts/` entfernt).
   - `docs/dev-prompts/OpenActions.md`: Kein neuer Nachlaufblock für P4-C (kein offener Punkt entstanden).
+
+### Fixed
+- **Sidebar Logo:** `public/logo.png` (V-Symbol) auf 32×32 px verkleinert (war 120×40) und `Vysible`-Schriftzug als separater `<span>` wiederhergestellt (`components/layout/sidebar.tsx`).
+- **KlickTipp optional in Ergebnisansicht:** `ktConfigured` prüft jetzt projektspezifischen `ktApiKeyId` sowie globalen KLICKTIPP-Key als Fallback — Button bleibt ohne jegliche Konfiguration deaktiviert (`app/(dashboard)/projects/[id]/results/page.tsx`). Meta- und LinkedIn-Keys aus Remote-Stand beibehalten.
 
 ### Changed
 - **Sprint Fix-A — F-020: `JSON.parse(JSON.stringify)` Serialisierungs-Anti-Pattern entfernt:**

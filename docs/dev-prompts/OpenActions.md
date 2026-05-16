@@ -1,5 +1,25 @@
 # Offene Punkte
 
+## Sprint P4-D — Prisma-Migration Performance-Indexes (benötigt laufende DB)
+
+> **Status:** Schema geändert, Prisma Client regeneriert. Migration `performance_indexes`
+> noch nicht gegen eine DB ausgeführt (Docker lokal nicht verfügbar beim Sprint).
+
+**Aktion (einmalig, vor nächstem Deployment):**
+
+```bash
+# Lokal (Docker läuft):
+pnpm prisma migrate dev --name performance_indexes
+
+# Oder direkt auf Prod-DB via SSH/Coolify-Shell:
+pnpm prisma migrate deploy
+```
+
+Neue Indexes: `Project[createdById, updatedAt]`, `CostEntry[projectId, timestamp]`,
+`AuditLog[projectId, createdAt]`, `GenerationJob[status, createdAt]`.
+
+---
+
 ## Sprint P3-E — KlickTipp Auth-Validierung (Slice 23)
 
 > **Status:** Implementierung abgeschlossen. Auth-Schema (Session-Token via

@@ -1,4 +1,5 @@
-# W-20 — Consumer-Registry + ADRs + Phase-2-Abschluss
+## Template for Prompts, Content IS NOT FOR USE OR PRODUCTION!
+# W-20 — Example Prompt
 
 **Framework:** ForgeWeb
 **Phase:** Phase 2

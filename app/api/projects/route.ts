@@ -24,7 +24,7 @@ export async function GET() {
 
   const projects = await prisma.project.findMany({
     where: { createdById: session.user.id },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { updatedAt: 'desc' },
     select: {
       id: true,
       name: true,
@@ -36,6 +36,7 @@ export async function GET() {
       channels: true,
       status: true,
       createdAt: true,
+      updatedAt: true,
     },
   })
 

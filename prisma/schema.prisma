@@ -99,6 +99,7 @@ model Project {
   @@index([createdById])
   @@index([clientId])
   @@index([ktApiKeyId])
+  @@index([createdById, updatedAt])
 }
 
 model Client {
@@ -130,6 +131,7 @@ model GenerationJob {
 
   @@index([projectId])
   @@index([status])
+  @@index([status, createdAt])
 }
 
 model CanvaToken {
@@ -170,6 +172,7 @@ model CostEntry {
 
   @@index([projectId])
   @@index([timestamp])
+  @@index([projectId, timestamp])
 }
 
 model CostSettings {
@@ -312,6 +315,7 @@ model AuditLog {
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+  @@index([projectId, createdAt])
 }
 
 enum Role {

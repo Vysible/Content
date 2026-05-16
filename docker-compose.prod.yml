@@ -10,6 +10,12 @@ services:
       ENCRYPTION_SECRET: ${ENCRYPTION_SECRET}
       NEXT_PUBLIC_APP_URL: https://vysible.cloud
       PLAYWRIGHT_SERVICE_URL: http://playwright:3001
+    deploy:
+      resources:
+        limits:
+          memory: 1024m
+        reservations:
+          memory: 512m
     depends_on:
       playwright:
         condition: service_healthy

@@ -21,8 +21,21 @@ export default async function ProjectPage({ params }: { params: { id: string } }
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    include: {
-      costEntries: { orderBy: { timestamp: 'desc' }, take: 10 },
+    select: {
+      id: true,
+      name: true,
+      praxisUrl: true,
+      praxisName: true,
+      planningStart: true,
+      planningEnd: true,
+      channels: true,
+      positioningDocument: true,
+      keywords: true,
+      status: true,
+      reviewMode: true,
+      hwgFlag: true,
+      hedyImportHighlight: true,
+      costEntries: { select: { costEur: true }, orderBy: { timestamp: 'desc' }, take: 10 },
     },
   })
 

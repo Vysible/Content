@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth/session'
 import { getJob, getEmitter } from '@/lib/generation/job-store'
 import type { GenerationEvent } from '@/lib/generation/types'
+import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,16 +42,16 @@ export async function GET(req: Request, { params }: { params: { jobId: string } 
       const onEvent = (event: GenerationEvent) => {
         try {
           controller.enqueue(encoder.encode(formatSSE(event)))
-        } catch {
-          // Client hat Verbindung getrennt
+        } catch (err: unknown) {
+          logger.warn({ err, jobId }, '[Vysible] SSE enqueue fehlgeschlagen — Client getrennt')
         }
 
         if (event.type === 'texts_done' || event.type === 'error') {
           emitter.off('event', onEvent)
           try {
             controller.close()
-          } catch {
-            // bereits geschlossen
+          } catch (err: unknown) {
+            logger.warn({ err, jobId }, '[Vysible] SSE controller.close fehlgeschlagen — bereits geschlossen')
           }
         }
       }
@@ -58,11 +59,12 @@ export async function GET(req: Request, { params }: { params: { jobId: string } 
       emitter.on('event', onEvent)
 
       req.signal.addEventListener('abort', () => {
+        logger.info({ jobId }, '[Vysible] SSE-Verbindung geschlossen (Client-Disconnect)')
         emitter.off('event', onEvent)
         try {
           controller.close()
-        } catch {
-          // bereits geschlossen
+        } catch (err: unknown) {
+          logger.warn({ err, jobId }, '[Vysible] SSE controller.close bei abort fehlgeschlagen — bereits geschlossen')
         }
       })
     },

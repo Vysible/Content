@@ -1,9 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { RichTextEditor } from './RichTextEditor'
+import dynamic from 'next/dynamic'
 import { ChatPanel } from './ChatPanel'
+
 import type { StoredTextResult, ContentVersion } from '@/lib/generation/results-store'
+
+const RichTextEditor = dynamic(
+  () => import('./RichTextEditor').then((m) => m.RichTextEditor),
+  {
+    ssr: false,
+    loading: () => <div className="animate-pulse h-48 bg-stone rounded" />,
+  },
+)
 
 export type SaveState = 'saved' | 'saving' | 'error' | 'idle'
 
