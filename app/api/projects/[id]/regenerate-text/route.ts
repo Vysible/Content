@@ -7,7 +7,7 @@ import {
   generateBlogOutlines,
   generateTexts,
 } from '@/lib/generation/texts'
-import { buildContext } from '@/lib/generation/context-builder'
+import { buildContext } from '@/lib/ai/context-builder'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { TextResult } from '@/lib/generation/texts-schema'
 import type { StoredTextResult } from '@/lib/generation/results-store'
