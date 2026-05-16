@@ -71,7 +71,7 @@ export type TextResult = z.infer<typeof TextResultSchema>
 
 // Claude-Antwort für Social: { instagram?, facebook?, linkedin? }
 export const SocialResponseSchema = z.object({
-  instagram: z.string().optional(),
-  facebook: z.string().optional(),
-  linkedin: z.string().optional(),
+  instagram: z.string().nullish(),
+  facebook: z.string().nullish(),
+  linkedin: z.string().nullish(),
 })
