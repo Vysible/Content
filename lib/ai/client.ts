@@ -8,6 +8,8 @@ import { calcCostEur } from '@/config/model-prices'
  * Gibt einen Anthropic-Client zurück.
  * Bei projectApiKeyId: sucht zuerst den projektspezifischen Key (FA-F-11a),
  * fällt auf den globalen Default-Key zurück wenn nicht vorhanden.
+ * @forge-scan factory-only — macht keine externen Calls, gibt nur Client-Instanz zurück.
+ * Externe AI-Calls sind in lib/generation/themes.ts und lib/generation/texts.ts (withRetry gesichert).
  */
 export async function getAnthropicClient(projectApiKeyId?: string | null): Promise<Anthropic> {
   if (projectApiKeyId) {

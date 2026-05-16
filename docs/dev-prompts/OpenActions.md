@@ -131,12 +131,12 @@
 
 ## Backlog / Tech-Debt (nicht sprintgebunden)
 
-1. **Sprint 0a — Restbestand stiller Catches schließen** (Forge-Regel `resilience §3a`) — noch 2 offen
+1. **Sprint 0a — Restbestand stiller Catches schließen** (Forge-Regel `resilience §3a`) — noch 0 offen
 
    Zwei `.catch(() => {})` aus Slices 26/27, eingeführt vor Forge-Migration. Alle dokumentiert in `docs/forge-web-deviations.md` (Status: `Accepted`, Timeline: Sprint 0a).
 
    - ~~`components/layout/TokenWarningBanner.tsx:21` (Slice 26)~~ **✅ Geschlossen (Sprint P3-H)**
-   - `components/wizard/TemplateSelector.tsx:23` (Slice 25)
+   - ~~`components/wizard/TemplateSelector.tsx:23` (Slice 25)~~ **✅ Geschlossen (Sprint P3-G)**
    - ~~`lib/klicktipp/client.ts:34` (Slice 23)~~ **✅ Geschlossen (Sprint P3-E)**
    - ~~`lib/tokens/expiry-checker.ts:21` (Slice 26)~~ **✅ Bereits gefixt vor Sprint P3-H (staler Eintrag)**
    - ~~`lib/costs/reporter.ts:56` (Slice 27)~~ **✅ Geschlossen (Sprint P3-F)**
@@ -216,7 +216,7 @@
 
    Aufwand: ~2–3 Stunden (Texte liefert Betreiber).
 
-9. **Prisma-Migration `20260515220000_add_meta_linkedin_providers` auf Prod-DB anwenden** (BLOCKING für META/LINKEDIN-Nutzung)
+9. ~~**Prisma-Migration `20260515220000_add_meta_linkedin_providers` auf Prod-DB anwenden** (BLOCKING für META/LINKEDIN-Nutzung)~~ **✅ Schema-Seite erledigt (Provider-Enum bereinigt, Sprint P2-F). Prod-DB-Anwendung manuell nötig — siehe SSH-Anleitung unten.**
 
    Migration wurde lokal manuell erstellt (DB war nicht erreichbar). Sie muss via SSH auf der Prod-DB angewendet werden, bevor META/LINKEDIN-API-Keys funktionieren.
 
@@ -232,8 +232,6 @@
 
    **Solange diese Migration nicht applied ist:** Prisma wirft einen Fehler wenn `provider: 'META'` oder `provider: 'LINKEDIN'` in `findFirst`-Queries verwendet wird.
 
-10. **Forge §3c-Scan: `lib/ai/client.ts` als False Positive dokumentiert**
+10. ~~**Forge §3c-Scan: `lib/ai/client.ts` als False Positive dokumentiert**~~ **✅ Geschlossen (Sprint Fix-A)**
 
-    Der automatische Forge-Compliance-Scan (`*client*.ts` → `withRetry` prüfen) erkennt `lib/ai/client.ts` als fehlend. `lib/ai/client.ts` ist jedoch eine **reine Factory** (gibt Anthropic/OpenAI-Client-Instanzen zurück, macht keine externen Calls). Die tatsächlichen API-Calls sind in `lib/generation/texts.ts`, `lib/generation/themes.ts` etc. — alle mit `withRetry` gesichert.
-
-    Maßnahme: Scan-Pattern verfeinern oder `lib/ai/client.ts` explizit als Factory kommentieren (`// forge-scan: factory-only, no external calls`). Kein Handlungsbedarf bzgl. Resilience.
+    `@forge-scan factory-only`-Kommentar in `lib/ai/client.ts` JSDoc ergänzt — CI-False-Positive verhindert.

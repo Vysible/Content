@@ -17,6 +17,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `.env.example` MOD: `THEMES_MIN_PRAXIS_QUOTE` und `THEMES_MIN_SEO_QUOTE` dokumentiert (auskommentiert).
 
 ### Fixed
+- **Sprint Fix-A — Sub-Slice B:**
+  - `app/(dashboard)/layout.tsx`: Footer mit Impressum/Datenschutz-Links ergänzt (`<a href="/impressum">` + `<a href="/datenschutz">`). Server Component bleibt Server Component (kein `'use client'` nötig). (Backlog #8 partial)
+  - `lib/ai/client.ts`: `@forge-scan factory-only`-JSDoc-Kommentar ergänzt — verhindert CI-False-Positive beim Forge-§3c-Retry-Scan. (Backlog #10)
+  - `docs/dev-prompts/OpenActions.md`: Einträge Backlog #1 (`TemplateSelector.tsx:23`), #9 (META/LINKEDIN-Schema) und #10 (forge-scan) als ✅ geschlossen markiert. Zähler "noch 2 offen" → "noch 0 offen".
 - `app/datenschutz/page.tsx`: ASCII `"` und `'` durch typografische Unicode-Zeichen ersetzt — behebt `react/no-unescaped-entities` ESLint-Fehler (CI lint-and-typecheck FAIL).
 
 ### Added
