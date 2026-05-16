@@ -16,6 +16,19 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
   - `prompts/themes.yaml` MOD: `"istFrage": true` aus JSON-Schema-Beispiel entfernt (LLM muss das Feld nicht mehr befüllen). Guideline-Regel bleibt als Output-Hinweis für seoTitel-Formatierung.
   - `.env.example` MOD: `THEMES_MIN_PRAXIS_QUOTE` und `THEMES_MIN_SEO_QUOTE` dokumentiert (auskommentiert).
 
+### Added
+- **Einstellungen → Parameter (neu):** Konfigurierbarer Bereich zwischen "Kosten & Abrechnung" und "Benutzer".
+  - `prisma/schema.prisma`: `AppConfig`-Modell (Single-Row) mit Themen-Qualitätsschwellwerten + Modell-Auswahl pro Aufgabe.
+  - `prisma/migrations/20260516_add_app_config/migration.sql`: Migration-SQL (manuell gegen Prod-DB anwenden).
+  - `lib/generation/app-config.ts` NEU: `getAppConfig()` liest DB, fällt auf ENV-Defaults zurück.
+  - `lib/generation/themes.ts` + `lib/generation/texts.ts`: Alle `DEFAULT_MODEL`-Stellen durch konfiguriertes Modell aus DB ersetzt.
+  - `lib/generation/themes-schema.ts`: `validateThemenQuality()` akzeptiert optionalen `config`-Parameter.
+  - `app/api/settings/parameters/route.ts` NEU: GET + PATCH, ADMIN-only.
+  - `components/settings/ParameterSettingsForm.tsx` NEU: Client-Formular mit Slidern (Schwellwerte) + Dropdowns (Modelle).
+  - `app/(dashboard)/settings/parameter/page.tsx` NEU: Server Component, lädt Config aus DB.
+  - `app/(dashboard)/settings/layout.tsx`: "Parameter"-Tab hinzugefügt.
+- **Impressum + Datenschutz:** Seiten (`/impressum`, `/datenschutz`) existieren bereits. `middleware.ts` hat sie bereits in der Public-Allowlist (`impressum|datenschutz`). ✅
+
 ### Fixed
 - **Windsurf-Regelwerk (command-result-interpretation, Rule 5):** Pre-Slice/Pre-Sprint Validations werden in sequentiellen Batches (max 2–3 Commands) ausgeführt — strukturelle Maßnahme gegen Entscheidungsparalyse. Auch in forge-web upstream verankert (`windsurf`-only, `b3a73ad`).
 - **Sprint Fix-A — Sub-Slice B:**

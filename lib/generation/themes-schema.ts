@@ -31,11 +31,14 @@ export type ThemenItem = z.infer<typeof ThemenItemSchema>
 export const ThemenListSchema = z.array(ThemenItemSchema)
 
 /** Prüft, ob die Qualitätskriterien laut plan.md erfüllt sind */
-export function validateThemenQuality(items: ThemenItem[]): { ok: boolean; reason?: string; warning?: string } {
+export function validateThemenQuality(
+  items: ThemenItem[],
+  config?: { minPraxisQuote: number; minSeoQuote: number }
+): { ok: boolean; reason?: string; warning?: string } {
   if (items.length === 0) return { ok: false, reason: 'Leeres Themen-Array' }
 
   const praxisPct = items.filter((i) => i.praxisspezifisch).length / items.length
-  const minPraxis = THEMES_CONFIG.minPraxisQuote
+  const minPraxis = config?.minPraxisQuote ?? THEMES_CONFIG.minPraxisQuote
   if (praxisPct < minPraxis) {
     return {
       ok: false,
@@ -44,7 +47,7 @@ export function validateThemenQuality(items: ThemenItem[]): { ok: boolean; reaso
   }
 
   const seoPct = items.filter((i) => i.istFrage).length / items.length
-  const minSeo = THEMES_CONFIG.minSeoQuote
+  const minSeo = config?.minSeoQuote ?? THEMES_CONFIG.minSeoQuote
   const warning = seoPct < minSeo
     ? `Nur ${Math.round(seoPct * 100)}% SEO-Titel als Frage/mit Keyword (Empfehlung: ≥${Math.round(minSeo * 100)}%)`
     : undefined

@@ -1,6 +1,6 @@
 import { getAnthropicClient } from '@/lib/ai/client'
 import { trackCost } from '@/lib/costs/tracker'
-import { DEFAULT_MODEL } from '@/config/model-prices'
+import { getAppConfig } from './app-config'
 import { loadPrompt } from './prompt-loader'
 import { withRetry } from '@/lib/utils/retry'
 import { searchUnsplash } from '@/lib/unsplash/client'
@@ -87,9 +87,10 @@ export async function generateBlogOutlines(args: {
 
     const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
 
+    const cfg = await getAppConfig()
     const outline = await withRetry(async () => {
       const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL,
+        model: cfg.modelBlogOutline,
         max_tokens: 512,
         system: prompt.system,
         messages: [{ role: 'user', content: prompt.user }],
@@ -97,7 +98,7 @@ export async function generateBlogOutlines(args: {
 
       await trackCost({
         projectId: project.id,
-        model: DEFAULT_MODEL,
+        model: cfg.modelBlogOutline,
         inputTokens: response.usage.input_tokens,
         outputTokens: response.usage.output_tokens,
         step: 'blog-outline',
@@ -135,10 +136,11 @@ async function generateBlogPost(args: {
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
+  const cfg = await getAppConfig()
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
-      model: DEFAULT_MODEL,
+      model: cfg.modelBlog,
       max_tokens: 4_096,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
@@ -146,7 +148,7 @@ async function generateBlogPost(args: {
 
     await trackCost({
       projectId: project.id,
-      model: DEFAULT_MODEL,
+      model: cfg.modelBlog,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
       step: 'blog',
@@ -175,10 +177,11 @@ async function generateNewsletter(args: {
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
+  const cfg = await getAppConfig()
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
-      model: DEFAULT_MODEL,
+      model: cfg.modelNewsletter,
       max_tokens: 2_048,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
@@ -186,7 +189,7 @@ async function generateNewsletter(args: {
 
     await trackCost({
       projectId: project.id,
-      model: DEFAULT_MODEL,
+      model: cfg.modelNewsletter,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
       step: 'newsletter',
@@ -237,10 +240,11 @@ async function generateSocialPosts(args: {
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
+  const cfg = await getAppConfig()
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
-      model: DEFAULT_MODEL,
+      model: cfg.modelSocial,
       max_tokens: 1_024,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
@@ -248,7 +252,7 @@ async function generateSocialPosts(args: {
 
     await trackCost({
       projectId: project.id,
-      model: DEFAULT_MODEL,
+      model: cfg.modelSocial,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
       step: 'social',
@@ -290,10 +294,11 @@ async function generateImageBrief(args: {
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
+  const cfg = await getAppConfig()
 
   const rawBrief = await withRetry(async () => {
     const response = await anthropic.messages.create({
-      model: DEFAULT_MODEL,
+      model: cfg.modelImageBrief,
       max_tokens: 1_500,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
@@ -301,7 +306,7 @@ async function generateImageBrief(args: {
 
     await trackCost({
       projectId: project.id,
-      model: DEFAULT_MODEL,
+      model: cfg.modelImageBrief,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
       step: 'image-brief-extended',

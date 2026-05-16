@@ -11,6 +11,7 @@ const settingsTabs = [
   { href: '/settings/klicktipp', label: 'KlickTipp' },
   { href: '/settings/smtp', label: 'E-Mail (SMTP)' },
   { href: '/settings/billing', label: 'Kosten & Abrechnung' },
+  { href: '/settings/parameter', label: 'Parameter' },
   { href: '/settings/users', label: 'Benutzer' },
   { href: '/settings/password', label: 'Passwort' },
 ]

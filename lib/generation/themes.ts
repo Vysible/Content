@@ -1,7 +1,7 @@
 import { getAnthropicClient } from '@/lib/ai/client'
 import { logger } from '@/lib/utils/logger'
 import { trackCost } from '@/lib/costs/tracker'
-import { DEFAULT_MODEL } from '@/config/model-prices'
+import { getAppConfig } from './app-config'
 import { buildContext } from '@/lib/ai/context-builder'
 import { loadPrompt } from './prompt-loader'
 import { ThemenItemSchema, ThemenListSchema, validateThemenQuality, type ThemenItem } from './themes-schema'
@@ -55,10 +55,11 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
+  const cfg = await getAppConfig()
 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
-      model: DEFAULT_MODEL,
+      model: cfg.modelThemes,
       max_tokens: 8_192,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
@@ -66,7 +67,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
 
     await trackCost({
       projectId: project.id,
-      model: DEFAULT_MODEL,
+      model: cfg.modelThemes,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
       step: 'themes',
@@ -81,7 +82,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
       ...item,
       istFrage: computeIstFrage(item.seoTitel, item.keywordPrimaer),
     }))
-    const validation = validateThemenQuality(items)
+    const validation = validateThemenQuality(items, { minPraxisQuote: cfg.themesMinPraxisQuote, minSeoQuote: cfg.themesMinSeoQuote })
 
     if (!validation.ok) {
       logger.warn({ projectId: project.id, reason: validation.reason }, 'Themen-Qualitätskriterien nicht erfüllt — wird wiederholt')
