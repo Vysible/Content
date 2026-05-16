@@ -5,6 +5,20 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Added
+- **GA4 pro Projekt (Web-Analytics):**
+  - `lib/ga4/client.ts` NEU: GA4 Data API v1beta — Service-Account-Auth (RS256 JWT, kein npm-Paket), Token-Cache (1h), Metriken: Sessions, Nutzer, Seitenaufrufe, Top-Pages, Traffic-Quellen, Daily-Sessions (28 Tage). `withRetry` auf Token-Fetch.
+  - `app/api/projects/[id]/analytics/route.ts` NEU: GET — gibt GA4-Metriken zurück (503 wenn Service Account fehlt, 422 wenn Property-ID nicht hinterlegt, 502 bei API-Fehler).
+  - `app/api/projects/[id]/settings/ga4/route.ts` NEU: GET/PATCH — liest und speichert `ga4PropertyId` pro Projekt. Zod-Validierung.
+  - `app/(dashboard)/projects/[id]/analytics/page.tsx` NEU: Analytics-Seite pro Projekt.
+  - `components/analytics/GA4Dashboard.tsx` NEU: Client-Komponente — Stat-Cards, Top-Pages, Traffic-Quellen, Mini-Balkendiagramm (28 Tage). Lade- und Fehlerzustand mit Link zu Einstellungen.
+  - `app/(dashboard)/projects/[id]/settings/ProjectGA4Settings.tsx` NEU: GA4-Property-ID pro Projekt speichern.
+  - `app/(dashboard)/projects/[id]/settings/page.tsx`: `ProjectGA4Settings` eingebunden.
+  - `app/(dashboard)/analytics/page.tsx`: Platzhalter ersetzt durch Projektliste mit GA4-Konfigurationsstatus und Links zu Analytics/Einrichten.
+  - `prisma/schema.prisma`: `ga4PropertyId String?` auf Project-Modell.
+  - `prisma/migrations/20260516_add_ga4_property_id/migration.sql`: Migration-SQL (ADD COLUMN).
+  - `.env.example`: `GA4_SERVICE_ACCOUNT_JSON` dokumentiert.
+
 ### Fixed
 - **Dockerfile Build-OOM:** `NODE_OPTIONS=--max-old-space-size=1536` im Builder-Stage gesetzt — verhindert OOM-Kill durch den Kernel bei `pnpm build` auf speicherbeschränkten VPS-Instanzen. `NEXT_TELEMETRY_DISABLED` vor beide Build-Schritte gezogen.
 - **`pdfjs-dist` v5 Build-Fehler (DOMMatrix):** `next.config.mjs` Webpack-Alias `pdfjs-dist` → Legacy-Build (`pdfjs-dist/legacy/build/pdf.mjs`). pdfjs v5 nutzt `DOMMatrix` (Browser-API) beim Modulimport — der Legacy-Build ist der offizielle Node.js-kompatible Pfad. Fehler war Ursache des Docker-Build-Abbruchs.
