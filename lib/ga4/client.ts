@@ -139,10 +139,14 @@ async function runReport(propertyId: string, body: RunReportBody): Promise<RunRe
   return res.json() as Promise<RunReportResponse>
 }
 
-export async function fetchGA4Metrics(propertyId: string): Promise<GA4Metrics> {
-  logger.info({ propertyId }, 'GA4 Metriken werden abgerufen')
+export async function fetchGA4Metrics(
+  propertyId: string,
+  startDate: string,
+  endDate: string,
+): Promise<GA4Metrics> {
+  logger.info({ propertyId, startDate, endDate }, 'GA4 Metriken werden abgerufen')
 
-  const dateRange = { startDate: '28daysAgo', endDate: 'today' }
+  const dateRange = { startDate, endDate }
 
   const [overviewReport, topPagesReport, trafficReport, dailyReport] = await Promise.all([
     runReport(propertyId, {

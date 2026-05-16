@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db'
 import { logger } from '@/lib/utils/logger'
 import { fetchGA4Metrics } from '@/lib/ga4/client'
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     await requireAuth()
   } catch {
@@ -41,8 +41,12 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     )
   }
 
+  const { searchParams } = new URL(req.url)
+  const startDate = searchParams.get('startDate') ?? '28daysAgo'
+  const endDate = searchParams.get('endDate') ?? 'today'
+
   try {
-    const metrics = await fetchGA4Metrics(project.ga4PropertyId)
+    const metrics = await fetchGA4Metrics(project.ga4PropertyId, startDate, endDate)
     return NextResponse.json(metrics)
   } catch (err) {
     logger.error({ err, projectId: params.id, propertyId: project.ga4PropertyId }, 'GA4 Metriken-Abruf fehlgeschlagen')

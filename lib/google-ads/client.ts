@@ -131,15 +131,21 @@ function getString(obj: unknown, ...path: string[]): string {
   return String(cur ?? '')
 }
 
-export async function fetchGoogleAdsMetrics(customerId: string): Promise<GoogleAdsMetrics> {
+export async function fetchGoogleAdsMetrics(
+  customerId: string,
+  startDate: string,
+  endDate: string,
+): Promise<GoogleAdsMetrics> {
   const normalizedId = normalizeCustomerId(customerId)
-  logger.info({ customerId: normalizedId }, 'Google Ads Metriken werden abgerufen')
+  logger.info({ customerId: normalizedId, startDate, endDate }, 'Google Ads Metriken werden abgerufen')
+
+  const dateFilter = `segments.date BETWEEN '${startDate}' AND '${endDate}'`
 
   const campaignQuery = `
     SELECT campaign.name, campaign.status, metrics.impressions, metrics.clicks,
            metrics.cost_micros, metrics.ctr, metrics.conversions
     FROM campaign
-    WHERE segments.date DURING LAST_30_DAYS
+    WHERE ${dateFilter}
       AND campaign.status != 'REMOVED'
     ORDER BY metrics.cost_micros DESC
     LIMIT 20
@@ -149,7 +155,7 @@ export async function fetchGoogleAdsMetrics(customerId: string): Promise<GoogleA
     SELECT ad_group_criterion.keyword.text, metrics.impressions, metrics.clicks,
            metrics.cost_micros
     FROM keyword_view
-    WHERE segments.date DURING LAST_30_DAYS
+    WHERE ${dateFilter}
       AND ad_group_criterion.status != 'REMOVED'
     ORDER BY metrics.clicks DESC
     LIMIT 10
@@ -158,7 +164,7 @@ export async function fetchGoogleAdsMetrics(customerId: string): Promise<GoogleA
   const dailySpendQuery = `
     SELECT segments.date, metrics.cost_micros
     FROM customer
-    WHERE segments.date DURING LAST_30_DAYS
+    WHERE ${dateFilter}
     ORDER BY segments.date ASC
   `
 

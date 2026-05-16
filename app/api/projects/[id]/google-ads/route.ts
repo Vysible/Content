@@ -11,7 +11,7 @@ const REQUIRED_ENV_VARS = [
   'GOOGLE_ADS_REFRESH_TOKEN',
 ]
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     await requireAuth()
   } catch {
@@ -49,8 +49,14 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     )
   }
 
+  const { searchParams } = new URL(req.url)
+  const defaultEnd = new Date().toISOString().slice(0, 10)
+  const defaultStart = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10)
+  const startDate = searchParams.get('startDate') ?? defaultStart
+  const endDate = searchParams.get('endDate') ?? defaultEnd
+
   try {
-    const metrics = await fetchGoogleAdsMetrics(project.googleAdsCustomerId)
+    const metrics = await fetchGoogleAdsMetrics(project.googleAdsCustomerId, startDate, endDate)
     return NextResponse.json(metrics)
   } catch (err) {
     logger.error(
