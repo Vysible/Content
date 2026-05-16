@@ -149,6 +149,45 @@ Neue Indexes: `Project[createdById, updatedAt]`, `CostEntry[projectId, timestamp
 
 ---
 
+## Audit-2026-05-16 — Schwere 3 (Qualitätsmängel)
+
+> Aus `docs/audit-2026-05-16.md`. Kein Sicherheits- oder Compliance-Blocker,
+> aber relevant für Produktionsqualität und Skalierbarkeit.
+
+11. **FIX-07 — Test-Coverage zu gering (NFA-16 partiell)**
+
+    Sprint-Prompt: `docs/dev-prompts/audit-2026-05-16.md` (Abschnitt FIX-07).
+    Fehlt:
+    - E2E URL→ZIP-Flow (war in roadmap Sprint 2 geplant, nur `login.spec.ts` vorhanden)
+    - Unit-Tests: Chat-Versioning, Cost-Aggregator, Export-Dateinamen, Template-Loader, WP-Formatter, KT-Formatter, Email-Templates
+    - Integration-Tests: weitere API-Routen außer `/api/generate/start`
+
+    Aufwand: 3–5 Tage. Empfehlung: als eigenen Sprint planen.
+
+12. ~~**FIX-08 — Audit-Log-Retention fehlt**~~ **✅ Erledigt (2026-05-16)**
+
+    Cron täglich 03:00 in `lib/cron/scheduler.ts` — löscht `AuditLog`-Einträge älter als 30 Tage.
+    Konfigurierbar via `AUDIT_LOG_RETENTION_DAYS` (Standard: 30). `.env.example` ergänzt.
+
+13. **FIX-09 — `positioningDocument` unverschlüsselt in DB (bekannte Abweichung)**
+
+    `Project.positioningDocument String?` — Klartext in PostgreSQL.
+    Kann Praxis-sensible Strategieinformationen enthalten.
+    Bereits in `docs/forge-web-deviations.md` als bekannte Abweichung dokumentiert.
+    Sprint-Prompt: `docs/dev-prompts/sprint-fix06-aes-version-prefix.md` als Vorlage (gleiche AES-Mechanik).
+    Empfehlung: nach FIX-06 (AES-Versions-Präfix) angehen — gleiche Migrations-Infrastruktur.
+
+14. **FIX-10 — In-Memory-Queue + In-Memory-Rate-Limiter**
+
+    `lib/generation/queue.ts`: Concurrent-Counter geht bei App-Neustart verloren (Coolify auto-deploy).
+    `lib/ratelimit/index.ts`: In-Memory-Map, kein Redis.
+    Aktuell kein Showstopper für Single-Tenant-Einzel-Instanz-Betrieb.
+    Relevant ab: mehrere App-Instanzen oder häufige Deployments mit laufenden Generierungen.
+    Lösung langfristig: Queue-Counter auf DB-Feld oder Redis/BullMQ.
+    Aufwand: 1–2 Tage. **Erst anpacken wenn horizontales Scaling konkret geplant wird.**
+
+---
+
 ## Backlog / Tech-Debt (nicht sprintgebunden)
 
 1. **Sprint 0a — Restbestand stiller Catches schließen** (Forge-Regel `resilience §3a`) — noch 0 offen

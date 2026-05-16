@@ -5,6 +5,18 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Security
+- **FIX-03 `/api/setup`:** Hardcodiertes Passwort `admin123` entfernt. Route erfordert nun `INITIAL_ADMIN_PASSWORD` ENV-Variable (503 wenn fehlt). Response gibt keine Credentials mehr zurück. `.env.example` ergänzt.
+- **FIX-01 HWG-Gate Social Posting:** `app/api/projects/[id]/social-post/route.ts` prüft jetzt `hwgFlag` vor jedem Draft-Post (FA-B-13). Bei gesetztem Flag: HTTP 403 + AuditLog `social.draft_blocked`. Konsistent mit Export-, WordPress- und KlickTipp-Gate.
+
+### Added
+- **FIX-08 Audit-Log-Retention:** `lib/cron/scheduler.ts` — täglicher Cron 03:00 löscht `AuditLog`-Einträge älter als 30 Tage (`AUDIT_LOG_RETENTION_DAYS` ENV, Standard 30). `.env.example` ergänzt.
+
+### Changed
+- **FIX-04 retry.ts → pino (NFA-11):** `lib/utils/retry.ts` verwendet nun `logger.warn/error` statt `console`. Retry-Warnungen erscheinen als strukturiertes JSON in Produktions-Logs.
+- **FIX-02 Chat-Prompt in YAML ausgelagert (NFA-08):** `prompts/chat.yaml` NEU. `app/api/projects/[id]/chat/route.ts`: Inline-System-Prompt entfernt, `loadPrompt('chat', {...})` verwendet.
+- `lib/audit/logger.ts`: `AuditAction`-Union um `social.draft_blocked` und `social.draft_created` erweitert.
+
 ### Fixed
 - `lib/audit/logger.ts`: `AuditAction`-Union um `klicktipp.credentials_saved` und `klicktipp.credentials_removed` erweitert (TypeScript-CI-Fehler).
 

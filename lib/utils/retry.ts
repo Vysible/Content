@@ -1,3 +1,5 @@
+import { logger } from './logger'
+
 const MAX_RETRIES = 3
 const BACKOFF_BASE_MS = 2_000
 
@@ -25,21 +27,19 @@ export async function withRetry<T>(
         exc.status < 500 &&
         exc.status !== 429
       ) {
-        console.error(`[Vysible] Permanent HTTP ${exc.status} on ${context}: ${exc}`)
+        logger.error({ context, status: exc.status }, 'Permanent HTTP error — no retry')
         throw exc
       }
 
       lastError = exc
       const waitMs = BACKOFF_BASE_MS * Math.pow(2, attempt)
       const excMsg = exc instanceof Error ? exc.message : String(exc)
-      console.warn(
-        `[Vysible] [WARN] Attempt ${attempt + 1}/${MAX_RETRIES} failed for ${context}: ${excMsg} — retrying in ${waitMs}ms`,
-      )
+      logger.warn({ context, attempt: attempt + 1, maxRetries: MAX_RETRIES, waitMs, excMsg }, 'Retry attempt failed')
       await sleep(waitMs)
     }
   }
 
   const lastMsg = lastError instanceof Error ? lastError.message : String(lastError)
-  console.error(`[Vysible] [FAIL] All ${MAX_RETRIES} attempts failed for ${context}: ${lastMsg}`)
+  logger.error({ context, maxRetries: MAX_RETRIES, lastMsg }, 'All retry attempts exhausted')
   throw lastError
 }
