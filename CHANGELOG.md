@@ -5,6 +5,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `lib/audit/logger.ts`: `AuditAction`-Union um `klicktipp.credentials_saved` und `klicktipp.credentials_removed` erweitert (TypeScript-CI-Fehler).
+
 ### Added
 - **KlickTipp: Per-Projekt-Credentials (Slice KT-1):**
   - `prisma/schema.prisma`: `ktApiKeyId` FK auf `Project` → eigener `ApiKey` pro Projekt (`ProjectKtApiKey`-Relation).

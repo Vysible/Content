@@ -26,7 +26,9 @@ export type AuditAction =
   | 'wordpress.draft_created'
   | 'wordpress.draft_blocked'
   | 'klicktipp.campaign_created'
-  | 'klicktipp.campaign_blocked';
+  | 'klicktipp.campaign_blocked'
+  | 'klicktipp.credentials_saved'
+  | 'klicktipp.credentials_removed';
 
 interface AuditParams {
   action: AuditAction;
