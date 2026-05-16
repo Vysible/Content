@@ -5,6 +5,7 @@ import {
   TextRun,
   HeadingLevel,
   PageBreak,
+  ExternalHyperlink,
 } from 'docx'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 
@@ -101,6 +102,76 @@ export async function buildDocx(
 
       for (const line of nl.body.split('\n').filter((l) => l.trim())) {
         children.push(new Paragraph({ text: line }))
+      }
+
+      children.push(new Paragraph({ children: [new PageBreak()] }))
+    }
+  }
+
+  // Bildbriefings
+  const briefResults = textResults.filter((r) => r.imageBrief)
+  if (briefResults.length > 0) {
+    children.push(
+      new Paragraph({ children: [new PageBreak()] }),
+      new Paragraph({ text: 'Bildbriefings', heading: HeadingLevel.HEADING_1 }),
+      new Paragraph({ text: '' })
+    )
+
+    for (const r of briefResults) {
+      const b = r.imageBrief!
+      children.push(
+        new Paragraph({ text: `Bildbriefing: ${r.titel}`, heading: HeadingLevel.HEADING_2 }),
+        new Paragraph({ text: '' })
+      )
+
+      const fields: Array<[string, string]> = [
+        ['Motiv', b.motiv],
+        ['Stil', b.stil],
+        ['Farbwelt', b.farbwelt],
+        ['Textoverlay', b.textoverlay],
+        ['Canva-Empfehlung', b.canvaAssetEmpfehlung],
+        ['Stock-Suchbegriffe', b.stockSuchbegriffe.join(', ')],
+        ['HWG-Hinweis', b.hwgHinweis],
+      ]
+      for (const [label, value] of fields) {
+        if (!value) continue
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: `${label}: `, bold: true }),
+              new TextRun({ text: value }),
+            ],
+          })
+        )
+      }
+
+      if (b.dallePrompt) {
+        children.push(
+          new Paragraph({ text: '' }),
+          new Paragraph({ text: 'DALL-E 3 Prompt', heading: HeadingLevel.HEADING_3 }),
+          new Paragraph({
+            children: [new TextRun({ text: b.dallePrompt, font: 'Courier New', size: 18 })],
+          })
+        )
+      }
+
+      if (b.unsplashLinks && b.unsplashLinks.length > 0) {
+        children.push(
+          new Paragraph({ text: '' }),
+          new Paragraph({ text: 'Unsplash-Empfehlungen', heading: HeadingLevel.HEADING_3 })
+        )
+        for (const link of b.unsplashLinks) {
+          children.push(
+            new Paragraph({
+              children: [
+                new ExternalHyperlink({
+                  link,
+                  children: [new TextRun({ text: link, style: 'Hyperlink' })],
+                }),
+              ],
+            })
+          )
+        }
       }
 
       children.push(new Paragraph({ children: [new PageBreak()] }))

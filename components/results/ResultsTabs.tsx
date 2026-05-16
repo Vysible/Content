@@ -6,6 +6,7 @@ import { SeoScoreCard } from '@/components/results/SeoScoreCard'
 import { WordPressDraftButton } from '@/components/results/WordPressDraftButton'
 import { KlickTippButton } from '@/components/results/KlickTippButton'
 import { SocialPostButton } from '@/components/results/SocialPostButton'
+import { ImageBriefCard } from '@/components/results/ImageBriefCard'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
@@ -690,32 +691,12 @@ function TextentwuerfeTab({ results }: { results: StoredTextResult[] }) {
 
 function ImageBriefTab({ results }: { results: StoredTextResult[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {results.map((r, i) => {
-        const brief = r.imageBrief
-        if (!brief) return null
-
-        return (
-          <div key={i} className="bg-white border border-stone rounded-xl p-4">
-            <p className="font-medium text-sm mb-1">{r.titel}</p>
-            <p className="text-xs text-stahlgrau mb-3">{r.monat} · {r.kanal}</p>
-            <div className="space-y-2 text-sm">
-              <BriefRow label="Motiv" value={brief.motiv} />
-              <BriefRow label="Stil" value={brief.stil} />
-              <BriefRow label="Farbwelt" value={brief.farbwelt} />
-              <BriefRow label="Textoverlay" value={brief.textoverlay} />
-              <BriefRow label="Canva-Empfehlung" value={brief.canvaAssetEmpfehlung} />
-              {brief.hwgHinweis && (
-                <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
-                  HWG: {brief.hwgHinweis}
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      })}
+    <div className="space-y-3">
+      {results.map((r, i) => (
+        <ImageBriefCard key={i} result={r} />
+      ))}
       {results.length === 0 && (
-        <p className="text-sm text-stahlgrau py-8 text-center col-span-2">Keine Bildbriefings vorhanden</p>
+        <p className="text-sm text-stahlgrau py-8 text-center">Keine Bildbriefings vorhanden</p>
       )}
     </div>
   )
@@ -757,11 +738,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-function BriefRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-2">
-      <span className="text-xs text-stahlgrau w-32 flex-shrink-0">{label}</span>
-      <span className="text-xs">{value}</span>
-    </div>
-  )
-}

@@ -46,6 +46,11 @@ export const ImageBriefSchema = z.object({
   textoverlay: z.string(),
   canvaAssetEmpfehlung: z.string(),
   hwgHinweis: z.string(),
+  // Slice 15 — erweiterte Felder (abwärtskompatibel):
+  stockSuchbegriffe: z.array(z.string()).default([]),
+  dallePrompt: z.string().optional(),
+  unsplashLinks: z.array(z.string()).default([]),
+  hwgParagraph11Check: z.boolean().default(false),
 })
 
 export const TextResultSchema = z.object({

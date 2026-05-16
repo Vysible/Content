@@ -14,7 +14,7 @@
 | **1** | Core MVP | ~70 % | Content-Paket generiert, ZIP heruntergeladen, Quality-Kriterien erfüllt |
 | **2** | Collaboration & Integration | ~85 % | Feedback-Loop, Social Drafts, E-Mail aktiv |
 | **3** | Erweiterungen | ~65 % | Hedy, Praxis-Portal, WordPress, KlickTipp, KPI |
-| **4** | Quality & Scale | ~50 % | Stabiler Betrieb mit 10+ Projekten |
+| **4** | Quality & Scale | ~60 % | Stabiler Betrieb mit 10+ Projekten |
 
 ---
 
@@ -122,7 +122,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | Slice | Name | Status |
 |---|---|---|
 | 14 | SEO-Analyse (Keyword-Dichte, Meta-Description, Title-Tag) | ✅ Abgeschlossen (2026-05-16, Sprint P4-A) |
-| 15 | Bildbriefing erweitert | ⬜ Offen (Sprint P4-B) |
+| 15 | Bildbriefing erweitert | ✅ Abgeschlossen (2026-05-16, Sprint P4-B) |
 
 ---
 

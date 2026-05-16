@@ -6,6 +6,22 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Sprint P4-B — Bildbriefing erweitert (Slice 15):**
+  - `lib/generation/texts-schema.ts` MOD: `ImageBriefSchema` um vier neue Felder erweitert — `stockSuchbegriffe` (3–5 englische Stock-Keywords), `dallePrompt` (DALL-E 3 Prompt-Text, nur bei HWG grün), `unsplashLinks` (Unsplash-Bild-URLs), `hwgParagraph11Check` (bool, §11-Prüfung durchgeführt). Alle neuen Felder abwärtskompatibel mit `.default([])` / `.optional()`.
+  - `prompts/image-brief.yaml` MOD: Prompt erweitert um Stock-Suchbegriffe, DALL-E-Logik, HWG §11-Prüfung, `fachgebiet`- und `keywords`-Variablen.
+  - `lib/unsplash/client.ts` NEU: Unsplash-API-Client mit `withRetry`, graceful degradation wenn `UNSPLASH_ACCESS_KEY` fehlt.
+  - `lib/generation/texts.ts` MOD: `generateImageBrief()` — neue Prompt-Variablen (`fachgebiet`, `keywords`), HWG §11-Guard (`dallePrompt → undefined` bei `hwgFlag: 'rot'`), Unsplash-Call bei HWG rot/gelb, CostEntry-Step auf `image-brief-extended` umbenannt.
+  - `lib/export/docx.ts` MOD: Bildbriefing-Kapitel im DOCX-Export — alle Felder als Bold-Label + Wert, DALL-E-Prompt als Monospace-Block, Unsplash-Links als klickbare `ExternalHyperlink`-Elemente.
+  - `components/results/ImageBriefCard.tsx` NEU: Collapsible-Karte mit HWG §11-Badge, Stock-Suchbegriffe als Chips, DALL-E-Prompt mit Copy-Button, Unsplash-Links.
+  - `components/results/ResultsTabs.tsx` MOD: `ImageBriefTab` nutzt jetzt `ImageBriefCard` statt der einfachen Inline-Anzeige.
+  - `lib/image/brief-generator.ts` DELETED: Orphan-Implementierung (nicht integriert, no-duplication-Verletzung) im Rahmen von Option-A-Konsolidierung entfernt.
+  - `app/api/image/brief/route.ts` DELETED: Orphan-API-Route die nur den gelöschten `brief-generator` importierte.
+  - `.env.example` MOD: `UNSPLASH_ACCESS_KEY` mit Dokumentation und Rate-Limit-Hinweis ergänzt.
+
+### Changed
+- **Sprint P4-B Closeout (Slice 15):** `docs/roadmap.md` Slice 15 auf ✅ Abgeschlossen (2026-05-16, Sprint P4-B) gesetzt. Phase 4 auf ~60 % aktualisiert. Sprint-Prompt nach `docs/dev-prompts/archive/` archiviert.
+
+### Added
 - **Sprint Fix-A Prompt:** `docs/dev-prompts/sprint-fix-a-codecleanup.md` — Sprint-Prompt für Code-Cleanup: JSON.parse(JSON.stringify)-Muster in `lib/generation/`, Dashboard-Footer Impressum/Datenschutz, forge-scan Kommentar `lib/ai/client.ts`, OpenActions-Bereinigung (F-020, Backlog #8/#10).
 - **Sprint Fix-B Prompt:** `docs/dev-prompts/sprint-fix-b-quality-gate.md` — Sprint-Prompt für Themen-Quality-Gate Refactor: `lib/generation/config.ts` mit ENV-Override, Magic Numbers aus `themes-schema.ts`, `istFrage` deterministisch in `themes.ts`, `prompts/themes.yaml` vereinfacht (Backlog #5).
 - **Roadmap Phase-4-Backlog:** `docs/roadmap.md` um Abschnitt „Phase-4-Backlog" ergänzt — Slice 14 (SEO-Analyse, Sprint P4-A) und Slice 15 (Bildbriefing erweitert, Sprint P4-B) eingetragen.

@@ -3,6 +3,7 @@ import { trackCost } from '@/lib/costs/tracker'
 import { DEFAULT_MODEL } from '@/config/model-prices'
 import { loadPrompt } from './prompt-loader'
 import { withRetry } from '@/lib/utils/retry'
+import { searchUnsplash } from '@/lib/unsplash/client'
 import {
   ImageBriefSchema,
   SocialResponseSchema,
@@ -284,14 +285,16 @@ async function generateImageBrief(args: {
     kanal: theme.kanal,
     hwgFlag: theme.hwgFlag,
     canvaOrdner: project.canvaFolderId ?? '',
+    fachgebiet: project.fachgebiet ?? '',
+    keywords: project.keywords.join(', '),
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
 
-  return withRetry(async () => {
+  const rawBrief = await withRetry(async () => {
     const response = await anthropic.messages.create({
       model: DEFAULT_MODEL,
-      max_tokens: 1_024,
+      max_tokens: 1_500,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
     })
@@ -301,13 +304,26 @@ async function generateImageBrief(args: {
       model: DEFAULT_MODEL,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
-      step: 'image-brief',
+      step: 'image-brief-extended',
     })
 
     const raw = extractText(response)
     const parsed = parseJsonBlock(raw)
     return ImageBriefSchema.parse(parsed)
   }, `anthropic.generateImageBrief(${theme.monat})`)
+
+  // HWG §11-Guard + Unsplash-Links
+  const isHwgSensitiv = theme.hwgFlag === 'rot' || theme.hwgFlag === 'gelb'
+  const unsplashLinks = isHwgSensitiv && rawBrief.stockSuchbegriffe.length > 0
+    ? await searchUnsplash(rawBrief.stockSuchbegriffe[0], 5)
+    : []
+
+  return {
+    ...rawBrief,
+    dallePrompt: theme.hwgFlag === 'rot' ? undefined : rawBrief.dallePrompt,
+    unsplashLinks,
+    hwgParagraph11Check: isHwgSensitiv,
+  }
 }
 
 function extractText(response: { content: Array<{ type: string; text?: string }> }): string {
