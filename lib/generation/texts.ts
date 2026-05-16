@@ -239,10 +239,15 @@ async function generateSocialPosts(args: {
     .map((c) => c.replace('SOCIAL_', '').toLowerCase())
     .join(', ')
 
+  const jsonFormat = '{ ' + channels
+    .map((c) => c.replace('SOCIAL_', '').toLowerCase())
+    .join(', ') + ' }'
+
   const prompt = loadPrompt('social', {
     thema: theme.thema,
     praxisName: project.praxisName ?? project.praxisUrl,
     kanaele: kanalLabels,
+    jsonFormat,
     cta: theme.cta,
     positionierungsdokument: positioningContext.slice(0, 3_000),
   })
