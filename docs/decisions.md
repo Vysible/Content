@@ -41,7 +41,7 @@ Autorität: Diese Datei hat Vorrang vor `plan.md`, `AGENTS.md` und Code-Kommenta
 
 **Begründung:** API-Keys sind hochsensible Credentials. Ein DB-Dump darf keine nutzbaren Keys enthalten. Entspricht `web-encryption-at-rest.mdc`.
 
-**Konsequenzen:** `lib/crypto/aes.ts` ist die einzige Stelle für Encrypt/Decrypt. Format: `iv:authTag:ciphertext` (hex-kodiert). Key-Rotation erfordert neues `ENCRYPTION_SECRET_V2` — Versions-Präfix fehlt aktuell (bekannte Lücke, dokumentiert in `forge-web-deviations.md`).
+**Konsequenzen:** `lib/crypto/aes.ts` ist die einzige Stelle für Encrypt/Decrypt. Format: `v1:iv:authTag:ciphertext` (hex-kodiert, seit Sprint FIX-06). Schlüssel: `ENCRYPTION_SECRET_V1` (primär), Fallback `ENCRYPTION_SECRET` für Legacy-Deployments. Key-Rotation auf V2 möglich sobald alle Werte auf `v1:`-Format migriert sind. Rückwärtskompatibilität: Legacy-Format `iv:authTag:ciphertext` (ohne Präfix) wird weiterhin entschlüsselt.
 
 ---
 

@@ -137,7 +137,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 | FIX-03 | `/api/setup` absichern | ✅ Abgeschlossen (2026-05-16, Sprint FIX-03) |
 | FIX-04 | `retry.ts` auf Pino-Logger umstellen (NFA-11) | ✅ Abgeschlossen (2026-05-16, Sprint FIX-04) |
 | FIX-05 | PDF/DOCX-Upload für Positionierungsdokument (FA-F-05a) | ✅ Abgeschlossen (2026-05-16, Sprint FIX-05) |
-| FIX-06 | AES-Versions-Präfix für Key-Rotation (ADR-003) | ⏳ Offen |
+| FIX-06 | AES-Versions-Präfix für Key-Rotation (ADR-003) | ✅ Abgeschlossen (2026-05-16, Sprint FIX-06) |
 | FIX-07 | Test-Coverage erweitern (NFA-16) | ⏳ Offen |
 | FIX-08 | Audit-Log-Retention | ✅ Abgeschlossen (2026-05-16, Sprint FIX-08) |
 | FIX-09 | `positioningDocument` AES-Verschlüsselung | ⏳ Offen (nach FIX-06) |

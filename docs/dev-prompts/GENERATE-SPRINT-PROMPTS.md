@@ -437,10 +437,12 @@ Dateiname-Schema: sprint-[phase-id]-[slug].md
 | `sprint-p4b-bildbriefing.md` | Slice 15 — Bildbriefing | 4 | Bereit |
 | `sprint-p4c-nfa-haertung.md` | NFA-Härtung | 4 | Bereit |
 | `sprint-p4d-performance.md` | Performance & Stabilität | 4 | Bereit |
-| `sprint-fix-a-codecleanup.md` | Code Cleanup — JSON.parse, Footer, Docs | Fix | Bereit |
+| `sprint-fix-a-codecleanup.md` | Code Cleanup — JSON.parse, Footer, Docs | Fix | ✅ Archiviert nach Abschluss |
 | `sprint-fix-b-quality-gate.md` | Themen-Quality-Gate Refactor | Fix | ✅ Archiviert nach Abschluss |
+| `sprint-fix05-pdf-upload.md` | FIX-05 — PDF/DOCX-Upload (FA-F-05a) | Fix | Bereit |
+| `sprint-fix06-aes-version-prefix.md` | FIX-06 — AES-256-GCM Versions-Präfix (ADR-003) | Fix | Bereit |
 
-**Alle Prompts generiert.** Fix-A und Fix-B können vor P4-A abgearbeitet werden.
+**Alle Prompts generiert.** Fix-05 und Fix-06 (Schwere 2 aus Audit 2026-05-16) können vor P4-A abgearbeitet werden.
 
 ---
 

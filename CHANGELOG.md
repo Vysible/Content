@@ -6,6 +6,11 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Security
+- **FIX-06 AES-256-GCM Versions-Präfix (ADR-003):**
+  - `lib/crypto/aes.ts`: `getKeyV1()` löst `ENCRYPTION_SECRET_V1 ?? ENCRYPTION_SECRET` auf — Legacy-Fallback für bestehende Deployments. `decrypt()` erkennt `v2:`-Präfix und wirft expliziten Error. Kein stiller Fehlschlag (Forge §3a).
+  - `scripts/migrate-aes-prefix.ts` NEU: Dry-Run-Standard (`--apply` für echte DB-Änderungen). Idempotent: bereits migrierte `v1:`-Werte werden übersprungen. Script bricht bei erstem Fehler ab. Kein PII im Output — nur IDs + Zeichenlänge.
+  - `.env.example`: `ENCRYPTION_SECRET_V1` als primäre Variable dokumentiert, `ENCRYPTION_SECRET` als auskommentierter Legacy-Fallback.
+  - `__tests__/unit/crypto/aes.test.ts`: +2 Tests — Legacy-Rückwärtskompatibilität + `v2:`-Error. Gesamt: 8/8 PASS.
 - **FIX-03 `/api/setup`:** Hardcodiertes Passwort `admin123` entfernt. Route erfordert nun `INITIAL_ADMIN_PASSWORD` ENV-Variable (503 wenn fehlt). Response gibt keine Credentials mehr zurück. `.env.example` ergänzt.
 - **FIX-01 HWG-Gate Social Posting:** `app/api/projects/[id]/social-post/route.ts` prüft jetzt `hwgFlag` vor jedem Draft-Post (FA-B-13). Bei gesetztem Flag: HTTP 403 + AuditLog `social.draft_blocked`. Konsistent mit Export-, WordPress- und KlickTipp-Gate.
 

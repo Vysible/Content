@@ -1,3 +1,4 @@
+import { createCipheriv, randomBytes } from 'crypto'
 import { describe, it, expect, beforeEach } from 'vitest'
 import { vi } from 'vitest'
 
@@ -48,5 +49,21 @@ describe('AES-256-GCM encrypt/decrypt', () => {
     const c1 = encrypt('gleicher Text')
     const c2 = encrypt('gleicher Text')
     expect(c1).not.toBe(c2)
+  })
+
+  it('decrypt Legacy-Format "iv:tag:cipher" (ohne Präfix) — Rückwärtskompatibilität', async () => {
+    const { decrypt } = await import('@/lib/crypto/aes')
+    const key = Buffer.from(TEST_SECRET, 'hex')
+    const iv = randomBytes(12)
+    const cipher = createCipheriv('aes-256-gcm', key, iv)
+    const enc = Buffer.concat([cipher.update('Legacy-Wert', 'utf8'), cipher.final()])
+    const tag = cipher.getAuthTag()
+    const legacy = `${iv.toString('hex')}:${tag.toString('hex')}:${enc.toString('hex')}`
+    expect(decrypt(legacy)).toBe('Legacy-Wert')
+  })
+
+  it('decrypt("v2:...") wirft Error "noch nicht implementiert"', async () => {
+    const { decrypt } = await import('@/lib/crypto/aes')
+    expect(() => decrypt('v2:aabbcc:ddeeff:001122')).toThrow('noch nicht implementiert')
   })
 })
