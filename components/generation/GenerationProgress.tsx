@@ -2,23 +2,52 @@
 
 import { useGenerationStream } from '@/lib/hooks/useGenerationStream'
 import { GENERATION_STEPS, STEP_LABELS } from '@/lib/generation/types'
+import { useEffect, useState } from 'react'
 
 interface Props {
   jobId: string
   onComplete?: () => void
 }
 
+function useElapsedSeconds(active: boolean) {
+  const [seconds, setSeconds] = useState(0)
+  useEffect(() => {
+    if (!active) { setSeconds(0); return }
+    const id = setInterval(() => setSeconds((s) => s + 1), 1000)
+    return () => clearInterval(id)
+  }, [active])
+  return seconds
+}
+
+function formatElapsed(s: number) {
+  const m = Math.floor(s / 60)
+  const sec = s % 60
+  return m > 0 ? `${m}:${String(sec).padStart(2, '0')} min` : `${sec}s`
+}
+
+const SLOW_STEPS = new Set(['texts_done', 'blog_outline_done', 'themes_done'])
+
 export function GenerationProgress({ jobId, onComplete }: Props) {
   const { status, completedSteps, lastError, failedStep, isTerminal, retry, events } =
     useGenerationStream(jobId)
+
+  const activeStep = status === 'running'
+    ? GENERATION_STEPS.find(
+        (s, i) => !completedSteps.includes(s) && (i === 0 || completedSteps.includes(GENERATION_STEPS[i - 1]))
+      )
+    : undefined
+
+  const elapsed = useElapsedSeconds(!!activeStep)
 
   if (status === 'complete' && onComplete) {
     onComplete()
   }
 
-  // Queue-Position aus dem letzten queue_position-Event ermitteln
   const queueEvent = [...events].reverse().find((e) => e.type === 'queue_position')
   const queuePosition = queueEvent?.data?.position as number | undefined
+
+  const isSlowStep = activeStep ? SLOW_STEPS.has(activeStep) : false
+  const showWarning = isSlowStep && elapsed > 15
 
   return (
     <div className="bg-white border border-stone rounded-xl p-6">
@@ -26,12 +55,28 @@ export function GenerationProgress({ jobId, onComplete }: Props) {
         <h3 className="font-semibold text-nachtblau">
           {status === 'queued' ? 'In Warteschlange' : 'Generierung läuft'}
         </h3>
-        <StatusBadge status={status} />
+        <div className="flex items-center gap-2">
+          {activeStep && elapsed > 0 && (
+            <span className="text-xs text-stahlgrau tabular-nums">{formatElapsed(elapsed)}</span>
+          )}
+          <StatusBadge status={status} />
+        </div>
       </div>
 
       {status === 'queued' && queuePosition && (
         <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
           Position {queuePosition} in der Warteschlange – wird gestartet, sobald ein Slot frei ist.
+        </div>
+      )}
+
+      {showWarning && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+          <p className="font-semibold mb-0.5">KI arbeitet — bitte nicht die Seite verlassen</p>
+          <p className="text-xs">
+            {activeStep === 'texts_done'
+              ? 'Texte werden generiert. Dies kann je nach Themenplan 5–10 Minuten dauern.'
+              : 'Dieser Schritt kann einige Minuten in Anspruch nehmen.'}
+          </p>
         </div>
       )}
 
@@ -60,6 +105,9 @@ export function GenerationProgress({ jobId, onComplete }: Props) {
               >
                 {STEP_LABELS[step]}
               </span>
+              {active && elapsed > 5 && (
+                <span className="ml-auto text-xs text-stahlgrau tabular-nums">{formatElapsed(elapsed)}</span>
+              )}
             </li>
           )
         })}
@@ -146,7 +194,7 @@ function StepIcon({
   if (active) {
     return (
       <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-        <span className="w-2 h-2 rounded-full bg-tiefblau animate-pulse" />
+        <span className="w-3 h-3 rounded-full border-2 border-tiefblau border-t-transparent animate-spin" />
       </span>
     )
   }
@@ -160,10 +208,10 @@ function StepIcon({
 function ProgressBar({ total, done }: { total: number; done: number }) {
   const pct = Math.round((done / total) * 100)
   return (
-    <div className="w-full bg-stone rounded-full h-1.5">
+    <div className="w-full bg-stone rounded-full h-2 overflow-hidden">
       <div
-        className="bg-tiefblau h-1.5 rounded-full transition-all duration-500"
-        style={{ width: `${pct}%` }}
+        className="bg-tiefblau h-2 rounded-full transition-all duration-500"
+        style={{ width: `${Math.max(pct, 3)}%` }}
       />
     </div>
   )
