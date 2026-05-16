@@ -8,13 +8,15 @@
 **Geschätzte Dauer:** ~2 Tage
 
 > **Ziel:** Alle nicht-funktionalen Pflicht-Constraints aus plan.md auf  
-> Produktionsreife härten. Fokus: Concurrency-Limiter, Request-Timeouts,  
-> Rate-Limiting, DSGVO-Datenlöschung ≤24h, Error-Boundaries, Input-Validierung,  
-> CSP-Header, und strukturiertes Logging auf allen API-Routen.
+> Produktionsreife härten. Fokus: Rate-Limiting (Middleware global), DSGVO-Löschkaskade  
+> (DELETE-Route fehlt), AI-Call-Timeouts, Input-Validierung (Zod), CSP-Header.  
+> Concurrency-Limiter (NFA-18) und Error-Boundary sind in Vorgänger-Sprints bereits  
+> implementiert worden und werden **nicht** neu erstellt.
 
-> **Hinweis:** Dieser Sprint hat keinen eigenen Slice im plan.md.  
-> Die Anforderungen leiten sich aus dem Abschnitt "Nicht-funktionale Pflicht-Constraints"  
-> und dem Phase-4-DoD ("Stabiler Betrieb mit 10+ Projekten") ab.
+> **NFA-Referenzen (plan.md §NFA):** NFA-18 (Concurrency — ✅ erledigt via `queue.ts`),  
+> plan.md §NFA-Rate-Limit, §NFA-Timeout, §NFA-CSP, §NFA-Input-Validierung
+
+> **Hinweis:** Sprint P4-C ist in `docs/roadmap.md` (Phase-4-Backlog) eingetragen.
 
 ---
 
@@ -81,24 +83,24 @@ Select-String "robots\|robotsTxt\|robot" lib/scraper -Recurse -i |
 
 **Bekannte Lücken (Stand Mai 2026, aus plan.md NFA-Constraints):**
 
-| Anforderung (plan.md) | Ist-Stand | Priorität |
+| Anforderung (plan.md) | Ist-Stand (Exploration 2026-05-16) | Priorität |
 |---|---|---|
-| Max. 3 gleichzeitige Generierungen | Kein Limiter implementiert | MUSS |
-| DSGVO: Datenlöschung ≤24h bei Projekt-Löschung | Prisma-Cascade prüfen, CostEntries? | MUSS |
-| CSP-Header | Vermutlich fehlend in next.config.mjs | MUSS |
-| Rate-Limiting auf API-Routen | Fehlend | MUSS |
-| Request-Timeout auf KI-Calls | `withRetry` hat timeout? Prüfen | SOLL |
-| Input-Validierung (Zod) auf allen POST-Routen | Teilweise | MUSS |
-| Error-Boundaries in App Router | `error.tsx` vorhanden? | SOLL |
-| Strukturiertes Logging auf allen API-Routen | Teilweise | SOLL |
-| robots.txt-Check vor Crawl | Prüfen in lib/scraper | SOLL |
+| Max. 3 gleichzeitige Generierungen (NFA-18) | ✅ **ERLEDIGT** — `lib/generation/queue.ts` MAX_CONCURRENT=3, `tryEnqueue()` | — |
+| Rate-Limiting auf API-Routen | ✅ Modul `lib/ratelimit/index.ts` vorhanden · ⚠️ Middleware-Integration **fehlt noch** | MUSS |
+| DSGVO: Datenlöschung ≤24h | Prisma `onDelete: Cascade` für die meisten Relationen vorhanden · `app/api/projects/[id]/route.ts` (DELETE) **existiert nicht** | MUSS |
+| CSP-Header | ❌ **Fehlt** in `next.config.mjs` | MUSS |
+| Request-Timeout auf KI-Calls | ❌ **Fehlt** — `anthropic.messages.create` in `themes.ts`/`texts.ts` ohne `signal` | SOLL |
+| Input-Validierung (Zod) auf POST-Routen | Teilweise · `/api/projects/[id]/social-post` nutzt nur `typeof`-Checks (kein Zod) | MUSS |
+| Error-Boundaries in App Router | ✅ **ERLEDIGT** — `app/(dashboard)/error.tsx` vollständig implementiert | — |
+| Strukturiertes Logging auf allen API-Routen | Teilweise (viele Routen ohne `logger.*`) | SOLL |
+| robots.txt-Check vor Crawl | ✅ **SCOPE-OUT** — `lib/scraper/client.ts:checkRobotsRemote()` vorhanden | — |
 
 ---
 
 ## CRITICAL: Self-review Checklist
 
-- [ ] Concurrency-Limiter: max 3 parallele Generierungen
-- [ ] Rate-Limiter: max 60 Requests/Minute pro IP auf API-Routen
+- [ ] Concurrency-Limiter: ✅ bereits via `lib/generation/queue.ts` (MAX_CONCURRENT=3) — nicht anfassen
+- [ ] Rate-Limiter global: max 60 Req/Min pro IP in `middleware.ts` (SSE-Streams + /api/healthz ausgenommen)
 - [ ] CSP-Header in `next.config.mjs` konfiguriert
 - [ ] DSGVO: Projekt-Löschung kaskadiert alle zugehörigen Daten (CostEntries, AuditLog, etc.)
 - [ ] Input-Validierung (Zod) auf allen POST/PUT-Routen die User-Input akzeptieren
@@ -120,11 +122,9 @@ Select-String "robots\|robotsTxt\|robot" lib/scraper -Recurse -i |
 ### IN
 
 ```
-lib/generation/concurrency.ts                  NEU — Semaphore für max 3 Generierungen
-lib/utils/rate-limiter.ts                      NEU — In-Memory Rate-Limiter (IP-basiert)
-middleware.ts                                  MOD — Rate-Limiter-Integration
+lib/ratelimit/index.ts                         BEREITS — nicht anfassen (In-Memory Rate-Limiter vorhanden)
+middleware.ts                                  MOD — Rate-Limiter global integrieren (nutzt lib/ratelimit/index.ts)
 next.config.mjs                                MOD — CSP + Security-Header
-app/api/generate/start/route.ts                MOD — Concurrency-Check vor Start
 ```
 
 ### OUT
@@ -135,48 +135,30 @@ lib/generation/themes.ts                       NICHT anfassen
 components/                                    NICHT anfassen (Sub-Slice B)
 ```
 
-### A1 — Concurrency-Limiter (Semaphore)
+### A1 — Concurrency-Limiter (SKIP — bereits erledigt)
+
+> ✅ `lib/generation/queue.ts` implementiert bereits `MAX_CONCURRENT = 3` und
+> `tryEnqueue()` mit vollständiger Queue-Logik inkl. SSE-Event `queue_position`.
+> `app/api/generate/start/route.ts` nutzt `tryEnqueue()` — kein neues File nötig.
+
+### A2 — Rate-Limiter (SKIP — bereits erledigt)
+
+> ✅ `lib/ratelimit/index.ts` implementiert bereits `rateLimit(key, max, windowMs)`.
+> In-Memory-Store, Sliding Window, Cleanup-Intervall vorhanden.
+> Bereits genutzt in `app/api/generate/start/route.ts:14`.
+> Kein neues File nötig.
+
+### A3 — Middleware: Rate-Limit-Integration (AKTION)
 
 ```typescript
-// lib/generation/concurrency.ts
-import { prisma } from '@/lib/db'
-import { logger } from '@/lib/utils/logger'
-
-const MAX_CONCURRENT = Number(process.env.MAX_CONCURRENT_GENERATIONS ?? '3')
-
-export async function acquireGenerationSlot(projectId: string): Promise<boolean> {
-  const running = await prisma.generationJob.count({
-    where: { status: 'RUNNING' },
-  })
-  if (running >= MAX_CONCURRENT) {
-    logger.warn({ projectId, running, max: MAX_CONCURRENT },
-      '[Vysible] Concurrency-Limit erreicht')
-    return false
-  }
-  return true
-}
-```
-
-### A2 — Rate-Limiter
-
-```typescript
-// lib/utils/rate-limiter.ts
-// In-Memory-Store (Map<IP, { count, resetAt }>)
-// Default: 60 Requests/Minute pro IP
-// Sliding Window: nach 60s wird Counter resettet
-// Für Prod mit mehreren Instanzen: Redis-basiert (Phase 5)
-
-export function checkRateLimit(ip: string, limit = 60, windowMs = 60_000): boolean
-export function getRateLimitHeaders(ip: string): Record<string, string>
-```
-
-### A3 — Middleware: Rate-Limit-Integration
-
-```typescript
-// In middleware.ts:
-// Für /api/*-Routen (ausser /api/auth/*):
-// IP aus x-forwarded-for oder request.ip
-// checkRateLimit(ip) → false → 429 Response mit Retry-After Header
+// In middleware.ts — nutzt bestehendes lib/ratelimit/index.ts:
+// Für /api/*-Routen (ausser /api/auth/*, /api/healthz, /api/generate/stream/*):
+//   IP aus x-forwarded-for ?? request.ip ?? 'unknown'
+//   rateLimit(ip, 60, 60_000) → false → 429 mit Header Retry-After: 60
+//
+// WICHTIG: /api/generate/stream/* AUSSCHLIESSEN — SSE-Langverbindungen
+//   würden sonst nach 60 Requests sofort terminiert
+// WICHTIG: /api/healthz AUSSCHLIESSEN — Healthcheck darf nicht geblockt werden
 ```
 
 ### A4 — CSP + Security-Header in next.config.mjs
@@ -191,17 +173,12 @@ export function getRateLimitHeaders(ip: string): Record<string, string>
 // Permissions-Policy: camera=(), microphone=(), geolocation=()
 ```
 
-### A5 — Concurrency-Check in /api/generate/start
+### A5 — Concurrency-Check in /api/generate/start (SKIP — bereits erledigt)
 
-```typescript
-// Vor Pipeline-Start:
-// if (!await acquireGenerationSlot(projectId)) {
-//   return NextResponse.json(
-//     { error: 'Maximale Anzahl gleichzeitiger Generierungen erreicht (3). Bitte warten.' },
-//     { status: 429 }
-//   )
-// }
-```
+> ✅ `app/api/generate/start/route.ts:56` nutzt bereits `tryEnqueue(job.id, ...)` aus
+> `lib/generation/queue.ts`. Bei vollem Slot (>= 3 laufende Jobs) wird der Job
+> in Warteschlange eingereiht (Status `queued`, SSE-Event `queue_position`) —
+> **kein 429**, sondern Queue-Semantik (UX-freundlicher als Ablehnen).
 
 ### Acceptance Checklist
 

@@ -123,6 +123,7 @@ Forge-Compliance herstellen für `web-encryption-at-rest.mdc`.
 |---|---|---|
 | 14 | SEO-Analyse (Keyword-Dichte, Meta-Description, Title-Tag) | ✅ Abgeschlossen (2026-05-16, Sprint P4-A) |
 | 15 | Bildbriefing erweitert | ✅ Abgeschlossen (2026-05-16, Sprint P4-B) |
+| — | NFA-Härtung (Rate-Limit Middleware, CSP, DSGVO-Löschkaskade, AI-Timeouts, Zod) | 🔄 In Bearbeitung (Sprint P4-C) |
 
 ---
 
