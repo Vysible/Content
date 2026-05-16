@@ -5,6 +5,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Dockerfile Build-OOM:** `NODE_OPTIONS=--max-old-space-size=1536` im Builder-Stage gesetzt — verhindert OOM-Kill durch den Kernel bei `pnpm build` auf speicherbeschränkten VPS-Instanzen. `NEXT_TELEMETRY_DISABLED` vor beide Build-Schritte gezogen.
+
 ### Security
 - **FIX-06 AES-256-GCM Versions-Präfix (ADR-003):**
   - `lib/crypto/aes.ts`: `getKeyV1()` löst `ENCRYPTION_SECRET_V1 ?? ENCRYPTION_SECRET` auf — Legacy-Fallback für bestehende Deployments. `decrypt()` erkennt `v2:`-Präfix und wirft expliziten Error. Kein stiller Fehlschlag (Forge §3a).

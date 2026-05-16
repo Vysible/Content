@@ -13,11 +13,12 @@ RUN pnpm prisma generate
 # Build
 FROM base AS builder
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    NODE_OPTIONS="--max-old-space-size=1536"
 RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm prisma generate
-ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
 # Produktions-Image
