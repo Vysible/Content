@@ -6,6 +6,9 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Changed
+- **Sprint Fix-A — F-020: `JSON.parse(JSON.stringify)` Serialisierungs-Anti-Pattern entfernt:**
+  - `lib/generation/pipeline.ts`: 3 Stellen (scrape_done L85, themes_done L170, texts_done L232) durch `as unknown as Prisma.InputJsonValue` ersetzt. `import { Prisma } from '@prisma/client'` ergänzt.
+  - `lib/generation/job-store.ts`: 2 Stellen (emitEvent L117, resetForRetry L159) durch Prisma-Cast ersetzt. Prisma war bereits importiert.
 - **Sprint Fix-B — Themen-Quality-Gate: Magic Numbers + istFrage deterministisch (Backlog #5):**
   - `lib/generation/config.ts` NEU: `THEMES_CONFIG` mit `minPraxisQuote` (Default 0.8) und `minSeoQuote` (Default 0.5), ENV-Override via `THEMES_MIN_PRAXIS_QUOTE` / `THEMES_MIN_SEO_QUOTE`.
   - `lib/generation/themes-schema.ts` MOD: Hardcoded `0.8` und `0.5` durch `THEMES_CONFIG`-Werte ersetzt — Schwellwerte ohne Deployment änderbar. `istFrage` von Pflichtfeld zu `optional().default(false)` — wird nicht mehr vom LLM befüllt.

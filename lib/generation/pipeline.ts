@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { emitEvent, setStatus, getJob, resetForRetry } from './job-store'
 import { logger } from '@/lib/utils/logger'
 import { GENERATION_STEPS, type GenerationStep, type JobState } from './types'
@@ -81,7 +82,7 @@ async function runStep(
       ctx.scrapeResult = result
       await prisma.project.update({
         where: { id: project.id },
-        data: { scrapedData: JSON.parse(JSON.stringify(result)) },
+        data: { scrapedData: result as unknown as Prisma.InputJsonValue },
       })
       await emitEvent(jobId, {
         type: 'scrape_done',
@@ -166,7 +167,7 @@ async function runStep(
       ctx.themes = themes
       await prisma.project.update({
         where: { id: project.id },
-        data: { themeResults: JSON.parse(JSON.stringify(themes)) },
+        data: { themeResults: themes as unknown as Prisma.InputJsonValue },
       })
       await emitEvent(jobId, {
         type: 'themes_done',
@@ -228,7 +229,7 @@ async function runStep(
       await prisma.project.update({
         where: { id: project.id },
         data: {
-          textResults: JSON.parse(JSON.stringify(textResults)),
+          textResults: textResults as unknown as Prisma.InputJsonValue,
           status: 'ACTIVE',
         },
       })

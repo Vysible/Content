@@ -114,7 +114,7 @@ export async function emitEvent(jobId: string, event: GenerationEvent): Promise<
     }
   }
 
-  const serializedEvents = JSON.parse(JSON.stringify(events)) as Prisma.InputJsonValue
+  const serializedEvents = events as unknown as Prisma.InputJsonValue
 
   await prisma.generationJob.update({
     where: { id: jobId },
@@ -156,7 +156,7 @@ export async function resetForRetry(jobId: string, fromStep: GenerationStep): Pr
     data: {
       status: 'RUNNING',
       completedSteps,
-      events: JSON.parse(JSON.stringify(events)),
+      events: events as unknown as Prisma.InputJsonValue,
       lastError: null,
       failedStep: null,
     },
