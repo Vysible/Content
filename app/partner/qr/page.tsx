@@ -6,8 +6,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PartnerQrPage() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
-  const formUrl = `${appUrl}/partner`
+  const formUrl = 'https://abnehm-institut.com/partner'
 
   const dataUrl = await QRCode.toDataURL(formUrl, {
     width: 400,
