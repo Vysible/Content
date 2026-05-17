@@ -19,18 +19,45 @@ export function RegenerateButton({ projectId, monat, missing = false, onSuccess 
     if (!confirm(`Text für "${monat}" neu generieren? Das überschreibt den aktuellen Inhalt.`)) return
     setLoading(true)
     setError('')
+
     try {
       const res = await fetch(`/api/projects/${projectId}/regenerate-text`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ monat }),
       })
-      if (!res.ok) {
+
+      if (!res.ok || !res.body) {
         const data = await res.json().catch(() => ({}))
-        throw new Error(data.error ?? `HTTP ${res.status}`)
+        throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`)
       }
-      const data = await res.json()
-      onSuccess(data.result)
+
+      // Read SSE stream — server sends heartbeat comments + final data event
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buf = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+
+        // Parse completed SSE lines
+        const lines = buf.split('\n')
+        buf = lines.pop() ?? ''
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const payload = JSON.parse(line.slice(6)) as { ok?: boolean; result?: StoredTextResult; error?: string }
+          if (payload.error) throw new Error(payload.error)
+          if (payload.ok && payload.result) {
+            onSuccess(payload.result)
+            return
+          }
+        }
+      }
+
+      throw new Error('Keine Antwort erhalten')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Fehler')
     } finally {
