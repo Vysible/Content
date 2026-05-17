@@ -6,6 +6,7 @@ export const BlogPostSchema = z.object({
   keyword: z.string(),
   html: z.string().min(100), // semantisches HTML, 600–900 Wörter
   wordCount: z.number(),
+  outline: z.string().optional(),
 })
 
 export const NewsletterSchema = z.object({
