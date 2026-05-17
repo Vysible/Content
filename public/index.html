@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partner werden – Abnehm-Institut</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #F6F1E9;
+      color: #2D3748;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #E8E2D8;
+      border-radius: 1rem;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.07);
+    }
+    h1 { font-size: 1.5rem; color: #7A2D42; margin-bottom: .4rem; }
+    .subtitle { font-size: .875rem; color: #5A6478; margin-bottom: 2rem; }
+    label {
+      display: block;
+      font-size: .7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #5A6478;
+      margin-bottom: .4rem;
+    }
+    input {
+      width: 100%;
+      border: 1px solid #E8E2D8;
+      border-radius: .5rem;
+      padding: .65rem 1rem;
+      font-size: .875rem;
+      background: #F6F1E9;
+      color: #2D3748;
+      outline: none;
+      transition: border-color .15s;
+      margin-bottom: 1.25rem;
+    }
+    input:focus { border-color: #7A2D42; box-shadow: 0 0 0 3px rgba(122,45,66,.12); }
+    button {
+      width: 100%;
+      background: #7A2D42;
+      color: #fff;
+      border: none;
+      border-radius: .5rem;
+      padding: .75rem 1rem;
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    button:hover { opacity: .9; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .msg {
+      font-size: .8rem;
+      padding: .6rem .9rem;
+      border-radius: .5rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .msg.error { background: #fef2f2; color: #b91c1c; display: block; }
+    .success-view {
+      text-align: center;
+      display: none;
+    }
+    .success-view .check { font-size: 2.5rem; margin-bottom: .75rem; }
+    .success-view h2 { color: #7A2D42; margin-bottom: .5rem; }
+    .success-view p { font-size: .875rem; color: #5A6478; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="form-view">
+      <h1>Partner werden</h1>
+      <p class="subtitle">Trag dich ein – wir melden uns bei dir.</p>
+      <form id="signup-form" novalidate>
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" placeholder="Max Mustermann" autocomplete="name" required />
+        <label for="email">E-Mail</label>
+        <input id="email" name="email" type="email" placeholder="max@beispiel.de" autocomplete="email" required />
+        <div id="error-msg" class="msg error"></div>
+        <button type="submit" id="submit-btn">Partner werden</button>
+      </form>
+    </div>
+    <div class="success-view" id="success-view">
+      <div class="check">✓</div>
+      <h2>Danke!</h2>
+      <p>Deine Anfrage ist eingegangen.<br>Du erhältst in Kürze eine Bestätigung per E-Mail.</p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('signup-form').addEventListener('submit', async function(e) {
+      e.preventDefault()
+      const btn = document.getElementById('submit-btn')
+      const errEl = document.getElementById('error-msg')
+      const name = document.getElementById('name').value.trim()
+      const email = document.getElementById('email').value.trim()
+
+      errEl.style.display = 'none'
+      btn.disabled = true
+      btn.textContent = 'Wird gesendet…'
+
+      try {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          errEl.textContent = data.error || 'Ein Fehler ist aufgetreten.'
+          errEl.style.display = 'block'
+          btn.disabled = false
+          btn.textContent = 'Partner werden'
+        } else {
+          document.getElementById('form-view').style.display = 'none'
+          document.getElementById('success-view').style.display = 'block'
+        }
+      } catch {
+        errEl.textContent = 'Verbindung fehlgeschlagen. Bitte versuche es erneut.'
+        errEl.style.display = 'block'
+        btn.disabled = false
+        btn.textContent = 'Partner werden'
+      }
+    })
+  </script>
+</body>
+</html>
