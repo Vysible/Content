@@ -11,6 +11,8 @@ import { logger } from '@/lib/utils/logger'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 
+export const dynamic = 'force-dynamic'
+
 const bodySchema = z.object({ monat: z.string().min(1) })
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
@@ -116,9 +118,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   return new Response(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no', // disable nginx buffering
+      'X-Accel-Buffering': 'no',
     },
   })
 }
