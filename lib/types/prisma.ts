@@ -15,6 +15,7 @@ export interface Project {
   keywords: string[]
   canvaFolderId: string | null
   wpUrl: string | null
+  socialExamples: string | null
   ktListId: string | null
   apiKeyId: string | null
   scrapedData: unknown

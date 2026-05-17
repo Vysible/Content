@@ -24,9 +24,9 @@ export const SocialPostSchema = z.object({
   text: z.string(),
 }).superRefine((val, ctx) => {
   const limits: Record<string, number> = {
-    SOCIAL_INSTAGRAM: 200,
-    SOCIAL_FACEBOOK: 80,
-    SOCIAL_LINKEDIN: 700,
+    SOCIAL_INSTAGRAM: 400,
+    SOCIAL_FACEBOOK: 250,
+    SOCIAL_LINKEDIN: 1_300,
   }
   const limit = limits[val.kanal]
   if (limit && val.text.length > limit) {
