@@ -22,7 +22,7 @@ import {
   SOCIAL_STATUS_LABELS,
 } from '@/lib/generation/results-store'
 
-type Tab = 'themen' | 'blog' | 'newsletter' | 'social' | 'textentwuerfe' | 'bildbriefings'
+type Tab = 'themen' | 'blog' | 'newsletter' | 'social' | 'textentwuerfe' | 'bildbriefings' | 'plaene'
 type SortKey = 'monat' | 'funnel' | 'hwg' | 'kanal'
 
 interface Props {
@@ -90,6 +90,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
     ...(hasSocial ? [{ key: 'social' as Tab, label: 'Social Media' }] : []),
     { key: 'textentwuerfe', label: 'Textentwürfe' },
     { key: 'bildbriefings', label: 'Bildbriefings' },
+    { key: 'plaene', label: 'Pläne & Downloads' },
   ]
 
   const sortedThemes = [...themes].sort((a, b) => {
@@ -162,6 +163,9 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
       )}
       {activeTab === 'bildbriefings' && (
         <ImageBriefTab results={results} />
+      )}
+      {activeTab === 'plaene' && (
+        <PlaeneTab projectId={projectId} themes={themes} results={results} />
       )}
     </div>
   )
@@ -744,6 +748,151 @@ function ImageBriefTab({ results }: { results: StoredTextResult[] }) {
       {results.length === 0 && (
         <p className="text-sm text-stahlgrau py-8 text-center">Keine Bildbriefings vorhanden</p>
       )}
+    </div>
+  )
+}
+
+// ── Pläne & Downloads ─────────────────────────────────────────────────────────
+
+const KANAL_LABELS_PLAENE: Record<string, string> = {
+  BLOG: 'Blog',
+  NEWSLETTER: 'Newsletter',
+  SOCIAL_INSTAGRAM: 'Instagram',
+  SOCIAL_FACEBOOK: 'Facebook',
+  SOCIAL_LINKEDIN: 'LinkedIn',
+}
+
+function PlaeneTab({
+  projectId,
+  themes,
+  results,
+}: {
+  projectId: string
+  themes: ThemenItem[]
+  results: StoredTextResult[]
+}) {
+  const [openOutline, setOpenOutline] = useState<string | null>(null)
+  const blogWithOutlines = results.filter((r) => r.blog?.outline)
+
+  return (
+    <div className="space-y-8">
+      {/* ── Themenplan ── */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-sm">Themenplan</h2>
+          <a
+            href={`/api/projects/${projectId}/plans/download`}
+            download
+            className="text-xs px-3 py-1.5 bg-tiefblau text-creme rounded-lg hover:bg-anthrazit transition"
+          >
+            Alle Pläne als XLSX
+          </a>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-stone">
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Monat</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Kanal</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Titel</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Keyword</th>
+                <th className="text-left py-2 text-xs text-stahlgrau font-medium">Funnel</th>
+              </tr>
+            </thead>
+            <tbody>
+              {themes.map((t, i) => (
+                <tr key={i} className="border-b border-stone/50 hover:bg-stone/30">
+                  <td className="py-2 pr-4 text-stahlgrau whitespace-nowrap">{t.monat}</td>
+                  <td className="py-2 pr-4">
+                    <span className="text-xs bg-stone px-2 py-0.5 rounded-full">
+                      {KANAL_LABELS_PLAENE[t.kanal] ?? t.kanal}
+                    </span>
+                  </td>
+                  <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
+                  <td className="py-2 pr-4 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
+                  <td className="py-2 text-stahlgrau text-xs">{t.funnelStufe}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {themes.length === 0 && (
+            <p className="text-sm text-stahlgrau py-8 text-center">Keine Themen vorhanden</p>
+          )}
+        </div>
+      </section>
+
+      {/* ── Redaktionsplan ── */}
+      <section>
+        <h2 className="font-semibold text-sm mb-3">Redaktionsplan</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-stone">
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Monat</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Kanal</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Titel</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">CTA</th>
+                <th className="text-left py-2 text-xs text-stahlgrau font-medium">Content-Winkel</th>
+              </tr>
+            </thead>
+            <tbody>
+              {themes.map((t, i) => (
+                <tr key={i} className="border-b border-stone/50 hover:bg-stone/30">
+                  <td className="py-2 pr-4 text-stahlgrau whitespace-nowrap">{t.monat}</td>
+                  <td className="py-2 pr-4">
+                    <span className="text-xs bg-stone px-2 py-0.5 rounded-full">
+                      {KANAL_LABELS_PLAENE[t.kanal] ?? t.kanal}
+                    </span>
+                  </td>
+                  <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
+                  <td className="py-2 pr-4 text-stahlgrau text-xs">{t.cta}</td>
+                  <td className="py-2 text-stahlgrau text-xs">{t.contentWinkel}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {themes.length === 0 && (
+            <p className="text-sm text-stahlgrau py-8 text-center">Kein Redaktionsplan vorhanden</p>
+          )}
+        </div>
+      </section>
+
+      {/* ── Blog-Gliederungen ── */}
+      <section>
+        <h2 className="font-semibold text-sm mb-3">Blog-Gliederungen</h2>
+        {blogWithOutlines.length === 0 ? (
+          <p className="text-sm text-stahlgrau py-4">
+            Keine Gliederungen gespeichert. Sie werden bei der nächsten Generierung automatisch mitgespeichert.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {blogWithOutlines.map((r, i) => {
+              const isOpen = openOutline === r.monat
+              return (
+                <div key={i} className="border border-stone rounded-xl overflow-hidden">
+                  <div
+                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-stone/20"
+                    onClick={() => setOpenOutline(isOpen ? null : r.monat)}
+                  >
+                    <div>
+                      <p className="font-medium text-sm">{r.titel}</p>
+                      <p className="text-xs text-stahlgrau">{r.monat}</p>
+                    </div>
+                    <span className="text-stahlgrau text-xs">{isOpen ? '▲' : '▼'}</span>
+                  </div>
+                  {isOpen && (
+                    <div className="border-t border-stone p-4">
+                      <pre className="text-sm text-anthrazit whitespace-pre-wrap font-sans leading-relaxed">
+                        {r.blog!.outline}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
     </div>
   )
 }

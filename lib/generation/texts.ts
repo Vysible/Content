@@ -197,7 +197,7 @@ async function generateBlogPost(args: {
     const html = extractText(response)
     const wordCount = countWords(html)
 
-    return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount }
+    return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount, outline }
   }, `anthropic.generateBlogPost(${theme.monat})`)
 }
 
