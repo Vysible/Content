@@ -516,9 +516,9 @@ const KANAL_LABELS: Record<string, string> = {
   SOCIAL_LINKEDIN: 'LinkedIn',
 }
 const CHAR_LIMITS: Record<string, number> = {
-  SOCIAL_INSTAGRAM: 200,
-  SOCIAL_FACEBOOK: 80,
-  SOCIAL_LINKEDIN: 700,
+  SOCIAL_INSTAGRAM: 400,
+  SOCIAL_FACEBOOK: 250,
+  SOCIAL_LINKEDIN: 1_300,
 }
 
 function SocialTab({
