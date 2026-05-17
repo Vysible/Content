@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { ChatPanel } from './ChatPanel'
 
@@ -41,6 +41,11 @@ export function EditorView({
   const [versions, setVersions] = useState<ContentVersion[]>(
     (versionField === 'blog' ? result.blogVersions : result.newsletterVersions) ?? []
   )
+
+  // Sync when parent regenerates content (initialContent changes from outside)
+  useEffect(() => {
+    setContent(initialContent)
+  }, [initialContent])
 
   function handleChange(html: string) {
     setContent(html)

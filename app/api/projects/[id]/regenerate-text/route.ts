@@ -81,16 +81,27 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
         const existing = (project.textResults as unknown as StoredTextResult[] | null) ?? []
         const idx = existing.findIndex((r) => r.monat === monat)
+
+        // Only include fields that were actually generated — avoid wiping content with undefined
+        const patch: Partial<StoredTextResult> = { imageBrief: newResult.imageBrief }
+        if (newResult.blog) patch.blog = newResult.blog
+        if (newResult.newsletter) patch.newsletter = newResult.newsletter
+        if (newResult.socialPosts) patch.socialPosts = newResult.socialPosts
+
+        const baseItem = existing[idx] ?? ({ monat: newResult.monat, titel: newResult.titel, kanal: newResult.kanal } as StoredTextResult)
+        const updatedItem: StoredTextResult = { ...baseItem, ...patch }
+
         const merged: StoredTextResult[] = idx >= 0
-          ? existing.map((r, i) => i === idx ? { ...r, ...newResult } : r)
-          : [...existing, newResult as StoredTextResult]
+          ? existing.map((r, i) => i === idx ? updatedItem : r)
+          : [...existing, updatedItem]
 
         await prisma.project.update({
           where: { id: params.id },
           data: { textResults: merged as unknown as Prisma.InputJsonValue },
         })
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ ok: true, result: newResult })}\n\n`))
+        // Return the patch so the client only updates what actually changed
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ ok: true, result: patch })}\n\n`))
       } catch (err) {
         logger.error({ err, projectId: params.id, monat }, 'Neugenerierung fehlgeschlagen')
         const message = err instanceof Error ? err.message : 'Generierung fehlgeschlagen'
