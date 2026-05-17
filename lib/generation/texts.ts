@@ -296,7 +296,7 @@ async function generateSocialPosts(args: {
   return withRetry(async () => {
     const response = await anthropic.messages.create({
       model: cfg.modelSocial,
-      max_tokens: 1_024,
+      max_tokens: 2_048,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
     }, { timeout: 45_000 })
