@@ -52,6 +52,18 @@ export default async function ProjectPage({ params }: { params: { id: string } }
         subtitle={`${project.praxisName ?? project.praxisUrl} · ${start} – ${end}`}
       />
 
+      {/* Ergebnisse-Button oben (nur wenn ACTIVE) */}
+      {project.status === 'ACTIVE' && (
+        <div className="mb-4">
+          <Link
+            href={`/projects/${project.id}/results`}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-tiefblau text-white rounded-lg hover:bg-nachtblau transition font-medium"
+          >
+            Ergebnisse ansehen →
+          </Link>
+        </div>
+      )}
+
       {/* Hedy-Import-Highlight (nach Klon) */}
       {project.hedyImportHighlight && (
         <HedyImportHighlightBanner projectId={project.id} />
