@@ -6,8 +6,34 @@ const path = require('path')
 
 const app = express()
 const PORT = process.env.PORT || 3000
-const PARTNER_EMAIL = 'jetzt@abnehm-institut.com'
+const PARTNER_EMAIL = process.env.PARTNER_EMAIL || 'jetzt@abnehm-institut.com'
 const FORM_URL = process.env.FORM_URL || 'https://abnehm-institut.com/partner'
+
+// Simple in-memory rate limiter: max 3 submissions per IP per 10 minutes
+const rateLimitMap = new Map()
+const RATE_LIMIT_MAX = 3
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
+
+function isRateLimited(ip) {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(ip, { count: 1, windowStart: now })
+    return false
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return true
+  entry.count++
+  return false
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
 
 app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
@@ -25,6 +51,11 @@ function createTransporter() {
 }
 
 app.post('/submit', async (req, res) => {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: 'Zu viele Anfragen. Bitte versuche es später erneut.' })
+  }
+
   const name = (req.body.name || '').trim()
   const email = (req.body.email || '').trim().toLowerCase()
 
@@ -32,6 +63,8 @@ app.post('/submit', async (req, res) => {
     return res.status(422).json({ error: 'Name und gültige E-Mail-Adresse erforderlich.' })
   }
 
+  const safeName = escapeHtml(name)
+  const safeEmail = escapeHtml(email)
   const transporter = createTransporter()
   const now = new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })
 
@@ -41,7 +74,7 @@ app.post('/submit', async (req, res) => {
       to: email,
       subject: 'Deine Partner-Anfrage ist eingegangen',
       html: `<div style="font-family:system-ui,sans-serif;max-width:540px;color:#2D3748">
-        <h2 style="color:#7A2D42">Danke, ${name}!</h2>
+        <h2 style="color:#7A2D42">Danke, ${safeName}!</h2>
         <p>Wir haben deine Anfrage erhalten und melden uns in Kürze bei dir.</p>
         <p style="color:#888;font-size:12px;margin-top:32px">Abnehm-Institut</p>
       </div>`,
@@ -51,12 +84,12 @@ app.post('/submit', async (req, res) => {
     await transporter.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to: PARTNER_EMAIL,
-      subject: `Neue Partner-Anfrage von ${name}`,
+      subject: `Neue Partner-Anfrage von ${safeName}`,
       html: `<div style="font-family:system-ui,sans-serif;max-width:540px;color:#2D3748">
         <h2 style="color:#7A2D42">Neue Partner-Anfrage</h2>
         <table style="border-collapse:collapse;font-size:14px">
-          <tr><td style="padding:6px 16px 6px 0;font-weight:600">Name</td><td>${name}</td></tr>
-          <tr><td style="padding:6px 16px 6px 0;font-weight:600">E-Mail</td><td><a href="mailto:${email}">${email}</a></td></tr>
+          <tr><td style="padding:6px 16px 6px 0;font-weight:600">Name</td><td>${safeName}</td></tr>
+          <tr><td style="padding:6px 16px 6px 0;font-weight:600">E-Mail</td><td><a href="mailto:${safeEmail}">${safeEmail}</a></td></tr>
           <tr><td style="padding:6px 16px 6px 0;font-weight:600">Eingang</td><td>${now}</td></tr>
         </table>
       </div>`,
@@ -71,15 +104,20 @@ app.post('/submit', async (req, res) => {
 })
 
 app.get('/qr', async (req, res) => {
-  const svg = await QRCode.toString(FORM_URL, {
-    type: 'svg',
-    margin: 2,
-    width: 300,
-    color: { dark: '#7A2D42', light: '#F6F1E9' },
-    errorCorrectionLevel: 'M',
-  })
-  res.setHeader('Content-Type', 'image/svg+xml')
-  res.send(svg)
+  try {
+    const svg = await QRCode.toString(FORM_URL, {
+      type: 'svg',
+      margin: 2,
+      width: 300,
+      color: { dark: '#7A2D42', light: '#F6F1E9' },
+      errorCorrectionLevel: 'M',
+    })
+    res.setHeader('Content-Type', 'image/svg+xml')
+    res.send(svg)
+  } catch (err) {
+    console.error('QR-Fehler:', err)
+    res.status(500).send('QR-Code konnte nicht generiert werden.')
+  }
 })
 
 app.listen(PORT, () => console.log(`Partner-App läuft auf Port ${PORT}`))
