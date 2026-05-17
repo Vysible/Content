@@ -59,6 +59,7 @@ model Project {
   positioningDocument String?
   themenPool          String?
   keywords            String[]
+  socialExamples      String?
   canvaFolderId       String?
   wpUrl               String?
   wpDraftPostId       String?

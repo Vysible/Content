@@ -6,13 +6,14 @@ import { ProjectApiKeySettings } from './ProjectApiKeySettings'
 import { ProjectKlickTippSettings } from './ProjectKlickTippSettings'
 import { ProjectGA4Settings } from './ProjectGA4Settings'
 import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
+import { ProjectSocialSettings } from './ProjectSocialSettings'
 
 export default async function ProjectSettingsPage({ params }: { params: { id: string } }) {
   await requireAuth()
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { id: true, name: true, apiKeyId: true },
+    select: { id: true, name: true, apiKeyId: true, socialExamples: true, channels: true },
   })
 
   if (!project) notFound()
@@ -38,6 +39,12 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
         <ProjectKlickTippSettings projectId={project.id} />
         <ProjectGA4Settings projectId={project.id} />
         <ProjectGoogleAdsSettings projectId={project.id} />
+        {project.channels.some((c) => c.startsWith('SOCIAL_')) && (
+          <ProjectSocialSettings
+            projectId={project.id}
+            initialSocialExamples={project.socialExamples ?? ''}
+          />
+        )}
       </div>
     </div>
   )

@@ -275,13 +275,19 @@ async function generateSocialPosts(args: {
     .map((c) => c.replace('SOCIAL_', '').toLowerCase())
     .join(', ') + ' }'
 
+  const socialExamplesBlock = project.socialExamples?.trim()
+    ? `\nBeispiel-Posts dieser Praxis (Stil und Tonalität übernehmen):\n${project.socialExamples}`
+    : ''
+
   const prompt = loadPrompt('social', {
     thema: theme.thema,
     praxisName: project.praxisName ?? project.praxisUrl,
     kanaele: kanalLabels,
     jsonFormat,
     cta: theme.cta,
-    positionierungsdokument: positioningContext.slice(0, 3_000),
+    tonalitaet: 'professionell, empathisch, verständlich',
+    positionierungsdokument: positioningContext.slice(0, 5_000),
+    socialExamplesBlock,
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)

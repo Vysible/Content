@@ -8,6 +8,7 @@ const schema = z.object({
   apiKeyId: z.string().nullable().optional(),
   positioningDocument: z.string().optional(),
   hedyImportHighlight: z.boolean().optional(),
+  socialExamples: z.string().optional(),
 })
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -54,6 +55,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if ('apiKeyId' in parsed.data) updateData.apiKeyId = parsed.data.apiKeyId ?? null
     if (parsed.data.positioningDocument !== undefined) updateData.positioningDocument = parsed.data.positioningDocument
     if (parsed.data.hedyImportHighlight !== undefined) updateData.hedyImportHighlight = parsed.data.hedyImportHighlight
+    if (parsed.data.socialExamples !== undefined) updateData.socialExamples = parsed.data.socialExamples
 
     const updated = await prisma.project.update({
       where: { id: params.id },
