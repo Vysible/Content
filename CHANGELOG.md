@@ -9,7 +9,8 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - **Google Ads pro Projekt:** OAuth 2.0 Refresh-Token-Flow, Kampagnen/Keywords/Daily-Spend via GAQL. Settings pro Projekt.
 - **GA4 pro Projekt (Web-Analytics):** GA4 Data API v1beta, Service-Account-Auth, Sessions/Nutzer/Seitenaufrufe/Top-Pages (28 Tage).
 - **`channelQuantities` — Anzahl pro Kanal (Slice 11-A):** Neues `channelQuantities Json?`-Feld auf `Project`. Im Wizard Step 2 können pro aktivem Kanal Mengenangaben gesetzt werden (Blog/Newsletter: Stück/Monat; Social: Beiträge + Storys/Monat). Defaults: Blog 1, Newsletter 1, Instagram 8+8, Facebook 4+0, LinkedIn 4+0. Die Theme-Generierung berücksichtigt die Mengen (Prompt-Variable `{{mengenplan}}`).
-- **Übersicht-Tab (Zeitplan-Tabelle):** Neuer erster Tab in den Projektergebnissen. Zeigt alle Themen als Tabelle — Zeilen = Monate, Spalten = aktive Kanäle. Jede Zelle zeigt Thementitel und Status-Badge. Klick öffnet Slide-over mit vollständigem Thema, PAA-Fragen und generiertem Text.
+- **Übersicht-Tab (Redaktionsplan + Blog-Roadmap):** Neuer erster Tab in den Projektergebnissen. Redaktionsplan wie Excel: **Spalten = Monate mit KW-Angabe**, **Zeilen = Kanäle** — analog zum Social-Media-Redaktionsplan. Blog-Themen zusätzlich als visuelle Roadmap (horizontale Timeline mit Monat-Knoten, Themen abwechselnd oben/unten). Klick öffnet Slide-over mit vollständigem Thema inkl. KW, PAA-Fragen und generiertem Text.
+- **Startdatum im Wizard:** Step 2 zeigt Startmonat + wählbaren Tag (1–31) mit Live-Anzeige der Startkalenderwoche (KW-Badge). Der genaue Tag wird als `planningStart`-Datum gespeichert.
 
 ### Fixed
 - **Dockerfile Build-OOM:** `NODE_OPTIONS=--max-old-space-size=1536` im Builder-Stage gesetzt — verhindert OOM-Kill durch den Kernel bei `pnpm build` auf speicherbeschränkten VPS-Instanzen. `NEXT_TELEMETRY_DISABLED` vor beide Build-Schritte gezogen.

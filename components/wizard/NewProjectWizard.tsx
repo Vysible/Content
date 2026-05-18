@@ -17,6 +17,7 @@ export interface WizardData {
   // Step 2
   projectName: string
   planningStart: string  // "YYYY-MM"
+  planningStartDay: number  // Tag im Startmonat (1–31), bestimmt die Startkalenderwoche
   planningEnd: string    // "YYYY-MM"
   durationMonths: number
   channels: string[]
@@ -59,6 +60,7 @@ const INITIAL: WizardData = {
   robotsAllowed: true,
   projectName: '',
   planningStart: initialStart,
+  planningStartDay: 1,
   planningEnd: addMonths(initialStart, 6),
   durationMonths: 6,
   channels: ['BLOG', 'NEWSLETTER', 'SOCIAL_INSTAGRAM'],
@@ -103,7 +105,7 @@ export function NewProjectWizard() {
         praxisUrl: data.praxisUrl,
         praxisName: data.praxisName,
         fachgebiet: data.fachgebiet || undefined,
-        planningStart: `${data.planningStart}-01`,
+        planningStart: `${data.planningStart}-${String(data.planningStartDay).padStart(2, '0')}`,
         planningEnd: `${data.planningEnd}-01`,
         channels: data.channels,
         positioningDocument: data.positioningDocument || undefined,

@@ -15,6 +15,19 @@ const DURATIONS = [3, 6, 12]
 
 const SOCIAL_CHANNELS = ['SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN']
 
+function getISOWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const day = d.getUTCDay() || 7
+  d.setUTCDate(d.getUTCDate() + 4 - day)
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+}
+
+function getDaysInMonth(yearMonth: string): number {
+  const [y, m] = yearMonth.split('-').map(Number)
+  return new Date(y, m, 0).getDate()
+}
+
 // Erzeugt Monate ab aktuellem Monat für die nächsten 24 Monate
 function getMonthOptions(): { value: string; label: string }[] {
   const options = []
@@ -81,6 +94,14 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
 
   const endLabel = monthOptions.find((m) => m.value === data.planningEnd)?.label ?? data.planningEnd
   const canProceed = data.projectName.trim().length > 0 && data.channels.length > 0
+  const daysInStartMonth = getDaysInMonth(data.planningStart)
+  const safeDay = Math.min(data.planningStartDay, daysInStartMonth)
+  const startDateObj = new Date(
+    parseInt(data.planningStart.split('-')[0]),
+    parseInt(data.planningStart.split('-')[1]) - 1,
+    safeDay,
+  )
+  const startKw = getISOWeek(startDateObj)
 
   const activeChannels = CHANNELS.filter((ch) => data.channels.includes(ch.id))
 
@@ -134,6 +155,25 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Startdatum (Tag) + KW-Anzeige */}
+      <div className="flex items-center gap-4 -mt-1">
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-stahlgrau whitespace-nowrap">Start am</label>
+          <input
+            type="number"
+            min={1}
+            max={daysInStartMonth}
+            value={safeDay}
+            onChange={(e) => onChange({ planningStartDay: Math.min(daysInStartMonth, Math.max(1, Number(e.target.value))) })}
+            className="w-14 px-2 py-1 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac text-center"
+          />
+          <span className="text-xs text-stahlgrau">. des Monats</span>
+        </div>
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-cognac bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
+          KW {startKw}
+        </span>
       </div>
 
       <p className="text-xs text-stahlgrau -mt-2">
