@@ -4,7 +4,6 @@ import nodemailer from 'nodemailer'
 import { requireAdmin } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { decrypt } from '@/lib/crypto/aes'
-import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
 import { normalizeRecipients } from '@/lib/email/smtp-config'
 
@@ -57,27 +56,19 @@ export async function POST(req: Request) {
       },
     })
 
-    await withRetry(
-      () =>
-        transporter.sendMail({
-          from: parsed.data.user.trim(),
-          to: firstRecipient,
-          subject: 'Vysible SMTP-Testmail',
-          text: 'Diese Testmail wurde erfolgreich ueber Vysible versendet.',
-          html: '<p>Diese Testmail wurde erfolgreich ueber <strong>Vysible</strong> versendet.</p>',
-        }),
-      'smtp.sendTestMail',
-    )
+    await transporter.verify()
+    await transporter.sendMail({
+      from: parsed.data.user.trim(),
+      to: firstRecipient,
+      subject: 'Vysible SMTP-Testmail',
+      text: 'Diese Testmail wurde erfolgreich ueber Vysible versendet.',
+      html: '<p>Diese Testmail wurde erfolgreich ueber <strong>Vysible</strong> versendet.</p>',
+    })
 
     return NextResponse.json({ ok: true })
   } catch (err: unknown) {
-    if (err instanceof Error && err.message.startsWith('Ungültige E-Mail-Adresse')) {
-      return NextResponse.json({ error: err.message }, { status: 400 })
-    }
-    if (err instanceof Error && (err.message.includes('Mindestens ein Empfänger') || err.message.includes('Maximal 5'))) {
-      return NextResponse.json({ error: err.message }, { status: 400 })
-    }
+    const detail = err instanceof Error ? err.message : String(err)
     logger.error({ err }, 'SMTP-Testmail fehlgeschlagen')
-    return NextResponse.json({ error: 'SMTP-Testmail konnte nicht gesendet werden' }, { status: 500 })
+    return NextResponse.json({ error: detail }, { status: 500 })
   }
 }
