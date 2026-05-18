@@ -13,6 +13,7 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 - **Startdatum im Wizard:** Step 2 zeigt Startmonat + wählbaren Tag (1–31) mit Live-Anzeige der Startkalenderwoche (KW-Badge). Der genaue Tag wird als `planningStart`-Datum gespeichert.
 
 ### Fixed
+- **PDF-Upload Positionierungsdokument:** `pdfjs-dist` durch `pdf-parse` ersetzt — `pdfjs-dist` ist für Browser-Rendering ausgelegt und schlägt in Node.js fehl. `pdf-parse` extrahiert Text zuverlässig serverseitig. MIME-Typ-Fallback auf Dateiendung ergänzt (manche Browser liefern leeren `file.type`). `pdfjs-dist`-Webpack-Alias aus `next.config.mjs` entfernt.
 - **Dockerfile Build-OOM:** `NODE_OPTIONS=--max-old-space-size=1536` im Builder-Stage gesetzt — verhindert OOM-Kill durch den Kernel bei `pnpm build` auf speicherbeschränkten VPS-Instanzen. `NEXT_TELEMETRY_DISABLED` vor beide Build-Schritte gezogen.
 - **`pdfjs-dist` v5 Build-Fehler (DOMMatrix):** `next.config.mjs` Webpack-Alias `pdfjs-dist` → Legacy-Build (`pdfjs-dist/legacy/build/pdf.mjs`). pdfjs v5 nutzt `DOMMatrix` (Browser-API) beim Modulimport — der Legacy-Build ist der offizielle Node.js-kompatible Pfad. Fehler war Ursache des Docker-Build-Abbruchs.
 

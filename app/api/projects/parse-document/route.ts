@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth/session'
 import { logger } from '@/lib/utils/logger'
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
+import * as pdfParseModule from 'pdf-parse'
+type PdfParseFn = (buf: Buffer) => Promise<{ text: string }>
+const pdfParse = ((pdfParseModule as unknown as { default?: PdfParseFn }).default ?? pdfParseModule) as PdfParseFn
 import mammoth from 'mammoth'
-
-// Server-side: disable web worker (use inline fake worker in Node.js)
-GlobalWorkerOptions.workerSrc = ''
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024 // 10 MB
 const MAX_CHARS = 16_000
@@ -33,17 +32,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Keine Datei empfangen' }, { status: 400 })
   }
 
-  // File-Size-Check VOR Buffer-Allokation (DoS-Schutz)
   if (file.size > MAX_FILE_BYTES) {
     return NextResponse.json({ error: 'Datei zu groß (max. 10 MB)' }, { status: 413 })
   }
 
-  const mime = file.type
+  // MIME-Typ-Erkennung: bevorzuge Dateiendung falls type leer (manche Browser)
+  const name = file.name.toLowerCase()
+  let mime = file.type
+  if (!mime && name.endsWith('.pdf')) mime = 'application/pdf'
+  if (!mime && name.endsWith('.docx')) mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  if (!mime && (name.endsWith('.txt') || name.endsWith('.md'))) mime = 'text/plain'
 
-  // Content-Type-Validierung
   if (!ALLOWED_MIMES.has(mime)) {
     return NextResponse.json(
-      { error: `Nicht unterstützter Dateityp: ${mime}` },
+      { error: `Nicht unterstützter Dateityp: ${file.type || name}` },
       { status: 400 }
     )
   }
@@ -52,36 +54,20 @@ export async function POST(req: Request) {
     let text: string
 
     if (mime === 'application/pdf') {
-      const buffer = await file.arrayBuffer()
-      const uint8Array = new Uint8Array(buffer)
-      const pdf = await getDocument({ data: uint8Array }).promise
-      const pages: string[] = []
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i)
-        const textContent = await page.getTextContent()
-        const pageText = textContent.items
-          .map((item) => ('str' in item ? item.str : ''))
-          .join(' ')
-        pages.push(pageText)
-      }
-      text = pages.join('\n\n')
-    } else if (
-      mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ) {
-      const buffer = await file.arrayBuffer()
-      const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) })
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const result = await pdfParse(buffer)
+      text = result.text
+    } else if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const result = await mammoth.extractRawText({ buffer })
       text = result.value
     } else {
-      // TXT / MD
-      const buffer = await file.arrayBuffer()
-      text = Buffer.from(buffer).toString('utf-8')
+      text = Buffer.from(await file.arrayBuffer()).toString('utf-8')
     }
 
     const originalLength = text.length
     const truncated = originalLength > MAX_CHARS
-    if (truncated) {
-      text = text.slice(0, MAX_CHARS)
-    }
+    if (truncated) text = text.slice(0, MAX_CHARS)
 
     logger.info(
       { mime, originalLength, truncated, fileSize: file.size },
