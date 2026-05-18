@@ -38,7 +38,7 @@ export async function setPraxisSession(praxisUserId: string, projectId: string):
   const cookieStore = await cookies()
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.PRAXIS_COOKIE_SECURE === 'true',
     sameSite: 'lax',
     maxAge: COOKIE_MAX_AGE,
     path: '/',
