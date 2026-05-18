@@ -1,6 +1,7 @@
 'use client'
 
 import type { WizardData } from './NewProjectWizard'
+import type { ChannelQuantities, SocialQuantity } from '@/lib/types/channel-quantities'
 
 const CHANNELS = [
   { id: 'BLOG',              label: 'Blog',        icon: '✍' },
@@ -11,6 +12,8 @@ const CHANNELS = [
 ]
 
 const DURATIONS = [3, 6, 12]
+
+const SOCIAL_CHANNELS = ['SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN']
 
 // Erzeugt Monate ab aktuellem Monat für die nächsten 24 Monate
 function getMonthOptions(): { value: string; label: string }[] {
@@ -59,8 +62,27 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
     onChange({ channels: updated })
   }
 
+  function updateSimpleQuantity(channelId: string, value: number) {
+    const next: ChannelQuantities = {
+      ...data.channelQuantities,
+      [channelId]: value,
+    }
+    onChange({ channelQuantities: next })
+  }
+
+  function updateSocialQuantity(channelId: string, field: keyof SocialQuantity, value: number) {
+    const existing = (data.channelQuantities[channelId as keyof ChannelQuantities] as SocialQuantity | undefined) ?? { posts: 4, stories: 0 }
+    const next: ChannelQuantities = {
+      ...data.channelQuantities,
+      [channelId]: { ...existing, [field]: value },
+    }
+    onChange({ channelQuantities: next })
+  }
+
   const endLabel = monthOptions.find((m) => m.value === data.planningEnd)?.label ?? data.planningEnd
   const canProceed = data.projectName.trim().length > 0 && data.channels.length > 0
+
+  const activeChannels = CHANNELS.filter((ch) => data.channels.includes(ch.id))
 
   return (
     <div className="space-y-5">
@@ -144,6 +166,65 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
           <p className="text-xs text-bordeaux mt-1">Mindestens einen Kanal auswählen.</p>
         )}
       </div>
+
+      {/* Mengenangaben pro Kanal */}
+      {activeChannels.length > 0 && (
+        <div>
+          <label className="block text-xs font-medium text-anthrazit mb-2">Inhalte pro Monat</label>
+          <div className="space-y-2">
+            {activeChannels.map((ch) => {
+              if (SOCIAL_CHANNELS.includes(ch.id)) {
+                const sq = (data.channelQuantities[ch.id as keyof ChannelQuantities] as SocialQuantity | undefined) ?? { posts: 4, stories: 0 }
+                return (
+                  <div key={ch.id} className="flex items-center gap-3 bg-stone/30 rounded-lg px-3 py-2">
+                    <span className="text-xs text-anthrazit font-medium w-24 shrink-0">{ch.icon} {ch.label}</span>
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-xs text-stahlgrau">Beiträge/Mo.</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={20}
+                        value={sq.posts}
+                        onChange={(e) => updateSocialQuantity(ch.id, 'posts', Math.min(20, Math.max(0, Number(e.target.value))))}
+                        className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-cognac text-center"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-xs text-stahlgrau">Storys/Mo.</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={20}
+                        value={sq.stories}
+                        onChange={(e) => updateSocialQuantity(ch.id, 'stories', Math.min(20, Math.max(0, Number(e.target.value))))}
+                        className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-cognac text-center"
+                      />
+                    </div>
+                  </div>
+                )
+              }
+              // BLOG or NEWSLETTER
+              const count = (data.channelQuantities[ch.id as keyof ChannelQuantities] as number | undefined) ?? 1
+              return (
+                <div key={ch.id} className="flex items-center gap-3 bg-stone/30 rounded-lg px-3 py-2">
+                  <span className="text-xs text-anthrazit font-medium w-24 shrink-0">{ch.icon} {ch.label}</span>
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-xs text-stahlgrau">Artikel/Monat</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={4}
+                      value={count}
+                      onChange={(e) => updateSimpleQuantity(ch.id, Math.min(4, Math.max(1, Number(e.target.value))))}
+                      className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-cognac text-center"
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-between pt-2">
         <button onClick={onBack} className="px-4 py-2 text-sm text-stahlgrau hover:text-anthrazit transition">

@@ -24,7 +24,7 @@ system: |
   }
 
   Regeln:
-  - Genau 1 Thema pro Monat pro aktivem Kanal
+  - Erstelle pro Monat pro Kanal genau die angegebene Anzahl (siehe Mengenplan unten)
   - Mindestens 80% der Themen praxisspezifisch (Praxisname oder Standort erwähnen)
   - Formuliere mindestens 50% der seoTitel als Frage (endet mit ?) oder mit dem Primärkeyword
   - HWG-Flag: gruen = unbedenklich, gelb = Disclaimer nötig, rot = Versprechen vermeiden
@@ -41,3 +41,5 @@ user: |
   Positionierung und Kontext:
   {{positionierungsdokument}}
   Keywords: {{keywords}}
+  Mengenplan:
+  {{mengenplan}}

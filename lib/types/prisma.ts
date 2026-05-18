@@ -18,6 +18,7 @@ export interface Project {
   socialExamples: string | null
   ktListId: string | null
   apiKeyId: string | null
+  channelQuantities: unknown
   scrapedData: unknown
   themeResults: unknown
   textResults: unknown

@@ -6,6 +6,7 @@ import { WizardLayout } from './WizardLayout'
 import { Step1Url } from './Step1Url'
 import { Step2Planning } from './Step2Planning'
 import { Step3Context } from './Step3Context'
+import { DEFAULT_QUANTITIES, type ChannelQuantities } from '@/lib/types/channel-quantities'
 
 export interface WizardData {
   // Step 1
@@ -19,6 +20,7 @@ export interface WizardData {
   planningEnd: string    // "YYYY-MM"
   durationMonths: number
   channels: string[]
+  channelQuantities: ChannelQuantities
   // Step 3
   fachgebiet: string
   positioningDocument: string
@@ -60,6 +62,7 @@ const INITIAL: WizardData = {
   planningEnd: addMonths(initialStart, 6),
   durationMonths: 6,
   channels: ['BLOG', 'NEWSLETTER', 'SOCIAL_INSTAGRAM'],
+  channelQuantities: DEFAULT_QUANTITIES,
   fachgebiet: '',
   positioningDocument: '',
   keywords: [],
@@ -109,6 +112,7 @@ export function NewProjectWizard() {
         canvaFolderId: data.canvaFolderId ?? undefined,
         ga4PropertyId: data.ga4PropertyId || undefined,
         googleAdsCustomerId: data.googleAdsCustomerId || undefined,
+        channelQuantities: data.channelQuantities,
       }),
     })
 

@@ -8,6 +8,7 @@ import { ThemenItemSchema, ThemenListSchema, validateThemenQuality, type ThemenI
 import { withRetry } from '@/lib/utils/retry'
 import type { Project } from '@/lib/types/prisma'
 import type { ScrapeResult } from '@/lib/scraper/client'
+import { DEFAULT_QUANTITIES, type ChannelQuantities, type SocialQuantity } from '@/lib/types/channel-quantities'
 
 interface ThemesInput {
   project: Project
@@ -52,6 +53,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     kanaele: project.channels.join(', '),
     positionierungsdokument: context.systemContext + canvaSection,
     keywords: project.keywords.join(', '),
+    mengenplan: buildMengenplan(project),
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
@@ -153,6 +155,20 @@ function salvageTruncatedArray(text: string): ThemenItem[] {
 export function computeIstFrage(seoTitel: string, keywordPrimaer: string): boolean {
   const t = seoTitel.trim()
   return t.endsWith('?') || t.toLowerCase().includes(keywordPrimaer.toLowerCase())
+}
+
+function buildMengenplan(project: Project): string {
+  const q = (project.channelQuantities as ChannelQuantities | null) ?? DEFAULT_QUANTITIES
+  return project.channels.map(ch => {
+    if (ch === 'SOCIAL_INSTAGRAM' || ch === 'SOCIAL_FACEBOOK' || ch === 'SOCIAL_LINKEDIN') {
+      const sq = q[ch as keyof ChannelQuantities] as SocialQuantity | undefined
+      const posts = sq?.posts ?? 4
+      const stories = sq?.stories ?? 0
+      return `${ch}: ${posts} Beiträge${stories > 0 ? ` + ${stories} Storys` : ''} pro Monat`
+    }
+    const count = (q[ch as keyof ChannelQuantities] as number | undefined) ?? 1
+    return `${ch}: ${count} pro Monat`
+  }).join('\n')
 }
 
 function extractStandort(scrapeResult?: ScrapeResult): string {

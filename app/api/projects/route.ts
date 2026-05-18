@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { writeAuditLog } from '@/lib/audit/logger'
@@ -18,6 +19,7 @@ const createSchema = z.object({
   canvaFolderId: z.string().min(1).max(200).optional(),
   ga4PropertyId: z.string().max(100).optional(),
   googleAdsCustomerId: z.string().max(50).optional(),
+  channelQuantities: z.record(z.unknown()).optional(),
 })
 
 export async function GET() {
@@ -72,6 +74,9 @@ export async function POST(req: NextRequest) {
       canvaFolderId: data.canvaFolderId ?? null,
       ga4PropertyId: data.ga4PropertyId ?? null,
       googleAdsCustomerId: data.googleAdsCustomerId ?? null,
+      channelQuantities: data.channelQuantities
+        ? (data.channelQuantities as Prisma.InputJsonValue)
+        : Prisma.DbNull,
       createdById: session.user.id,
     },
     select: { id: true, name: true },

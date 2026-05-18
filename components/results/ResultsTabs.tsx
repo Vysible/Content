@@ -8,6 +8,7 @@ import { KlickTippButton } from '@/components/results/KlickTippButton'
 import { SocialPostButton } from '@/components/results/SocialPostButton'
 import { ImageBriefCard } from '@/components/results/ImageBriefCard'
 import { RegenerateButton } from '@/components/results/RegenerateButton'
+import { ResultsOverview } from '@/components/results/ResultsOverview'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
@@ -22,7 +23,7 @@ import {
   SOCIAL_STATUS_LABELS,
 } from '@/lib/generation/results-store'
 
-type Tab = 'themen' | 'blog' | 'newsletter' | 'social' | 'textentwuerfe' | 'bildbriefings' | 'plaene'
+type Tab = 'uebersicht' | 'themen' | 'blog' | 'newsletter' | 'social' | 'textentwuerfe' | 'bildbriefings' | 'plaene'
 type SortKey = 'monat' | 'funnel' | 'hwg' | 'kanal'
 
 interface Props {
@@ -38,7 +39,7 @@ interface Props {
 }
 
 export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, metaConfigured = false, linkedInConfigured = false, hwgFlag }: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>('themen')
+  const [activeTab, setActiveTab] = useState<Tab>('uebersicht')
   const [results, setResults] = useState<StoredTextResult[]>(textResults)
   const [sort, setSort] = useState<SortKey>('monat')
   const [saveStates, setSaveStates] = useState<Record<number, SaveState>>({})
@@ -84,6 +85,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
   const hasSocial = channels.some((c) => c.startsWith('SOCIAL_'))
 
   const tabs: { key: Tab; label: string }[] = [
+    { key: 'uebersicht', label: 'Übersicht' },
     { key: 'themen', label: 'Themenübersicht' },
     { key: 'blog', label: 'Blog' },
     { key: 'newsletter', label: 'Newsletter' },
@@ -123,6 +125,14 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
         )}
       </div>
 
+      {activeTab === 'uebersicht' && (
+        <ResultsOverview
+          projectId={projectId}
+          themes={themes}
+          textResults={results}
+          channels={channels}
+        />
+      )}
       {activeTab === 'themen' && (
         <ThemenTab themes={sortedThemes} sort={sort} setSort={setSort} />
       )}
