@@ -54,6 +54,9 @@ export async function POST(req: Request) {
         user: parsed.data.user.trim(),
         pass: password,
       },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
     })
 
     await transporter.verify()
