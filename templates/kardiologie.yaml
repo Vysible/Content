@@ -1,0 +1,33 @@
+specialty: kardiologie
+displayName: "Kardiologie & Herzmedizin"
+defaultCategories:
+  - Herzvorsorge & Check-up
+  - Bluthochdruck
+  - Herzrhythmusstörungen
+  - Herzschwäche & Herzinsuffizienz
+  - Cholesterin & Arteriosklerose
+  - Herzgesunde Ernährung & Lifestyle
+seasonalTopics:
+  januar: "Vorsätze fürs Herz — gesund ins neue Jahr"
+  februar: "Valentinstag + Herzgesundheit"
+  märz: "Frühjahrscheck fürs Herz"
+  april: "Weltgesundheitstag — Herzvorsorge"
+  mai: "Bewegung im Frühling — gut fürs Herz"
+  juni: "Hitze & Kreislauf im Sommer"
+  september: "Herbst-Check-up — Blutdruck & Cholesterin"
+  oktober: "World Heart Day — Herzgesundheit"
+  november: "Stressmanagement & Herzrhythmus"
+  dezember: "Festtagsessen & Herzschutz"
+defaultKeywords:
+  - "Kardiologe [Ort]"
+  - "Herzcheck [Ort]"
+  - "Bluthochdruck Behandlung"
+  - "EKG [Ort]"
+  - "Herzrhythmusstörungen Therapie"
+hwgHighRiskCategories: []
+defaultCta: "Herzcheck-Termin vereinbaren"
+defaultFunnelDistribution:
+  awareness: "35%"
+  consideration: "35%"
+  decision: "20%"
+  retention: "10%"

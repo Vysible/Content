@@ -1,0 +1,34 @@
+specialty: marketingagentur
+displayName: "Marketingagentur"
+defaultCategories:
+  - Social Media & Content
+  - SEO & Online-Sichtbarkeit
+  - Branding & Positionierung
+  - Performance Marketing
+  - Website & UX
+  - Kundenbindung & CRM
+seasonalTopics:
+  januar: "Marketing-Jahresplanung & Budgets"
+  februar: "Valentine's Day Kampagnen"
+  märz: "Q1-Review & Frühjahrsaktionen"
+  april: "Osterkampagnen & saisonale Angebote"
+  mai: "Content-Strategie für den Sommer"
+  juni: "Sommersaison — Urlaubsmarketing"
+  august: "Back-to-School & Herbst-Kampagnen vorbereiten"
+  september: "Q3-Review & Jahresendsprint starten"
+  oktober: "Halloween & Black-Friday-Planung"
+  november: "Black Friday & Weihnachtskampagnen"
+  dezember: "Jahresabschluss & Planung für das Folgejahr"
+defaultKeywords:
+  - "Marketingagentur [Ort]"
+  - "Social Media Agentur [Ort]"
+  - "SEO Agentur [Ort]"
+  - "Content Marketing"
+  - "Online Marketing Beratung"
+hwgHighRiskCategories: []
+defaultCta: "Kostenloses Erstgespräch buchen"
+defaultFunnelDistribution:
+  awareness: "40%"
+  consideration: "30%"
+  decision: "20%"
+  retention: "10%"

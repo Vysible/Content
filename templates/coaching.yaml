@@ -1,0 +1,34 @@
+specialty: coaching
+displayName: "Coaching & Beratung"
+defaultCategories:
+  - Business Coaching
+  - Life Coaching & Persönlichkeitsentwicklung
+  - Führungskräfte-Coaching
+  - Karriereberatung
+  - Stressmanagement & Resilienz
+  - Team- & Organisations-Coaching
+seasonalTopics:
+  januar: "Neujahrsvorsätze & Ziele setzen"
+  februar: "Motivation & Durchhaltevermögen"
+  märz: "Frühlingsstart — neue Perspektiven"
+  april: "Work-Life-Balance im Frühling"
+  mai: "Karriereziele Halbjahres-Review"
+  juni: "Sommer — Energie tanken & reflektieren"
+  august: "Neustart nach dem Urlaub"
+  september: "Herbst-Jahresziele überprüfen"
+  oktober: "Stressmanagement in der Hochphase"
+  november: "Jahresendsprint & Prioritäten"
+  dezember: "Jahresrückblick & Planung"
+defaultKeywords:
+  - "Business Coach [Ort]"
+  - "Life Coach [Ort]"
+  - "Coaching [Ort]"
+  - "Karriereberatung"
+  - "Führungskräfte Coaching"
+hwgHighRiskCategories: []
+defaultCta: "Kostenloses Kennenlerngespräch"
+defaultFunnelDistribution:
+  awareness: "40%"
+  consideration: "30%"
+  decision: "20%"
+  retention: "10%"

@@ -1,0 +1,34 @@
+specialty: orthopaedie
+displayName: "Orthopädie & Unfallchirurgie"
+defaultCategories:
+  - Rücken & Wirbelsäule
+  - Gelenkschmerzen & Arthrose
+  - Sportverletzungen
+  - Endoprothetik (Knie- & Hüftpraxis)
+  - Physiotherapie & Rehabilitation
+  - Osteoporose & Knochendichte
+seasonalTopics:
+  januar: "Neujahr + Rückenschmerzen durch Büroarbeit"
+  februar: "Skisaison — Knieprobleme & Prävention"
+  märz: "Frühlingsstart — Laufen ohne Schmerzen"
+  april: "Osteraktivitäten + Gelenkschutz"
+  mai: "Fahrrad- und Wandersaison vorbereiten"
+  juni: "Sommersport + Sportverletzungen"
+  september: "Herbstlauf + Gelenke schonen"
+  oktober: "Arthrose im Herbst — was hilft?"
+  november: "Kälte & Gelenkschmerzen"
+  dezember: "Winterschlittern — Sturzprävention"
+defaultKeywords:
+  - "Orthopäde [Ort]"
+  - "Rückenschmerzen Behandlung [Ort]"
+  - "Knieschmerzen [Ort]"
+  - "Arthrose Therapie"
+  - "Hüft-TEP [Ort]"
+hwgHighRiskCategories:
+  - Endoprothetik (Knie- & Hüftpraxis)
+defaultCta: "Termin beim Orthopäden buchen"
+defaultFunnelDistribution:
+  awareness: "30%"
+  consideration: "40%"
+  decision: "20%"
+  retention: "10%"
