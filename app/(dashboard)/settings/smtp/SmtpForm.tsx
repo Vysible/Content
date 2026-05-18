@@ -201,21 +201,28 @@ export function SmtpForm() {
     }
 
     setTesting(true)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30_000)
     try {
       const res = await fetch('/api/settings/smtp/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       })
       const data = await res.json()
       if (!res.ok) {
-        setTestStatus(`[FAIL] Fehler: ${data.error ?? 'Unbekannter Fehler'}`)
+        setTestStatus(`[FAIL] ${data.error ?? 'Unbekannter Fehler'}`)
         return
       }
       setTestStatus('[OK] Testmail versendet')
-    } catch {
-      setTestStatus('[FAIL] Fehler: Netzwerkfehler')
+    } catch (err: unknown) {
+      const msg = err instanceof Error && err.name === 'AbortError'
+        ? 'Timeout — SMTP-Server nicht erreichbar'
+        : 'Netzwerkfehler'
+      setTestStatus(`[FAIL] ${msg}`)
     } finally {
+      clearTimeout(timeout)
       setTesting(false)
     }
   }

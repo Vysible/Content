@@ -34,6 +34,9 @@ export async function sendPasswordResetMail(toEmail: string, resetUrl: string): 
     port: config.port,
     secure: config.secure,
     auth: { user: config.user, pass: password },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000,
   })
 
   const subject = 'Vysible: Passwort zurücksetzen'
@@ -83,6 +86,9 @@ export async function sendNotification(
     port: config.port,
     secure: config.secure,
     auth: { user: config.user, pass: password },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000,
   })
 
   const subject = getNotificationSubject(trigger)
