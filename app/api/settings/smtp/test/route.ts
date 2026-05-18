@@ -50,6 +50,7 @@ export async function POST(req: Request) {
       host: parsed.data.host.trim(),
       port: parsed.data.port,
       secure: parsed.data.secure,
+      requireTLS: !parsed.data.secure, // STARTTLS erzwingen bei Port 587
       auth: {
         user: parsed.data.user.trim(),
         pass: password,
