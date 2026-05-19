@@ -9,6 +9,7 @@ const createSchema = z.object({
   name: z.string().min(1).max(200),
   praxisUrl: z.string().url(),
   praxisName: z.string().optional(),
+  ansprache: z.enum(['Du', 'Sie']).optional(),
   fachgebiet: z.string().optional(),
   planningStart: z.string(), // ISO date string
   planningEnd: z.string(),
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
       name: data.name,
       praxisUrl: data.praxisUrl,
       praxisName: data.praxisName ?? null,
+      ansprache: data.ansprache ?? 'Sie',
       fachgebiet: data.fachgebiet ?? null,
       planningStart: new Date(data.planningStart),
       planningEnd: new Date(data.planningEnd),

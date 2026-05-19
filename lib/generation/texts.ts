@@ -174,7 +174,7 @@ async function generateBlogPost(args: {
     paaFragen: theme.paaFragen.join('\n'),
     positionierungsdokument: positioningContext.slice(0, 6_000) + outlineContext,
     tonalitaet: 'professionell, empathisch, verständlich',
-    ansprache: 'Sie',
+    ansprache: project.ansprache ?? 'Sie',
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
@@ -217,7 +217,7 @@ async function generateNewsletter(args: {
     monat: theme.monat,
     cta: theme.cta,
     positionierungsdokument: positioningContext.slice(0, 4_000),
-    ansprache: 'Sie',
+    ansprache: project.ansprache ?? 'Sie',
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
@@ -311,7 +311,7 @@ async function generateSocialPosts(args: {
     jsonFormat,
     cta: theme.cta,
     tonalitaet: 'professionell, empathisch, verständlich',
-    ansprache: 'Sie',
+    ansprache: project.ansprache ?? 'Sie',
     positionierungsdokument: positioningContext.slice(0, 5_000),
     socialExamplesBlock,
   })

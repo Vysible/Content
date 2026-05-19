@@ -6,6 +6,7 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Ansprache (Du/Sie) pro Projekt:** Neues Feld `ansprache` im Wizard Step 3 — Segmented-Control-Toggle. Wert wird in allen Prompts (Blog, Newsletter, Social) konsistent verwendet. Default: „Sie".
 - **Prompt-Qualitätsstandards (Textgenerierung):**
   - **Blog:** 800–1.500 Wörter (war 600–900), Hookpflicht in Intro, 3–5 H2 als Nutzenaussage/Frage, Meta-Titel (max. 60 Zeichen) + Meta-Beschreibung (140–155 Zeichen) im Output, LSI-Keywords aus Projektprofil, verbotene Phrasen im System-Prompt
   - **Newsletter:** 300–600 Wörter (war 250–350), einzelne Betreffzeile max. 50 Zeichen + Preheader 40–90 Zeichen, optionale P.S.-Zeile, kein generisches Intro

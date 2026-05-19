@@ -20,6 +20,33 @@ interface Step3Props {
   submitting: boolean
 }
 
+function AnspracheToggle({ value, onChange }: { value: 'Du' | 'Sie'; onChange: (v: 'Du' | 'Sie') => void }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-anthrazit mb-1">Ansprache der Zielgruppe</label>
+      <div className="inline-flex rounded-lg border border-stone overflow-hidden">
+        {(['Sie', 'Du'] as const).map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => onChange(opt)}
+            className={`px-5 py-1.5 text-sm font-medium transition ${
+              value === opt
+                ? 'bg-cognac text-white'
+                : 'bg-white text-stahlgrau hover:text-anthrazit'
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+      <p className="mt-1 text-xs text-stahlgrau">
+        Wird konsistent in Blog, Newsletter und Social Media verwendet.
+      </p>
+    </div>
+  )
+}
+
 export function Step3Context({
   data,
   onChange,
@@ -91,6 +118,9 @@ export function Step3Context({
         <h2 className="text-base font-bold text-nachtblau mb-1">Schritt 3: Kontext <span className="text-stahlgrau font-normal text-sm">(optional)</span></h2>
         <p className="text-sm text-stahlgrau">Je mehr Kontext, desto praxisspezifischer der generierte Content.</p>
       </div>
+
+      {/* Ansprache */}
+      <AnspracheToggle value={data.ansprache} onChange={(v) => onChange({ ansprache: v })} />
 
       {/* Fachgebiet-Template (Slice 25) */}
       <TemplateSelector

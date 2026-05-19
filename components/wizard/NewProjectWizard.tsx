@@ -23,6 +23,7 @@ export interface WizardData {
   channels: string[]
   channelQuantities: ChannelQuantities
   // Step 3
+  ansprache: 'Du' | 'Sie'
   fachgebiet: string
   positioningDocument: string
   keywords: string[]
@@ -65,6 +66,7 @@ const INITIAL: WizardData = {
   durationMonths: 6,
   channels: ['BLOG', 'NEWSLETTER', 'SOCIAL_INSTAGRAM'],
   channelQuantities: DEFAULT_QUANTITIES,
+  ansprache: 'Sie',
   fachgebiet: '',
   positioningDocument: '',
   keywords: [],
@@ -104,6 +106,7 @@ export function NewProjectWizard() {
         name: data.projectName,
         praxisUrl: data.praxisUrl,
         praxisName: data.praxisName,
+        ansprache: data.ansprache,
         fachgebiet: data.fachgebiet || undefined,
         planningStart: `${data.planningStart}-${String(data.planningStartDay).padStart(2, '0')}`,
         planningEnd: `${data.planningEnd}-01`,

@@ -19,6 +19,7 @@ export interface Project {
   ktListId: string | null
   apiKeyId: string | null
   channelQuantities: unknown
+  ansprache: string | null
   scrapedData: unknown
   themeResults: unknown
   textResults: unknown

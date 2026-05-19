@@ -84,6 +84,7 @@ model Project {
   invitationTokens    InvitationToken[]
   contentApprovals    ContentApproval[]
   channelQuantities   Json?
+  ansprache           String?  @default("Sie")
   clonedFrom          String?
   hedyImportHighlight Boolean       @default(false)
   createdAt           DateTime      @default(now())
