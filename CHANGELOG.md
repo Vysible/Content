@@ -6,6 +6,7 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Google Ads Verwaltungskonto (Manager Account):** `GOOGLE_ADS_MANAGER_CUSTOMER_ID` (ID `549-248-5276`) wird als `login-customer-id`-Header in allen GAQL-Anfragen gesetzt — ermöglicht Zugriff auf Kundenkonten über das Verwaltungskonto. `.env.example` dokumentiert.
 - **Google Ads pro Projekt:** OAuth 2.0 Refresh-Token-Flow, Kampagnen/Keywords/Daily-Spend via GAQL. Settings pro Projekt.
 - **GA4 pro Projekt (Web-Analytics):** GA4 Data API v1beta, Service-Account-Auth, Sessions/Nutzer/Seitenaufrufe/Top-Pages (28 Tage).
 - **Fachgebiet-Templates:** `orthopaedie.yaml`, `kardiologie.yaml`, `marketingagentur.yaml`, `coaching.yaml` neu — Orthopädie & Unfallchirurgie, Kardiologie & Herzmedizin, Marketingagentur, Coaching & Beratung mit je passenden Kategorien, saisonalen Themen und Keywords.

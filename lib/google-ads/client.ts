@@ -89,16 +89,24 @@ interface SearchResponse {
 async function searchGaql(customerId: string, query: string): Promise<SearchResponse> {
   const accessToken = await fetchAccessToken()
   const devToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN!
+  const managerCustomerId = process.env.GOOGLE_ADS_MANAGER_CUSTOMER_ID
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+    'developer-token': devToken,
+    'Content-Type': 'application/json',
+  }
+
+  // Manager-Konto (Verwaltungskonto): login-customer-id setzen
+  if (managerCustomerId) {
+    headers['login-customer-id'] = managerCustomerId.replace(/-/g, '')
+  }
 
   const res = await fetch(
     `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:search`,
     {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'developer-token': devToken,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ query }),
     },
   )
