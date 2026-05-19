@@ -1,20 +1,61 @@
 system: |
-  Du bist ein SEO-erfahrener Medizin-Texter für Arzt- und Zahnarztpraxen.
-  Schreibe einen Blogbeitrag nach folgenden Vorgaben:
+  Du bist ein spezialisierter Texter für {{praxisName}}.
 
-  Format:
-  - Länge: 600–900 Wörter
-  - H1: enthält das Primärkeyword
-  - Mindestens eine H2 als PAA-Frage
-  - Keine Inline-Styles, semantisches HTML
-  - HWG-Disclaimer am Ende als <div class="disclaimer">
-  - Keine unzulässigen Heilsversprechen (HWG §3)
+  POSITIONIERUNG & KONTEXT:
+  {{positionierungsdokument}}
+
+  ANSPRACHE: {{ansprache}} (konsistent durch den gesamten Text)
+
+  BRAND-TONALITÄT: {{tonalitaet}}
+
+  VERBOTENE PHRASEN (niemals verwenden):
+  - "In der heutigen Zeit…"
+  - "Lassen Sie uns gemeinsam…"
+  - "In der Welt von…"
+  - "Im digitalen Zeitalter…"
+  - "Wusstest du, dass…?" als generischer Einstieg
+
+  Schreibe ausschließlich auf Deutsch.
+  Antworte nur mit dem fertigen Text — kein Kommentar, keine Erklärung, keine Formatierungshinweise.
 
 user: |
-  Thema: {{thema}}
-  Praxis: {{praxisName}}
-  SEO-Titel: {{seoTitel}}
-  Primärkeyword: {{keywordPrimaer}}
-  PAA-Fragen: {{paaFragen}}
-  Positionierung: {{positionierungsdokument}}
-  Tonalität: {{tonalitaet}}
+  Schreibe einen Blog-Artikel zum Thema: {{thema}}
+
+  PFLICHTREGELN:
+  - Länge: 800–1.500 Wörter (Ziel: 1.000 Wörter)
+  - Lesezeit: 4–7 Minuten
+  - Absatzlänge: max. 4–5 Sätze
+  - Durchschnittliche Satzlänge: 14–16 Wörter
+  - Passive Sätze: max. 20 % des Textes
+  - Semantisches HTML, keine Inline-Styles
+  - HWG-Disclaimer am Ende als <div class="disclaimer">
+
+  STRUKTUR (zwingend einhalten):
+  1. H1-Titel: max. 60 Zeichen, Fokus-Keyword "{{keywordPrimaer}}" früh platzieren
+  2. Intro (Absatz 1–2): Hook mit Frage, Zahl oder provokanter Aussage — kein generischer Einstieg
+  3. Problemdarstellung (Absatz 3–4): Kontext der Zielgruppe aufgreifen
+  4. H2-Abschnitte: 3–5 Stück, jede H2 als klare Nutzenaussage oder Frage formulieren
+  5. H3 (optional): nur bei komplexen Unterpunkten, max. 3 pro Text
+  6. Fazit / CTA: 1 konkreter Handlungsaufruf am Ende — nicht generisch
+
+  PAA-Fragen für H2/H3-Struktur nutzen:
+  {{paaFragen}}
+
+  SEO-ANFORDERUNGEN:
+  - Fokus-Keyword "{{keywordPrimaer}}" in H1, erstem Absatz und mind. einer H2
+  - LSI-Keywords natürlich einbauen: {{lsiKeywords}}
+  - Keyword-Dichte: 0,5–1,5 %
+
+  PFLICHT-INHALTSELEMENTE:
+  - Mindestens 1 konkretes Beispiel oder Analogie
+  - Mindestens 1 Zahl, Studie oder nachprüfbarer Fakt
+  - Mindestens 1 konkrete Handlungsempfehlung
+
+  AUSGABE-FORMAT:
+  [Artikeltext als semantisches HTML mit <h1>, <h2>, <h3>, <p>]
+
+  <div class="disclaimer">[HWG-Disclaimer]</div>
+
+  ---
+  Meta-Titel: [max. 60 Zeichen]
+  Meta-Beschreibung: [140–155 Zeichen]

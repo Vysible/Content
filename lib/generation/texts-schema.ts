@@ -4,9 +4,11 @@ export const BlogPostSchema = z.object({
   monat: z.string(),
   titel: z.string(),
   keyword: z.string(),
-  html: z.string().min(100), // semantisches HTML, 600–900 Wörter
+  html: z.string().min(100),
   wordCount: z.number(),
   outline: z.string().optional(),
+  metaTitel: z.string().optional(),
+  metaBeschreibung: z.string().optional(),
 })
 
 export const NewsletterSchema = z.object({
@@ -17,6 +19,7 @@ export const NewsletterSchema = z.object({
   preheader: z.string().max(100),
   body: z.string().min(50),
   cta: z.string(),
+  ps: z.string().optional(),
 })
 
 export const SocialPostSchema = z.object({
@@ -24,7 +27,7 @@ export const SocialPostSchema = z.object({
   text: z.string(),
 }).superRefine((val, ctx) => {
   const limits: Record<string, number> = {
-    SOCIAL_INSTAGRAM: 400,
+    SOCIAL_INSTAGRAM: 800,
     SOCIAL_FACEBOOK: 250,
     SOCIAL_LINKEDIN: 1_300,
   }

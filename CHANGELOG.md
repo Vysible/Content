@@ -6,6 +6,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Prompt-Qualitätsstandards (Textgenerierung):**
+  - **Blog:** 800–1.500 Wörter (war 600–900), Hookpflicht in Intro, 3–5 H2 als Nutzenaussage/Frage, Meta-Titel (max. 60 Zeichen) + Meta-Beschreibung (140–155 Zeichen) im Output, LSI-Keywords aus Projektprofil, verbotene Phrasen im System-Prompt
+  - **Newsletter:** 300–600 Wörter (war 250–350), einzelne Betreffzeile max. 50 Zeichen + Preheader 40–90 Zeichen, optionale P.S.-Zeile, kein generisches Intro
+  - **Social (Instagram):** 300–800 Zeichen (war 250–400), Hook-Pflicht erste 2 Zeilen, 2–5 Emojis, 5–10 Hashtags, 1 konkreter CTA
 - **Google Ads Verwaltungskonto (Manager Account):** `GOOGLE_ADS_MANAGER_CUSTOMER_ID` (ID `549-248-5276`) wird als `login-customer-id`-Header in allen GAQL-Anfragen gesetzt — ermöglicht Zugriff auf Kundenkonten über das Verwaltungskonto. `.env.example` dokumentiert.
 - **Google Ads pro Projekt:** OAuth 2.0 Refresh-Token-Flow, Kampagnen/Keywords/Daily-Spend via GAQL. Settings pro Projekt.
 - **GA4 pro Projekt (Web-Analytics):** GA4 Data API v1beta, Service-Account-Auth, Sessions/Nutzer/Seitenaufrufe/Top-Pages (28 Tage).

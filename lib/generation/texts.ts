@@ -170,9 +170,11 @@ async function generateBlogPost(args: {
     praxisName: project.praxisName ?? project.praxisUrl,
     seoTitel: theme.seoTitel,
     keywordPrimaer: theme.keywordPrimaer,
+    lsiKeywords: project.keywords.slice(1, 4).join(', '),
     paaFragen: theme.paaFragen.join('\n'),
     positionierungsdokument: positioningContext.slice(0, 6_000) + outlineContext,
     tonalitaet: 'professionell, empathisch, verständlich',
+    ansprache: 'Sie',
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
@@ -194,10 +196,11 @@ async function generateBlogPost(args: {
       step: 'blog',
     })
 
-    const html = extractText(response)
+    const raw = extractText(response)
+    const { html, metaTitel, metaBeschreibung } = parseBlogOutput(raw)
     const wordCount = countWords(html)
 
-    return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount, outline }
+    return { monat: theme.monat, titel: theme.seoTitel, keyword: theme.keywordPrimaer, html, wordCount, outline, metaTitel, metaBeschreibung }
   }, `anthropic.generateBlogPost(${theme.monat})`)
 }
 
@@ -214,6 +217,7 @@ async function generateNewsletter(args: {
     monat: theme.monat,
     cta: theme.cta,
     positionierungsdokument: positioningContext.slice(0, 4_000),
+    ansprache: 'Sie',
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
@@ -241,12 +245,20 @@ async function generateNewsletter(args: {
 }
 
 function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
-  const betreffA = extractLine(raw, /Betreff\s*A\s*[::]/i) ?? theme.seoTitel
-  const betreffB = extractLine(raw, /Betreff\s*B\s*[::]/i) ?? `${theme.seoTitel} – Ihr Termin wartet`
+  // Support both new format (Betreffzeile:) and old A/B format for backwards compat
+  const betreffA =
+    extractLine(raw, /Betreffzeile\s*[::]/i) ??
+    extractLine(raw, /Betreff\s*A\s*[::]/i) ??
+    theme.seoTitel
+  const betreffB = extractLine(raw, /Betreff\s*B\s*[::]/i) ?? ''
   const preheader = extractLine(raw, /Preheader\s*[::]/i) ?? theme.seoTitel.slice(0, 80)
+  const ps = extractLine(raw, /P\.S\.\s*[::]/i)
 
-  const bodyStart = raw.search(/\n\n/)
-  const body = bodyStart > -1 ? raw.slice(bodyStart).trim() : raw
+  // Body: everything after the header lines block (first blank line after headers)
+  const headerEnd = raw.search(/\n\n/)
+  const bodyRaw = headerEnd > -1 ? raw.slice(headerEnd).trim() : raw
+  // Strip trailing P.S. line from body since it's stored separately
+  const body = ps ? bodyRaw.replace(/P\.S\.\s*[::][^\n]*/i, '').trim() : bodyRaw
 
   return {
     monat: theme.monat,
@@ -256,7 +268,20 @@ function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
     preheader: preheader.slice(0, 100),
     body,
     cta: theme.cta,
+    ps,
   }
+}
+
+function parseBlogOutput(raw: string): { html: string; metaTitel?: string; metaBeschreibung?: string } {
+  const separatorIdx = raw.lastIndexOf('---')
+  if (separatorIdx === -1) return { html: raw }
+
+  const html = raw.slice(0, separatorIdx).trim()
+  const meta = raw.slice(separatorIdx + 3)
+  const metaTitel = extractLine(meta, /Meta-Titel\s*[::]/i)
+  const metaBeschreibung = extractLine(meta, /Meta-Beschreibung\s*[::]/i)
+
+  return { html, metaTitel, metaBeschreibung }
 }
 
 async function generateSocialPosts(args: {
@@ -286,6 +311,7 @@ async function generateSocialPosts(args: {
     jsonFormat,
     cta: theme.cta,
     tonalitaet: 'professionell, empathisch, verständlich',
+    ansprache: 'Sie',
     positionierungsdokument: positioningContext.slice(0, 5_000),
     socialExamplesBlock,
   })
