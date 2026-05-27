@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+</head>
+<body style="margin:0;padding:0;background:transparent;">
+
+<!--
+  E-Mail-Signatur – Dr. Markus Werner
+  ====================================
+  Anleitung für Apple Mail:
+  1. Lege diese Datei (signatur.html) und deine PNG (signatur.png)
+     in denselben Ordner, z.B. auf den Desktop.
+  2. Öffne signatur.html in Safari.
+  3. Drücke Cmd+A (alles auswählen), dann Cmd+C (kopieren).
+  4. Öffne Apple Mail → Einstellungen (Cmd+,) → Signaturen.
+  5. Klicke auf +, lösche den Platzhaltertext.
+  6. Drücke Cmd+V (einfügen) – das Bild mit Links wird eingefügt.
+  7. Schließe die Einstellungen.
+
+  Koordinaten basieren auf Anzeigebreite 600 px.
+  Falls Klickbereiche nicht passen: coords="x1,y1,x2,y2" anpassen.
+-->
+
+<img src="signatur.png"
+     width="600"
+     border="0"
+     usemap="#signatur"
+     alt="Dr. Markus Werner – Praxis Signatur"
+     style="display:block;border:0;outline:0;text-decoration:none;">
+
+<map name="signatur">
+
+  <!-- Telefon: T 04921 43012 -->
+  <area shape="rect"
+        coords="278,148,398,164"
+        href="tel:+494921 43012"
+        alt="Telefon anrufen">
+
+  <!-- Fax: F 04921 41006 (optional verlinkt auf Website) -->
+  <!-- <area shape="rect" coords="278,163,380,178" href="#" alt="Fax"> -->
+
+  <!-- Website: praxis-drwerner.de -->
+  <area shape="rect"
+        coords="278,175,408,192"
+        href="https://www.praxis-drwerner.de"
+        alt="Website öffnen">
+
+  <!-- Facebook -->
+  <area shape="rect"
+        coords="460,177,502,210"
+        href="https://www.facebook.com/mwerner70.3/"
+        alt="Facebook">
+
+  <!-- Instagram -->
+  <area shape="rect"
+        coords="506,177,546,210"
+        href="https://www.instagram.com/praxis_drwerner/?hl=de"
+        alt="Instagram">
+
+  <!-- QR-Code / vCard -->
+  <area shape="rect"
+        coords="460,6,582,172"
+        href="https://www.praxis-drwerner.de"
+        alt="vCard">
+
+</map>
+
+</body>
+</html>
