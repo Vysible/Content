@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Signatur – Koordinaten-Debug</title>
+</head>
+<body style="margin:0;padding:20px;background:#f0f0f0;font-family:Arial,sans-serif;">
+
+<p style="font-size:13px;color:#333;">
+  <strong>Debug-Ansicht:</strong> Farbige Bereiche zeigen die aktuellen Klickzonen.<br>
+  Rot = Telefon &nbsp;|&nbsp; Blau = Website &nbsp;|&nbsp; Grün = Facebook &nbsp;|&nbsp; Orange = Instagram &nbsp;|&nbsp; Lila = QR-Code
+</p>
+
+<div style="position:relative;display:inline-block;width:600px;">
+  <img src="signatur.png" width="600" style="display:block;">
+
+  <!-- Telefon: 278,148 → 398,164 -->
+  <div style="position:absolute;top:148px;left:278px;width:120px;height:16px;
+              background:rgba(255,0,0,0.45);border:1px solid red;font-size:9px;color:white;
+              line-height:16px;text-align:center;">Telefon</div>
+
+  <!-- Website: 278,175 → 408,192 -->
+  <div style="position:absolute;top:175px;left:278px;width:130px;height:17px;
+              background:rgba(0,0,255,0.45);border:1px solid blue;font-size:9px;color:white;
+              line-height:17px;text-align:center;">Website</div>
+
+  <!-- Facebook: 415,177 → 457,210 -->
+  <div style="position:absolute;top:177px;left:415px;width:42px;height:33px;
+              background:rgba(0,180,0,0.5);border:1px solid green;font-size:9px;color:white;
+              display:flex;align-items:center;justify-content:center;">FB</div>
+
+  <!-- Instagram: 461,177 → 503,210 -->
+  <div style="position:absolute;top:177px;left:461px;width:42px;height:33px;
+              background:rgba(255,140,0,0.5);border:1px solid orange;font-size:9px;color:white;
+              display:flex;align-items:center;justify-content:center;">IG</div>
+
+  <!-- QR-Code: 460,6 → 582,172 -->
+  <div style="position:absolute;top:6px;left:460px;width:122px;height:166px;
+              background:rgba(128,0,128,0.2);border:1px solid purple;font-size:9px;color:purple;
+              display:flex;align-items:center;justify-content:center;">QR</div>
+</div>
+
+</body>
+</html>
