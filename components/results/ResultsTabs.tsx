@@ -479,6 +479,45 @@ function NewsletterTab({
                     onUpdate={(updates) => onUpdate(globalIndex, updates)}
                   />
                 </Field>
+                {/* Medienempfehlungen */}
+                {(nl.bildEmpfehlungen?.length || nl.videoEmpfehlung || nl.linkEmpfehlungen?.length) && (
+                  <div className="border border-stone rounded-xl p-4 space-y-3 bg-stone/20">
+                    <p className="text-xs font-semibold text-stahlgrau uppercase tracking-wide">Medien & Links</p>
+                    {nl.bildEmpfehlungen?.length ? (
+                      <div>
+                        <p className="text-xs font-medium text-anthrazit mb-1">📷 Bildempfehlungen</p>
+                        <ul className="space-y-1">
+                          {nl.bildEmpfehlungen.map((b, bi) => (
+                            <li key={bi} className="text-sm text-anthrazit flex gap-2">
+                              <span className="text-stahlgrau shrink-0">–</span>{b}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {nl.videoEmpfehlung && (
+                      <div>
+                        <p className="text-xs font-medium text-anthrazit mb-1">🎬 Videoempfehlung</p>
+                        <p className="text-sm text-anthrazit">{nl.videoEmpfehlung}</p>
+                      </div>
+                    )}
+                    {nl.linkEmpfehlungen?.length ? (
+                      <div>
+                        <p className="text-xs font-medium text-anthrazit mb-1">🔗 Links</p>
+                        <ul className="space-y-1">
+                          {nl.linkEmpfehlungen.map((l, li) => (
+                            <li key={li} className="text-sm text-anthrazit flex gap-2 flex-wrap">
+                              <span className="font-medium">{l.anker}</span>
+                              <span className="text-stahlgrau">→</span>
+                              <span className="text-stahlgrau">{l.ziel}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+
                 <div className="pt-2 flex items-center gap-3 flex-wrap">
                   <KlickTippButton
                     projectId={projectId}
@@ -756,6 +795,11 @@ function ImageBriefTab({ results }: { results: StoredTextResult[] }) {
 
 // ── Pläne & Downloads ─────────────────────────────────────────────────────────
 
+const FUNNEL_LABELS: Record<string, string> = {
+  TOFU: 'Bekanntheit',
+  MOFU: 'Interesse',
+  BOFU: 'Entscheidung',
+}
 const FUNNEL_COLORS: Record<string, string> = {
   TOFU: 'bg-emerald-100 text-emerald-700',
   MOFU: 'bg-amber-100 text-amber-700',
@@ -883,7 +927,7 @@ function PlaeneTab({
                   <td className="py-2 pr-4 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
                   <td className="py-2 pr-4">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${FUNNEL_COLORS[t.funnelStufe] ?? 'bg-stone text-stahlgrau'}`}>
-                      {t.funnelStufe}
+                      {FUNNEL_LABELS[t.funnelStufe] ?? t.funnelStufe}
                     </span>
                   </td>
                   <td className="py-2 pr-4">
@@ -947,7 +991,7 @@ function PlaeneTab({
                   <td className="py-2 pr-4 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
                   <td className="py-2 pr-4">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${FUNNEL_COLORS[t.funnelStufe] ?? 'bg-stone text-stahlgrau'}`}>
-                      {t.funnelStufe}
+                      {FUNNEL_LABELS[t.funnelStufe] ?? t.funnelStufe}
                     </span>
                   </td>
                   <td className="py-2">
@@ -999,6 +1043,29 @@ function PlaeneTab({
                         {nl.body.replace(/[#*_`]/g, '').trim()}
                       </p>
                     </div>
+                    {(nl.bildEmpfehlungen?.length || nl.videoEmpfehlung || nl.linkEmpfehlungen?.length) && (
+                      <div className="pt-2 border-t border-stone space-y-2">
+                        {nl.bildEmpfehlungen?.length ? (
+                          <div>
+                            <p className="text-xs text-stahlgrau font-medium mb-1">📷 Bilder</p>
+                            {nl.bildEmpfehlungen.map((b, bi) => (
+                              <p key={bi} className="text-xs text-anthrazit">– {b}</p>
+                            ))}
+                          </div>
+                        ) : null}
+                        {nl.videoEmpfehlung && (
+                          <p className="text-xs text-anthrazit">🎬 {nl.videoEmpfehlung}</p>
+                        )}
+                        {nl.linkEmpfehlungen?.length ? (
+                          <div>
+                            <p className="text-xs text-stahlgrau font-medium mb-1">🔗 Links</p>
+                            {nl.linkEmpfehlungen.map((l, li) => (
+                              <p key={li} className="text-xs text-anthrazit"><span className="font-medium">{l.anker}</span> → {l.ziel}</p>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
                 </PlanCard>
               )

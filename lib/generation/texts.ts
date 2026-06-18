@@ -245,20 +245,54 @@ async function generateNewsletter(args: {
 }
 
 function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
+  // Split off optional ---MEDIEN--- section
+  const medienSep = raw.indexOf('---MEDIEN---')
+  const mainRaw   = medienSep > -1 ? raw.slice(0, medienSep).trim() : raw
+  const medienRaw = medienSep > -1 ? raw.slice(medienSep + 12).trim() : ''
+
   // Support both new format (Betreffzeile:) and old A/B format for backwards compat
   const betreffA =
-    extractLine(raw, /Betreffzeile\s*[::]/i) ??
-    extractLine(raw, /Betreff\s*A\s*[::]/i) ??
+    extractLine(mainRaw, /Betreffzeile\s*[::]/i) ??
+    extractLine(mainRaw, /Betreff\s*A\s*[::]/i) ??
     theme.seoTitel
-  const betreffB = extractLine(raw, /Betreff\s*B\s*[::]/i) ?? ''
-  const preheader = extractLine(raw, /Preheader\s*[::]/i) ?? theme.seoTitel.slice(0, 80)
-  const ps = extractLine(raw, /P\.S\.\s*[::]/i)
+  const betreffB = extractLine(mainRaw, /Betreff\s*B\s*[::]/i) ?? ''
+  const preheader = extractLine(mainRaw, /Preheader\s*[::]/i) ?? theme.seoTitel.slice(0, 80)
+  const ps = extractLine(mainRaw, /P\.S\.\s*[::]/i)
 
   // Body: everything after the header lines block (first blank line after headers)
-  const headerEnd = raw.search(/\n\n/)
-  const bodyRaw = headerEnd > -1 ? raw.slice(headerEnd).trim() : raw
-  // Strip trailing P.S. line from body since it's stored separately
+  const headerEnd = mainRaw.search(/\n\n/)
+  const bodyRaw = headerEnd > -1 ? mainRaw.slice(headerEnd).trim() : mainRaw
   const body = ps ? bodyRaw.replace(/P\.S\.\s*[::][^\n]*/i, '').trim() : bodyRaw
+
+  // Parse Medien-Sektion
+  let bildEmpfehlungen: string[] | undefined
+  let videoEmpfehlung: string | undefined
+  let linkEmpfehlungen: Array<{ anker: string; ziel: string }> | undefined
+
+  if (medienRaw) {
+    // Bildempfehlungen: lines starting with "- " in the Bildempfehlungen block
+    const bildBlock = medienRaw.match(/Bildempfehlungen\s*[:\n]([\s\S]*?)(?=\nVideoempfehlung|\nLinks|$)/i)
+    if (bildBlock) {
+      const items = bildBlock[1].match(/^- .+/gm)?.map((l) => l.slice(2).trim())
+      if (items?.length) bildEmpfehlungen = items
+    }
+
+    // Videoempfehlung: single line
+    const videoLine = extractLine(medienRaw, /Videoempfehlung\s*[::]/i)
+    if (videoLine && videoLine.toLowerCase() !== 'weglassen') videoEmpfehlung = videoLine
+
+    // Links: "Ankertext → Zielseite"
+    const linkBlock = medienRaw.match(/Links\s*[:\n]([\s\S]*?)$/i)
+    if (linkBlock) {
+      const items = linkBlock[1].match(/^- .+/gm)?.map((l) => {
+        const parts = l.slice(2).split(/→|->/)
+        return parts.length >= 2
+          ? { anker: parts[0].trim(), ziel: parts[1].trim() }
+          : null
+      }).filter(Boolean) as Array<{ anker: string; ziel: string }>
+      if (items?.length) linkEmpfehlungen = items
+    }
+  }
 
   return {
     monat: theme.monat,
@@ -269,6 +303,9 @@ function parseNewsletter(raw: string, theme: ThemenItem): Newsletter {
     body,
     cta: theme.cta,
     ps,
+    bildEmpfehlungen,
+    videoEmpfehlung,
+    linkEmpfehlungen,
   }
 }
 
