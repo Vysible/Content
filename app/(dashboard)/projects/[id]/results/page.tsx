@@ -1,7 +1,6 @@
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { notFound, redirect } from 'next/navigation'
-import Link from 'next/link'
 import { ResultsTabs } from '@/components/results/ResultsTabs'
 import { ExportButton } from '@/components/results/ExportButton'
 import { SharePanel } from '@/components/results/SharePanel'
@@ -64,21 +63,6 @@ export default async function ResultsPage({ params }: { params: { id: string } }
 
   return (
     <div className="space-y-4">
-
-      {/* Warnung: Anbindungen fehlen */}
-      {missingForPublish.length > 0 && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-          <p className="text-xs font-semibold text-amber-900 mb-1">Veröffentlichung eingeschränkt</p>
-          {missingForPublish.map((label: string) => (
-            <p key={label} className="text-xs text-amber-800">
-              ⚠ <strong>{label}</strong> ist nicht verbunden —{' '}
-              <Link href={`/projects/${params.id}`} className="underline hover:text-amber-900">
-                Jetzt verbinden
-              </Link>
-            </p>
-          ))}
-        </div>
-      )}
 
       {/* Aktionen */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
