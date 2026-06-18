@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { notFound, redirect } from 'next/navigation'
+import Link from 'next/link'
 import { ResultsTabs } from '@/components/results/ResultsTabs'
 import { ExportButton } from '@/components/results/ExportButton'
 import { SharePanel } from '@/components/results/SharePanel'
