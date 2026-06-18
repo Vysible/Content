@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 
 interface Props {
   title: string
@@ -14,7 +15,7 @@ interface Props {
   onSave: () => void
   onTest: () => void
   onDisconnect: () => void
-  children: React.ReactNode
+  children: ReactNode
   prerequisites: Array<{ step: string; detail?: string; link?: { label: string; href: string } }>
 }
 
