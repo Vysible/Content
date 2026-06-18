@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 const MONTH_OPTIONS = (() => {
-  const opts = []
+  const opts: { value: string; label: string }[] = []
   const now = new Date()
   for (let i = -12; i < 36; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() + i, 1)

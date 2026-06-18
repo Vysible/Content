@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef, KeyboardEvent } from 'react'
+import { useState, useRef } from 'react'
+import type { KeyboardEvent } from 'react'
 
 interface Props {
   projectId: string
