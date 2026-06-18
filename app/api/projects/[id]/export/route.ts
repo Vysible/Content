@@ -6,6 +6,7 @@ import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 import { writeAuditLog } from '@/lib/audit/logger'
 import { checkHwgGate } from '@/lib/compliance/hwg-gate'
+import { checkReviewGate } from '@/lib/compliance/review-gate'
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   const session = await requireAuth()
@@ -39,6 +40,23 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     })
     return NextResponse.json(
       { error: 'Export gesperrt: HWG-Compliance-Flag ist gesetzt. Bitte Inhalt prüfen und Flag zurücksetzen.' },
+      { status: 403 }
+    )
+  }
+
+  const reviewGate = await checkReviewGate(params.id)
+  if (reviewGate.blocked) {
+    await writeAuditLog({
+      action:    'export.download',
+      entity:    'Project',
+      entityId:  params.id,
+      projectId: params.id,
+      userId:    session.user.id,
+      userEmail: session.user.email ?? undefined,
+      meta:      { blocked: true, reason: reviewGate.reason },
+    })
+    return NextResponse.json(
+      { error: 'Export gesperrt: Im Review-Modus „Komplett" muss mindestens ein Inhalt von der Praxis freigegeben sein.' },
       { status: 403 }
     )
   }

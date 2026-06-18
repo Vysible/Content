@@ -19,15 +19,54 @@ function densityLight(density: number): TrafficLight {
 }
 
 const LIGHT_BG: Record<TrafficLight, string> = {
-  green: 'bg-green-50 text-green-700',
-  yellow: 'bg-amber-50 text-amber-700',
-  red: 'bg-red-50 text-red-700',
+  green:  'bg-green-50 border-green-200 text-green-800',
+  yellow: 'bg-amber-50 border-amber-200 text-amber-800',
+  red:    'bg-red-50 border-red-200 text-red-800',
+}
+const LIGHT_LABEL: Record<TrafficLight, string> = {
+  green:  'text-green-600',
+  yellow: 'text-amber-600',
+  red:    'text-red-600',
+}
+
+function ScoreRing({ score }: { score: number }) {
+  const r = 30
+  const circ = 2 * Math.PI * r
+  const filled = (score / 100) * circ
+  const color = score >= 80 ? '#16a34a' : score >= 50 ? '#d97706' : '#dc2626'
+  return (
+    <svg width="80" height="80" viewBox="0 0 80 80" className="shrink-0">
+      <circle cx="40" cy="40" r={r} fill="none" stroke="#e7e2d8" strokeWidth="7" />
+      <circle
+        cx="40" cy="40" r={r}
+        fill="none" stroke={color} strokeWidth="7"
+        strokeDasharray={`${filled} ${circ}`}
+        strokeLinecap="round"
+        transform="rotate(-90 40 40)"
+        style={{ transition: 'stroke-dasharray 0.5s ease' }}
+      />
+      <text x="40" y="40" textAnchor="middle" dominantBaseline="central"
+        fontSize="18" fontWeight="700" fill={color}>
+        {score}
+      </text>
+    </svg>
+  )
+}
+
+function Metric({ label, value, light, sub }: { label: string; value: string; light: TrafficLight; sub?: string }) {
+  return (
+    <div className={`rounded-xl border p-3 ${LIGHT_BG[light]}`}>
+      <p className="text-xs opacity-70 mb-0.5">{label}</p>
+      <p className={`text-sm font-bold ${LIGHT_LABEL[light]}`}>{value}</p>
+      {sub && <p className="text-xs opacity-60 mt-0.5">{sub}</p>}
+    </div>
+  )
 }
 
 export function SeoScoreCard({ projectId, index, seoData, onUpdate }: Props) {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
+  const [error,   setError]   = useState<string | null>(null)
+  const [copied,  setCopied]  = useState(false)
 
   async function handleAnalyze() {
     setLoading(true)
@@ -46,15 +85,10 @@ export function SeoScoreCard({ projectId, index, seoData, onUpdate }: Props) {
         analysis: Omit<StoredSeoResult, 'aiMetaDescription' | 'analyzedAt'>
         aiMetaDescription: string
       }
-      const seoResult: StoredSeoResult = {
-        ...analysis,
-        aiMetaDescription,
-        analyzedAt: new Date().toISOString(),
-      }
-      onUpdate(seoResult)
+      onUpdate({ ...analysis, aiMetaDescription, analyzedAt: new Date().toISOString() })
     } catch (err: unknown) {
       console.warn('[Vysible] SEO-Analyse fehlgeschlagen:', err)
-      setError(err instanceof Error ? err.message : 'Fehler bei SEO-Analyse')
+      setError(err instanceof Error ? err.message : 'Analyse fehlgeschlagen')
     } finally {
       setLoading(false)
     }
@@ -73,100 +107,113 @@ export function SeoScoreCard({ projectId, index, seoData, onUpdate }: Props) {
 
   if (loading) {
     return (
-      <div className="p-4 flex items-center gap-2 text-sm text-stahlgrau">
-        <span className="animate-spin">⟳</span>
-        <span>[INFO] SEO wird analysiert…</span>
+      <div className="p-5 flex items-center gap-3 text-sm text-stahlgrau">
+        <span className="animate-spin inline-block">↻</span>
+        <span>SEO wird analysiert…</span>
       </div>
     )
   }
 
   if (!seoData) {
     return (
-      <div className="p-4 space-y-2">
-        {error && <p className="text-xs text-red-600">[FAIL] {error}</p>}
+      <div className="p-5 space-y-2">
+        {error && <p className="text-xs text-red-600">{error}</p>}
         <button
           onClick={handleAnalyze}
-          className="px-3 py-1.5 bg-tiefblau text-white text-sm rounded-lg hover:bg-nachtblau"
+          className="px-4 py-2 bg-tiefblau text-white text-sm rounded-lg hover:bg-nachtblau transition"
         >
-          SEO + KI analysieren
+          SEO analysieren
         </button>
       </div>
     )
   }
 
-  const dLight = densityLight(seoData.density)
-  const titleLight: TrafficLight = seoData.titlePresent ? 'green' : 'red'
+  const dLight      = densityLight(seoData.density)
+  const titleLight: TrafficLight  = seoData.titlePresent ? 'green' : 'red'
   const titleLenLight: TrafficLight = seoData.titleLengthOk ? 'green' : 'yellow'
-  const metaLight: TrafficLight = seoData.metaDescriptionOk ? 'green' : 'yellow'
-  const scoreColor = seoData.score >= 80 ? 'text-green-600' : seoData.score >= 50 ? 'text-amber-600' : 'text-red-600'
+  const metaLight: TrafficLight   = seoData.metaDescriptionOk ? 'green' : 'yellow'
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-nachtblau">SEO-Analyse</h4>
-        <span className={`text-xl font-bold ${scoreColor}`}>{seoData.score}/100</span>
+    <div className="p-5 space-y-5">
+
+      {/* Score + Metriken */}
+      <div className="flex items-center gap-5">
+        <ScoreRing score={seoData.score} />
+        <div className="grid grid-cols-2 gap-2 flex-1">
+          <Metric
+            label="KW-Dichte"
+            value={`${seoData.density}%`}
+            sub={`${seoData.occurrences}× gefunden · Ziel 1–3 %`}
+            light={dLight}
+          />
+          <Metric
+            label="KW im Titel"
+            value={seoData.titlePresent ? 'Vorhanden' : 'Fehlt'}
+            light={titleLight}
+          />
+          <Metric
+            label="Titel-Länge"
+            value={`${seoData.titleLength} Zeichen`}
+            sub={seoData.titleLengthOk ? 'Optimal (50–60)' : 'Ziel: 50–60'}
+            light={titleLenLight}
+          />
+          <Metric
+            label="Meta-Beschreibung"
+            value={seoData.aiMetaDescription ? `${seoData.aiMetaDescription.length} Z.` : 'Fehlt'}
+            sub={seoData.metaDescriptionOk ? 'Länge optimal' : 'Ziel: 120–160'}
+            light={metaLight}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className={`p-2 rounded-lg ${LIGHT_BG[dLight]}`}>
-          <p className="text-current/70">KW-Dichte</p>
-          <p className="font-bold">{seoData.density}% ({seoData.occurrences}×)</p>
-        </div>
-        <div className={`p-2 rounded-lg ${LIGHT_BG[titleLight]}`}>
-          <p className="text-current/70">KW im Titel</p>
-          <p className="font-bold">{seoData.titlePresent ? 'Ja' : 'Fehlt'}</p>
-        </div>
-        <div className={`p-2 rounded-lg ${LIGHT_BG[titleLenLight]}`}>
-          <p className="text-current/70">Titel-Länge</p>
-          <p className="font-bold">{seoData.titleLength} Z. {seoData.titleLengthOk ? '✓' : '(Ziel: 50–60)'}</p>
-        </div>
-        <div className={`p-2 rounded-lg ${LIGHT_BG[metaLight]}`}>
-          <p className="text-current/70">Meta-Desc.</p>
-          <p className="font-bold">{seoData.aiMetaDescription ? `${seoData.aiMetaDescription.length} Z.` : 'Fehlt'}</p>
-        </div>
-      </div>
-
+      {/* KI-Meta-Beschreibung */}
       {seoData.aiMetaDescription && (
-        <div className="space-y-1">
-          <p className="text-xs font-medium text-nachtblau">KI-Meta-Description</p>
+        <div>
+          <p className="text-xs font-semibold text-nachtblau mb-1.5">KI-Meta-Beschreibung</p>
           <div className="flex items-start gap-2">
-            <p className="text-xs text-anthrazit flex-1 bg-stone/30 rounded-lg p-2 leading-relaxed">
+            <p className="text-sm text-anthrazit flex-1 bg-stone/40 rounded-lg px-3 py-2 leading-relaxed">
               {seoData.aiMetaDescription}
             </p>
             <button
               onClick={handleCopy}
-              className="flex-shrink-0 px-2 py-1 text-xs bg-tiefblau text-white rounded-lg hover:bg-nachtblau"
+              className="shrink-0 px-3 py-1.5 text-xs bg-tiefblau text-white rounded-lg hover:bg-nachtblau transition"
             >
-              {copied ? '[OK] Kopiert' : 'Kopieren'}
+              {copied ? 'Kopiert ✓' : 'Kopieren'}
             </button>
           </div>
-          <p className="text-xs text-stahlgrau">{seoData.aiMetaDescription.length} Zeichen</p>
+          <p className="text-xs text-stahlgrau mt-1">{seoData.aiMetaDescription.length} Zeichen</p>
         </div>
       )}
 
+      {/* Empfehlungen */}
       {seoData.suggestions.length > 0 && (
-        <div className="space-y-1">
-          <p className="text-xs font-medium text-nachtblau">Empfehlungen</p>
-          {seoData.suggestions.map((s, i) => (
-            <p key={i} className="text-xs text-amber-700 flex items-start gap-1">
-              <span>•</span><span>{s}</span>
-            </p>
-          ))}
+        <div>
+          <p className="text-xs font-semibold text-nachtblau mb-1.5">Empfehlungen</p>
+          <ul className="space-y-1">
+            {seoData.suggestions.map((s, i) => (
+              <li key={i} className="text-sm text-amber-700 flex gap-2">
+                <span className="shrink-0 mt-0.5">›</span><span>{s}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-1">
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-1 border-t border-stone">
         <p className="text-xs text-stahlgrau">
-          Analysiert: {new Date(seoData.analyzedAt).toLocaleDateString('de-DE')}
+          Analysiert am {new Date(seoData.analyzedAt).toLocaleDateString('de-DE', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+          })}
         </p>
-        {error && <p className="text-xs text-red-600">[FAIL] {error}</p>}
-        <button
-          onClick={handleAnalyze}
-          className="text-xs text-tiefblau hover:underline"
-        >
-          Erneut analysieren
-        </button>
+        <div className="flex items-center gap-3">
+          {error && <p className="text-xs text-red-600">{error}</p>}
+          <button onClick={handleAnalyze} className="text-xs text-tiefblau hover:underline">
+            Erneut analysieren
+          </button>
+        </div>
       </div>
+
     </div>
   )
 }

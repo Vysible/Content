@@ -83,6 +83,7 @@ model Project {
   auditLogs           AuditLog[]
   invitationTokens    InvitationToken[]
   contentApprovals    ContentApproval[]
+  integrations        ProjectIntegration[]
   channelQuantities   Json?
   ansprache           String?  @default("Sie")
   clonedFrom          String?
@@ -321,6 +322,20 @@ model AuditLog {
   @@index([action])
   @@index([createdAt])
   @@index([projectId, createdAt])
+}
+
+model ProjectIntegration {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  provider    String   // 'KLICKTIPP' | 'WORDPRESS' | 'META' | 'LINKEDIN'
+  credentials String   // AES-256-GCM encrypted JSON
+  config      Json?    // Non-sensitive config (URLs, IDs, etc.)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([projectId, provider])
+  @@index([projectId])
 }
 
 enum Role {

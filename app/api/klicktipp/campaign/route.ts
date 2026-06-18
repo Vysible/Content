@@ -5,6 +5,7 @@ import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
 import { writeAuditLog } from '@/lib/audit/logger'
 import { checkHwgGate } from '@/lib/compliance/hwg-gate'
+import { checkReviewGate } from '@/lib/compliance/review-gate'
 import { logger } from '@/lib/utils/logger'
 import { NextResponse } from 'next/server'
 
@@ -49,6 +50,23 @@ export async function POST(req: Request) {
     })
     return NextResponse.json(
       { error: 'KlickTipp-Kampagne gesperrt: HWG-Compliance-Flag ist gesetzt.' },
+      { status: 403 },
+    )
+  }
+
+  const reviewGate = await checkReviewGate(projectId)
+  if (reviewGate.blocked) {
+    await writeAuditLog({
+      action: 'klicktipp.campaign_blocked',
+      entity: 'Project',
+      entityId: projectId,
+      projectId,
+      userId: session.user.id,
+      userEmail: session.user.email ?? undefined,
+      meta: { blocked: true, reason: reviewGate.reason, channel: 'klicktipp' },
+    })
+    return NextResponse.json(
+      { error: 'KlickTipp-Kampagne gesperrt: Im Review-Modus „Komplett" muss der Inhalt von der Praxis freigegeben sein.' },
       { status: 403 },
     )
   }

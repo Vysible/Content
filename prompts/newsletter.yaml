@@ -19,8 +19,8 @@ user: |
   Schreibe einen Newsletter zum Thema: {{thema}}
 
   PFLICHTREGELN:
-  - Länge: 300–600 Wörter
-  - Lesezeit: 2–3 Minuten
+  - Länge: 450–700 Wörter
+  - Lesezeit: 3–4 Minuten
   - Absatzlänge: max. 3 Sätze
   - Durchschnittliche Satzlänge: 10–14 Wörter
   - Genau 1 Thema — keine parallelen Botschaften
@@ -31,12 +31,13 @@ user: |
   1. Betreffzeile: max. 50 Zeichen — Neugier oder konkreter Nutzen, nicht beschreibend
   2. Preheader: 40–90 Zeichen — ergänzt den Betreff, wiederholt ihn nicht
   3. Einstieg: persönlich, sofort relevant, kein allgemeines Intro
-  4. Hauptblock (1–2 Abschnitte): Kernbotschaft aus Positionierung ableiten, mind. 1 Tipp oder Erkenntnis
-  5. Primärer CTA: {{cta}} — konkret und handlungsorientiert
-  6. P.S.-Zeile: optional — für Angebote, Hinweise oder Bonusinhalt
+  4. Hauptblock (2–3 Abschnitte): Kernbotschaft aus Positionierung ableiten, mind. 2 Tipps oder Erkenntnisse
+  5. Vertiefung: ein konkretes Beispiel, eine kurze Fallbeschreibung oder ein erklärender Einschub
+  6. Primärer CTA: {{cta}} — konkret und handlungsorientiert
+  7. P.S.-Zeile: optional — für Angebote, Hinweise oder Bonusinhalt
 
   INHALTLICHE PFLICHTEN:
-  - Mindestens 1 konkreter Mehrwert (Tipp, Erkenntnis oder Einblick)
+  - Mindestens 2 konkrete Mehrwerte (Tipps, Erkenntnisse oder Einblicke)
   - Mindestens 1 Handlungsaufforderung
   - Kein Werbetext ohne Mehrwert
 
@@ -45,8 +46,20 @@ user: |
 
   AUSGABE-FORMAT (genau so einhalten):
   Betreffzeile: [max. 50 Zeichen]
+  Betreff B: [alternative Variante, max. 50 Zeichen — anderer Winkel]
   Preheader: [40–90 Zeichen]
 
   [Newslettertext]
 
   P.S.: [Text] (Zeile weglassen wenn nicht passend)
+
+  ---MEDIEN---
+  Bildempfehlungen:
+  - [konkretes Bild 1: was ist zu sehen, welcher Stil, Bildgefühl]
+  - [konkretes Bild 2: optional weitere Idee]
+
+  Videoempfehlung: [kurze Idee für ein Reel oder Erklärvideo — oder Zeile weglassen wenn nicht passend]
+
+  Links:
+  - [Ankertext] → [Zielseite oder Zweck, z.B. Terminbuchung / Leistungsseite / Blogartikel]
+  - [optional weiterer Link]

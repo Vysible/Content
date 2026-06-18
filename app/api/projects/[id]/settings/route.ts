@@ -9,6 +9,7 @@ const schema = z.object({
   positioningDocument: z.string().optional(),
   hedyImportHighlight: z.boolean().optional(),
   socialExamples: z.string().optional(),
+  canvaFolderId: z.string().nullable().optional(),
 })
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -56,6 +57,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (parsed.data.positioningDocument !== undefined) updateData.positioningDocument = parsed.data.positioningDocument
     if (parsed.data.hedyImportHighlight !== undefined) updateData.hedyImportHighlight = parsed.data.hedyImportHighlight
     if (parsed.data.socialExamples !== undefined) updateData.socialExamples = parsed.data.socialExamples
+    if ('canvaFolderId' in parsed.data) updateData.canvaFolderId = parsed.data.canvaFolderId ?? null
 
     const updated = await prisma.project.update({
       where: { id: params.id },

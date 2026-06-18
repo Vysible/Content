@@ -5,6 +5,7 @@ import { postLinkedInDraft } from '@/lib/social/linkedin'
 import { sendNotification } from '@/lib/email/mailer'
 import { writeAuditLog } from '@/lib/audit/logger'
 import { checkHwgGate } from '@/lib/compliance/hwg-gate'
+import { checkReviewGate } from '@/lib/compliance/review-gate'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import type { StoredTextResult } from '@/lib/generation/results-store'
@@ -51,6 +52,23 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     })
     return NextResponse.json(
       { error: 'Social-Posting gesperrt: HWG-Compliance-Flag ist gesetzt. Bitte Inhalt prüfen und Flag zurücksetzen.' },
+      { status: 403 },
+    )
+  }
+
+  const reviewGate = await checkReviewGate(params.id, index)
+  if (reviewGate.blocked) {
+    await writeAuditLog({
+      action:    'social.draft_blocked',
+      entity:    'Project',
+      entityId:  params.id,
+      projectId: params.id,
+      userId:    session.user.id,
+      userEmail: session.user.email ?? undefined,
+      meta:      { blocked: true, reason: reviewGate.reason, kanal, index },
+    })
+    return NextResponse.json(
+      { error: 'Social-Posting gesperrt: Dieser Inhalt wurde noch nicht von der Praxis freigegeben.' },
       { status: 403 },
     )
   }

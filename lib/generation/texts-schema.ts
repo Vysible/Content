@@ -20,6 +20,9 @@ export const NewsletterSchema = z.object({
   body: z.string().min(50),
   cta: z.string(),
   ps: z.string().optional(),
+  bildEmpfehlungen: z.array(z.string()).optional(),
+  videoEmpfehlung: z.string().optional(),
+  linkEmpfehlungen: z.array(z.object({ anker: z.string(), ziel: z.string() })).optional(),
 })
 
 export const SocialPostSchema = z.object({
