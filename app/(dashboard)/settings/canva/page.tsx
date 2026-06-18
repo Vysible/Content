@@ -4,9 +4,9 @@ import { getCanvaConnectionStatus } from '@/lib/canva/auth'
 import { CanvaDisconnectButton } from './CanvaDisconnectButton'
 
 const ERROR_MESSAGES: Record<string, string> = {
-  oauth_init_failed: 'OAuth-Flow konnte nicht initialisiert werden. Bitte erneut versuchen.',
+  oauth_init_failed: 'OAuth-Flow konnte nicht gestartet werden. Prüfe ob CANVA_CLIENT_ID und CANVA_CLIENT_SECRET in den Umgebungsvariablen gesetzt sind.',
   missing_code_or_state: 'Canva hat den OAuth-Flow ohne Code/State abgebrochen.',
-  token_exchange_failed: 'Der Token-Austausch mit Canva ist fehlgeschlagen.',
+  token_exchange_failed: 'Der Token-Austausch mit Canva ist fehlgeschlagen. Prüfe ob die Redirect-URL in der Canva-App korrekt eingetragen ist.',
   access_denied: 'Zugriff von Canva-Seite verweigert.',
 }
 
@@ -93,7 +93,27 @@ export default async function CanvaSettingsPage({ searchParams }: CanvaSettingsP
         )}
       </div>
 
-      <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 space-y-2">
+        <p className="font-semibold">Voraussetzungen für die Canva-Verbindung:</p>
+        <ol className="space-y-1.5 list-none">
+          <li><span className="font-bold">1.</span> Canva-App anlegen unter{' '}
+            <a href="https://www.canva.com/developers/" target="_blank" rel="noopener noreferrer" className="underline">
+              canva.com/developers
+            </a>{' '}→ „Connect" Integration aktivieren
+          </li>
+          <li><span className="font-bold">2.</span> Redirect-URL in der Canva-App eintragen:{' '}
+            <code className="font-mono bg-blue-100 px-1 py-0.5 rounded">
+              {process.env.NEXTAUTH_URL ?? 'https://deine-domain.de'}/api/canva/oauth/callback
+            </code>
+          </li>
+          <li><span className="font-bold">3.</span> In Coolify (Umgebungsvariablen) setzen:
+            <code className="font-mono bg-blue-100 px-1 py-0.5 rounded mx-1">CANVA_CLIENT_ID</code> und
+            <code className="font-mono bg-blue-100 px-1 py-0.5 rounded ml-1">CANVA_CLIENT_SECRET</code>
+          </li>
+        </ol>
+      </div>
+
+      <div className="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
         <strong>Scope &amp; Datenschutz:</strong> Vysible erhält nur Lese-Rechte
         (<code className="font-mono">asset:read</code>{' '}
         <code className="font-mono">design:content:read</code>). Es werden keine
