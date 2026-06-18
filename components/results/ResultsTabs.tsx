@@ -164,7 +164,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
         />
       )}
       {activeTab === 'bildbriefings' && (
-        <ImageBriefTab results={results} />
+        <ImageBriefTab results={results} projectId={projectId} />
       )}
       {activeTab === 'plaene' && (
         <PlaeneTab projectId={projectId} themes={themes} results={results} />
@@ -780,11 +780,27 @@ function TextentwuerfeTab({ results }: { results: StoredTextResult[] }) {
 
 // ── Bildbriefings ─────────────────────────────────────────────────────────────
 
-function ImageBriefTab({ results }: { results: StoredTextResult[] }) {
+interface CanvaAsset {
+  id: string
+  name: string
+  type: string
+  thumbnailUrl?: string
+}
+
+function ImageBriefTab({ results, projectId }: { results: StoredTextResult[]; projectId: string }) {
+  const [canvaAssets, setCanvaAssets] = useState<CanvaAsset[]>([])
+
+  useEffect(() => {
+    fetch(`/api/projects/${projectId}/canva`)
+      .then((r) => r.json())
+      .then((data: { assets?: CanvaAsset[] }) => setCanvaAssets(data.assets ?? []))
+      .catch((err: unknown) => console.warn('[Vysible] Canva-Assets nicht geladen:', err))
+  }, [projectId])
+
   return (
     <div className="space-y-3">
       {results.map((r, i) => (
-        <ImageBriefCard key={i} result={r} />
+        <ImageBriefCard key={i} result={r} canvaAssets={canvaAssets} />
       ))}
       {results.length === 0 && (
         <p className="text-sm text-stahlgrau py-8 text-center">Keine Bildbriefings vorhanden</p>

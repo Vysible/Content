@@ -3,11 +3,19 @@
 import { useState } from 'react'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 
-interface Props {
-  result: StoredTextResult
+interface CanvaAsset {
+  id: string
+  name: string
+  type: string
+  thumbnailUrl?: string
 }
 
-export function ImageBriefCard({ result }: Props) {
+interface Props {
+  result: StoredTextResult
+  canvaAssets?: CanvaAsset[]
+}
+
+export function ImageBriefCard({ result, canvaAssets = [] }: Props) {
   const [copied, setCopied] = useState(false)
   const [open, setOpen] = useState(false)
   const b = result.imageBrief
@@ -53,7 +61,47 @@ export function ImageBriefCard({ result }: Props) {
           </div>
 
           <InfoField label="Textoverlay" value={b.textoverlay} />
-          <InfoField label="Canva-Empfehlung" value={b.canvaAssetEmpfehlung} />
+
+          {/* Canva-Empfehlung + Template-Vorschau */}
+          <div>
+            <p className="text-xs text-stahlgrau mb-0.5">Canva-Empfehlung</p>
+            <p className="text-sm bg-violet-50 border border-violet-100 rounded-lg px-3 py-2 text-violet-900">
+              {b.canvaAssetEmpfehlung}
+            </p>
+          </div>
+
+          {canvaAssets.length > 0 && (
+            <div>
+              <p className="text-xs text-stahlgrau mb-2">Templates im Projektordner</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {canvaAssets.map((asset) => (
+                  <a
+                    key={asset.id}
+                    href={`https://www.canva.com/design/${asset.id}/edit`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group rounded-xl overflow-hidden border border-stone hover:border-tiefblau transition-colors"
+                  >
+                    {asset.thumbnailUrl ? (
+                      <img
+                        src={asset.thumbnailUrl}
+                        alt={asset.name}
+                        className="w-full aspect-video object-cover"
+                      />
+                    ) : (
+                      <div className="w-full aspect-video bg-stone/40 flex items-center justify-center">
+                        <span className="text-xs text-stahlgrau">Kein Vorschau</span>
+                      </div>
+                    )}
+                    <div className="px-2.5 py-2">
+                      <p className="text-xs font-medium text-anthrazit truncate">{asset.name}</p>
+                      <p className="text-xs text-tiefblau group-hover:underline mt-0.5">In Canva öffnen →</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Stock-Suchbegriffe als Chips */}
           {b.stockSuchbegriffe.length > 0 && (

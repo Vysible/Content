@@ -40,7 +40,7 @@ export async function generateTexts(input: TextsInput): Promise<TextResult[]> {
     // imageBrief is the minimum viable unit — if it fails, skip the theme entirely
     let imageBrief: TextResult['imageBrief']
     try {
-      imageBrief = await generateImageBrief({ theme, project })
+      imageBrief = await generateImageBrief({ theme, project, canvaContext: input.canvaContext })
     } catch (err) {
       logger.error({ err, thema: theme.monat }, 'ImageBrief fehlgeschlagen — Thema übersprungen')
       continue
@@ -394,17 +394,18 @@ async function generateSocialPosts(args: {
 async function generateImageBrief(args: {
   theme: ThemenItem
   project: Project
+  canvaContext?: string
 }): Promise<ImageBrief> {
-  const { theme, project } = args
+  const { theme, project, canvaContext } = args
 
   const prompt = loadPrompt('image-brief', {
     thema: theme.thema,
     praxisName: project.praxisName ?? project.praxisUrl,
     kanal: theme.kanal,
     hwgFlag: theme.hwgFlag,
-    canvaOrdner: project.canvaFolderId ?? '',
     fachgebiet: project.fachgebiet ?? '',
     keywords: project.keywords.join(', '),
+    canvaAssets: canvaContext ?? '',
   })
 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
