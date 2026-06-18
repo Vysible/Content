@@ -5,32 +5,20 @@ import { logger } from '@/lib/utils/logger'
 import { z } from 'zod'
 
 const schema = z.object({
-  apiKeyId: z.string().nullable().optional(),
+  name: z.string().min(1).optional(),
+  praxisUrl: z.string().optional(),
+  praxisName: z.string().optional(),
+  fachgebiet: z.string().optional(),
+  ansprache: z.enum(['Du', 'Sie']).optional(),
+  planningStart: z.string().optional(),
+  planningEnd: z.string().optional(),
+  channelQuantities: z.record(z.unknown()).nullable().optional(),
   positioningDocument: z.string().optional(),
-  hedyImportHighlight: z.boolean().optional(),
-  socialExamples: z.string().optional(),
+  keywords: z.array(z.string()).optional(),
+  themenPool: z.string().optional(),
   canvaFolderId: z.string().nullable().optional(),
+  hedyImportHighlight: z.boolean().optional(),
 })
-
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  try {
-    await requireAuth()
-
-    const project = await prisma.project.findUnique({
-      where: { id: params.id },
-      select: { id: true, apiKeyId: true },
-    })
-
-    if (!project) {
-      return NextResponse.json({ error: 'Projekt nicht gefunden' }, { status: 404 })
-    }
-
-    return NextResponse.json(project)
-  } catch (err: unknown) {
-    logger.error({ err }, 'Fehler beim Laden der Projekt-Settings')
-    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 })
-  }
-}
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -52,17 +40,30 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   try {
+    const d = parsed.data
     const updateData: Record<string, unknown> = {}
-    if ('apiKeyId' in parsed.data) updateData.apiKeyId = parsed.data.apiKeyId ?? null
-    if (parsed.data.positioningDocument !== undefined) updateData.positioningDocument = parsed.data.positioningDocument
-    if (parsed.data.hedyImportHighlight !== undefined) updateData.hedyImportHighlight = parsed.data.hedyImportHighlight
-    if (parsed.data.socialExamples !== undefined) updateData.socialExamples = parsed.data.socialExamples
-    if ('canvaFolderId' in parsed.data) updateData.canvaFolderId = parsed.data.canvaFolderId ?? null
+
+    if (d.name !== undefined) updateData.name = d.name
+    if (d.praxisUrl !== undefined) updateData.praxisUrl = d.praxisUrl
+    if (d.praxisName !== undefined) updateData.praxisName = d.praxisName
+    if (d.fachgebiet !== undefined) updateData.fachgebiet = d.fachgebiet
+    if (d.ansprache !== undefined) updateData.ansprache = d.ansprache
+    if (d.planningStart !== undefined) updateData.planningStart = new Date(d.planningStart + '-01')
+    if (d.planningEnd !== undefined) updateData.planningEnd = (() => {
+      const [y, m] = d.planningEnd!.split('-').map(Number)
+      return new Date(y, m, 0) // last day of month
+    })()
+    if (d.channelQuantities !== undefined) updateData.channelQuantities = d.channelQuantities ?? null
+    if (d.positioningDocument !== undefined) updateData.positioningDocument = d.positioningDocument
+    if (d.keywords !== undefined) updateData.keywords = d.keywords
+    if (d.themenPool !== undefined) updateData.themenPool = d.themenPool
+    if ('canvaFolderId' in d) updateData.canvaFolderId = d.canvaFolderId ?? null
+    if (d.hedyImportHighlight !== undefined) updateData.hedyImportHighlight = d.hedyImportHighlight
 
     const updated = await prisma.project.update({
       where: { id: params.id },
       data: updateData,
-      select: { id: true, apiKeyId: true },
+      select: { id: true },
     })
 
     logger.info({ projectId: params.id }, 'Projekt-Settings aktualisiert')

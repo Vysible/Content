@@ -2,12 +2,12 @@ import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/layout/header'
-import { ProjectApiKeySettings } from './ProjectApiKeySettings'
 import { ProjectGA4Settings } from './ProjectGA4Settings'
 import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
-import { ProjectSocialSettings } from './ProjectSocialSettings'
 import { ProjectCanvaSettings } from '@/components/project/ProjectCanvaSettings'
 import { ProjectPositioningSettings } from '@/components/project/ProjectPositioningSettings'
+import { ProjectGeneralSettings } from '@/components/project/ProjectGeneralSettings'
+import { ProjectContentSettings } from '@/components/project/ProjectContentSettings'
 import { KlickTippIntegration } from '@/components/project/integrations/KlickTippIntegration'
 import { WordPressIntegration } from '@/components/project/integrations/WordPressIntegration'
 import { MetaIntegration } from '@/components/project/integrations/MetaIntegration'
@@ -21,27 +21,27 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
     select: {
       id: true,
       name: true,
-      apiKeyId: true,
-      socialExamples: true,
+      praxisUrl: true,
+      praxisName: true,
+      fachgebiet: true,
+      ansprache: true,
+      planningStart: true,
+      planningEnd: true,
       channels: true,
-      canvaFolderId: true,
       positioningDocument: true,
+      keywords: true,
+      themenPool: true,
+      canvaFolderId: true,
     },
   })
 
   if (!project) notFound()
 
-  const apiKeys = await prisma.apiKey.findMany({
-    where: { active: true, provider: { in: ['ANTHROPIC', 'OPENAI'] } },
-    orderBy: [{ provider: 'asc' }, { name: 'asc' }],
-    select: { id: true, name: true, provider: true },
-  })
-
   const hasBlog       = project.channels.includes('BLOG')
   const hasNewsletter = project.channels.includes('NEWSLETTER')
   const hasMeta       = project.channels.some((c) => c === 'SOCIAL_FACEBOOK' || c === 'SOCIAL_INSTAGRAM')
   const hasLinkedIn   = project.channels.includes('SOCIAL_LINKEDIN')
-  const hasSocial     = hasMeta || hasLinkedIn
+  const hasChannelConnections = hasBlog || hasNewsletter || hasMeta || hasLinkedIn
 
   return (
     <div>
@@ -52,23 +52,44 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
 
       <div className="space-y-10">
 
-        {/* ── 1. KI & Inhalt ────────────────────────────────────── */}
+        {/* ── 1. Grunddaten ─────────────────────────────────────── */}
         <section>
-          <SectionHeader title="KI & Inhalt" />
+          <SectionHeader
+            title="Grunddaten"
+            subtitle="Projektname, Praxis, Fachgebiet und Planungszeitraum."
+          />
+          <ProjectGeneralSettings
+            projectId={project.id}
+            initialName={project.name}
+            initialPraxisUrl={project.praxisUrl ?? ''}
+            initialPraxisName={project.praxisName ?? ''}
+            initialFachgebiet={project.fachgebiet ?? ''}
+            initialAnsprache={project.ansprache ?? 'Sie'}
+            initialPlanningStart={project.planningStart.toISOString()}
+            initialPlanningEnd={project.planningEnd.toISOString()}
+          />
+        </section>
+
+        {/* ── 2. Inhalte ────────────────────────────────────────── */}
+        <section>
+          <SectionHeader
+            title="Inhalte"
+            subtitle="Positionierung, Keywords und Themen-Pool für die KI-Generierung."
+          />
           <div className="space-y-4">
-            <ProjectApiKeySettings
-              projectId={project.id}
-              initialApiKeyId={project.apiKeyId}
-              apiKeys={apiKeys}
-            />
             <ProjectPositioningSettings
               projectId={project.id}
               initialDocument={project.positioningDocument ?? ''}
             />
+            <ProjectContentSettings
+              projectId={project.id}
+              initialKeywords={project.keywords}
+              initialThemenPool={project.themenPool ?? ''}
+            />
           </div>
         </section>
 
-        {/* ── 2. Kanal-Verbindungen ─────────────────────────────── */}
+        {/* ── 3. Kanal-Verbindungen ─────────────────────────────── */}
         <section>
           <SectionHeader
             title="Kanal-Verbindungen"
@@ -79,7 +100,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
             {hasBlog       && <WordPressIntegration projectId={project.id} />}
             {hasMeta       && <MetaIntegration      projectId={project.id} />}
             {hasLinkedIn   && <LinkedInIntegration   projectId={project.id} />}
-            {!hasNewsletter && !hasBlog && !hasMeta && !hasLinkedIn && (
+            {!hasChannelConnections && (
               <p className="text-sm text-stahlgrau px-1">
                 Keine verbindbaren Kanäle für dieses Projekt konfiguriert.
               </p>
@@ -87,7 +108,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
           </div>
         </section>
 
-        {/* ── 3. Analytics ──────────────────────────────────────── */}
+        {/* ── 4. Analytics ──────────────────────────────────────── */}
         <section>
           <SectionHeader
             title="Analytics"
@@ -99,21 +120,13 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
           </div>
         </section>
 
-        {/* ── 4. Design & Assets ────────────────────────────────── */}
+        {/* ── 5. Design & Assets ────────────────────────────────── */}
         <section>
           <SectionHeader title="Design & Assets" />
-          <div className="space-y-4">
-            <ProjectCanvaSettings
-              projectId={project.id}
-              initialCanvaFolderId={project.canvaFolderId ?? null}
-            />
-            {hasSocial && (
-              <ProjectSocialSettings
-                projectId={project.id}
-                initialSocialExamples={project.socialExamples ?? ''}
-              />
-            )}
-          </div>
+          <ProjectCanvaSettings
+            projectId={project.id}
+            initialCanvaFolderId={project.canvaFolderId ?? null}
+          />
         </section>
 
       </div>
