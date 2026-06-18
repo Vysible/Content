@@ -9,6 +9,10 @@ import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
 import { ProjectSocialSettings } from './ProjectSocialSettings'
 import { ProjectCanvaSettings } from '@/components/project/ProjectCanvaSettings'
 import { ProjectPositioningSettings } from '@/components/project/ProjectPositioningSettings'
+import { KlickTippIntegration } from '@/components/project/integrations/KlickTippIntegration'
+import { WordPressIntegration } from '@/components/project/integrations/WordPressIntegration'
+import { MetaIntegration } from '@/components/project/integrations/MetaIntegration'
+import { LinkedInIntegration } from '@/components/project/integrations/LinkedInIntegration'
 
 export default async function ProjectSettingsPage({ params }: { params: { id: string } }) {
   await requireAuth()
@@ -55,6 +59,20 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
           projectId={project.id}
           initialCanvaFolderId={project.canvaFolderId ?? null}
         />
+        {/* Pro-Projekt Integrationen */}
+        <div>
+          <h2 className="text-sm font-semibold text-nachtblau px-1 mb-3">Kanal-Verbindungen</h2>
+          <div className="space-y-4">
+            <KlickTippIntegration projectId={project.id} />
+            <WordPressIntegration projectId={project.id} />
+            {project.channels.some((c) => c === 'SOCIAL_FACEBOOK' || c === 'SOCIAL_INSTAGRAM') && (
+              <MetaIntegration projectId={project.id} />
+            )}
+            {project.channels.some((c) => c === 'SOCIAL_LINKEDIN') && (
+              <LinkedInIntegration projectId={project.id} />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
