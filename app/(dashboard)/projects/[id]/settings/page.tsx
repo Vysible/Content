@@ -8,13 +8,14 @@ import { ProjectGA4Settings } from './ProjectGA4Settings'
 import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
 import { ProjectSocialSettings } from './ProjectSocialSettings'
 import { ProjectCanvaSettings } from '@/components/project/ProjectCanvaSettings'
+import { ProjectPositioningSettings } from '@/components/project/ProjectPositioningSettings'
 
 export default async function ProjectSettingsPage({ params }: { params: { id: string } }) {
   await requireAuth()
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { id: true, name: true, apiKeyId: true, socialExamples: true, channels: true, canvaFolderId: true },
+    select: { id: true, name: true, apiKeyId: true, socialExamples: true, channels: true, canvaFolderId: true, positioningDocument: true },
   })
 
   if (!project) notFound()
@@ -46,6 +47,10 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
             initialSocialExamples={project.socialExamples ?? ''}
           />
         )}
+        <ProjectPositioningSettings
+          projectId={project.id}
+          initialDocument={project.positioningDocument ?? ''}
+        />
         <ProjectCanvaSettings
           projectId={project.id}
           initialCanvaFolderId={project.canvaFolderId ?? null}
