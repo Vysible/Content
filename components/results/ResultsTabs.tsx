@@ -104,22 +104,26 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
   return (
     <div>
       {/* Tab-Navigation */}
-      <div className="flex gap-1 border-b border-stone mb-6 overflow-x-auto">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition -mb-px ${
-              activeTab === t.key
-                ? 'border-tiefblau text-tiefblau'
-                : 'border-transparent text-stahlgrau hover:text-anthrazit'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="mb-6">
+        <div className="overflow-x-auto">
+          <div className="flex gap-1.5 bg-stone/50 rounded-xl p-1.5 min-w-max">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setActiveTab(t.key)}
+                className={`px-4 py-2 text-sm font-semibold rounded-lg transition whitespace-nowrap ${
+                  activeTab === t.key
+                    ? 'bg-nachtblau text-white shadow-sm'
+                    : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {isAnySaving && (
-          <span className="ml-auto text-xs text-stahlgrau self-center pr-2">Speichert…</span>
+          <p className="text-xs text-stahlgrau mt-2 text-right">Speichert…</p>
         )}
       </div>
 
