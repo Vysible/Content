@@ -29,9 +29,9 @@ export function startCronJobs(): void {
     await checkTokenExpiry().catch((e: unknown) => logger.error({ err: e }, 'Cron expiry error'))
   })
 
-  // Daily audit log retention at 03:00 — delete entries older than 30 days
+  // Daily audit log retention at 03:00 — delete entries older than 90 days (FA-B-11)
   cron.schedule('0 3 * * *', async () => {
-    const RETENTION_DAYS = Number(process.env.AUDIT_LOG_RETENTION_DAYS ?? '30')
+    const RETENTION_DAYS = Number(process.env.AUDIT_LOG_RETENTION_DAYS ?? '90')
     const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000)
     try {
       const { count } = await prisma.auditLog.deleteMany({

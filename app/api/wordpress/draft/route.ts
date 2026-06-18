@@ -5,6 +5,7 @@ import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
 import { writeAuditLog } from '@/lib/audit/logger'
 import { checkHwgGate } from '@/lib/compliance/hwg-gate'
+import { checkReviewGate } from '@/lib/compliance/review-gate'
 import { logger } from '@/lib/utils/logger'
 import { NextResponse } from 'next/server'
 
@@ -38,6 +39,23 @@ export async function POST(req: Request) {
     })
     return NextResponse.json(
       { error: 'WordPress-Draft gesperrt: HWG-Compliance-Flag ist gesetzt. Bitte Inhalt prüfen und Flag zurücksetzen.' },
+      { status: 403 }
+    )
+  }
+
+  const reviewGate = await checkReviewGate(projectId)
+  if (reviewGate.blocked) {
+    await writeAuditLog({
+      action:    'wordpress.draft_blocked',
+      entity:    'Project',
+      entityId:  projectId,
+      projectId: projectId,
+      userId:    session.user.id,
+      userEmail: session.user.email ?? undefined,
+      meta:      { blocked: true, reason: reviewGate.reason, channel: 'wordpress' },
+    })
+    return NextResponse.json(
+      { error: 'WordPress-Draft gesperrt: Im Review-Modus „Komplett" muss der Inhalt von der Praxis freigegeben sein.' },
       { status: 403 }
     )
   }
