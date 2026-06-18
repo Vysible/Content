@@ -151,6 +151,12 @@ export default async function ProjectPage({ params }: { params: { id: string } }
             Ergebnisse ansehen →
           </Link>
         )}
+        <Link
+          href={`/projects/${project.id}/settings`}
+          className="px-4 py-2 text-sm text-stahlgrau hover:text-anthrazit border border-stone rounded-lg transition"
+        >
+          Einstellungen
+        </Link>
       </div>
     </div>
   )
