@@ -3,7 +3,6 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { ProjectApiKeySettings } from './ProjectApiKeySettings'
-import { ProjectKlickTippSettings } from './ProjectKlickTippSettings'
 import { ProjectGA4Settings } from './ProjectGA4Settings'
 import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
 import { ProjectSocialSettings } from './ProjectSocialSettings'
@@ -19,7 +18,15 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { id: true, name: true, apiKeyId: true, socialExamples: true, channels: true, canvaFolderId: true, positioningDocument: true },
+    select: {
+      id: true,
+      name: true,
+      apiKeyId: true,
+      socialExamples: true,
+      channels: true,
+      canvaFolderId: true,
+      positioningDocument: true,
+    },
   })
 
   if (!project) notFound()
@@ -30,50 +37,95 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
     select: { id: true, name: true, provider: true },
   })
 
+  const hasBlog       = project.channels.includes('BLOG')
+  const hasNewsletter = project.channels.includes('NEWSLETTER')
+  const hasMeta       = project.channels.some((c) => c === 'SOCIAL_FACEBOOK' || c === 'SOCIAL_INSTAGRAM')
+  const hasLinkedIn   = project.channels.includes('SOCIAL_LINKEDIN')
+  const hasSocial     = hasMeta || hasLinkedIn
+
   return (
     <div>
       <Header
         title={`Einstellungen — ${project.name}`}
         subtitle="Projekt-spezifische Konfiguration"
       />
-      <div className="space-y-6">
-        <ProjectApiKeySettings
-          projectId={project.id}
-          initialApiKeyId={project.apiKeyId}
-          apiKeys={apiKeys}
-        />
-        <ProjectKlickTippSettings projectId={project.id} />
-        <ProjectGA4Settings projectId={project.id} />
-        <ProjectGoogleAdsSettings projectId={project.id} />
-        {project.channels.some((c) => c.startsWith('SOCIAL_')) && (
-          <ProjectSocialSettings
-            projectId={project.id}
-            initialSocialExamples={project.socialExamples ?? ''}
-          />
-        )}
-        <ProjectPositioningSettings
-          projectId={project.id}
-          initialDocument={project.positioningDocument ?? ''}
-        />
-        <ProjectCanvaSettings
-          projectId={project.id}
-          initialCanvaFolderId={project.canvaFolderId ?? null}
-        />
-        {/* Pro-Projekt Integrationen */}
-        <div>
-          <h2 className="text-sm font-semibold text-nachtblau px-1 mb-3">Kanal-Verbindungen</h2>
+
+      <div className="space-y-10">
+
+        {/* ── 1. KI & Inhalt ────────────────────────────────────── */}
+        <section>
+          <SectionHeader title="KI & Inhalt" />
           <div className="space-y-4">
-            <KlickTippIntegration projectId={project.id} />
-            <WordPressIntegration projectId={project.id} />
-            {project.channels.some((c) => c === 'SOCIAL_FACEBOOK' || c === 'SOCIAL_INSTAGRAM') && (
-              <MetaIntegration projectId={project.id} />
-            )}
-            {project.channels.some((c) => c === 'SOCIAL_LINKEDIN') && (
-              <LinkedInIntegration projectId={project.id} />
+            <ProjectApiKeySettings
+              projectId={project.id}
+              initialApiKeyId={project.apiKeyId}
+              apiKeys={apiKeys}
+            />
+            <ProjectPositioningSettings
+              projectId={project.id}
+              initialDocument={project.positioningDocument ?? ''}
+            />
+          </div>
+        </section>
+
+        {/* ── 2. Kanal-Verbindungen ─────────────────────────────── */}
+        <section>
+          <SectionHeader
+            title="Kanal-Verbindungen"
+            subtitle="Zugangsdaten werden AES-256-verschlüsselt gespeichert."
+          />
+          <div className="space-y-4">
+            {hasNewsletter && <KlickTippIntegration projectId={project.id} />}
+            {hasBlog       && <WordPressIntegration projectId={project.id} />}
+            {hasMeta       && <MetaIntegration      projectId={project.id} />}
+            {hasLinkedIn   && <LinkedInIntegration   projectId={project.id} />}
+            {!hasNewsletter && !hasBlog && !hasMeta && !hasLinkedIn && (
+              <p className="text-sm text-stahlgrau px-1">
+                Keine verbindbaren Kanäle für dieses Projekt konfiguriert.
+              </p>
             )}
           </div>
-        </div>
+        </section>
+
+        {/* ── 3. Analytics ──────────────────────────────────────── */}
+        <section>
+          <SectionHeader
+            title="Analytics"
+            subtitle="Systemzugang ist zentral konfiguriert — hier nur die Projekt-IDs eintragen."
+          />
+          <div className="space-y-4">
+            <ProjectGA4Settings projectId={project.id} />
+            <ProjectGoogleAdsSettings projectId={project.id} />
+          </div>
+        </section>
+
+        {/* ── 4. Design & Assets ────────────────────────────────── */}
+        <section>
+          <SectionHeader title="Design & Assets" />
+          <div className="space-y-4">
+            <ProjectCanvaSettings
+              projectId={project.id}
+              initialCanvaFolderId={project.canvaFolderId ?? null}
+            />
+            {hasSocial && (
+              <ProjectSocialSettings
+                projectId={project.id}
+                initialSocialExamples={project.socialExamples ?? ''}
+              />
+            )}
+          </div>
+        </section>
+
       </div>
+    </div>
+  )
+}
+
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className="mb-4 pb-2 border-b border-stone">
+      <h2 className="text-sm font-semibold text-nachtblau uppercase tracking-wide">{title}</h2>
+      {subtitle && <p className="text-xs text-stahlgrau mt-0.5">{subtitle}</p>}
     </div>
   )
 }
