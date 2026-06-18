@@ -23,7 +23,7 @@ import {
   SOCIAL_STATUS_LABELS,
 } from '@/lib/generation/results-store'
 
-type Tab = 'uebersicht' | 'themen' | 'blog' | 'newsletter' | 'social' | 'textentwuerfe' | 'bildbriefings' | 'plaene'
+type Tab = 'uebersicht' | 'blog' | 'newsletter' | 'social' | 'bildbriefings' | 'plaene'
 type SortKey = 'monat' | 'funnel' | 'hwg' | 'kanal'
 
 interface Props {
@@ -86,11 +86,9 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'uebersicht', label: 'Übersicht' },
-    { key: 'themen', label: 'Themenübersicht' },
     { key: 'blog', label: 'Blog' },
     { key: 'newsletter', label: 'Newsletter' },
     ...(hasSocial ? [{ key: 'social' as Tab, label: 'Social Media' }] : []),
-    { key: 'textentwuerfe', label: 'Textentwürfe' },
     { key: 'bildbriefings', label: 'Bildbriefings' },
     { key: 'plaene', label: 'Pläne & Downloads' },
   ]
@@ -133,9 +131,6 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
           channels={channels}
         />
       )}
-      {activeTab === 'themen' && (
-        <ThemenTab themes={sortedThemes} sort={sort} setSort={setSort} />
-      )}
       {activeTab === 'blog' && (
         <BlogTab
           projectId={projectId}
@@ -167,9 +162,6 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
           metaConfigured={metaConfigured}
           linkedInConfigured={linkedInConfigured}
         />
-      )}
-      {activeTab === 'textentwuerfe' && (
-        <TextentwuerfeTab results={results} />
       )}
       {activeTab === 'bildbriefings' && (
         <ImageBriefTab results={results} />
@@ -764,12 +756,62 @@ function ImageBriefTab({ results }: { results: StoredTextResult[] }) {
 
 // ── Pläne & Downloads ─────────────────────────────────────────────────────────
 
-const KANAL_LABELS_PLAENE: Record<string, string> = {
-  BLOG: 'Blog',
-  NEWSLETTER: 'Newsletter',
-  SOCIAL_INSTAGRAM: 'Instagram',
-  SOCIAL_FACEBOOK: 'Facebook',
-  SOCIAL_LINKEDIN: 'LinkedIn',
+const FUNNEL_COLORS: Record<string, string> = {
+  TOFU: 'bg-emerald-100 text-emerald-700',
+  MOFU: 'bg-amber-100 text-amber-700',
+  BOFU: 'bg-red-100 text-red-700',
+}
+const HWG_COLORS_PLAENE: Record<string, string> = {
+  gruen: 'bg-green-100 text-green-700',
+  gelb:  'bg-amber-100 text-amber-700',
+  rot:   'bg-red-100 text-red-700',
+}
+
+function renderOutline(outline: string) {
+  return outline.split('\n').map((line, i) => {
+    const trimmed = line.trim()
+    if (!trimmed) return null
+    if (trimmed.startsWith('## ')) {
+      return <p key={i} className="font-semibold text-sm text-anthrazit mt-3 first:mt-0">{trimmed.slice(3)}</p>
+    }
+    if (trimmed.startsWith('# ')) {
+      return <p key={i} className="font-bold text-sm text-nachtblau mt-2 first:mt-0">{trimmed.slice(2)}</p>
+    }
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      return <p key={i} className="text-sm text-anthrazit pl-3 before:content-['–'] before:mr-2 before:text-stahlgrau">{trimmed.slice(2)}</p>
+    }
+    return <p key={i} className="text-sm text-stahlgrau">{trimmed}</p>
+  })
+}
+
+function PlanCard({
+  titel,
+  monat,
+  children,
+  open,
+  onToggle,
+}: {
+  titel: string
+  monat: string
+  children: React.ReactNode
+  open: boolean
+  onToggle: () => void
+}) {
+  return (
+    <div className="border border-stone rounded-xl overflow-hidden">
+      <div
+        className="flex items-center justify-between p-4 cursor-pointer hover:bg-stone/20"
+        onClick={onToggle}
+      >
+        <div>
+          <p className="font-medium text-sm">{titel}</p>
+          <p className="text-xs text-stahlgrau">{monat}</p>
+        </div>
+        <span className="text-stahlgrau text-xs">{open ? '▲' : '▼'}</span>
+      </div>
+      {open && <div className="border-t border-stone p-4">{children}</div>}
+    </div>
+  )
 }
 
 function PlaeneTab({
@@ -781,128 +823,239 @@ function PlaeneTab({
   themes: ThemenItem[]
   results: StoredTextResult[]
 }) {
-  const [openOutline, setOpenOutline] = useState<string | null>(null)
-  const blogWithOutlines = results.filter((r) => r.blog?.outline)
+  const [openBlog, setOpenBlog]         = useState<number | null>(null)
+  const [openNewsletter, setOpenNewsletter] = useState<number | null>(null)
+
+  const blogThemes       = themes.filter((t) => t.kanal === 'BLOG')
+  const newsletterThemes = themes.filter((t) => t.kanal === 'NEWSLETTER')
+  const socialResults    = results.filter((r) => r.socialPosts?.length)
+
+  const blogResults       = results.filter((r) => r.blog)
+  const newsletterResults = results.filter((r) => r.newsletter)
+
+  // Group social results by month
+  const socialByMonth = socialResults.reduce<Record<string, StoredTextResult[]>>((acc, r) => {
+    const m = r.monat ?? 'Unbekannt'
+    if (!acc[m]) acc[m] = []
+    acc[m].push(r)
+    return acc
+  }, {})
 
   return (
-    <div className="space-y-8">
-      {/* ── Themenplan ── */}
+    <div className="space-y-10">
+
+      {/* ── Download ── */}
+      <div className="flex justify-end">
+        <a
+          href={`/api/projects/${projectId}/plans/download`}
+          download
+          className="text-xs px-3 py-1.5 bg-tiefblau text-creme rounded-lg hover:bg-anthrazit transition"
+        >
+          Alle Pläne als XLSX
+        </a>
+      </div>
+
+      {/* ══ Blog-Plan ══ */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-sm">Themenplan</h2>
-          <a
-            href={`/api/projects/${projectId}/plans/download`}
-            download
-            className="text-xs px-3 py-1.5 bg-tiefblau text-creme rounded-lg hover:bg-anthrazit transition"
-          >
-            Alle Pläne als XLSX
-          </a>
-        </div>
-        <div className="overflow-x-auto">
+        <h2 className="font-semibold text-base mb-4 pb-2 border-b border-stone flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-stone border border-stahlgrau/40 inline-block" />
+          Blog
+        </h2>
+
+        {/* Übersichtstabelle */}
+        <div className="overflow-x-auto mb-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-stone">
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Monat</th>
-                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Kanal</th>
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Titel</th>
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Keyword</th>
-                <th className="text-left py-2 text-xs text-stahlgrau font-medium">Funnel</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Funnel</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">HWG</th>
+                <th className="text-left py-2 text-xs text-stahlgrau font-medium">CTA</th>
               </tr>
             </thead>
             <tbody>
-              {themes.map((t, i) => (
+              {blogThemes.map((t, i) => (
                 <tr key={i} className="border-b border-stone/50 hover:bg-stone/30">
                   <td className="py-2 pr-4 text-stahlgrau whitespace-nowrap">{t.monat}</td>
-                  <td className="py-2 pr-4">
-                    <span className="text-xs bg-stone px-2 py-0.5 rounded-full">
-                      {KANAL_LABELS_PLAENE[t.kanal] ?? t.kanal}
-                    </span>
-                  </td>
                   <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
                   <td className="py-2 pr-4 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
-                  <td className="py-2 text-stahlgrau text-xs">{t.funnelStufe}</td>
+                  <td className="py-2 pr-4">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${FUNNEL_COLORS[t.funnelStufe] ?? 'bg-stone text-stahlgrau'}`}>
+                      {t.funnelStufe}
+                    </span>
+                  </td>
+                  <td className="py-2 pr-4">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${HWG_COLORS_PLAENE[t.hwgFlag] ?? ''}`}>
+                      {t.hwgFlag}
+                    </span>
+                  </td>
+                  <td className="py-2 text-stahlgrau text-xs">{t.cta}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {themes.length === 0 && (
-            <p className="text-sm text-stahlgrau py-8 text-center">Keine Themen vorhanden</p>
+          {blogThemes.length === 0 && (
+            <p className="text-sm text-stahlgrau py-6 text-center">Keine Blog-Themen vorhanden</p>
           )}
         </div>
+
+        {/* Gliederungen */}
+        {blogResults.some((r) => r.blog?.outline) && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-2">Gliederungen</p>
+            {blogResults.filter((r) => r.blog?.outline).map((r, i) => (
+              <PlanCard
+                key={i}
+                titel={r.titel}
+                monat={r.monat}
+                open={openBlog === i}
+                onToggle={() => setOpenBlog(openBlog === i ? null : i)}
+              >
+                <div className="space-y-1">{renderOutline(r.blog!.outline!)}</div>
+              </PlanCard>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* ── Redaktionsplan ── */}
+      {/* ══ Newsletter-Plan ══ */}
       <section>
-        <h2 className="font-semibold text-sm mb-3">Redaktionsplan</h2>
-        <div className="overflow-x-auto">
+        <h2 className="font-semibold text-base mb-4 pb-2 border-b border-stone flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+          Newsletter
+        </h2>
+
+        {/* Übersichtstabelle */}
+        <div className="overflow-x-auto mb-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-stone">
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Monat</th>
-                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Kanal</th>
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Titel</th>
-                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">CTA</th>
-                <th className="text-left py-2 text-xs text-stahlgrau font-medium">Content-Winkel</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Keyword</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Funnel</th>
+                <th className="text-left py-2 text-xs text-stahlgrau font-medium">HWG</th>
               </tr>
             </thead>
             <tbody>
-              {themes.map((t, i) => (
+              {newsletterThemes.map((t, i) => (
                 <tr key={i} className="border-b border-stone/50 hover:bg-stone/30">
                   <td className="py-2 pr-4 text-stahlgrau whitespace-nowrap">{t.monat}</td>
+                  <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
+                  <td className="py-2 pr-4 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
                   <td className="py-2 pr-4">
-                    <span className="text-xs bg-stone px-2 py-0.5 rounded-full">
-                      {KANAL_LABELS_PLAENE[t.kanal] ?? t.kanal}
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${FUNNEL_COLORS[t.funnelStufe] ?? 'bg-stone text-stahlgrau'}`}>
+                      {t.funnelStufe}
                     </span>
                   </td>
-                  <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
-                  <td className="py-2 pr-4 text-stahlgrau text-xs">{t.cta}</td>
-                  <td className="py-2 text-stahlgrau text-xs">{t.contentWinkel}</td>
+                  <td className="py-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${HWG_COLORS_PLAENE[t.hwgFlag] ?? ''}`}>
+                      {t.hwgFlag}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {themes.length === 0 && (
-            <p className="text-sm text-stahlgrau py-8 text-center">Kein Redaktionsplan vorhanden</p>
+          {newsletterThemes.length === 0 && (
+            <p className="text-sm text-stahlgrau py-6 text-center">Keine Newsletter-Themen vorhanden</p>
           )}
         </div>
-      </section>
 
-      {/* ── Blog-Gliederungen ── */}
-      <section>
-        <h2 className="font-semibold text-sm mb-3">Blog-Gliederungen</h2>
-        {blogWithOutlines.length === 0 ? (
-          <p className="text-sm text-stahlgrau py-4">
-            Keine Gliederungen gespeichert. Sie werden bei der nächsten Generierung automatisch mitgespeichert.
-          </p>
-        ) : (
+        {/* Newsletter-Vorschauen */}
+        {newsletterResults.length > 0 && (
           <div className="space-y-2">
-            {blogWithOutlines.map((r, i) => {
-              const isOpen = openOutline === r.monat
+            <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-2">Betreff & Vorschau</p>
+            {newsletterResults.map((r, i) => {
+              const nl = r.newsletter!
               return (
-                <div key={i} className="border border-stone rounded-xl overflow-hidden">
-                  <div
-                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-stone/20"
-                    onClick={() => setOpenOutline(isOpen ? null : r.monat)}
-                  >
+                <PlanCard
+                  key={i}
+                  titel={r.titel}
+                  monat={r.monat}
+                  open={openNewsletter === i}
+                  onToggle={() => setOpenNewsletter(openNewsletter === i ? null : i)}
+                >
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-stahlgrau font-medium mb-1">Betreff A</p>
+                        <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2">{nl.betreffA}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-stahlgrau font-medium mb-1">Betreff B</p>
+                        <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2">{nl.betreffB}</p>
+                      </div>
+                    </div>
                     <div>
-                      <p className="font-medium text-sm">{r.titel}</p>
-                      <p className="text-xs text-stahlgrau">{r.monat}</p>
+                      <p className="text-xs text-stahlgrau font-medium mb-1">Preheader</p>
+                      <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2">{nl.preheader}</p>
                     </div>
-                    <span className="text-stahlgrau text-xs">{isOpen ? '▲' : '▼'}</span>
+                    <div>
+                      <p className="text-xs text-stahlgrau font-medium mb-1">Vorschau</p>
+                      <p className="text-sm text-anthrazit leading-relaxed line-clamp-4">
+                        {nl.body.replace(/[#*_`]/g, '').trim()}
+                      </p>
+                    </div>
                   </div>
-                  {isOpen && (
-                    <div className="border-t border-stone p-4">
-                      <pre className="text-sm text-anthrazit whitespace-pre-wrap font-sans leading-relaxed">
-                        {r.blog!.outline}
-                      </pre>
-                    </div>
-                  )}
-                </div>
+                </PlanCard>
               )
             })}
           </div>
         )}
       </section>
+
+      {/* ══ Social-Media-Plan ══ */}
+      {socialResults.length > 0 && (
+        <section>
+          <h2 className="font-semibold text-base mb-4 pb-2 border-b border-stone flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block" />
+            Social Media
+          </h2>
+          <div className="space-y-6">
+            {Object.entries(socialByMonth).sort(([a], [b]) => a.localeCompare(b)).map(([monat, monthResults]) => (
+              <div key={monat}>
+                <p className="text-xs font-semibold text-stahlgrau uppercase tracking-wide mb-3">{monat}</p>
+                <div className="space-y-4">
+                  {monthResults.map((r, ri) => {
+                    const metaPost    = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM')
+                    const linkedInPost = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_LINKEDIN')
+                    return (
+                      <div key={ri} className="border border-stone rounded-xl p-4 space-y-3">
+                        <p className="font-medium text-sm">{r.titel}</p>
+                        {metaPost && (
+                          <div>
+                            <p className="text-xs font-medium text-stahlgrau mb-1.5 flex items-center gap-1.5">
+                              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Facebook</span>
+                              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Instagram</span>
+                            </p>
+                            <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-wrap">
+                              {metaPost.text}
+                            </p>
+                          </div>
+                        )}
+                        {linkedInPost && (
+                          <div>
+                            <p className="text-xs font-medium text-stahlgrau mb-1.5">
+                              <span className="bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">LinkedIn</span>
+                            </p>
+                            <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-wrap">
+                              {linkedInPost.text}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
     </div>
   )
 }
