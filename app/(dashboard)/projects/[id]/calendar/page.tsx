@@ -1,6 +1,5 @@
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
-import { Header } from '@/components/layout/header'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
@@ -29,10 +28,6 @@ export default async function CalendarPage({ params }: { params: { id: string } 
 
   return (
     <div>
-      <Header
-        title={`Kalender: ${project.name}`}
-        subtitle={project.praxisName ?? project.praxisUrl}
-      />
       <div className="mb-4">
         <Link href={`/projects/${params.id}/results`} className="text-sm text-stahlgrau hover:text-anthrazit">
           ← Zurück zu Ergebnissen
