@@ -562,6 +562,13 @@ const CHAR_LIMITS: Record<string, number> = {
   SOCIAL_LINKEDIN: 1_300,
 }
 
+interface CanvaAssetSocial {
+  id: string
+  name: string
+  type: string
+  thumbnailUrl?: string
+}
+
 function SocialTab({
   projectId,
   results,
@@ -578,6 +585,8 @@ function SocialTab({
   linkedInConfigured: boolean
 }) {
   const [expiredProviders, setExpiredProviders] = useState<Set<string>>(new Set())
+  const [canvaAssets, setCanvaAssets] = useState<CanvaAssetSocial[]>([])
+  const [canvaOpen, setCanvaOpen] = useState(true)
 
   useEffect(() => {
     fetch('/api/tokens/status')
@@ -593,23 +602,25 @@ function SocialTab({
       })
   }, [])
 
-  // Kanal → ob Token abgelaufen
+  useEffect(() => {
+    fetch(`/api/projects/${projectId}/canva`)
+      .then((r) => r.json())
+      .then((data: { assets?: CanvaAssetSocial[] }) => setCanvaAssets(data.assets ?? []))
+      .catch((err: unknown) => console.warn('[Vysible] Canva-Assets nicht geladen:', err))
+  }, [projectId])
+
   function isTokenExpired(kanal: string): boolean {
-    if (kanal === 'SOCIAL_FACEBOOK' || kanal === 'SOCIAL_INSTAGRAM') {
-      return expiredProviders.has('META')
-    }
+    if (kanal === 'SOCIAL_FACEBOOK' || kanal === 'SOCIAL_INSTAGRAM') return expiredProviders.has('META')
     if (kanal === 'SOCIAL_LINKEDIN') return expiredProviders.has('LINKEDIN')
     return false
   }
 
-  // Kanal → ob überhaupt konfiguriert
   function isConfigured(kanal: string): boolean {
     if (kanal === 'SOCIAL_FACEBOOK' || kanal === 'SOCIAL_INSTAGRAM') return metaConfigured
     if (kanal === 'SOCIAL_LINKEDIN') return linkedInConfigured
     return false
   }
 
-  // Lokale Post-Texte für Live-Updates vor Autosave
   const [localTexts, setLocalTexts] = useState<Record<string, string>>(() => {
     const map: Record<string, string> = {}
     results.forEach((r, ri) => {
@@ -622,6 +633,48 @@ function SocialTab({
 
   return (
     <div className="space-y-4">
+
+      {/* Canva-Templates Panel */}
+      {canvaAssets.length > 0 && (
+        <div className="border border-violet-200 bg-violet-50/40 rounded-xl overflow-hidden">
+          <button
+            onClick={() => setCanvaOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-violet-50 transition"
+          >
+            <span className="text-xs font-semibold text-violet-800 uppercase tracking-wide">
+              Canva-Templates ({canvaAssets.length})
+            </span>
+            <span className="text-xs text-violet-600">{canvaOpen ? '▲' : '▼'}</span>
+          </button>
+          {canvaOpen && (
+            <div className="px-4 pb-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {canvaAssets.map((asset) => (
+                <div key={asset.id} className="rounded-lg border border-violet-100 bg-white overflow-hidden">
+                  {asset.thumbnailUrl ? (
+                    <img src={asset.thumbnailUrl} alt={asset.name} className="w-full aspect-video object-cover" />
+                  ) : (
+                    <div className="w-full aspect-video bg-stone/30 flex items-center justify-center">
+                      <span className="text-xs text-stahlgrau">Kein Vorschaubild</span>
+                    </div>
+                  )}
+                  <div className="px-2 py-1.5 flex items-center justify-between gap-1">
+                    <p className="text-xs text-anthrazit truncate min-w-0">{asset.name}</p>
+                    <a
+                      href={`https://www.canva.com/design/${asset.id}/edit`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 text-xs px-2 py-1 bg-tiefblau text-white rounded-md hover:bg-nachtblau transition whitespace-nowrap"
+                    >
+                      Öffnen
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {results.map((r) => {
         const globalIndex = allResults.indexOf(r)
 
@@ -695,8 +748,8 @@ function SocialTab({
                       ) : (
                         <p className="text-xs text-stahlgrau italic">
                           {KANAL_LABELS[post.kanal]} nicht konfiguriert —{' '}
-                          <a href="/settings/api-keys" className="text-tiefblau hover:underline">
-                            API-Key hinterlegen
+                          <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
+                            Jetzt verbinden
                           </a>
                         </p>
                       )}
@@ -810,6 +863,36 @@ function ImageBriefTab({ results, projectId }: { results: StoredTextResult[]; pr
 }
 
 // ── Pläne & Downloads ─────────────────────────────────────────────────────────
+
+function getISOWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const day = d.getUTCDay() || 7
+  d.setUTCDate(d.getUTCDate() + 4 - day)
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+}
+
+function getWeeksInMonth(yearMonth: string): number[] {
+  const [year, month] = yearMonth.split('-').map(Number)
+  const seen = new Set<number>()
+  const daysInMonth = new Date(year, month, 0).getDate()
+  for (let day = 1; day <= daysInMonth; day++) {
+    seen.add(getISOWeek(new Date(year, month - 1, day)))
+  }
+  return Array.from(seen).sort((a, b) => a - b)
+}
+
+function distributeToWeeks<T>(items: T[], weekNumbers: number[]): Array<{ kw: number; items: T[] }> {
+  if (weekNumbers.length === 0) return []
+  const buckets: Array<{ kw: number; items: T[] }> = weekNumbers.map((kw) => ({ kw, items: [] }))
+  items.forEach((item, i) => { buckets[i % weekNumbers.length].items.push(item) })
+  return buckets.filter((b) => b.items.length > 0)
+}
+
+function formatMonatLang(yearMonth: string): string {
+  const [year, month] = yearMonth.split('-').map(Number)
+  return new Date(year, month - 1, 1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
+}
 
 const FUNNEL_LABELS: Record<string, string> = {
   TOFU: 'Bekanntheit',
@@ -987,7 +1070,6 @@ function PlaeneTab({
           Newsletter
         </h2>
 
-        {/* Übersichtstabelle */}
         <div className="overflow-x-auto mb-4">
           <table className="w-full text-sm">
             <thead>
@@ -996,27 +1078,32 @@ function PlaeneTab({
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Titel</th>
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Keyword</th>
                 <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">Funnel</th>
-                <th className="text-left py-2 text-xs text-stahlgrau font-medium">HWG</th>
+                <th className="text-left py-2 pr-4 text-xs text-stahlgrau font-medium">HWG</th>
+                <th className="text-left py-2 text-xs text-stahlgrau font-medium">Betreff A</th>
               </tr>
             </thead>
             <tbody>
-              {newsletterThemes.map((t, i) => (
-                <tr key={i} className="border-b border-stone/50 hover:bg-stone/30">
-                  <td className="py-2 pr-4 text-stahlgrau whitespace-nowrap">{t.monat}</td>
-                  <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
-                  <td className="py-2 pr-4 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
-                  <td className="py-2 pr-4">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${FUNNEL_COLORS[t.funnelStufe] ?? 'bg-stone text-stahlgrau'}`}>
-                      {FUNNEL_LABELS[t.funnelStufe] ?? t.funnelStufe}
-                    </span>
-                  </td>
-                  <td className="py-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${HWG_COLORS_PLAENE[t.hwgFlag] ?? ''}`}>
-                      {t.hwgFlag}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {newsletterThemes.map((t, i) => {
+                const matchResult = newsletterResults.find((r) => r.monat === t.monat)
+                return (
+                  <tr key={i} className="border-b border-stone/50 hover:bg-stone/30">
+                    <td className="py-2 pr-4 text-stahlgrau whitespace-nowrap">{t.monat}</td>
+                    <td className="py-2 pr-4 font-medium">{t.seoTitel}</td>
+                    <td className="py-2 pr-4 text-stahlgrau text-xs">{t.keywordPrimaer}</td>
+                    <td className="py-2 pr-4">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${FUNNEL_COLORS[t.funnelStufe] ?? 'bg-stone text-stahlgrau'}`}>
+                        {FUNNEL_LABELS[t.funnelStufe] ?? t.funnelStufe}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-4">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${HWG_COLORS_PLAENE[t.hwgFlag] ?? ''}`}>
+                        {t.hwgFlag}
+                      </span>
+                    </td>
+                    <td className="py-2 text-stahlgrau text-xs">{matchResult?.newsletter?.betreffA ?? '—'}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
           {newsletterThemes.length === 0 && (
@@ -1024,7 +1111,6 @@ function PlaeneTab({
           )}
         </div>
 
-        {/* Newsletter-Vorschauen */}
         {newsletterResults.length > 0 && (
           <div className="space-y-2">
             <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-2">Betreff & Vorschau</p>
@@ -1059,29 +1145,6 @@ function PlaeneTab({
                         {nl.body.replace(/[#*_`]/g, '').trim()}
                       </p>
                     </div>
-                    {(nl.bildEmpfehlungen?.length || nl.videoEmpfehlung || nl.linkEmpfehlungen?.length) && (
-                      <div className="pt-2 border-t border-stone space-y-2">
-                        {nl.bildEmpfehlungen?.length ? (
-                          <div>
-                            <p className="text-xs text-stahlgrau font-medium mb-1">📷 Bilder</p>
-                            {nl.bildEmpfehlungen.map((b, bi) => (
-                              <p key={bi} className="text-xs text-anthrazit">– {b}</p>
-                            ))}
-                          </div>
-                        ) : null}
-                        {nl.videoEmpfehlung && (
-                          <p className="text-xs text-anthrazit">🎬 {nl.videoEmpfehlung}</p>
-                        )}
-                        {nl.linkEmpfehlungen?.length ? (
-                          <div>
-                            <p className="text-xs text-stahlgrau font-medium mb-1">🔗 Links</p>
-                            {nl.linkEmpfehlungen.map((l, li) => (
-                              <p key={li} className="text-xs text-anthrazit"><span className="font-medium">{l.anker}</span> → {l.ziel}</p>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    )}
                   </div>
                 </PlanCard>
               )
@@ -1097,44 +1160,58 @@ function PlaeneTab({
             <span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block" />
             Social Media
           </h2>
-          <div className="space-y-6">
-            {Object.entries(socialByMonth).sort(([a], [b]) => a.localeCompare(b)).map(([monat, monthResults]) => (
-              <div key={monat}>
-                <p className="text-xs font-semibold text-stahlgrau uppercase tracking-wide mb-3">{monat}</p>
-                <div className="space-y-4">
-                  {monthResults.map((r, ri) => {
-                    const metaPost    = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM')
-                    const linkedInPost = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_LINKEDIN')
-                    return (
-                      <div key={ri} className="border border-stone rounded-xl p-4 space-y-3">
-                        <p className="font-medium text-sm">{r.titel}</p>
-                        {metaPost && (
-                          <div>
-                            <p className="text-xs font-medium text-stahlgrau mb-1.5 flex items-center gap-1.5">
-                              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Facebook</span>
-                              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Instagram</span>
-                            </p>
-                            <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-wrap">
-                              {metaPost.text}
-                            </p>
-                          </div>
-                        )}
-                        {linkedInPost && (
-                          <div>
-                            <p className="text-xs font-medium text-stahlgrau mb-1.5">
-                              <span className="bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">LinkedIn</span>
-                            </p>
-                            <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-wrap">
-                              {linkedInPost.text}
-                            </p>
-                          </div>
-                        )}
+          <div className="space-y-8">
+            {Object.entries(socialByMonth).sort(([a], [b]) => a.localeCompare(b)).map(([monat, monthResults]) => {
+              const weeks = getWeeksInMonth(monat)
+              const distributed = distributeToWeeks(monthResults, weeks)
+              return (
+                <div key={monat}>
+                  <p className="text-sm font-semibold text-nachtblau mb-3">{formatMonatLang(monat)}</p>
+                  <div className="space-y-4">
+                    {distributed.map(({ kw, items }) => (
+                      <div key={kw}>
+                        <p className="text-xs font-semibold text-stahlgrau uppercase tracking-wide mb-2 flex items-center gap-2">
+                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400" />
+                          KW {kw}
+                        </p>
+                        <div className="space-y-3 pl-3 border-l-2 border-purple-100">
+                          {items.map((r, ri) => {
+                            const metaPost = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM')
+                            const linkedInPost = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_LINKEDIN')
+                            return (
+                              <div key={ri} className="border border-stone rounded-xl p-4 space-y-3 bg-white">
+                                <p className="font-medium text-sm">{r.titel}</p>
+                                {metaPost && (
+                                  <div>
+                                    <p className="text-xs font-medium text-stahlgrau mb-1.5 flex items-center gap-1.5">
+                                      <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Facebook</span>
+                                      <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Instagram</span>
+                                    </p>
+                                    <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-wrap">
+                                      {metaPost.text}
+                                    </p>
+                                  </div>
+                                )}
+                                {linkedInPost && (
+                                  <div>
+                                    <p className="text-xs font-medium text-stahlgrau mb-1.5">
+                                      <span className="bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">LinkedIn</span>
+                                    </p>
+                                    <p className="text-sm text-anthrazit bg-stone/30 rounded-lg px-3 py-2 leading-relaxed whitespace-pre-wrap">
+                                      {linkedInPost.text}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
                       </div>
-                    )
-                  })}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       )}
