@@ -107,7 +107,7 @@ export default function LoginPage() {
                   required
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+                  className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
                   placeholder="admin@vysible.de"
                   autoComplete="email"
                 />
@@ -115,8 +115,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={forgotLoading}
-                className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
-              >
+className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60"              >
                 {forgotLoading ? 'Wird gesendet …' : 'Reset-Link anfordern'}
               </button>
               <button
@@ -142,7 +141,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
               placeholder="admin@vysible.de"
             />
           </div>
@@ -158,7 +157,7 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
               placeholder="••••••••"
             />
           </div>
@@ -175,8 +174,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
-          >
+className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"          >
             {loading ? 'Anmelden …' : 'Anmelden'}
           </button>
 

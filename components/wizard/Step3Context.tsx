@@ -32,8 +32,7 @@ function AnspracheToggle({ value, onChange }: { value: 'Du' | 'Sie'; onChange: (
             onClick={() => onChange(opt)}
             className={`px-5 py-1.5 text-sm font-medium transition ${
               value === opt
-                ? 'bg-nachtblau text-white'
-                : 'bg-white text-stahlgrau hover:text-anthrazit'
+? 'bg-nachtblau text-white'                : 'bg-white text-stahlgrau hover:text-anthrazit'
             }`}
           >
             {opt}
@@ -154,8 +153,7 @@ export function Step3Context({
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 text-xs font-medium capitalize transition border-b-2 -mb-px ${
-                activeTab === tab ? 'border-brombeer text-bordeaux' : 'border-transparent text-stahlgrau hover:text-anthrazit'
-              }`}
+activeTab === tab ? 'border-brombeer text-bordeaux' : 'border-transparent text-stahlgrau hover:text-anthrazit'              }`}
             >
               {tab === 'eingeben' ? 'Text eingeben' : 'Datei hochladen'}
             </button>
@@ -168,7 +166,7 @@ export function Step3Context({
             onChange={(e) => onChange({ positioningDocument: e.target.value })}
             rows={6}
             placeholder="USPs, Zielgruppe, Tonalität, Differenzierung zum Wettbewerb …"
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac resize-none"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux resize-none"
           />
         ) : (
           <>
@@ -177,8 +175,7 @@ export function Step3Context({
               className={`flex flex-col items-center justify-center gap-2 h-28 border-2 border-dashed rounded-lg transition bg-creme ${
                 isUploading
                   ? 'border-stone cursor-wait opacity-70'
-                  : 'border-stone cursor-pointer hover:border-brombeer'
-              }`}
+: 'border-stone cursor-pointer hover:border-brombeer'              }`}
             >
               {isUploading ? (
                 <p className="text-sm text-stahlgrau">Dokument wird verarbeitet …</p>
@@ -244,7 +241,7 @@ export function Step3Context({
           onChange={(e) => onChange({ themenPool: e.target.value })}
           rows={3}
           placeholder="Bevorzugte Themen, Saisonales, Aktionen der Praxis …"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac resize-none"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux resize-none"
         />
       </div>
 
@@ -264,7 +261,7 @@ export function Step3Context({
           value={data.ga4PropertyId}
           onChange={(e) => onChange({ ga4PropertyId: e.target.value })}
           placeholder="properties/123456789"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
         />
         <p className="mt-1 text-xs text-stahlgrau">
           Aus GA4 → Verwaltung → Property-Details. Kann auch später in den Projekteinstellungen eingetragen werden.
@@ -281,7 +278,7 @@ export function Step3Context({
           value={data.googleAdsCustomerId}
           onChange={(e) => onChange({ googleAdsCustomerId: e.target.value })}
           placeholder="123-456-7890"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
         />
         <p className="mt-1 text-xs text-stahlgrau">
           Aus Google Ads oben rechts. Kann auch später in den Projekteinstellungen eingetragen werden.
@@ -295,8 +292,7 @@ export function Step3Context({
         <button
           onClick={onSubmit}
           disabled={submitting}
-          className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-60"
-        >
+className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-60"        >
           {submitting ? 'Projekt wird erstellt …' : 'Projekt erstellen'}
         </button>
       </div>

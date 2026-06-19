@@ -80,7 +80,7 @@ function ResetPasswordForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
           placeholder="mind. 8 Zeichen"
           autoComplete="new-password"
         />
@@ -96,7 +96,7 @@ function ResetPasswordForm() {
           required
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
           placeholder="Passwort wiederholen"
           autoComplete="new-password"
         />
@@ -111,8 +111,7 @@ function ResetPasswordForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
-      >
+className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"      >
         {loading ? 'Wird gesetzt …' : 'Passwort setzen'}
       </button>
     </form>

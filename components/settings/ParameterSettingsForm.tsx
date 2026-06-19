@@ -131,7 +131,7 @@ export default function ParameterSettingsForm({ initial }: Props) {
               <select
                 value={values[field] as string}
                 onChange={(e) => setModel(field, e.target.value)}
-                className="w-full rounded-lg border border-stone bg-white px-3 py-2 text-sm text-nachtblau focus:outline-none focus:ring-2 focus:ring-cognac"
+                className="w-full rounded-lg border border-stone bg-white px-3 py-2 text-sm text-nachtblau focus:outline-none focus:ring-2 focus:ring-bordeaux"
               >
                 {ALL_MODELS.map((m) => (
                   <option key={m} value={m}>{m}</option>
@@ -147,8 +147,7 @@ export default function ParameterSettingsForm({ initial }: Props) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-5 py-2 rounded-lg bg-nachtblau text-white text-sm font-medium hover:bg-brombeer/90 disabled:opacity-50 transition"
-        >
+className="px-5 py-2 rounded-lg bg-nachtblau text-white text-sm font-medium hover:bg-brombeer/90 disabled:opacity-50 transition"        >
           {saving ? 'Wird gespeichert…' : 'Speichern'}
         </button>
         {message && (

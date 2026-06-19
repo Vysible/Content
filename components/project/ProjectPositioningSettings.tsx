@@ -105,8 +105,7 @@ export function ProjectPositioningSettings({ projectId, initialDocument }: Props
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-1.5 text-xs font-medium transition border-b-2 -mb-px ${
               activeTab === tab
-                ? 'border-brombeer text-bordeaux'
-                : 'border-transparent text-stahlgrau hover:text-anthrazit'
+? 'border-brombeer text-bordeaux'                : 'border-transparent text-stahlgrau hover:text-anthrazit'
             }`}
           >
             {tab === 'eingeben' ? 'Text eingeben' : 'Datei hochladen'}
@@ -125,7 +124,7 @@ export function ProjectPositioningSettings({ projectId, initialDocument }: Props
           onChange={(e) => setDocument(e.target.value)}
           rows={8}
           placeholder="USPs, Zielgruppe, Tonalität, Differenzierung zum Wettbewerb …"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac resize-none"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux resize-none"
         />
       ) : (
         <div>
@@ -134,8 +133,7 @@ export function ProjectPositioningSettings({ projectId, initialDocument }: Props
             className={`flex flex-col items-center justify-center gap-2 h-28 border-2 border-dashed rounded-lg transition bg-creme ${
               isUploading
                 ? 'border-stone cursor-wait opacity-70'
-                : 'border-stone cursor-pointer hover:border-brombeer'
-            }`}
+: 'border-stone cursor-pointer hover:border-brombeer'            }`}
           >
             {isUploading ? (
               <p className="text-sm text-stahlgrau">Dokument wird verarbeitet …</p>

@@ -75,7 +75,7 @@ export function ProjectKlickTippSettings({ projectId }: Props) {
           value={username}
           onChange={e => setUsername(e.target.value)}
           placeholder={hasCredentials ? 'Neuen Benutzernamen eingeben' : 'z.B. vkohnert4'}
-          className="w-full border border-stone rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+          className="w-full border border-stone rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
         />
       </div>
 
@@ -86,7 +86,7 @@ export function ProjectKlickTippSettings({ projectId }: Props) {
           value={password}
           onChange={e => setPassword(e.target.value)}
           placeholder={hasCredentials ? '••••••••' : 'Passwort eingeben'}
-          className="w-full border border-stone rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+          className="w-full border border-stone rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
         />
         <p className="text-xs text-stahlgrau mt-1">AES-256 verschlüsselt gespeichert.</p>
       </div>
@@ -98,7 +98,7 @@ export function ProjectKlickTippSettings({ projectId }: Props) {
           value={listId}
           onChange={e => setListId(e.target.value)}
           placeholder="z.B. 123456"
-          className="w-full border border-stone rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+          className="w-full border border-stone rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
         />
         <p className="text-xs text-stahlgrau mt-1">KlickTipp Empfänger-Listen-ID für dieses Projekt.</p>
       </div>
@@ -111,8 +111,7 @@ export function ProjectKlickTippSettings({ projectId }: Props) {
         <button
           onClick={handleSave}
           disabled={!username || !password || saving}
-          className="px-4 py-2 text-sm bg-nachtblau hover:bg-tiefblau text-white font-semibold rounded-lg disabled:opacity-40 transition"
-        >
+className="px-4 py-2 text-sm bg-nachtblau hover:bg-tiefblau text-white font-semibold rounded-lg disabled:opacity-40 transition"        >
           {saving ? 'Speichert…' : 'Speichern'}
         </button>
         {hasCredentials && (

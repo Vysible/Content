@@ -288,8 +288,7 @@ export function AnalyticsTabView({ projects, ga4Configured, googleAdsConfigured 
             onClick={() => setActive(tab.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition -mb-px ${
               active === tab.key
-                ? 'border-brombeer text-anthrazit'
-                : 'border-transparent text-stahlgrau hover:text-nachtblau'
+? 'border-bordeaux text-nachtblau'                : 'border-transparent text-stahlgrau hover:text-nachtblau'
             }`}
           >
             {tab.label}

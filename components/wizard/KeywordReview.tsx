@@ -161,8 +161,7 @@ export function KeywordReview({
           type="button"
           onClick={loadSuggestions}
           disabled={isLoading}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-nachtblau hover:bg-tiefblau text-white disabled:opacity-60"
-        >
+className="px-3 py-1.5 text-xs font-medium rounded-lg bg-nachtblau hover:bg-tiefblau text-white disabled:opacity-60"        >
           {isLoading ? 'Abfrage läuft...' : 'Keyword-Daten abrufen'}
         </button>
       </div>
@@ -187,7 +186,7 @@ export function KeywordReview({
             }
           }}
           placeholder="Keyword eingeben, Enter oder Komma"
-          className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
         />
         <button
           type="button"
@@ -235,8 +234,7 @@ export function KeywordReview({
                   className={`px-2 py-1 text-xs rounded-full border transition ${
                     selected
                       ? 'bg-tiefblau text-white border-tiefblau'
-                      : 'bg-white text-anthrazit border-stone hover:border-brombeer'
-                  }`}
+: 'bg-white text-anthrazit border-stone hover:border-brombeer'                  }`}
                 >
                   {question}
                 </button>

@@ -85,7 +85,7 @@ export default function KlickTippSettingsPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="max@musterklinik.de"
-            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
           />
         </div>
 
@@ -98,7 +98,7 @@ export default function KlickTippSettingsPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={hasCredentials ? '••••••••••••••••' : 'Passwort eingeben'}
-            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
           />
           {hasCredentials && (
             <p className="text-xs text-green-700 mt-1">
@@ -116,7 +116,7 @@ export default function KlickTippSettingsPage() {
             value={defaultListId}
             onChange={(e) => setDefaultListId(e.target.value)}
             placeholder="z.B. 12345"
-            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
           />
           <p className="text-xs text-stahlgrau mt-1">
             KlickTipp Empfänger-Listen-ID. Kann pro Projekt in den Projekteinstellungen

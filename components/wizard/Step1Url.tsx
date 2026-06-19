@@ -93,7 +93,7 @@ export function Step1Url({ data, onChange, onNext }: Step1Props) {
             onChange={(e) => { setUrlInput(e.target.value); setCheck({ status: 'idle', message: '' }) }}
             onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
             placeholder="www.zahnzentrum-warendorf.de"
-            className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           />
           <button
             onClick={handleCheck}
@@ -120,7 +120,7 @@ export function Step1Url({ data, onChange, onNext }: Step1Props) {
           value={data.praxisName}
           onChange={(e) => onChange({ praxisName: e.target.value })}
           placeholder="z.B. Zahnzentrum Warendorf"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
         />
       </div>
 
@@ -128,8 +128,7 @@ export function Step1Url({ data, onChange, onNext }: Step1Props) {
         <button
           onClick={onNext}
           disabled={!canProceed}
-          className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
-        >
+className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"        >
           Weiter →
         </button>
       </div>

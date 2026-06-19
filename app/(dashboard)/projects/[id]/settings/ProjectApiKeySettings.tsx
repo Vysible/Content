@@ -67,7 +67,7 @@ export function ProjectApiKeySettings({ projectId, initialApiKeyId, apiKeys }: P
         <select
           value={selectedKeyId}
           onChange={(e) => setSelectedKeyId(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
         >
           <option value="">— Globaler Standard-Key —</option>
 
@@ -114,8 +114,7 @@ export function ProjectApiKeySettings({ projectId, initialApiKeyId, apiKeys }: P
       <button
         onClick={handleSave}
         disabled={saving}
-        className="bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-60"
-      >
+className="bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-60"      >
         {saving ? 'Speichert …' : 'Speichern'}
       </button>
     </div>

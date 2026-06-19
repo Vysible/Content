@@ -111,7 +111,7 @@ export function CanvaFolderSelector({ value, onChange }: CanvaFolderSelectorProp
           <select
             value={value ?? ''}
             onChange={handleSelect}
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           >
             <option value="">— kein Canva-Ordner —</option>
             {folders.map((f) => (

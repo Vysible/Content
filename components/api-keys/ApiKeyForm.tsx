@@ -67,7 +67,7 @@ export function ApiKeyForm({ onSuccess, onCancel }: ApiKeyFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="z.B. Anthropic Produktion"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
         />
       </div>
 
@@ -76,7 +76,7 @@ export function ApiKeyForm({ onSuccess, onCancel }: ApiKeyFormProps) {
         <select
           value={provider}
           onChange={(e) => handleProviderChange(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
         >
           {PROVIDERS.map((p) => (
             <option key={p.value} value={p.value} disabled={p.phase > 1}>
@@ -92,7 +92,7 @@ export function ApiKeyForm({ onSuccess, onCancel }: ApiKeyFormProps) {
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           >
             {models.map((m) => (
               <option key={m} value={m}>{m}</option>
@@ -110,7 +110,7 @@ export function ApiKeyForm({ onSuccess, onCancel }: ApiKeyFormProps) {
           onChange={(e) => setKey(e.target.value)}
           placeholder="sk-ant-... oder sk-..."
           autoComplete="off"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white font-mono focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white font-mono focus:outline-none focus:ring-2 focus:ring-bordeaux"
         />
         <p className="mt-1 text-xs text-stahlgrau">Wird AES-256 verschlüsselt gespeichert und nie im Klartext zurückgegeben.</p>
       </div>
@@ -123,8 +123,7 @@ export function ApiKeyForm({ onSuccess, onCancel }: ApiKeyFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2 rounded-lg transition disabled:opacity-60"
-        >
+className="flex-1 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2 rounded-lg transition disabled:opacity-60"        >
           {loading ? 'Speichern …' : 'Speichern'}
         </button>
         <button

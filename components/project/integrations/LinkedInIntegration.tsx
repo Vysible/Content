@@ -96,8 +96,7 @@ export function LinkedInIntegration({ projectId }: Props) {
               type="button"
               onClick={() => setPostAs(opt)}
               className={`px-4 py-1.5 text-sm font-medium transition ${
-                postAs === opt ? 'bg-nachtblau text-white' : 'bg-white text-stahlgrau hover:text-anthrazit'
-              }`}
+postAs === opt ? 'bg-nachtblau text-white' : 'bg-white text-stahlgrau hover:text-anthrazit'              }`}
             >
               {opt === 'organization' ? 'Unternehmensseite' : 'Persönliches Profil'}
             </button>
@@ -126,7 +125,7 @@ function Field({ label, value, onChange, placeholder, type = 'text' }: {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+        className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
       />
     </div>
   )

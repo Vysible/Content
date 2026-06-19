@@ -63,7 +63,7 @@ export function ProjectGoogleAdsSettings({ projectId }: Props) {
           value={customerId}
           onChange={(e) => setCustomerId(e.target.value)}
           placeholder="123-456-7890"
-          className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-cognac"
+          className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-bordeaux"
         />
         <button
           onClick={handleSave}

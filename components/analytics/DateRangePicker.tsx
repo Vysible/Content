@@ -101,7 +101,7 @@ export function DateRangePicker({ value, onChange }: Props) {
             value={customStart}
             max={customEnd || today()}
             onChange={(e) => setCustomStart(e.target.value)}
-            className="px-2 py-1.5 text-xs border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-cognac"
+            className="px-2 py-1.5 text-xs border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-bordeaux"
           />
           <span className="text-xs text-stahlgrau">bis</span>
           <input
@@ -110,7 +110,7 @@ export function DateRangePicker({ value, onChange }: Props) {
             min={customStart}
             max={today()}
             onChange={(e) => setCustomEnd(e.target.value)}
-            className="px-2 py-1.5 text-xs border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-cognac"
+            className="px-2 py-1.5 text-xs border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-bordeaux"
           />
           <button
             onClick={applyCustom}

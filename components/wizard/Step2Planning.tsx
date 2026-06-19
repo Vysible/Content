@@ -119,7 +119,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
           type="text"
           value={data.projectName}
           onChange={(e) => onChange({ projectName: e.target.value })}
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
         />
       </div>
 
@@ -130,7 +130,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
           <select
             value={data.planningStart}
             onChange={(e) => handleStartChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           >
             {monthOptions.map((m) => (
               <option key={m.value} value={m.value}>{m.label}</option>
@@ -147,8 +147,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                 className={`flex-1 py-2 text-sm rounded-lg border transition font-medium ${
                   data.durationMonths === d
                     ? 'border-brombeer bg-brombeer text-anthrazit'
-                    : 'border-stone bg-white text-anthrazit hover:border-brombeer'
-                }`}
+: 'border-stone bg-white text-anthrazit hover:border-brombeer'                }`}
               >
                 {d} Mo.
               </button>
@@ -167,7 +166,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
             max={daysInStartMonth}
             value={safeDay}
             onChange={(e) => onChange({ planningStartDay: Math.min(daysInStartMonth, Math.max(1, Number(e.target.value))) })}
-            className="w-14 px-2 py-1 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac text-center"
+            className="w-14 px-2 py-1 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux text-center"
           />
           <span className="text-xs text-stahlgrau">. des Monats</span>
         </div>
@@ -193,8 +192,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm transition ${
                   active
                     ? 'border-brombeer bg-brombeer text-anthrazit font-medium'
-                    : 'border-stone bg-white text-anthrazit hover:border-brombeer'
-                }`}
+: 'border-stone bg-white text-anthrazit hover:border-brombeer'                }`}
               >
                 <span>{ch.icon}</span>
                 {ch.label}
@@ -226,7 +224,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                         max={20}
                         value={sq.posts}
                         onChange={(e) => updateSocialQuantity(ch.id, 'posts', Math.min(20, Math.max(0, Number(e.target.value))))}
-                        className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-cognac text-center"
+                        className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-bordeaux text-center"
                       />
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -237,7 +235,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                         max={20}
                         value={sq.stories}
                         onChange={(e) => updateSocialQuantity(ch.id, 'stories', Math.min(20, Math.max(0, Number(e.target.value))))}
-                        className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-cognac text-center"
+                        className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-bordeaux text-center"
                       />
                     </div>
                   </div>
@@ -256,7 +254,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                       max={4}
                       value={count}
                       onChange={(e) => updateSimpleQuantity(ch.id, Math.min(4, Math.max(1, Number(e.target.value))))}
-                      className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-cognac text-center"
+                      className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-bordeaux text-center"
                     />
                   </div>
                 </div>
@@ -273,8 +271,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
         <button
           onClick={onNext}
           disabled={!canProceed}
-          className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
-        >
+className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"        >
           Weiter →
         </button>
       </div>

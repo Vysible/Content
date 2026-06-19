@@ -86,7 +86,7 @@ export function ProjectGeneralSettings({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           />
         </div>
         <div>
@@ -96,7 +96,7 @@ export function ProjectGeneralSettings({
             value={praxisName}
             onChange={(e) => setPraxisName(e.target.value)}
             placeholder="z. B. Zahnarztpraxis Mustermann"
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           />
         </div>
         <div>
@@ -106,7 +106,7 @@ export function ProjectGeneralSettings({
             value={praxisUrl}
             onChange={(e) => setPraxisUrl(e.target.value)}
             placeholder="https://praxis-mustermann.de"
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           />
         </div>
         <div>
@@ -116,7 +116,7 @@ export function ProjectGeneralSettings({
             value={fachgebiet}
             onChange={(e) => setFachgebiet(e.target.value)}
             placeholder="z. B. Allgemeinmedizin, Zahnmedizin …"
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           />
         </div>
       </div>
@@ -127,7 +127,7 @@ export function ProjectGeneralSettings({
           <select
             value={planningStart}
             onChange={(e) => setPlanningStart(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           >
             {MONTH_OPTIONS.map((m) => (
               <option key={m.value} value={m.value}>{m.label}</option>
@@ -139,7 +139,7 @@ export function ProjectGeneralSettings({
           <select
             value={planningEnd}
             onChange={(e) => setPlanningEnd(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac"
+            className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
           >
             {MONTH_OPTIONS.map((m) => (
               <option key={m.value} value={m.value}>{m.label}</option>
@@ -156,8 +156,7 @@ export function ProjectGeneralSettings({
                 onClick={() => setAnsprache(opt)}
                 className={`flex-1 py-2 text-sm font-medium transition ${
                   ansprache === opt
-                    ? 'bg-nachtblau text-white'
-                    : 'bg-white text-stahlgrau hover:text-anthrazit'
+? 'bg-nachtblau text-white'                    : 'bg-white text-stahlgrau hover:text-anthrazit'
                 }`}
               >
                 {opt}

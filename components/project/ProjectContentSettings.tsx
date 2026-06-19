@@ -121,7 +121,7 @@ export function ProjectContentSettings({ projectId, initialKeywords, initialThem
           onChange={(e) => setThemenPool(e.target.value)}
           rows={4}
           placeholder="Bevorzugte Themen, Saisonales, Aktionen der Praxis …"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cognac resize-none"
+          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux resize-none"
         />
       </div>
 

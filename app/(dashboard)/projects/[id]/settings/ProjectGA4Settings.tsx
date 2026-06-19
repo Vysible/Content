@@ -62,7 +62,7 @@ export function ProjectGA4Settings({ projectId }: Props) {
           value={propertyId}
           onChange={(e) => setPropertyId(e.target.value)}
           placeholder="properties/123456789"
-          className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-cognac"
+          className="flex-1 px-3 py-2 text-sm border border-stone rounded-lg focus:outline-none focus:ring-1 focus:ring-bordeaux"
         />
         <button
           onClick={handleSave}

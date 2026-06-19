@@ -69,7 +69,7 @@ export default function PasswordPage() {
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
               placeholder="••••••••"
             />
           </div>
@@ -85,7 +85,7 @@ export default function PasswordPage() {
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
               placeholder="Mindestens 8 Zeichen"
             />
           </div>
@@ -101,7 +101,7 @@ export default function PasswordPage() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-cognac focus:border-transparent transition"
+              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white text-anthrazit focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition"
               placeholder="••••••••"
             />
           </div>
@@ -121,8 +121,7 @@ export default function PasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
-          >
+className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"          >
             {loading ? 'Wird gespeichert …' : 'Passwort ändern'}
           </button>
         </form>

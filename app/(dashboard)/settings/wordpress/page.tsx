@@ -83,7 +83,7 @@ export default function WordPressSettingsPage() {
             value={wpUrl}
             onChange={(e) => setWpUrl(e.target.value)}
             placeholder="https://zahnarzt-mustermann.de"
-            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
           />
         </div>
 
@@ -94,7 +94,7 @@ export default function WordPressSettingsPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="admin"
-            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
           />
           <p className="text-xs text-stahlgrau mt-1">WordPress-Benutzername (nicht E-Mail)</p>
         </div>
@@ -106,7 +106,7 @@ export default function WordPressSettingsPage() {
             value={appPassword}
             onChange={(e) => setAppPassword(e.target.value)}
             placeholder={hasCredentials ? '••••••••••••••••' : 'xxxx xxxx xxxx xxxx xxxx xxxx'}
-            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cognac/50"
+            className="w-full px-3 py-2 border border-stone rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bordeaux/50"
           />
           <p className="text-xs text-stahlgrau mt-1">
             Generiert in WordPress: Profil &rarr; Application Passwords

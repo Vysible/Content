@@ -315,8 +315,7 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                               onClick={() => openModal(theme)}
                               className="text-left group w-full"
                             >
-                              <div className="rounded-lg border border-stone bg-white px-2.5 py-1.5 hover:border-brombeer hover:bg-amber-50/40 transition">
-                                <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-nachtblau line-clamp-2">
+<div className="rounded-lg border border-stone bg-white px-2.5 py-1.5 hover:border-brombeer hover:bg-amber-50/40 transition">                                <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-nachtblau line-clamp-2">
                                   {theme.seoTitel}
                                 </p>
                                 <div className="mt-1 flex items-center gap-1.5">

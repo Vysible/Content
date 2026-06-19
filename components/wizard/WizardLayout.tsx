@@ -34,8 +34,7 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
               <span
                 className={cn(
                   'text-xs whitespace-nowrap',
-                  currentStep === step.n ? 'text-bordeaux font-semibold' : 'text-stahlgrau'
-                )}
+currentStep === step.n ? 'text-bordeaux font-semibold' : 'text-stahlgrau'                )}
               >
                 {step.label}
               </span>
