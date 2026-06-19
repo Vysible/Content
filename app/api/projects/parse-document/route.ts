@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth/session'
 import { logger } from '@/lib/utils/logger'
-import pdfParse from 'pdf-parse'
+import { PDFParse } from 'pdf-parse'
 import mammoth from 'mammoth'
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024 // 10 MB
@@ -52,8 +52,10 @@ export async function POST(req: Request) {
     let text: string
 
     if (mime === 'application/pdf') {
-      const buffer = Buffer.from(await file.arrayBuffer())
-      const result = await pdfParse(buffer)
+      const data = new Uint8Array(await file.arrayBuffer())
+      const parser = new PDFParse({ data })
+      const result = await parser.getText()
+      await parser.destroy()
       text = result.text
     } else if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const buffer = Buffer.from(await file.arrayBuffer())
