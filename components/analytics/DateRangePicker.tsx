@@ -115,7 +115,7 @@ export function DateRangePicker({ value, onChange }: Props) {
           <button
             onClick={applyCustom}
             disabled={!customStart || !customEnd || customStart > customEnd}
-            className="px-3 py-1.5 text-xs bg-cognac text-black font-medium rounded-lg hover:opacity-90 transition disabled:opacity-40"
+            className="px-3 py-1.5 text-xs bg-brombeer text-anthrazit font-medium rounded-lg hover:opacity-90 transition disabled:opacity-40"
           >
             Anwenden
           </button>

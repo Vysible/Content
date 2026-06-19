@@ -19,11 +19,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="p-6 max-w-6xl mx-auto">
               {children}
               <footer className="mt-12 pt-4 border-t border-stone flex items-center justify-center gap-4">
-                <a href="/impressum" className="text-xs text-stahlgrau hover:text-cognac transition">
+                <a href="/impressum" className="text-xs text-stahlgrau hover:text-bordeaux transition">
                   Impressum
                 </a>
                 <span className="text-stone text-xs">·</span>
-                <a href="/datenschutz" className="text-xs text-stahlgrau hover:text-cognac transition">
+                <a href="/datenschutz" className="text-xs text-stahlgrau hover:text-bordeaux transition">
                   Datenschutz
                 </a>
               </footer>

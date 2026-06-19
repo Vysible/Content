@@ -91,7 +91,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
         <span className={`w-2 h-2 rounded-full ${portalCount > 0 ? 'bg-emerald-500' : 'bg-stone border border-stahlgrau/40'}`} />
         Kundenportal
         {portalCount > 0 && (
-          <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+          <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-1.5 py-0.5 rounded-full">
             {portalCount}
           </span>
         )}
@@ -134,7 +134,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
                   </button>
                 </div>
               </div>
-              <p className="text-[10px] text-stahlgrau">
+              <p className="text-xs text-stahlgrau">
                 Gültig bis {new Date(link.expiresAt).toLocaleDateString('de-DE')}
                 {link.showAnalytics && ' · inkl. Analysen'}
               </p>

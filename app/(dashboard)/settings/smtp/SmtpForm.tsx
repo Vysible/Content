@@ -349,7 +349,7 @@ export function SmtpForm() {
           <button
             type="submit"
             disabled={saving}
-            className="bg-cognac hover:bg-cognacDark text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-60"
+            className="bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-60"
           >
             {saving ? 'Wird gespeichert …' : 'SMTP speichern'}
           </button>

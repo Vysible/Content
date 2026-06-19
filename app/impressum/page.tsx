@@ -11,7 +11,7 @@ export default function ImpressumPage() {
       <div className="max-w-2xl mx-auto">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 text-xs text-stahlgrau hover:text-cognac transition mb-8"
+          className="inline-flex items-center gap-1 text-xs text-stahlgrau hover:text-bordeaux transition mb-8"
         >
           ← Zurück zur Anmeldung
         </Link>
@@ -29,7 +29,7 @@ export default function ImpressumPage() {
               <p className="mt-1">
                 Im Gemeindegrund 14<br />
                 46147 Oberhausen<br />
-                <a href="mailto:kontakt@vysible.de" className="text-cognac hover:underline">
+                <a href="mailto:kontakt@vysible.de" className="text-bordeaux hover:underline">
                   kontakt@vysible.de
                 </a>
               </p>
@@ -103,7 +103,7 @@ export default function ImpressumPage() {
               <p>
                 Gerne geben wir Ihnen Auskunft über die bei uns gespeicherten persönlichen Daten.
                 Wenn Sie Fragen zur Behandlung Ihrer Daten haben, genügt eine E-Mail an{' '}
-                <a href="mailto:kontakt@vysible.de" className="text-cognac hover:underline">
+                <a href="mailto:kontakt@vysible.de" className="text-bordeaux hover:underline">
                   kontakt@vysible.de
                 </a>
                 .

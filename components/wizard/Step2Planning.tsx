@@ -146,8 +146,8 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                 onClick={() => handleDurationChange(d)}
                 className={`flex-1 py-2 text-sm rounded-lg border transition font-medium ${
                   data.durationMonths === d
-                    ? 'border-cognac bg-cognac text-black'
-                    : 'border-stone bg-white text-anthrazit hover:border-cognac'
+                    ? 'border-brombeer bg-brombeer text-anthrazit'
+                    : 'border-stone bg-white text-anthrazit hover:border-brombeer'
                 }`}
               >
                 {d} Mo.
@@ -171,7 +171,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
           />
           <span className="text-xs text-stahlgrau">. des Monats</span>
         </div>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-cognac bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-bordeaux bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
           KW {startKw}
         </span>
       </div>
@@ -192,8 +192,8 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                 onClick={() => toggleChannel(ch.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm transition ${
                   active
-                    ? 'border-cognac bg-cognac text-black font-medium'
-                    : 'border-stone bg-white text-anthrazit hover:border-cognac'
+                    ? 'border-brombeer bg-brombeer text-anthrazit font-medium'
+                    : 'border-stone bg-white text-anthrazit hover:border-brombeer'
                 }`}
               >
                 <span>{ch.icon}</span>
@@ -273,7 +273,7 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
         <button
           onClick={onNext}
           disabled={!canProceed}
-          className="px-6 py-2 bg-cognac hover:bg-cognacDark text-black text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Weiter →
         </button>

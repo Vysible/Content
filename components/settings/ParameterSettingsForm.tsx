@@ -147,7 +147,7 @@ export default function ParameterSettingsForm({ initial }: Props) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-5 py-2 rounded-lg bg-cognac text-white text-sm font-medium hover:bg-cognac/90 disabled:opacity-50 transition"
+          className="px-5 py-2 rounded-lg bg-nachtblau text-white text-sm font-medium hover:bg-brombeer/90 disabled:opacity-50 transition"
         >
           {saving ? 'Wird gespeichert…' : 'Speichern'}
         </button>

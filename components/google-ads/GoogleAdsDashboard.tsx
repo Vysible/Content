@@ -110,7 +110,7 @@ export function GoogleAdsDashboard({ projectId }: Props) {
           {isNotConfigured && (
             <a
               href={`/projects/${projectId}/settings`}
-              className="inline-block mt-2 px-4 py-2 text-sm bg-cognac text-black font-semibold rounded-lg hover:opacity-90 transition"
+              className="inline-block mt-2 px-4 py-2 text-sm bg-brombeer text-anthrazit font-semibold rounded-lg hover:opacity-90 transition"
             >
               Zu den Einstellungen
             </a>
@@ -220,7 +220,7 @@ export function GoogleAdsDashboard({ projectId }: Props) {
                   return (
                     <div
                       key={day.date}
-                      className="flex-1 bg-cognac/70 hover:bg-cognac rounded-sm transition-all cursor-default"
+                      className="flex-1 bg-bordeaux/70 hover:bg-bordeaux rounded-sm transition-all cursor-default"
                       style={{ height: `${heightPct}%` }}
                       title={`${day.date}: ${eur(day.spend)}`}
                     />

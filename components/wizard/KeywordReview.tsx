@@ -161,7 +161,7 @@ export function KeywordReview({
           type="button"
           onClick={loadSuggestions}
           disabled={isLoading}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-cognac hover:bg-cognacDark text-black disabled:opacity-60"
+          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-nachtblau hover:bg-tiefblau text-white disabled:opacity-60"
         >
           {isLoading ? 'Abfrage läuft...' : 'Keyword-Daten abrufen'}
         </button>
@@ -235,7 +235,7 @@ export function KeywordReview({
                   className={`px-2 py-1 text-xs rounded-full border transition ${
                     selected
                       ? 'bg-tiefblau text-white border-tiefblau'
-                      : 'bg-white text-anthrazit border-stone hover:border-cognac'
+                      : 'bg-white text-anthrazit border-stone hover:border-brombeer'
                   }`}
                 >
                   {question}

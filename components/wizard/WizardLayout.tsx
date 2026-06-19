@@ -25,7 +25,7 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
                   currentStep > step.n
                     ? 'bg-tiefblau text-white'
                     : currentStep === step.n
-                    ? 'bg-cognac text-black'
+                    ? 'bg-brombeer text-anthrazit'
                     : 'bg-stone text-stahlgrau'
                 )}
               >
@@ -34,7 +34,7 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
               <span
                 className={cn(
                   'text-xs whitespace-nowrap',
-                  currentStep === step.n ? 'text-cognac font-semibold' : 'text-stahlgrau'
+                  currentStep === step.n ? 'text-bordeaux font-semibold' : 'text-stahlgrau'
                 )}
               >
                 {step.label}

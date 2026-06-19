@@ -75,16 +75,6 @@ export default async function ProjectPage({ params }: { params: { id: string } }
           <p className="text-xs text-stahlgrau mb-1">KI-Kosten</p>
           <p className="text-sm font-semibold text-nachtblau">{totalCost.toFixed(4)} EUR</p>
         </div>
-        {project.status === 'ACTIVE' && (
-          <div className="bg-white border border-stone rounded-xl p-3 flex items-center">
-            <Link
-              href={`/projects/${project.id}/results`}
-              className="w-full text-center px-3 py-2 text-sm bg-tiefblau text-white rounded-lg hover:bg-nachtblau transition font-medium"
-            >
-              Ergebnisse →
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* Generierung */}

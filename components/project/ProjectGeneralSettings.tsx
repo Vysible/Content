@@ -156,7 +156,7 @@ export function ProjectGeneralSettings({
                 onClick={() => setAnsprache(opt)}
                 className={`flex-1 py-2 text-sm font-medium transition ${
                   ansprache === opt
-                    ? 'bg-cognac text-white'
+                    ? 'bg-nachtblau text-white'
                     : 'bg-white text-stahlgrau hover:text-anthrazit'
                 }`}
               >

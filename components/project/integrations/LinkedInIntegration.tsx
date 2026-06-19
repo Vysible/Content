@@ -96,7 +96,7 @@ export function LinkedInIntegration({ projectId }: Props) {
               type="button"
               onClick={() => setPostAs(opt)}
               className={`px-4 py-1.5 text-sm font-medium transition ${
-                postAs === opt ? 'bg-cognac text-white' : 'bg-white text-stahlgrau hover:text-anthrazit'
+                postAs === opt ? 'bg-nachtblau text-white' : 'bg-white text-stahlgrau hover:text-anthrazit'
               }`}
             >
               {opt === 'organization' ? 'Unternehmensseite' : 'Persönliches Profil'}

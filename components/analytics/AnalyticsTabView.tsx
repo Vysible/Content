@@ -72,7 +72,7 @@ function GA4Tab({ projects, serviceConfigured }: { projects: Project[]; serviceC
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     {p.ga4PropertyId ? (
-                      <Link href={`/projects/${p.id}/analytics`} className="text-xs text-cognac hover:underline font-medium">
+                      <Link href={`/projects/${p.id}/analytics`} className="text-xs text-bordeaux hover:underline font-medium">
                         Ansehen →
                       </Link>
                     ) : (
@@ -125,7 +125,7 @@ function GoogleAdsTab({ projects, serviceConfigured }: { projects: Project[]; se
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     {p.googleAdsCustomerId ? (
-                      <Link href={`/projects/${p.id}/google-ads`} className="text-xs text-cognac hover:underline font-medium">
+                      <Link href={`/projects/${p.id}/google-ads`} className="text-xs text-bordeaux hover:underline font-medium">
                         Ansehen →
                       </Link>
                     ) : (
@@ -261,7 +261,7 @@ function KiKostenTab() {
       )}
 
       <div className="text-right">
-        <Link href="/kpi" className="text-xs text-cognac hover:underline font-medium">
+        <Link href="/kpi" className="text-xs text-bordeaux hover:underline font-medium">
           Kostendiagnose & Projekt-Details →
         </Link>
       </div>
@@ -288,7 +288,7 @@ export function AnalyticsTabView({ projects, ga4Configured, googleAdsConfigured 
             onClick={() => setActive(tab.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition -mb-px ${
               active === tab.key
-                ? 'border-cognac text-nachtblau'
+                ? 'border-brombeer text-anthrazit'
                 : 'border-transparent text-stahlgrau hover:text-nachtblau'
             }`}
           >

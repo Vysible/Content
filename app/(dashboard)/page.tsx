@@ -62,7 +62,7 @@ export default async function DashboardPage() {
       <div className="bg-white border border-stone rounded-xl p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-nachtblau">Analysen</h2>
-          <Link href="/analytics" className="text-xs text-cognac hover:underline font-medium">
+          <Link href="/analytics" className="text-xs text-bordeaux hover:underline font-medium">
             Alle Analysen →
           </Link>
         </div>

@@ -133,12 +133,12 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                           className="text-left w-full group"
                           tabIndex={above ? 0 : -1}
                         >
-                          <p className="text-sm font-semibold text-nachtblau group-hover:text-cognac leading-snug line-clamp-2">
+                          <p className="text-sm font-semibold text-nachtblau group-hover:text-bordeaux leading-snug line-clamp-2">
                             {theme.seoTitel}
                           </p>
                           <p className="text-xs text-stahlgrau mt-0.5 line-clamp-2">{theme.contentWinkel}</p>
                           {hasT && (
-                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                            <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
                               Text
                             </span>
                           )}
@@ -156,7 +156,7 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                             {new Date(parseInt(theme.monat.split('-')[0]), parseInt(theme.monat.split('-')[1]) - 1, 1)
                               .toLocaleDateString('de-DE', { month: 'long' })}
                           </span>
-                          <span className="text-[9px] text-stahlgrau group-hover:text-white/80">
+                          <span className="text-xs text-stahlgrau group-hover:text-white/80">
                             {getMonthKwRange(theme.monat)}
                           </span>
                         </button>
@@ -170,12 +170,12 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                           className="text-left w-full group"
                           tabIndex={!above ? 0 : -1}
                         >
-                          <p className="text-sm font-semibold text-nachtblau group-hover:text-cognac leading-snug line-clamp-2">
+                          <p className="text-sm font-semibold text-nachtblau group-hover:text-bordeaux leading-snug line-clamp-2">
                             {theme.seoTitel}
                           </p>
                           <p className="text-xs text-stahlgrau mt-0.5 line-clamp-2">{theme.contentWinkel}</p>
                           {hasT && (
-                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                            <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
                               Text
                             </span>
                           )}
@@ -209,12 +209,12 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                     <div className="flex flex-col items-center">
                       <div className={`w-44 mb-2 ${above ? 'visible' : 'invisible pointer-events-none'}`}>
                         <button onClick={() => openModal(theme)} className="text-left w-full group" tabIndex={above ? 0 : -1}>
-                          <p className="text-sm font-semibold text-emerald-800 group-hover:text-cognac leading-snug line-clamp-2">
+                          <p className="text-sm font-semibold text-emerald-800 group-hover:text-bordeaux leading-snug line-clamp-2">
                             {theme.seoTitel}
                           </p>
                           <p className="text-xs text-stahlgrau mt-0.5 line-clamp-2">{theme.contentWinkel}</p>
                           {hasT && (
-                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                            <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
                               Text
                             </span>
                           )}
@@ -230,7 +230,7 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                             {new Date(parseInt(theme.monat.split('-')[0]), parseInt(theme.monat.split('-')[1]) - 1, 1)
                               .toLocaleDateString('de-DE', { month: 'long' })}
                           </span>
-                          <span className="text-[9px] text-stahlgrau group-hover:text-white/80">
+                          <span className="text-xs text-stahlgrau group-hover:text-white/80">
                             {getMonthKwRange(theme.monat)}
                           </span>
                         </button>
@@ -238,12 +238,12 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                       </div>
                       <div className={`w-44 mt-2 ${!above ? 'visible' : 'invisible pointer-events-none'}`}>
                         <button onClick={() => openModal(theme)} className="text-left w-full group" tabIndex={!above ? 0 : -1}>
-                          <p className="text-sm font-semibold text-emerald-800 group-hover:text-cognac leading-snug line-clamp-2">
+                          <p className="text-sm font-semibold text-emerald-800 group-hover:text-bordeaux leading-snug line-clamp-2">
                             {theme.seoTitel}
                           </p>
                           <p className="text-xs text-stahlgrau mt-0.5 line-clamp-2">{theme.contentWinkel}</p>
                           {hasT && (
-                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                            <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
                               Text
                             </span>
                           )}
@@ -278,7 +278,7 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                     className="text-left py-2 px-3 text-xs font-bold text-nachtblau whitespace-nowrap border-b-2 border-stone min-w-[160px]"
                   >
                     {formatMonatShort(m)}
-                    <span className="block text-[10px] font-normal text-stahlgrau mt-0.5">
+                    <span className="block text-xs font-normal text-stahlgrau mt-0.5">
                       {getMonthKwRange(m)}
                     </span>
                   </th>
@@ -315,17 +315,17 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                               onClick={() => openModal(theme)}
                               className="text-left group w-full"
                             >
-                              <div className="rounded-lg border border-stone bg-white px-2.5 py-1.5 hover:border-cognac hover:bg-amber-50/40 transition">
+                              <div className="rounded-lg border border-stone bg-white px-2.5 py-1.5 hover:border-brombeer hover:bg-amber-50/40 transition">
                                 <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-nachtblau line-clamp-2">
                                   {theme.seoTitel}
                                 </p>
                                 <div className="mt-1 flex items-center gap-1.5">
                                   {hasText(theme) ? (
-                                    <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                                    <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
                                       Text ✓
                                     </span>
                                   ) : (
-                                    <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-stone text-stahlgrau">
+                                    <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-stone text-stahlgrau">
                                       Offen
                                     </span>
                                   )}
@@ -442,7 +442,7 @@ function OverviewModal({ item, onClose }: { item: ModalItem; onClose: () => void
 function InfoField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] text-stahlgrau uppercase tracking-wide mb-0.5">{label}</p>
+      <p className="text-xs text-stahlgrau uppercase tracking-wide mb-0.5">{label}</p>
       <p className="text-sm text-anthrazit">{value}</p>
     </div>
   )

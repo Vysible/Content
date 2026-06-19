@@ -90,7 +90,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => { setForgotMode(false); setForgotSent(false) }}
-                className="text-xs text-cognac hover:underline"
+                className="text-xs text-bordeaux hover:underline"
               >
                 Zurück zur Anmeldung
               </button>
@@ -115,7 +115,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={forgotLoading}
-                className="w-full bg-cognac hover:bg-cognacDark text-black text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
+                className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
               >
                 {forgotLoading ? 'Wird gesendet …' : 'Reset-Link anfordern'}
               </button>
@@ -175,7 +175,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-cognac hover:bg-cognacDark text-black text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? 'Anmelden …' : 'Anmelden'}
           </button>
@@ -184,7 +184,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => { setForgotMode(true); setError('') }}
-              className="text-xs text-stahlgrau hover:text-cognac transition"
+              className="text-xs text-stahlgrau hover:text-bordeaux transition"
             >
               Passwort vergessen?
             </button>
@@ -197,11 +197,11 @@ export default function LoginPage() {
         </p>
 
         <div className="mt-4 flex items-center justify-center gap-4">
-          <Link href="/impressum" className="text-xs text-stahlgrau hover:text-cognac transition">
+          <Link href="/impressum" className="text-xs text-stahlgrau hover:text-bordeaux transition">
             Impressum
           </Link>
           <span className="text-stone text-xs">·</span>
-          <Link href="/datenschutz" className="text-xs text-stahlgrau hover:text-cognac transition">
+          <Link href="/datenschutz" className="text-xs text-stahlgrau hover:text-bordeaux transition">
             Datenschutz
           </Link>
         </div>

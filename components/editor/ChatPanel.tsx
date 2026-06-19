@@ -243,7 +243,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
       >
         <p className="whitespace-pre-wrap break-words">{message.text}</p>
         <p
-          className={`mt-1 text-[10px] ${isUser ? 'text-white/70' : 'text-stahlgrau'} text-right`}
+          className={`mt-1 text-xs ${isUser ? 'text-white/70' : 'text-stahlgrau'} text-right`}
         >
           {formatTime(message.timestamp)}
         </p>

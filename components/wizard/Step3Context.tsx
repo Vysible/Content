@@ -32,7 +32,7 @@ function AnspracheToggle({ value, onChange }: { value: 'Du' | 'Sie'; onChange: (
             onClick={() => onChange(opt)}
             className={`px-5 py-1.5 text-sm font-medium transition ${
               value === opt
-                ? 'bg-cognac text-white'
+                ? 'bg-nachtblau text-white'
                 : 'bg-white text-stahlgrau hover:text-anthrazit'
             }`}
           >
@@ -154,7 +154,7 @@ export function Step3Context({
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 text-xs font-medium capitalize transition border-b-2 -mb-px ${
-                activeTab === tab ? 'border-cognac text-cognac' : 'border-transparent text-stahlgrau hover:text-anthrazit'
+                activeTab === tab ? 'border-brombeer text-bordeaux' : 'border-transparent text-stahlgrau hover:text-anthrazit'
               }`}
             >
               {tab === 'eingeben' ? 'Text eingeben' : 'Datei hochladen'}
@@ -177,7 +177,7 @@ export function Step3Context({
               className={`flex flex-col items-center justify-center gap-2 h-28 border-2 border-dashed rounded-lg transition bg-creme ${
                 isUploading
                   ? 'border-stone cursor-wait opacity-70'
-                  : 'border-stone cursor-pointer hover:border-cognac'
+                  : 'border-stone cursor-pointer hover:border-brombeer'
               }`}
             >
               {isUploading ? (
@@ -295,7 +295,7 @@ export function Step3Context({
         <button
           onClick={onSubmit}
           disabled={submitting}
-          className="px-6 py-2 bg-cognac hover:bg-cognacDark text-black text-sm font-semibold rounded-lg transition disabled:opacity-60"
+          className="px-6 py-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold rounded-lg transition disabled:opacity-60"
         >
           {submitting ? 'Projekt wird erstellt …' : 'Projekt erstellen'}
         </button>

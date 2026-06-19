@@ -35,7 +35,7 @@ function MiniBar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0
   return (
     <div className="w-full bg-stone/40 rounded-full h-2 mt-1">
-      <div className="bg-cognac h-2 rounded-full" style={{ width: `${pct}%` }} />
+      <div className="bg-bordeaux h-2 rounded-full" style={{ width: `${pct}%` }} />
     </div>
   )
 }
@@ -87,7 +87,7 @@ export function GA4Dashboard({ projectId }: Props) {
             {isNotConfigured ? 'Für dieses Projekt ist noch keine GA4-Property-ID hinterlegt.' : isNoServiceAccount ? 'Der GA4 Service Account (GA4_SERVICE_ACCOUNT_JSON) ist in Coolify noch nicht gesetzt.' : error}
           </p>
           {(isNotConfigured || isNoServiceAccount) && (
-            <a href={`/projects/${projectId}/settings`} className="inline-block mt-2 px-4 py-2 text-sm bg-cognac text-black font-semibold rounded-lg hover:opacity-90 transition">
+            <a href={`/projects/${projectId}/settings`} className="inline-block mt-2 px-4 py-2 text-sm bg-brombeer text-anthrazit font-semibold rounded-lg hover:opacity-90 transition">
               Zu den Einstellungen
             </a>
           )}
@@ -184,7 +184,7 @@ export function GA4Dashboard({ projectId }: Props) {
                     return (
                       <div
                         key={day.date}
-                        className="flex-1 bg-cognac/70 hover:bg-cognac rounded-sm transition-all cursor-default"
+                        className="flex-1 bg-bordeaux/70 hover:bg-bordeaux rounded-sm transition-all cursor-default"
                         style={{ height: `${heightPct}%` }}
                         title={`${day.date}: ${day.sessions.toLocaleString('de-DE')} Sessions`}
                       />

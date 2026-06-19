@@ -159,7 +159,7 @@ export function SocialTokenStatusSection() {
                 ) : (
                   <a
                     href="/settings/api-keys"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-cognac hover:text-cognacDark transition"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-bordeaux hover:text-bordeaux/80 transition"
                   >
                     + API-Key hinterlegen
                   </a>

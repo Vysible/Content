@@ -114,7 +114,7 @@ export function ProjectApiKeySettings({ projectId, initialApiKeyId, apiKeys }: P
       <button
         onClick={handleSave}
         disabled={saving}
-        className="bg-cognac hover:bg-cognacDark text-black text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-60"
+        className="bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-60"
       >
         {saving ? 'Speichert …' : 'Speichern'}
       </button>

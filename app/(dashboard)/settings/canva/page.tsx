@@ -80,7 +80,7 @@ export default async function CanvaSettingsPage({ searchParams }: CanvaSettingsP
             <div className="pt-3 border-t border-stone">
               <a
                 href="/api/canva/oauth"
-                className="inline-flex items-center gap-2 bg-cognac hover:bg-cognacDark text-black text-sm font-semibold px-4 py-2 rounded-lg transition"
+                className="inline-flex items-center gap-2 bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
               >
                 Canva verbinden →
               </a>

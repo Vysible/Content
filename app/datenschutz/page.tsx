@@ -36,7 +36,7 @@ export default function DatenschutzPage() {
       <div className="max-w-2xl mx-auto">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 text-xs text-stahlgrau hover:text-cognac transition mb-8"
+          className="inline-flex items-center gap-1 text-xs text-stahlgrau hover:text-bordeaux transition mb-8"
         >
           ← Zurück zur Anmeldung
         </Link>
@@ -60,7 +60,7 @@ export default function DatenschutzPage() {
                 Vanessa Kohnert<br />
                 Im Gemeindegrund 14<br />
                 46147 Oberhausen<br />
-                <a href="mailto:kontakt@vysible.de" className="text-cognac hover:underline">
+                <a href="mailto:kontakt@vysible.de" className="text-bordeaux hover:underline">
                   kontakt@vysible.de
                 </a>
               </P>
@@ -256,7 +256,7 @@ export default function DatenschutzPage() {
                 ist aktiviert. Rechtsgrundlage: Art. 6 Abs. 1 S. 1 lit. f DSGVO. Opt-out:{' '}
                 <a
                   href="http://tools.google.com/dlpage/gaoptout?hl=de"
-                  className="text-cognac hover:underline break-all"
+                  className="text-bordeaux hover:underline break-all"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -297,7 +297,7 @@ export default function DatenschutzPage() {
                 Datenschutzerklärung Meta:{' '}
                 <a
                   href="https://de-de.facebook.com/about/privacy/"
-                  className="text-cognac hover:underline break-all"
+                  className="text-bordeaux hover:underline break-all"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -314,7 +314,7 @@ export default function DatenschutzPage() {
                 Art. 6 Abs. 1 lit. a DSGVO / Art. 6 Abs. 1 lit. f DSGVO. Opt-out:{' '}
                 <a
                   href="https://www.hotjar.com/policies/do-not-track/"
-                  className="text-cognac hover:underline break-all"
+                  className="text-bordeaux hover:underline break-all"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -328,11 +328,11 @@ export default function DatenschutzPage() {
                 Wir nutzen die Automatisierungstools Zapier und Make, um bestimmte Prozesse zu
                 automatisieren. Diese Tools agieren als Auftragsverarbeiter gemäß Art. 28 DSGVO.
                 Datenschutzrichtlinien:{' '}
-                <a href="https://zapier.com/privacy" className="text-cognac hover:underline" target="_blank" rel="noopener noreferrer">
+                <a href="https://zapier.com/privacy" className="text-bordeaux hover:underline" target="_blank" rel="noopener noreferrer">
                   Zapier
                 </a>{' '}
                 ·{' '}
-                <a href="https://www.make.com/en/privacy-notice" className="text-cognac hover:underline" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.make.com/en/privacy-notice" className="text-bordeaux hover:underline" target="_blank" rel="noopener noreferrer">
                   Make
                 </a>
                 . Wir haben einen Vertrag über Auftragsverarbeitung (AVV) geschlossen.
@@ -347,7 +347,7 @@ export default function DatenschutzPage() {
                 gespeichert. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO. Weitere Informationen:{' '}
                 <a
                   href="https://www.klicktipp.com/de/datenschutzerklarung"
-                  className="text-cognac hover:underline break-all"
+                  className="text-bordeaux hover:underline break-all"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -370,7 +370,7 @@ export default function DatenschutzPage() {
                 Diese Datenschutzerklärung ist aktuell gültig und hat den Stand Oktober 2023. Durch
                 die Weiterentwicklung unserer Website kann es notwendig werden, diese
                 Datenschutzerklärung zu ändern. Die jeweils aktuelle Version ist unter{' '}
-                <a href="https://vysible.cloud/datenschutz" className="text-cognac hover:underline">
+                <a href="https://vysible.cloud/datenschutz" className="text-bordeaux hover:underline">
                   vysible.cloud/datenschutz
                 </a>{' '}
                 abrufbar.

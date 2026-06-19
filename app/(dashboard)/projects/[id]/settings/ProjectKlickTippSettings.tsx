@@ -111,7 +111,7 @@ export function ProjectKlickTippSettings({ projectId }: Props) {
         <button
           onClick={handleSave}
           disabled={!username || !password || saving}
-          className="px-4 py-2 text-sm bg-cognac hover:bg-cognacDark text-black font-semibold rounded-lg disabled:opacity-40 transition"
+          className="px-4 py-2 text-sm bg-nachtblau hover:bg-tiefblau text-white font-semibold rounded-lg disabled:opacity-40 transition"
         >
           {saving ? 'Speichert…' : 'Speichern'}
         </button>

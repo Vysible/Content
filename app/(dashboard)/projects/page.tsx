@@ -44,7 +44,7 @@ export default async function ProjectsPage() {
         actions={
           <Link
             href="/projects/new"
-            className="bg-cognac hover:bg-cognacDark text-black text-sm font-semibold px-4 py-2 rounded-lg transition"
+            className="bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
           >
             + Neues Projekt
           </Link>
@@ -56,7 +56,7 @@ export default async function ProjectsPage() {
           <p className="text-stahlgrau text-sm mb-4">Noch keine Projekte vorhanden.</p>
           <Link
             href="/projects/new"
-            className="inline-block bg-cognac hover:bg-cognacDark text-black text-sm font-semibold px-6 py-2.5 rounded-lg transition"
+            className="inline-block bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition"
           >
             Erstes Projekt erstellen
           </Link>
@@ -80,7 +80,7 @@ export default async function ProjectsPage() {
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${status.cls}`}>
                           {status.label}
                         </span>
-                        <h3 className="font-semibold text-sm text-nachtblau group-hover:text-cognac transition truncate">
+                        <h3 className="font-semibold text-sm text-nachtblau group-hover:text-bordeaux transition truncate">
                           {p.name}
                         </h3>
                       </div>

@@ -82,7 +82,7 @@ export default async function PraxisPortalPage() {
                         <p className="text-xs text-stahlgrau truncate">{project.name}</p>
                       )}
                       {isExpired && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
                           Abgelaufen
                         </span>
                       )}
@@ -143,7 +143,7 @@ export default async function PraxisPortalPage() {
                 </div>
                 <Link
                   href={`/projects/${project.id}/results`}
-                  className="text-xs text-cognac hover:underline font-medium"
+                  className="text-xs text-bordeaux hover:underline font-medium"
                 >
                   Ergebnisse →
                 </Link>
