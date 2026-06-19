@@ -9,8 +9,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        nachtblau: '#000000',
+        nachtblau: '#111111',
         tiefblau: '#1a1a1a',
+        brombeer: '#E5E4F0',
         cognac: '#d2d2dc',
         cognacDark: '#b8b8c6',
         bordeaux: '#7A2D42',

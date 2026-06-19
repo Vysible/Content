@@ -120,7 +120,7 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
                 onClick={() => setActiveTab(t.key)}
                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition whitespace-nowrap flex items-center gap-1.5 ${
                   activeTab === t.key
-                    ? 'bg-cognac text-nachtblau shadow-sm'
+                    ? 'bg-brombeer text-anthrazit shadow-sm'
                     : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
                 }`}
               >
