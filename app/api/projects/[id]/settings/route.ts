@@ -16,6 +16,7 @@ const schema = z.object({
   positioningDocument: z.string().optional(),
   keywords: z.array(z.string()).optional(),
   themenPool: z.string().optional(),
+  geplantThemen: z.array(z.object({ monat: z.string(), thema: z.string() })).optional(),
   canvaFolderId: z.string().nullable().optional(),
   hedyImportHighlight: z.boolean().optional(),
 })
@@ -57,6 +58,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (d.positioningDocument !== undefined) updateData.positioningDocument = d.positioningDocument
     if (d.keywords !== undefined) updateData.keywords = d.keywords
     if (d.themenPool !== undefined) updateData.themenPool = d.themenPool
+    if (d.geplantThemen !== undefined) updateData.geplantThemen = d.geplantThemen
     if ('canvaFolderId' in d) updateData.canvaFolderId = d.canvaFolderId ?? null
     if (d.hedyImportHighlight !== undefined) updateData.hedyImportHighlight = d.hedyImportHighlight
 

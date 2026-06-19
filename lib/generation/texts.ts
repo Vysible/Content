@@ -348,7 +348,7 @@ async function generateSocialPosts(args: {
     jsonFormat,
     cta: theme.cta,
     tonalitaet: 'professionell, empathisch, verständlich',
-    ansprache: project.ansprache ?? 'Sie',
+    ansprache: 'Du',
     positionierungsdokument: positioningContext.slice(0, 5_000),
     socialExamplesBlock,
   })

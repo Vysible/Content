@@ -44,6 +44,12 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     ? `\n\nVerfügbare Canva-Assets (für Bildgestaltung berücksichtigen):\n${canvaContext}`
     : ''
 
+  const geplantThemenRaw = (project.geplantThemen as { monat: string; thema: string }[] | null) ?? []
+  const geplantThemenSection = geplantThemenRaw.length > 0
+    ? '\n\nBEREITS ABGESTIMMTE THEMEN (verbindlich — diese Themen MÜSSEN für den jeweiligen Monat verwendet werden):\n' +
+      geplantThemenRaw.map(t => `- ${t.monat}: ${t.thema}`).join('\n')
+    : ''
+
   const prompt = loadPrompt('themes', {
     praxisName: project.praxisName ?? project.praxisUrl,
     standort: extractStandort(scrapeResult),
@@ -51,7 +57,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     zeitraumStart,
     zeitraumEnde,
     kanaele: project.channels.join(', '),
-    positionierungsdokument: context.systemContext + canvaSection,
+    positionierungsdokument: context.systemContext + canvaSection + geplantThemenSection,
     keywords: project.keywords.join(', '),
     mengenplan: buildMengenplan(project),
   })

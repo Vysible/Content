@@ -20,6 +20,7 @@ export interface Project {
   apiKeyId: string | null
   channelQuantities: unknown
   ansprache: string | null
+  geplantThemen: unknown
   scrapedData: unknown
   themeResults: unknown
   textResults: unknown

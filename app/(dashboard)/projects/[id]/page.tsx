@@ -36,6 +36,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
       positioningDocument: true,
       keywords: true,
       themenPool: true,
+      geplantThemen: true,
       status: true,
       reviewMode: true,
       hwgFlag: true,
@@ -103,6 +104,9 @@ export default async function ProjectPage({ params }: { params: { id: string } }
             projectId={project.id}
             initialKeywords={project.keywords}
             initialThemenPool={project.themenPool ?? ''}
+            initialGeplantThemen={(project.geplantThemen as { monat: string; thema: string }[]) ?? []}
+            planningStart={project.planningStart.toISOString().slice(0, 7)}
+            planningEnd={project.planningEnd.toISOString().slice(0, 7)}
           />
         </div>
       </div>

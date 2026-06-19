@@ -87,6 +87,7 @@ model Project {
   integrations        ProjectIntegration[]
   channelQuantities   Json?
   ansprache           String?  @default("Sie")
+  geplantThemen       Json?
   clonedFrom          String?
   hedyImportHighlight Boolean       @default(false)
   createdAt           DateTime      @default(now())
