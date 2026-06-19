@@ -40,16 +40,23 @@ export function ProjectPositioningSettings({ projectId, initialDocument }: Props
       setIsUploading(true)
       try {
         const res = await fetch('/api/projects/parse-document', { method: 'POST', body: formData })
-        const data = await res.json() as { text?: string; truncated?: boolean; error?: string }
+        let data: { text?: string; truncated?: boolean; error?: string } = {}
+        try {
+          data = await res.json()
+        } catch {
+          setUploadError(`Server-Fehler (HTTP ${res.status}) — bitte Seite neu laden`)
+          return
+        }
         if (!res.ok || !data.text) {
-          setUploadError(data.error ?? 'Extraktion fehlgeschlagen')
+          setUploadError(data.error ?? `Fehler ${res.status}`)
           return
         }
         setDocument(data.text)
         setActiveTab('eingeben')
       } catch (err: unknown) {
-        console.warn('[Vysible] parse-document Fehler:', err)
-        setUploadError('Upload fehlgeschlagen. Bitte erneut versuchen.')
+        const msg = err instanceof Error ? err.message : String(err)
+        console.warn('[Vysible] parse-document Fehler:', msg)
+        setUploadError(`Netzwerkfehler: ${msg}`)
       } finally {
         setIsUploading(false)
         // Reset file input so the same file can be re-uploaded

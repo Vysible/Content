@@ -15,7 +15,11 @@ const ALLOWED_MIMES = new Set([
 ])
 
 export async function POST(req: Request) {
-  await requireAuth()
+  try {
+    await requireAuth()
+  } catch {
+    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 })
+  }
 
   let formData: FormData
   try {
