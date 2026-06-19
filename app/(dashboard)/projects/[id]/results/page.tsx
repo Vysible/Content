@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ResultsTabs } from '@/components/results/ResultsTabs'
 import { ExportButton } from '@/components/results/ExportButton'
 import { SharePanel } from '@/components/results/SharePanel'
+import { PortalPanel } from '@/components/results/PortalPanel'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 
@@ -33,6 +34,7 @@ export default async function ResultsPage({ params }: { params: { id: string } }
 
   const themes = (project.themeResults as unknown as ThemenItem[]) ?? []
   const textResults = (project.textResults as unknown as StoredTextResult[]) ?? []
+  const portalCount = textResults.filter((r) => r.portalVisible).length
 
   const connected = new Set(project.integrations.map((i: { provider: string }) => i.provider))
 
@@ -71,6 +73,7 @@ export default async function ResultsPage({ params }: { params: { id: string } }
           📅 Kalender
         </Link>
         <div className="flex items-center gap-3 relative">
+          <PortalPanel projectId={params.id} portalCount={portalCount} />
           <SharePanel projectId={params.id} />
           <ExportButton projectId={params.id} textResults={textResults} />
         </div>

@@ -321,6 +321,17 @@ function BlogTab({
                     onSuccess={(result) => onUpdate(globalIndex, result)}
                   />
                 )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
+                  className={`text-[10px] px-2 py-1 rounded-full border transition ${
+                    r.portalVisible
+                      ? 'bg-emerald-100 border-emerald-300 text-emerald-700 font-semibold'
+                      : 'bg-white border-stone text-stahlgrau hover:border-emerald-300'
+                  }`}
+                  title={r.portalVisible ? 'Im Portal sichtbar — klicken zum Ausblenden' : 'Klicken um im Portal anzuzeigen'}
+                >
+                  {r.portalVisible ? '● Portal' : '○ Portal'}
+                </button>
                 <StatusSelect
                   value={r.blogStatus ?? 'ausstehend'}
                   options={BLOG_STATUS_LABELS}
@@ -432,6 +443,17 @@ function NewsletterTab({
                     onSuccess={(result) => onUpdate(globalIndex, result)}
                   />
                 )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
+                  className={`text-[10px] px-2 py-1 rounded-full border transition ${
+                    r.portalVisible
+                      ? 'bg-emerald-100 border-emerald-300 text-emerald-700 font-semibold'
+                      : 'bg-white border-stone text-stahlgrau hover:border-emerald-300'
+                  }`}
+                  title={r.portalVisible ? 'Im Portal sichtbar — klicken zum Ausblenden' : 'Klicken um im Portal anzuzeigen'}
+                >
+                  {r.portalVisible ? '● Portal' : '○ Portal'}
+                </button>
                 <StatusSelect
                   value={r.newsletterStatus ?? 'ausstehend'}
                   options={NEWSLETTER_STATUS_LABELS}
@@ -667,6 +689,17 @@ function SocialTab({
                                   onSuccess={(result) => onUpdate(globalIndex, result)}
                                 />
                               )}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
+                                className={`text-[10px] px-2 py-1 rounded-full border transition ${
+                                  r.portalVisible
+                                    ? 'bg-emerald-100 border-emerald-300 text-emerald-700 font-semibold'
+                                    : 'bg-white border-stone text-stahlgrau hover:border-emerald-300'
+                                }`}
+                                title={r.portalVisible ? 'Im Portal sichtbar — klicken zum Ausblenden' : 'Klicken um im Portal anzuzeigen'}
+                              >
+                                {r.portalVisible ? '● Portal' : '○ Portal'}
+                              </button>
                               <StatusSelect
                                 value={r.socialStatus ?? 'ausstehend'}
                                 options={SOCIAL_STATUS_LABELS}

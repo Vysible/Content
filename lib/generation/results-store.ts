@@ -10,6 +10,8 @@ export interface StoredSeoResult extends SeoAnalysis {
   analyzedAt: string // ISO timestamp
 }
 
+export type CustomerApproval = 'pending' | 'approved' | 'changes_requested'
+
 export type BlogStatus = 'ausstehend' | 'in_wordpress' | 'veroeffentlicht'
 export type NewsletterStatus = 'ausstehend' | 'kt_kampagne' | 'versendet'
 export type SocialStatus = 'ausstehend' | 'hochgeladen' | 'freigegeben' | 'veroeffentlicht' | 'fehler'
@@ -30,6 +32,10 @@ export interface StoredTextResult extends TextResult {
   blogVersions?: ContentVersion[]
   newsletterVersions?: ContentVersion[]
   seo?: StoredSeoResult
+  // Kundenportal
+  portalVisible?: boolean
+  customerApproval?: CustomerApproval
+  customerComment?: string
 }
 
 export const BLOG_STATUS_LABELS: Record<BlogStatus, string> = {

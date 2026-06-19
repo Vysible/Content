@@ -76,6 +76,7 @@ model Project {
   reviewMode          ReviewMode    @default(SIMPLE)
   hwgFlag             Boolean       @default(false)
   shareLinks          ShareLink[]
+  portalLinks         PortalLink[]
   praxisUsers         PraxisUser[]
   comments            Comment[]
   costReports         CostReport[]
@@ -211,6 +212,20 @@ model ShareLink {
   passwordHash String
   expiresAt    DateTime
   createdAt    DateTime @default(now())
+
+  @@index([token])
+  @@index([projectId])
+}
+
+model PortalLink {
+  id            String   @id @default(cuid())
+  token         String   @unique @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  passwordHash  String
+  expiresAt     DateTime
+  showAnalytics Boolean  @default(false)
+  createdAt     DateTime @default(now())
 
   @@index([token])
   @@index([projectId])
