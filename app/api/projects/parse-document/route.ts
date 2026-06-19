@@ -12,6 +12,24 @@ const ALLOWED_MIMES = new Set([
   'text/markdown',
 ])
 
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  // pdf2json exports the class as the module itself (default in CJS)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mod = await import('pdf2json') as any
+  const PDFParser = mod.default ?? mod
+  return new Promise((resolve, reject) => {
+    const parser = new PDFParser(null, 1)
+    parser.on('pdfParser_dataError', (err) => {
+      const e = err.parserError instanceof Error ? err.parserError : new Error(String(err.parserError))
+      reject(e)
+    })
+    parser.on('pdfParser_dataReady', () => {
+      resolve(parser.getRawTextContent())
+    })
+    parser.parseBuffer(buffer)
+  })
+}
+
 export async function POST(req: Request) {
   try {
     await requireAuth()
@@ -53,14 +71,8 @@ export async function POST(req: Request) {
     let text: string
 
     if (mime === 'application/pdf') {
-      const arrayBuffer = await file.arrayBuffer()
-      const data = new Uint8Array(arrayBuffer)
-      // Dynamic import to avoid ESM module load failure in standalone build
-      const { PDFParse } = await import('pdf-parse')
-      const parser = new PDFParse({ data })
-      const result = await parser.getText()
-      await parser.destroy()
-      text = result.text
+      const buffer = Buffer.from(await file.arrayBuffer())
+      text = await extractPdfText(buffer)
     } else if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const buffer = Buffer.from(await file.arrayBuffer())
       const mammoth = await import('mammoth')

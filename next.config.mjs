@@ -18,7 +18,7 @@ const nextConfig = {
   },
   experimental: {
     instrumentationHook: true,
-    serverComponentsExternalPackages: ['pdf-parse', 'pdfjs-dist', 'mammoth', 'canvas'],
+    serverComponentsExternalPackages: ['pdf2json', 'mammoth'],
   },
   images: {
     formats: ['image/avif', 'image/webp'],
