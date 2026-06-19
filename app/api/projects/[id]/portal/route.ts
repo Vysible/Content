@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 // Body: { password: string, showAnalytics?: boolean, expiresInDays?: number }
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   await requireAuth()
-  const { password, showAnalytics = false, expiresInDays = 30 } = await req.json()
+  const { password, showAnalytics = false, expiresInDays = 365 } = await req.json()
   if (!password || password.length < 4) {
     return NextResponse.json({ error: 'Passwort zu kurz (min. 4 Zeichen)' }, { status: 400 })
   }

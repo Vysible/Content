@@ -19,6 +19,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@prisma/client": "^5.22.0",
+    "@tailwindcss/typography": "^0.5.20",
     "@tiptap/extension-heading": "^3.23.2",
     "@tiptap/extension-placeholder": "^3.23.2",
     "@tiptap/react": "^3.23.2",

@@ -18,6 +18,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
   const [link, setLink] = useState<PortalLink | null>(null)
   const [password, setPassword] = useState('')
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [expiresInDays, setExpiresInDays] = useState(365)
   const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -43,7 +44,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
       const res = await fetch(`/api/projects/${projectId}/portal`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, showAnalytics }),
+        body: JSON.stringify({ password, showAnalytics, expiresInDays }),
       })
       if (!res.ok) {
         const d = await res.json()
@@ -128,7 +129,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
                   />
                   <button
                     onClick={copyUrl}
-                    className="shrink-0 text-xs px-2 py-1.5 bg-tiefblau text-white rounded-lg hover:bg-nachtblau transition"
+                    className="shrink-0 text-xs px-2 py-1.5 bg-nachtblau text-white rounded-lg hover:bg-black transition"
                   >
                     {copied ? '✓' : 'Kopieren'}
                   </button>
@@ -156,8 +157,21 @@ export function PortalPanel({ projectId, portalCount }: Props) {
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && createLink()}
                   placeholder="Min. 4 Zeichen"
-                  className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-tiefblau"
+                  className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-nachtblau"
                 />
+              </div>
+              <div>
+                <label className="text-xs text-stahlgrau block mb-1">Gültigkeitsdauer</label>
+                <select
+                  value={expiresInDays}
+                  onChange={(e) => setExpiresInDays(Number(e.target.value))}
+                  className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-nachtblau bg-white"
+                >
+                  <option value={30}>30 Tage</option>
+                  <option value={90}>3 Monate</option>
+                  <option value={180}>6 Monate</option>
+                  <option value={365}>1 Jahr</option>
+                </select>
               </div>
               <label className="flex items-center gap-2 text-xs text-anthrazit cursor-pointer">
                 <input
