@@ -147,13 +147,14 @@ export function Step3Context({
         </div>
 
         {/* Tab: Eingeben / Hochladen */}
-        <div className="flex border-b border-stone mb-2">
+        <div className="flex gap-1.5 bg-stone/50 rounded-xl p-1.5 mb-4">
           {(['eingeben', 'hochladen'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 text-xs font-medium capitalize transition border-b-2 -mb-px ${
-activeTab === tab ? 'border-brombeer text-bordeaux' : 'border-transparent text-stahlgrau hover:text-anthrazit'              }`}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
+                activeTab === tab ? 'bg-brombeer text-anthrazit shadow-sm' : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
+              }`}
             >
               {tab === 'eingeben' ? 'Text eingeben' : 'Datei hochladen'}
             </button>

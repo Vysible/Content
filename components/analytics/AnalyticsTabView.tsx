@@ -281,14 +281,15 @@ export function AnalyticsTabView({ projects, ga4Configured, googleAdsConfigured 
 
   return (
     <div>
-      <div className="flex gap-1 mb-6 border-b border-stone">
+      <div className="flex gap-1.5 mb-6 bg-stone/50 rounded-xl p-1.5">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActive(tab.key)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition -mb-px ${
+            className={`px-3 py-2 text-sm font-semibold rounded-lg transition whitespace-nowrap ${
               active === tab.key
-? 'border-bordeaux text-nachtblau'                : 'border-transparent text-stahlgrau hover:text-nachtblau'
+                ? 'bg-brombeer text-anthrazit shadow-sm'
+                : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
             }`}
           >
             {tab.label}
