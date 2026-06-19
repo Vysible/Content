@@ -12,6 +12,14 @@ const CHANNEL_LABELS: Record<string, string> = {
   SOCIAL_LINKEDIN: 'LinkedIn',
 }
 
+const CHANNEL_COLORS: Record<string, string> = {
+  BLOG:             'bg-stone border border-stahlgrau/30',
+  NEWSLETTER:       'bg-emerald-500',
+  SOCIAL_INSTAGRAM: 'bg-purple-500',
+  SOCIAL_FACEBOOK:  'bg-purple-400',
+  SOCIAL_LINKEDIN:  'bg-violet-500',
+}
+
 const ALL_CHANNELS = ['BLOG', 'NEWSLETTER', 'SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN']
 
 interface Props {
@@ -282,7 +290,10 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                 <tr key={ch} className="border-b border-stone/40 align-top">
                   {/* Kanalname (sticky) */}
                   <td className="sticky left-0 z-10 bg-white py-3 pr-4 pl-1 text-xs font-semibold text-anthrazit whitespace-nowrap">
-                    {CHANNEL_LABELS[ch] ?? ch}
+                    <span className="flex items-center gap-1.5">
+                      <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${CHANNEL_COLORS[ch] ?? 'bg-stone'}`} />
+                      {CHANNEL_LABELS[ch] ?? ch}
+                    </span>
                   </td>
 
                   {/* Eine Zelle pro Monat */}

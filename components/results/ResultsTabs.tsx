@@ -85,6 +85,13 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
 
   const hasSocial = channels.some((c) => c.startsWith('SOCIAL_'))
 
+  const TAB_COLORS: Partial<Record<Tab, string>> = {
+    blog:          'bg-stone border border-stahlgrau/30',
+    newsletter:    'bg-emerald-500',
+    social:        'bg-purple-500',
+    bildbriefings: 'bg-amber-400',
+  }
+
   const tabs: { key: Tab; label: string }[] = [
     { key: 'uebersicht', label: 'Übersicht' },
     { key: 'blog', label: 'Blog' },
@@ -111,12 +118,17 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
               <button
                 key={t.key}
                 onClick={() => setActiveTab(t.key)}
-                className={`px-4 py-2 text-sm font-semibold rounded-lg transition whitespace-nowrap ${
+                className={`px-4 py-2 text-sm font-semibold rounded-lg transition whitespace-nowrap flex items-center gap-1.5 ${
                   activeTab === t.key
                     ? 'bg-nachtblau text-white shadow-sm'
                     : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
                 }`}
               >
+                {TAB_COLORS[t.key] && (
+                  <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${
+                    activeTab === t.key ? 'bg-white/70' : TAB_COLORS[t.key]
+                  }`} />
+                )}
                 {t.label}
               </button>
             ))}
@@ -291,7 +303,7 @@ function BlogTab({
         const isSeoOpen = seoOpen === globalIndex
 
         return (
-          <div key={globalIndex} className="bg-white border border-stone rounded-xl overflow-hidden">
+          <div key={globalIndex} className="bg-white border border-stone rounded-xl overflow-hidden border-l-4 border-l-stone/60">
             <div
               className="flex items-center justify-between p-4 cursor-pointer hover:bg-stone/20"
               onClick={() => setExpanded(isOpen ? null : globalIndex)}
@@ -402,7 +414,7 @@ function NewsletterTab({
         const nl = r.newsletter!
 
         return (
-          <div key={globalIndex} className="bg-white border border-stone rounded-xl overflow-hidden">
+          <div key={globalIndex} className="bg-white border border-stone rounded-xl overflow-hidden border-l-4 border-l-emerald-400">
             <div
               className="flex items-center justify-between p-4 cursor-pointer hover:bg-stone/20"
               onClick={() => setExpanded(isOpen ? null : globalIndex)}
@@ -643,7 +655,7 @@ function SocialTab({
                       const liOver = liText.length > 1300
 
                       return (
-                        <div key={globalIndex} className="bg-white border border-stone rounded-xl p-4">
+                        <div key={globalIndex} className="bg-white border border-stone rounded-xl p-4 border-l-4 border-l-purple-400">
                           <div className="flex items-center justify-between mb-3">
                             <p className="font-medium text-sm">{r.titel}</p>
                             <div className="flex items-center gap-3">
