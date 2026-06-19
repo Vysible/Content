@@ -411,7 +411,7 @@ function NewsletterTab({
             >
               <div>
                 <p className="font-medium text-sm">{r.titel}</p>
-                <p className="text-xs text-stahlgrau">{r.monat}</p>
+                <p className="text-xs text-stahlgrau">{r.monat}{nl?.betreffA ? ` · ${nl.betreffA.slice(0, 50)}…` : ''}</p>
               </div>
               <div className="flex items-center gap-3">
                 {!r.newsletter && (
@@ -433,96 +433,48 @@ function NewsletterTab({
               </div>
             </div>
 
-            {isOpen && (
-              <div className="border-t border-stone p-4 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Field label="Betreff A">
+            {isOpen && nl && (
+              <div className="border-t border-stone">
+                {/* Betreff / Preheader — kompakte Leiste wie Blog-Metadaten */}
+                <div className="px-4 py-3 bg-stone/20 border-b border-stone grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <p className="text-xs text-stahlgrau mb-1">Betreff A</p>
                     <input
-                      className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-tiefblau"
+                      className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-tiefblau bg-white"
                       defaultValue={nl.betreffA}
-                      onChange={(e) =>
-                        onUpdate(globalIndex, {
-                          newsletter: { ...nl, betreffA: e.target.value },
-                        })
-                      }
+                      onChange={(e) => onUpdate(globalIndex, { newsletter: { ...nl, betreffA: e.target.value } })}
                     />
-                  </Field>
-                  <Field label="Betreff B">
-                    <input
-                      className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-tiefblau"
-                      defaultValue={nl.betreffB}
-                      onChange={(e) =>
-                        onUpdate(globalIndex, {
-                          newsletter: { ...nl, betreffB: e.target.value },
-                        })
-                      }
-                    />
-                  </Field>
-                </div>
-                <Field label={`Preheader (${nl.preheader.length}/100)`}>
-                  <input
-                    className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-tiefblau"
-                    defaultValue={nl.preheader}
-                    maxLength={100}
-                    onChange={(e) =>
-                      onUpdate(globalIndex, {
-                        newsletter: { ...nl, preheader: e.target.value },
-                      })
-                    }
-                  />
-                </Field>
-                <Field label="Body (Rich-Text + KI-Chat)">
-                  <EditorView
-                    projectId={projectId}
-                    index={globalIndex}
-                    result={r}
-                    versionField="newsletter"
-                    initialContent={nl.body}
-                    saveState={saveStates[globalIndex] ?? 'idle'}
-                    articleTitle={r.titel}
-                    onUpdate={(updates) => onUpdate(globalIndex, updates)}
-                  />
-                </Field>
-                {/* Medienempfehlungen */}
-                {(nl.bildEmpfehlungen?.length || nl.videoEmpfehlung || nl.linkEmpfehlungen?.length) && (
-                  <div className="border border-stone rounded-xl p-4 space-y-3 bg-stone/20">
-                    <p className="text-xs font-semibold text-stahlgrau uppercase tracking-wide">Medien & Links</p>
-                    {nl.bildEmpfehlungen?.length ? (
-                      <div>
-                        <p className="text-xs font-medium text-anthrazit mb-1">📷 Bildempfehlungen</p>
-                        <ul className="space-y-1">
-                          {nl.bildEmpfehlungen.map((b, bi) => (
-                            <li key={bi} className="text-sm text-anthrazit flex gap-2">
-                              <span className="text-stahlgrau shrink-0">–</span>{b}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                    {nl.videoEmpfehlung && (
-                      <div>
-                        <p className="text-xs font-medium text-anthrazit mb-1">🎬 Videoempfehlung</p>
-                        <p className="text-sm text-anthrazit">{nl.videoEmpfehlung}</p>
-                      </div>
-                    )}
-                    {nl.linkEmpfehlungen?.length ? (
-                      <div>
-                        <p className="text-xs font-medium text-anthrazit mb-1">🔗 Links</p>
-                        <ul className="space-y-1">
-                          {nl.linkEmpfehlungen.map((l, li) => (
-                            <li key={li} className="text-sm text-anthrazit flex gap-2 flex-wrap">
-                              <span className="font-medium">{l.anker}</span>
-                              <span className="text-stahlgrau">→</span>
-                              <span className="text-stahlgrau">{l.ziel}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
                   </div>
-                )}
-
-                <div className="pt-2 flex items-center gap-3 flex-wrap">
+                  <div>
+                    <p className="text-xs text-stahlgrau mb-1">Betreff B</p>
+                    <input
+                      className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-tiefblau bg-white"
+                      defaultValue={nl.betreffB}
+                      onChange={(e) => onUpdate(globalIndex, { newsletter: { ...nl, betreffB: e.target.value } })}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-xs text-stahlgrau mb-1">Preheader ({nl.preheader.length}/100)</p>
+                    <input
+                      className="w-full text-sm border border-stone rounded-lg px-3 py-1.5 focus:outline-none focus:border-tiefblau bg-white"
+                      defaultValue={nl.preheader}
+                      maxLength={100}
+                      onChange={(e) => onUpdate(globalIndex, { newsletter: { ...nl, preheader: e.target.value } })}
+                    />
+                  </div>
+                </div>
+                {/* Editor — identisch zu Blog */}
+                <EditorView
+                  projectId={projectId}
+                  index={globalIndex}
+                  result={r}
+                  versionField="newsletter"
+                  initialContent={nl.body}
+                  saveState={saveStates[globalIndex] ?? 'idle'}
+                  articleTitle={r.titel}
+                  onUpdate={(updates) => onUpdate(globalIndex, updates)}
+                />
+                <div className="px-4 pb-4 flex items-center gap-3 flex-wrap">
                   <KlickTippButton
                     projectId={projectId}
                     subjectA={nl.betreffA}
@@ -531,9 +483,7 @@ function NewsletterTab({
                     newsletterMarkdown={nl.body}
                     ktConfigured={ktConfigured}
                     hwgFlag={hwgFlag}
-                    initialStatus={
-                      r.newsletterStatus === 'kt_kampagne' ? 'kt_kampagne' : 'ausstehend'
-                    }
+                    initialStatus={r.newsletterStatus === 'kt_kampagne' ? 'kt_kampagne' : 'ausstehend'}
                   />
                   <RegenerateButton
                     projectId={projectId}
@@ -554,17 +504,6 @@ function NewsletterTab({
 }
 
 // ── Social ────────────────────────────────────────────────────────────────────
-
-const KANAL_LABELS: Record<string, string> = {
-  SOCIAL_INSTAGRAM: 'Instagram',
-  SOCIAL_FACEBOOK: 'Facebook',
-  SOCIAL_LINKEDIN: 'LinkedIn',
-}
-const CHAR_LIMITS: Record<string, number> = {
-  SOCIAL_INSTAGRAM: 400,
-  SOCIAL_FACEBOOK: 250,
-  SOCIAL_LINKEDIN: 1_300,
-}
 
 interface CanvaAssetSocial {
   id: string
@@ -613,27 +552,25 @@ function SocialTab({
       .catch((err: unknown) => console.warn('[Vysible] Canva-Assets nicht geladen:', err))
   }, [projectId])
 
-  function isTokenExpired(kanal: string): boolean {
-    if (kanal === 'SOCIAL_FACEBOOK' || kanal === 'SOCIAL_INSTAGRAM') return expiredProviders.has('META')
-    if (kanal === 'SOCIAL_LINKEDIN') return expiredProviders.has('LINKEDIN')
-    return false
-  }
-
-  function isConfigured(kanal: string): boolean {
-    if (kanal === 'SOCIAL_FACEBOOK' || kanal === 'SOCIAL_INSTAGRAM') return metaConfigured
-    if (kanal === 'SOCIAL_LINKEDIN') return linkedInConfigured
-    return false
-  }
-
   const [localTexts, setLocalTexts] = useState<Record<string, string>>(() => {
     const map: Record<string, string> = {}
-    results.forEach((r, ri) => {
-      r.socialPosts?.forEach((post, pi) => {
-        map[`${ri}-${pi}`] = post.text
-      })
+    allResults.forEach((r, gi) => {
+      if (!r.socialPosts?.length) return
+      const metaPost = r.socialPosts.find((p) => p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM')
+      const liPost = r.socialPosts.find((p) => p.kanal === 'SOCIAL_LINKEDIN')
+      if (metaPost) map[`${gi}-meta`] = metaPost.text
+      if (liPost) map[`${gi}-linkedin`] = liPost.text
     })
     return map
   })
+
+  // Group by month
+  const socialByMonth = results.reduce<Record<string, StoredTextResult[]>>((acc, r) => {
+    const m = r.monat ?? 'Unbekannt'
+    if (!acc[m]) acc[m] = []
+    acc[m].push(r)
+    return acc
+  }, {})
 
   return (
     <div className="space-y-4">
@@ -679,101 +616,174 @@ function SocialTab({
         </div>
       )}
 
-      {results.map((r) => {
-        const globalIndex = allResults.indexOf(r)
-
+      {/* Posts — nach Monat und KW gruppiert */}
+      {Object.entries(socialByMonth).sort(([a], [b]) => a.localeCompare(b)).map(([monat, monthResults]) => {
+        const weeks = getWeeksInMonth(monat)
+        const distributed = distributeToWeeks(monthResults, weeks)
         return (
-          <div key={globalIndex} className="bg-white border border-stone rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="font-medium text-sm">{r.titel}</p>
-                <p className="text-xs text-stahlgrau">{r.monat}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                {!r.socialPosts?.length && (
-                  <RegenerateButton
-                    projectId={projectId}
-                    monat={r.monat}
-                    missing
-                    onSuccess={(result) => onUpdate(globalIndex, result)}
-                  />
-                )}
-                <StatusSelect
-                  value={r.socialStatus ?? 'ausstehend'}
-                  options={SOCIAL_STATUS_LABELS}
-                  onChange={(v) => onUpdate(globalIndex, { socialStatus: v as SocialStatus })}
-                />
-              </div>
-            </div>
+          <div key={monat}>
+            <p className="text-sm font-semibold text-nachtblau mb-3">{formatMonatLang(monat)}</p>
+            <div className="space-y-6">
+              {distributed.map(({ kw, items }) => (
+                <div key={kw}>
+                  <p className="text-xs font-semibold text-stahlgrau uppercase tracking-wide mb-2 flex items-center gap-2">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400" />
+                    KW {kw}
+                  </p>
+                  <div className="space-y-4 pl-3 border-l-2 border-purple-100">
+                    {items.map((r) => {
+                      const globalIndex = allResults.indexOf(r)
+                      const metaPost = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM')
+                      const liPost = r.socialPosts?.find((p) => p.kanal === 'SOCIAL_LINKEDIN')
+                      const metaKey = `${globalIndex}-meta`
+                      const liKey = `${globalIndex}-linkedin`
+                      const metaText = localTexts[metaKey] ?? metaPost?.text ?? ''
+                      const liText = localTexts[liKey] ?? liPost?.text ?? ''
+                      const metaOver = metaText.length > 400
+                      const liOver = liText.length > 1300
 
-            <div className="space-y-4">
-              {r.socialPosts?.map((post, pi) => {
-                const localKey = `${results.indexOf(r)}-${pi}`
-                const liveText = localTexts[localKey] ?? post.text
-                const limit = CHAR_LIMITS[post.kanal] ?? 999
-                const count = liveText.length
-                const overLimit = count > limit
-                const configured = isConfigured(post.kanal)
+                      return (
+                        <div key={globalIndex} className="bg-white border border-stone rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="font-medium text-sm">{r.titel}</p>
+                            <div className="flex items-center gap-3">
+                              {!r.socialPosts?.length && (
+                                <RegenerateButton
+                                  projectId={projectId}
+                                  monat={r.monat}
+                                  missing
+                                  onSuccess={(result) => onUpdate(globalIndex, result)}
+                                />
+                              )}
+                              <StatusSelect
+                                value={r.socialStatus ?? 'ausstehend'}
+                                options={SOCIAL_STATUS_LABELS}
+                                onChange={(v) => onUpdate(globalIndex, { socialStatus: v as SocialStatus })}
+                              />
+                            </div>
+                          </div>
 
-                return (
-                  <div key={pi}>
-                    <p className="text-xs font-medium text-stahlgrau mb-1">
-                      {KANAL_LABELS[post.kanal] ?? post.kanal}
-                      <span className={`ml-2 ${overLimit ? 'text-red-600' : ''}`}>
-                        {count}/{limit}
-                      </span>
-                    </p>
-                    <textarea
-                      className={`w-full text-sm border rounded-lg p-3 min-h-[80px] focus:outline-none ${
-                        overLimit ? 'border-red-300 focus:border-red-500' : 'border-stone focus:border-tiefblau'
-                      }`}
-                      defaultValue={post.text}
-                      onChange={(e) => {
-                        setLocalTexts((prev) => ({ ...prev, [localKey]: e.target.value }))
-                        const updatedPosts = [...(r.socialPosts ?? [])]
-                        updatedPosts[pi] = { ...post, text: e.target.value }
-                        onUpdate(globalIndex, { socialPosts: updatedPosts })
-                      }}
-                    />
-                    <div className="mt-2">
-                      {configured ? (
-                        <SocialPostButton
-                          projectId={projectId}
-                          index={globalIndex}
-                          kanal={post.kanal}
-                          text={liveText}
-                          currentStatus={r.socialStatus}
-                          currentDraftId={r.socialDraftId}
-                          currentPlatform={r.socialPlatform}
-                          currentError={r.socialError}
-                          tokenExpired={isTokenExpired(post.kanal)}
-                          onResult={(updates) => onUpdate(globalIndex, updates)}
-                        />
-                      ) : (
-                        <p className="text-xs text-stahlgrau italic">
-                          {KANAL_LABELS[post.kanal]} nicht konfiguriert —{' '}
-                          <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
-                            Jetzt verbinden
-                          </a>
-                        </p>
-                      )}
-                    </div>
+                          <div className="space-y-4">
+                            {/* Facebook + Instagram — ein gemeinsames Textfeld */}
+                            {metaPost && (
+                              <div>
+                                <p className="text-xs font-medium text-stahlgrau mb-1 flex items-center gap-1.5 flex-wrap">
+                                  <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Facebook</span>
+                                  <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Instagram</span>
+                                  <span className={`ml-1 text-xs ${metaOver ? 'text-red-600' : 'text-stahlgrau'}`}>
+                                    {metaText.length}/400
+                                  </span>
+                                </p>
+                                <textarea
+                                  className={`w-full text-sm border rounded-lg p-3 min-h-[80px] focus:outline-none ${
+                                    metaOver ? 'border-red-300 focus:border-red-500' : 'border-stone focus:border-tiefblau'
+                                  }`}
+                                  defaultValue={metaPost.text}
+                                  onChange={(e) => {
+                                    setLocalTexts((prev) => ({ ...prev, [metaKey]: e.target.value }))
+                                    const updatedPosts = (r.socialPosts ?? []).map((p) =>
+                                      p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM'
+                                        ? { ...p, text: e.target.value }
+                                        : p
+                                    )
+                                    onUpdate(globalIndex, { socialPosts: updatedPosts })
+                                  }}
+                                />
+                                <div className="mt-2">
+                                  {metaConfigured ? (
+                                    <SocialPostButton
+                                      projectId={projectId}
+                                      index={globalIndex}
+                                      kanal={metaPost.kanal}
+                                      text={metaText}
+                                      currentStatus={r.socialStatus}
+                                      currentDraftId={r.socialDraftId}
+                                      currentPlatform={r.socialPlatform}
+                                      currentError={r.socialError}
+                                      tokenExpired={expiredProviders.has('META')}
+                                      onResult={(updates) => onUpdate(globalIndex, updates)}
+                                    />
+                                  ) : (
+                                    <p className="text-xs text-stahlgrau italic">
+                                      Meta nicht konfiguriert —{' '}
+                                      <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
+                                        Jetzt verbinden
+                                      </a>
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* LinkedIn */}
+                            {liPost && (
+                              <div>
+                                <p className="text-xs font-medium text-stahlgrau mb-1 flex items-center gap-1.5">
+                                  <span className="bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">LinkedIn</span>
+                                  <span className={`ml-1 text-xs ${liOver ? 'text-red-600' : 'text-stahlgrau'}`}>
+                                    {liText.length}/1300
+                                  </span>
+                                </p>
+                                <textarea
+                                  className={`w-full text-sm border rounded-lg p-3 min-h-[80px] focus:outline-none ${
+                                    liOver ? 'border-red-300 focus:border-red-500' : 'border-stone focus:border-tiefblau'
+                                  }`}
+                                  defaultValue={liPost.text}
+                                  onChange={(e) => {
+                                    setLocalTexts((prev) => ({ ...prev, [liKey]: e.target.value }))
+                                    const updatedPosts = (r.socialPosts ?? []).map((p) =>
+                                      p.kanal === 'SOCIAL_LINKEDIN' ? { ...p, text: e.target.value } : p
+                                    )
+                                    onUpdate(globalIndex, { socialPosts: updatedPosts })
+                                  }}
+                                />
+                                <div className="mt-2">
+                                  {linkedInConfigured ? (
+                                    <SocialPostButton
+                                      projectId={projectId}
+                                      index={globalIndex}
+                                      kanal="SOCIAL_LINKEDIN"
+                                      text={liText}
+                                      currentStatus={r.socialStatus}
+                                      currentDraftId={r.socialDraftId}
+                                      currentPlatform={r.socialPlatform}
+                                      currentError={r.socialError}
+                                      tokenExpired={expiredProviders.has('LINKEDIN')}
+                                      onResult={(updates) => onUpdate(globalIndex, updates)}
+                                    />
+                                  ) : (
+                                    <p className="text-xs text-stahlgrau italic">
+                                      LinkedIn nicht konfiguriert —{' '}
+                                      <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
+                                        Jetzt verbinden
+                                      </a>
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {(r.socialPosts?.length ?? 0) > 0 && (
+                              <div className="pt-1">
+                                <RegenerateButton
+                                  projectId={projectId}
+                                  monat={r.monat}
+                                  onSuccess={(result) => onUpdate(globalIndex, result)}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                )
-              })}
-              {(r.socialPosts?.length ?? 0) > 0 && (
-                <div className="pt-2">
-                  <RegenerateButton
-                    projectId={projectId}
-                    monat={r.monat}
-                    onSuccess={(result) => onUpdate(globalIndex, result)}
-                  />
                 </div>
-              )}
+              ))}
             </div>
           </div>
         )
       })}
+
       {results.length === 0 && (
         <p className="text-sm text-stahlgrau py-8 text-center">Keine Social-Posts vorhanden</p>
       )}
@@ -990,17 +1000,6 @@ function PlaeneTab({
 
   return (
     <div className="space-y-10">
-
-      {/* ── Download ── */}
-      <div className="flex justify-end">
-        <a
-          href={`/api/projects/${projectId}/plans/download`}
-          download
-          className="text-xs px-3 py-1.5 bg-tiefblau text-creme rounded-lg hover:bg-anthrazit transition"
-        >
-          Alle Pläne als XLSX
-        </a>
-      </div>
 
       {/* ══ Blog-Plan ══ */}
       <section>

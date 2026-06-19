@@ -55,7 +55,7 @@ function getUniqueMonths(themes: ThemenItem[]): string[] {
   return Object.keys(seen).sort()
 }
 
-export function ResultsOverview({ themes, textResults, channels }: Props) {
+export function ResultsOverview({ projectId, themes, textResults, channels }: Props) {
   const [modal, setModal] = useState<ModalItem | null>(null)
 
   const activeChannels = ALL_CHANNELS.filter((ch) => channels.includes(ch))
@@ -89,9 +89,21 @@ export function ResultsOverview({ themes, textResults, channels }: Props) {
   }
 
   const blogThemes = themes.filter((t) => t.kanal === 'BLOG').sort((a, b) => a.monat.localeCompare(b.monat))
+  const newsletterThemes = themes.filter((t) => t.kanal === 'NEWSLETTER').sort((a, b) => a.monat.localeCompare(b.monat))
 
   return (
     <div className="space-y-6">
+
+      {/* Download */}
+      <div className="flex justify-end">
+        <a
+          href={`/api/projects/${projectId}/plans/download`}
+          download
+          className="text-xs px-3 py-1.5 bg-tiefblau text-white rounded-lg hover:bg-nachtblau transition"
+        >
+          Alle Pläne als XLSX
+        </a>
+      </div>
 
       {/* Blog-Roadmap (wenn Blog aktiv) */}
       {blogThemes.length > 0 && (
@@ -166,6 +178,72 @@ export function ResultsOverview({ themes, textResults, channels }: Props) {
                     {/* Verbindungslinie zum nächsten */}
                     {idx < blogThemes.length - 1 && (
                       <div className="h-px w-8 bg-nachtblau/30 flex-shrink-0" />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Newsletter-Roadmap */}
+      {newsletterThemes.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Newsletter-Roadmap</p>
+          <div className="relative overflow-x-auto pb-2">
+            <div className="flex items-center min-w-max px-4">
+              {newsletterThemes.map((theme, idx) => {
+                const above = idx % 2 === 0
+                const hasT = hasText(theme)
+                return (
+                  <div key={theme.monat + theme.seoTitel} className="flex items-center">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-44 mb-2 ${above ? 'visible' : 'invisible pointer-events-none'}`}>
+                        <button onClick={() => openModal(theme)} className="text-left w-full group" tabIndex={above ? 0 : -1}>
+                          <p className="text-sm font-semibold text-emerald-800 group-hover:text-cognac leading-snug line-clamp-2">
+                            {theme.seoTitel}
+                          </p>
+                          <p className="text-xs text-stahlgrau mt-0.5 line-clamp-2">{theme.contentWinkel}</p>
+                          {hasT && (
+                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                              Text
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className={`w-px h-6 ${above ? 'bg-emerald-200' : 'bg-transparent'}`} />
+                        <button
+                          onClick={() => openModal(theme)}
+                          className="w-28 h-11 rounded-full border-2 border-emerald-600 bg-white hover:bg-emerald-600 hover:text-white transition flex flex-col items-center justify-center group"
+                        >
+                          <span className="text-xs font-bold text-emerald-700 group-hover:text-white leading-none">
+                            {new Date(parseInt(theme.monat.split('-')[0]), parseInt(theme.monat.split('-')[1]) - 1, 1)
+                              .toLocaleDateString('de-DE', { month: 'long' })}
+                          </span>
+                          <span className="text-[9px] text-stahlgrau group-hover:text-white/80">
+                            {getMonthKwRange(theme.monat)}
+                          </span>
+                        </button>
+                        <div className={`w-px h-6 ${!above ? 'bg-emerald-200' : 'bg-transparent'}`} />
+                      </div>
+                      <div className={`w-44 mt-2 ${!above ? 'visible' : 'invisible pointer-events-none'}`}>
+                        <button onClick={() => openModal(theme)} className="text-left w-full group" tabIndex={!above ? 0 : -1}>
+                          <p className="text-sm font-semibold text-emerald-800 group-hover:text-cognac leading-snug line-clamp-2">
+                            {theme.seoTitel}
+                          </p>
+                          <p className="text-xs text-stahlgrau mt-0.5 line-clamp-2">{theme.contentWinkel}</p>
+                          {hasT && (
+                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                              Text
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    {idx < newsletterThemes.length - 1 && (
+                      <div className="h-px w-8 bg-emerald-300/50 flex-shrink-0" />
                     )}
                   </div>
                 )
