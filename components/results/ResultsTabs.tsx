@@ -23,7 +23,7 @@ import {
   SOCIAL_STATUS_LABELS,
 } from '@/lib/generation/results-store'
 
-type Tab = 'uebersicht' | 'blog' | 'newsletter' | 'social' | 'bildbriefings' | 'plaene'
+type Tab = 'uebersicht' | 'blog' | 'newsletter' | 'social' | 'bildbriefings'
 type SortKey = 'monat' | 'funnel' | 'hwg' | 'kanal'
 
 interface Props {
@@ -36,9 +36,10 @@ interface Props {
   metaConfigured?: boolean
   linkedInConfigured?: boolean
   hwgFlag?: string
+  praxisName: string
 }
 
-export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, metaConfigured = false, linkedInConfigured = false, hwgFlag }: Props) {
+export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, metaConfigured = false, linkedInConfigured = false, hwgFlag, praxisName }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('uebersicht')
   const [results, setResults] = useState<StoredTextResult[]>(textResults)
   const [sort, setSort] = useState<SortKey>('monat')
@@ -90,7 +91,6 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
     { key: 'newsletter', label: 'Newsletter' },
     ...(hasSocial ? [{ key: 'social' as Tab, label: 'Social Media' }] : []),
     { key: 'bildbriefings', label: 'Bildbriefings' },
-    { key: 'plaene', label: 'Pläne & Downloads' },
   ]
 
   const sortedThemes = [...themes].sort((a, b) => {
@@ -165,13 +165,11 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
           allResults={results}
           metaConfigured={metaConfigured}
           linkedInConfigured={linkedInConfigured}
+          praxisName={praxisName}
         />
       )}
       {activeTab === 'bildbriefings' && (
         <ImageBriefTab results={results} projectId={projectId} />
-      )}
-      {activeTab === 'plaene' && (
-        <PlaeneTab projectId={projectId} themes={themes} results={results} />
       )}
     </div>
   )
@@ -519,6 +517,7 @@ function SocialTab({
   onUpdate,
   metaConfigured,
   linkedInConfigured,
+  praxisName,
 }: {
   projectId: string
   results: StoredTextResult[]
@@ -526,6 +525,7 @@ function SocialTab({
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
   metaConfigured: boolean
   linkedInConfigured: boolean
+  praxisName: string
 }) {
   const [expiredProviders, setExpiredProviders] = useState<Set<string>>(new Set())
   const [canvaAssets, setCanvaAssets] = useState<CanvaAssetSocial[]>([])
@@ -674,43 +674,51 @@ function SocialTab({
                                     {metaText.length}/400
                                   </span>
                                 </p>
-                                <textarea
-                                  className={`w-full text-sm border rounded-lg p-3 min-h-[80px] focus:outline-none ${
-                                    metaOver ? 'border-red-300 focus:border-red-500' : 'border-stone focus:border-tiefblau'
-                                  }`}
-                                  defaultValue={metaPost.text}
-                                  onChange={(e) => {
-                                    setLocalTexts((prev) => ({ ...prev, [metaKey]: e.target.value }))
-                                    const updatedPosts = (r.socialPosts ?? []).map((p) =>
-                                      p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM'
-                                        ? { ...p, text: e.target.value }
-                                        : p
-                                    )
-                                    onUpdate(globalIndex, { socialPosts: updatedPosts })
-                                  }}
-                                />
-                                <div className="mt-2">
-                                  {metaConfigured ? (
-                                    <SocialPostButton
-                                      projectId={projectId}
-                                      index={globalIndex}
-                                      kanal={metaPost.kanal}
-                                      text={metaText}
-                                      currentStatus={r.socialStatus}
-                                      currentDraftId={r.socialDraftId}
-                                      currentPlatform={r.socialPlatform}
-                                      currentError={r.socialError}
-                                      tokenExpired={expiredProviders.has('META')}
-                                      onResult={(updates) => onUpdate(globalIndex, updates)}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                                  <div>
+                                    <textarea
+                                      className={`w-full text-sm border rounded-lg p-3 min-h-[80px] focus:outline-none ${
+                                        metaOver ? 'border-red-300 focus:border-red-500' : 'border-stone focus:border-tiefblau'
+                                      }`}
+                                      defaultValue={metaPost.text}
+                                      onChange={(e) => {
+                                        setLocalTexts((prev) => ({ ...prev, [metaKey]: e.target.value }))
+                                        const updatedPosts = (r.socialPosts ?? []).map((p) =>
+                                          p.kanal === 'SOCIAL_FACEBOOK' || p.kanal === 'SOCIAL_INSTAGRAM'
+                                            ? { ...p, text: e.target.value }
+                                            : p
+                                        )
+                                        onUpdate(globalIndex, { socialPosts: updatedPosts })
+                                      }}
                                     />
-                                  ) : (
-                                    <p className="text-xs text-stahlgrau italic">
-                                      Meta nicht konfiguriert —{' '}
-                                      <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
-                                        Jetzt verbinden
-                                      </a>
-                                    </p>
-                                  )}
+                                    <div className="mt-2">
+                                      {metaConfigured ? (
+                                        <SocialPostButton
+                                          projectId={projectId}
+                                          index={globalIndex}
+                                          kanal={metaPost.kanal}
+                                          text={metaText}
+                                          currentStatus={r.socialStatus}
+                                          currentDraftId={r.socialDraftId}
+                                          currentPlatform={r.socialPlatform}
+                                          currentError={r.socialError}
+                                          tokenExpired={expiredProviders.has('META')}
+                                          onResult={(updates) => onUpdate(globalIndex, updates)}
+                                        />
+                                      ) : (
+                                        <p className="text-xs text-stahlgrau italic">
+                                          Meta nicht konfiguriert —{' '}
+                                          <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
+                                            Jetzt verbinden
+                                          </a>
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <p className="text-[10px] text-stahlgrau uppercase tracking-wide mb-2 font-medium">Instagram Vorschau</p>
+                                    <InstagramMockup text={metaText} praxisName={praxisName} />
+                                  </div>
                                 </div>
                               </div>
                             )}
@@ -724,41 +732,49 @@ function SocialTab({
                                     {liText.length}/1300
                                   </span>
                                 </p>
-                                <textarea
-                                  className={`w-full text-sm border rounded-lg p-3 min-h-[80px] focus:outline-none ${
-                                    liOver ? 'border-red-300 focus:border-red-500' : 'border-stone focus:border-tiefblau'
-                                  }`}
-                                  defaultValue={liPost.text}
-                                  onChange={(e) => {
-                                    setLocalTexts((prev) => ({ ...prev, [liKey]: e.target.value }))
-                                    const updatedPosts = (r.socialPosts ?? []).map((p) =>
-                                      p.kanal === 'SOCIAL_LINKEDIN' ? { ...p, text: e.target.value } : p
-                                    )
-                                    onUpdate(globalIndex, { socialPosts: updatedPosts })
-                                  }}
-                                />
-                                <div className="mt-2">
-                                  {linkedInConfigured ? (
-                                    <SocialPostButton
-                                      projectId={projectId}
-                                      index={globalIndex}
-                                      kanal="SOCIAL_LINKEDIN"
-                                      text={liText}
-                                      currentStatus={r.socialStatus}
-                                      currentDraftId={r.socialDraftId}
-                                      currentPlatform={r.socialPlatform}
-                                      currentError={r.socialError}
-                                      tokenExpired={expiredProviders.has('LINKEDIN')}
-                                      onResult={(updates) => onUpdate(globalIndex, updates)}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                                  <div>
+                                    <textarea
+                                      className={`w-full text-sm border rounded-lg p-3 min-h-[80px] focus:outline-none ${
+                                        liOver ? 'border-red-300 focus:border-red-500' : 'border-stone focus:border-tiefblau'
+                                      }`}
+                                      defaultValue={liPost.text}
+                                      onChange={(e) => {
+                                        setLocalTexts((prev) => ({ ...prev, [liKey]: e.target.value }))
+                                        const updatedPosts = (r.socialPosts ?? []).map((p) =>
+                                          p.kanal === 'SOCIAL_LINKEDIN' ? { ...p, text: e.target.value } : p
+                                        )
+                                        onUpdate(globalIndex, { socialPosts: updatedPosts })
+                                      }}
                                     />
-                                  ) : (
-                                    <p className="text-xs text-stahlgrau italic">
-                                      LinkedIn nicht konfiguriert —{' '}
-                                      <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
-                                        Jetzt verbinden
-                                      </a>
-                                    </p>
-                                  )}
+                                    <div className="mt-2">
+                                      {linkedInConfigured ? (
+                                        <SocialPostButton
+                                          projectId={projectId}
+                                          index={globalIndex}
+                                          kanal="SOCIAL_LINKEDIN"
+                                          text={liText}
+                                          currentStatus={r.socialStatus}
+                                          currentDraftId={r.socialDraftId}
+                                          currentPlatform={r.socialPlatform}
+                                          currentError={r.socialError}
+                                          tokenExpired={expiredProviders.has('LINKEDIN')}
+                                          onResult={(updates) => onUpdate(globalIndex, updates)}
+                                        />
+                                      ) : (
+                                        <p className="text-xs text-stahlgrau italic">
+                                          LinkedIn nicht konfiguriert —{' '}
+                                          <a href={`/projects/${projectId}/connections`} className="text-tiefblau hover:underline">
+                                            Jetzt verbinden
+                                          </a>
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <p className="text-[10px] text-stahlgrau uppercase tracking-wide mb-2 font-medium">LinkedIn Vorschau</p>
+                                    <LinkedInMockup text={liText} praxisName={praxisName} />
+                                  </div>
                                 </div>
                               </div>
                             )}
@@ -1219,6 +1235,68 @@ function PlaeneTab({
         </section>
       )}
 
+    </div>
+  )
+}
+
+// ── Social Mockups ────────────────────────────────────────────────────────────
+
+function InstagramMockup({ text, praxisName }: { text: string; praxisName: string }) {
+  const handle = praxisName.toLowerCase().replace(/\s+/g, '_').slice(0, 20)
+  const initial = praxisName[0]?.toUpperCase() ?? 'P'
+  return (
+    <div className="max-w-[280px] rounded-2xl border border-stone bg-white overflow-hidden shadow-sm text-[11px] font-sans">
+      <div className="flex items-center gap-2 px-3 py-2">
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+          {initial}
+        </div>
+        <div className="min-w-0">
+          <p className="font-semibold text-[11px] text-anthrazit leading-none">{handle}</p>
+          <p className="text-[9px] text-stahlgrau">Gesponsert</p>
+        </div>
+        <span className="ml-auto text-stahlgrau text-sm">···</span>
+      </div>
+      <div className="w-full aspect-square bg-gradient-to-br from-stone/40 to-stone/70 flex items-center justify-center">
+        <span className="text-[10px] text-stahlgrau">Bild / Grafik</span>
+      </div>
+      <div className="px-3 py-2 space-y-1.5">
+        <div className="flex items-center gap-3 text-base">
+          <span>♡</span><span>💬</span><span>↗</span>
+          <span className="ml-auto">🔖</span>
+        </div>
+        <p className="text-[10px] text-anthrazit leading-relaxed line-clamp-5">
+          <span className="font-semibold">{handle} </span>
+          {text || <span className="text-stahlgrau italic">Text erscheint hier…</span>}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function LinkedInMockup({ text, praxisName }: { text: string; praxisName: string }) {
+  const initial = praxisName[0]?.toUpperCase() ?? 'P'
+  return (
+    <div className="max-w-[280px] rounded-xl border border-stone bg-white overflow-hidden shadow-sm text-[11px] font-sans">
+      <div className="px-3 pt-3 pb-2 flex items-start gap-2">
+        <div className="w-9 h-9 rounded-lg bg-[#0077b5] flex items-center justify-center text-white text-sm font-bold shrink-0">
+          {initial}
+        </div>
+        <div>
+          <p className="font-semibold text-[11px] text-anthrazit leading-tight">{praxisName}</p>
+          <p className="text-[9px] text-stahlgrau leading-tight">Zahnarzt · Jetzt · 🌐</p>
+        </div>
+      </div>
+      <div className="px-3 pb-2 text-[11px] text-anthrazit leading-relaxed line-clamp-6">
+        {text || <span className="text-stahlgrau italic">Text erscheint hier…</span>}
+      </div>
+      <div className="w-full h-20 bg-stone/30 flex items-center justify-center">
+        <span className="text-[10px] text-stahlgrau">Vorschaubild</span>
+      </div>
+      <div className="px-3 py-2 border-t border-stone flex gap-4 text-[10px] text-stahlgrau">
+        <span>👍 Gefällt mir</span>
+        <span>💬 Kommentieren</span>
+        <span>↗ Teilen</span>
+      </div>
     </div>
   )
 }
