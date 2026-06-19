@@ -120,13 +120,13 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
                 onClick={() => setActiveTab(t.key)}
                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition whitespace-nowrap flex items-center gap-1.5 ${
                   activeTab === t.key
-                    ? 'bg-nachtblau text-white shadow-sm'
+                    ? 'bg-cognac text-nachtblau shadow-sm'
                     : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
                 }`}
               >
                 {TAB_COLORS[t.key] && (
                   <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${
-                    activeTab === t.key ? 'bg-white/70' : TAB_COLORS[t.key]
+                    activeTab === t.key ? 'bg-nachtblau/40' : TAB_COLORS[t.key]
                   }`} />
                 )}
                 {t.label}
@@ -323,7 +323,7 @@ function BlogTab({
                 )}
                 <button
                   onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
-                  className={`text-[10px] px-2 py-1 rounded-full border transition ${
+                  className={`text-xs px-2 py-1 rounded-full border transition ${
                     r.portalVisible
                       ? 'bg-emerald-100 border-emerald-300 text-emerald-700 font-semibold'
                       : 'bg-white border-stone text-stahlgrau hover:border-emerald-300'
@@ -445,7 +445,7 @@ function NewsletterTab({
                 )}
                 <button
                   onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
-                  className={`text-[10px] px-2 py-1 rounded-full border transition ${
+                  className={`text-xs px-2 py-1 rounded-full border transition ${
                     r.portalVisible
                       ? 'bg-emerald-100 border-emerald-300 text-emerald-700 font-semibold'
                       : 'bg-white border-stone text-stahlgrau hover:border-emerald-300'
@@ -691,7 +691,7 @@ function SocialTab({
                               )}
                               <button
                                 onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
-                                className={`text-[10px] px-2 py-1 rounded-full border transition ${
+                                className={`text-xs px-2 py-1 rounded-full border transition ${
                                   r.portalVisible
                                     ? 'bg-emerald-100 border-emerald-300 text-emerald-700 font-semibold'
                                     : 'bg-white border-stone text-stahlgrau hover:border-emerald-300'
@@ -761,7 +761,7 @@ function SocialTab({
                                     </div>
                                   </div>
                                   <div>
-                                    <p className="text-[10px] text-stahlgrau uppercase tracking-wide mb-2 font-medium">Instagram Vorschau</p>
+                                    <p className="text-xs text-stahlgrau uppercase tracking-wide mb-2 font-medium">Instagram Vorschau</p>
                                     <InstagramMockup text={metaText} praxisName={praxisName} />
                                   </div>
                                 </div>
@@ -817,7 +817,7 @@ function SocialTab({
                                     </div>
                                   </div>
                                   <div>
-                                    <p className="text-[10px] text-stahlgrau uppercase tracking-wide mb-2 font-medium">LinkedIn Vorschau</p>
+                                    <p className="text-xs text-stahlgrau uppercase tracking-wide mb-2 font-medium">LinkedIn Vorschau</p>
                                     <LinkedInMockup text={liText} praxisName={praxisName} />
                                   </div>
                                 </div>

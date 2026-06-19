@@ -29,7 +29,7 @@ export function ProjectTabs({ projectId }: Props) {
             href={tab.href}
             className={`flex-1 text-center px-3 py-2 text-sm font-semibold rounded-lg transition whitespace-nowrap ${
               active
-                ? 'bg-nachtblau text-white shadow-sm'
+                ? 'bg-cognac text-nachtblau shadow-sm'
                 : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
             }`}
           >
