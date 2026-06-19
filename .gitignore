@@ -5,3 +5,4 @@ tsconfig.tsbuildinfo
 partner-app/
 .claude/
 .next/
+next-env.d.ts
