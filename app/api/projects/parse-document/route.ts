@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth/session'
 import { logger } from '@/lib/utils/logger'
-import { PDFParse } from 'pdf-parse'
-import mammoth from 'mammoth'
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024 // 10 MB
 const MAX_CHARS = 16_000
@@ -38,7 +36,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Datei zu groß (max. 10 MB)' }, { status: 413 })
   }
 
-  // MIME-Typ-Erkennung: bevorzuge Dateiendung falls type leer (manche Browser)
   const name = file.name.toLowerCase()
   let mime = file.type
   if (!mime && name.endsWith('.pdf')) mime = 'application/pdf'
@@ -56,13 +53,17 @@ export async function POST(req: Request) {
     let text: string
 
     if (mime === 'application/pdf') {
-      const data = new Uint8Array(await file.arrayBuffer())
+      const arrayBuffer = await file.arrayBuffer()
+      const data = new Uint8Array(arrayBuffer)
+      // Dynamic import to avoid ESM module load failure in standalone build
+      const { PDFParse } = await import('pdf-parse')
       const parser = new PDFParse({ data })
       const result = await parser.getText()
       await parser.destroy()
       text = result.text
     } else if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const buffer = Buffer.from(await file.arrayBuffer())
+      const mammoth = await import('mammoth')
       const result = await mammoth.extractRawText({ buffer })
       text = result.value
     } else {
@@ -80,7 +81,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ text, truncated, originalLength })
   } catch (err: unknown) {
-    logger.error({ err }, '[Vysible] parse-document: Extraktion fehlgeschlagen')
-    return NextResponse.json({ error: 'Extraktion fehlgeschlagen' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    logger.error({ err, mime }, '[Vysible] parse-document: Extraktion fehlgeschlagen')
+    return NextResponse.json({ error: `Extraktion fehlgeschlagen: ${msg}` }, { status: 500 })
   }
 }
