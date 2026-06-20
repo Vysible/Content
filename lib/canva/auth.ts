@@ -5,7 +5,7 @@ import { logger } from '@/lib/utils/logger'
 
 export const CANVA_AUTHORIZE_URL = 'https://www.canva.com/api/oauth/authorize'
 export const CANVA_TOKEN_URL = 'https://api.canva.com/rest/v1/oauth/token'
-export const CANVA_SCOPE = 'folder:read asset:read design:meta:read'
+export const CANVA_SCOPE = 'asset:read design:meta:read'
 
 // 5-Minuten-Puffer vor Token-Ablauf → vorzeitiger Refresh, um Race-Conditions zu vermeiden
 const REFRESH_BUFFER_MS = 5 * 60 * 1_000

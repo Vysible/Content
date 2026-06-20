@@ -116,8 +116,7 @@ className="inline-flex items-center gap-2 bg-nachtblau hover:bg-tiefblau text-wh
 
       <div className="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
         <strong>Scope &amp; Datenschutz:</strong> Vysible erhält nur Lese-Rechte
-        (<code className="font-mono">folder:read</code>{' '}
-        <code className="font-mono">asset:read</code>{' '}
+        (<code className="font-mono">asset:read</code>{' '}
         <code className="font-mono">design:meta:read</code>). Es werden keine
         Designs erstellt oder geändert. Tokens werden AES-256-verschlüsselt
         gespeichert und nie an den Browser oder in Logs ausgegeben.
