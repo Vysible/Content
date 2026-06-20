@@ -57,7 +57,8 @@ export async function GET(req: Request) {
     await persistCanvaToken(session.user.id, token)
     return NextResponse.redirect(`${publicBase()}/settings/canva?connected=1`)
   } catch (err: unknown) {
+    const detail = err instanceof Error ? err.message.slice(0, 120) : String(err).slice(0, 120)
     logger.error({ err, userId: session.user.id }, 'Canva-Code-Exchange oder Token-Speichern fehlgeschlagen')
-    return NextResponse.redirect(`${publicBase()}/settings/canva?error=token_exchange_failed`)
+    return NextResponse.redirect(`${publicBase()}/settings/canva?error=token_exchange_failed&detail=${encodeURIComponent(detail)}`)
   }
 }

@@ -13,7 +13,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 }
 
 interface CanvaSettingsPageProps {
-  searchParams: { connected?: string; error?: string }
+  searchParams: { connected?: string; error?: string; detail?: string }
 }
 
 export default async function CanvaSettingsPage({ searchParams }: CanvaSettingsPageProps) {
@@ -22,6 +22,7 @@ export default async function CanvaSettingsPage({ searchParams }: CanvaSettingsP
 
   const connectedJustNow = searchParams.connected === '1'
   const errorKey = searchParams.error
+  const errorDetail = searchParams.detail
   const errorMessage = errorKey
     ? ERROR_MESSAGES[errorKey] ?? `Unbekannter Fehler: ${errorKey}`
     : null
@@ -42,6 +43,9 @@ export default async function CanvaSettingsPage({ searchParams }: CanvaSettingsP
       {errorMessage && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
           [FAIL] {errorMessage}
+          {errorDetail && (
+            <div className="mt-1 text-xs font-mono opacity-80">{errorDetail}</div>
+          )}
         </div>
       )}
 
