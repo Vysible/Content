@@ -12,11 +12,16 @@ const STATE_COOKIE = 'canva_oauth_state'
 const VERIFIER_COOKIE = 'canva_oauth_verifier'
 const TTL_SECONDS = 600 // 10 Minuten
 
+/** Gibt die öffentliche Basis-URL zurück (NEXTAUTH_URL bevorzugt, da req.url in Docker intern ist). */
+function publicBase(): string {
+  return (process.env.NEXTAUTH_URL ?? '').replace(/\/$/, '')
+}
+
 /** Initiiert den Canva-OAuth-Flow mit PKCE. Setzt httpOnly-Cookies für State + Verifier. */
 export async function GET(req: Request) {
   const session = await auth()
   if (!session?.user) {
-    return NextResponse.redirect(new URL('/login', req.url))
+    return NextResponse.redirect(`${publicBase()}/login`)
   }
 
   try {
@@ -39,6 +44,6 @@ export async function GET(req: Request) {
     return NextResponse.redirect(authorizeUrl)
   } catch (err: unknown) {
     logger.error({ err, userId: session.user.id }, 'Canva-OAuth-Authorize konnte nicht initialisiert werden')
-    return NextResponse.redirect(new URL('/settings/canva?error=oauth_init_failed', req.url))
+    return NextResponse.redirect(`${publicBase()}/settings/canva?error=oauth_init_failed`)
   }
 }

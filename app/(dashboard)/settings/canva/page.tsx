@@ -8,6 +8,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   missing_code_or_state: 'Canva hat den OAuth-Flow ohne Code/State abgebrochen.',
   token_exchange_failed: 'Der Token-Austausch mit Canva ist fehlgeschlagen. Prüfe ob die Redirect-URL in der Canva-App korrekt eingetragen ist.',
   access_denied: 'Zugriff von Canva-Seite verweigert.',
+  state_mismatch: 'Sicherheitscheck fehlgeschlagen (State-Mismatch). Bitte erneut versuchen.',
+  pkce_missing: 'PKCE-Verifier fehlt — Cookie möglicherweise abgelaufen. Bitte erneut versuchen.',
 }
 
 interface CanvaSettingsPageProps {
@@ -114,8 +116,9 @@ className="inline-flex items-center gap-2 bg-nachtblau hover:bg-tiefblau text-wh
 
       <div className="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
         <strong>Scope &amp; Datenschutz:</strong> Vysible erhält nur Lese-Rechte
-        (<code className="font-mono">asset:read</code>{' '}
-        <code className="font-mono">design:content:read</code>). Es werden keine
+        (<code className="font-mono">folder:read</code>{' '}
+        <code className="font-mono">asset:read</code>{' '}
+        <code className="font-mono">design:meta:read</code>). Es werden keine
         Designs erstellt oder geändert. Tokens werden AES-256-verschlüsselt
         gespeichert und nie an den Browser oder in Logs ausgegeben.
       </div>
