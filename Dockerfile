@@ -1,4 +1,4 @@
-# cache-bust: 2026-06-19
+# cache-bust: 2026-06-20
 FROM node:20-alpine AS base
 RUN corepack enable pnpm
 
@@ -51,15 +51,17 @@ ENV PORT=3000 HOSTNAME="0.0.0.0"
 # Migrationen als root, dann Server als nextjs
 # Prisma migrate deploy mit Retry (DB evtl. noch nicht bereit). Exit 1 wenn alle Versuche fehlschlagen.
 CMD ["sh", "-c", "\
+  echo '[Startup] DATABASE_URL gesetzt: '$([ -n \"$DATABASE_URL\" ] && echo 'ja' || echo 'NEIN — fehlt!'); \
   migrated=0; \
-  for i in 1 2 3 4 5; do \
-    echo \"[Startup] Migration attempt $i/5...\"; \
-    node node_modules/prisma/build/index.js migrate deploy \
+  for i in 1 2 3; do \
+    echo \"[Startup] Migration Versuch $i/3...\"; \
+    node node_modules/prisma/build/index.js migrate deploy 2>&1 \
       && echo '[Startup] Migration OK' && migrated=1 && break; \
-    echo '[Startup] Migration failed, retrying in 5s...'; sleep 5; \
+    echo \"[Startup] Migration fehlgeschlagen (Versuch $i), warte 5s...\"; sleep 5; \
   done; \
   if [ \"$migrated\" = \"0\" ]; then \
-    echo '[Startup] FATAL: Migration failed after 5 attempts — container will not start'; \
+    echo '[Startup] FATAL: Migration nach 3 Versuchen fehlgeschlagen'; \
     exit 1; \
   fi; \
+  echo '[Startup] Starte Next.js Server...'; \
   exec su-exec nextjs node server.js"]
