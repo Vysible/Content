@@ -2,22 +2,32 @@
  * Slice 18 – Meta Graph API: Instagram + Facebook Draft Posting
  * ⚠️  Meta-Business-Verifizierung erforderlich (Vorlaufzeit Wochen)
  */
-import { prisma } from '@/lib/db'
-import { decrypt } from '@/lib/crypto/aes'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
+import { loadCredentials, getIntegration } from '@/lib/integrations/store'
 
 const GRAPH_API = 'https://graph.facebook.com/v21.0'
 
-async function getMetaToken(): Promise<{ token: string; pageId: string; igId?: string }> {
-  const key = await prisma.apiKey.findFirst({
-    where: { provider: 'META', active: true },
-  })
-  if (!key) throw new Error('Kein aktiver Meta-API-Key konfiguriert (Format: meta:pageId[:igId])')
+interface MetaCredentials {
+  pageAccessToken: string
+}
 
-  const token = decrypt(key.encryptedKey)
-  const [, pageId, igId] = key.name.split(':')
-  return { token, pageId, igId }
+async function getMetaCredentials(projectId: string): Promise<{
+  token: string
+  pageId: string
+  igId?: string
+}> {
+  const [creds, status] = await Promise.all([
+    loadCredentials<MetaCredentials>(projectId, 'META'),
+    getIntegration(projectId, 'META'),
+  ])
+  const pageId = status.config?.pageId
+  if (!pageId) throw new Error('Keine Page-ID für Meta konfiguriert')
+  return {
+    token: creds.pageAccessToken,
+    pageId,
+    igId: status.config?.igAccountId || undefined,
+  }
 }
 
 export interface SocialDraftResult {
@@ -27,9 +37,9 @@ export interface SocialDraftResult {
   error?: string
 }
 
-export async function postFacebookDraft(message: string): Promise<SocialDraftResult> {
+export async function postFacebookDraft(projectId: string, message: string): Promise<SocialDraftResult> {
   try {
-    const { token, pageId } = await getMetaToken()
+    const { token, pageId } = await getMetaCredentials(projectId)
     const res = await withRetry(
       () => fetch(`${GRAPH_API}/${pageId}/feed`, {
         method: 'POST',
@@ -42,14 +52,14 @@ export async function postFacebookDraft(message: string): Promise<SocialDraftRes
     if (!res.ok) return { platform: 'facebook', status: 'error', error: data.error?.message }
     return { platform: 'facebook', draftId: data.id, status: 'draft' }
   } catch (err) {
-    logger.error({ err }, '[meta] postFacebookDraft fehlgeschlagen')
-    return { platform: 'facebook', status: 'error', error: String(err) }
+    logger.error({ err, projectId }, '[meta] postFacebookDraft fehlgeschlagen')
+    return { platform: 'facebook', status: 'error', error: err instanceof Error ? err.message : String(err) }
   }
 }
 
-export async function postInstagramDraft(caption: string, imageUrl?: string): Promise<SocialDraftResult> {
+export async function postInstagramDraft(projectId: string, caption: string, imageUrl?: string): Promise<SocialDraftResult> {
   try {
-    const { token, igId } = await getMetaToken()
+    const { token, igId } = await getMetaCredentials(projectId)
     if (!igId) return { platform: 'instagram', status: 'error', error: 'Keine Instagram-Business-ID konfiguriert' }
 
     // Schritt 1: Media-Container erstellen
@@ -71,7 +81,7 @@ export async function postInstagramDraft(caption: string, imageUrl?: string): Pr
     // Nur Container erstellt, nicht veröffentlicht – entspricht "Draft"
     return { platform: 'instagram', draftId: mediaData.id, status: 'draft' }
   } catch (err) {
-    logger.error({ err }, '[meta] postInstagramDraft fehlgeschlagen')
-    return { platform: 'instagram', status: 'error', error: String(err) }
+    logger.error({ err, projectId }, '[meta] postInstagramDraft fehlgeschlagen')
+    return { platform: 'instagram', status: 'error', error: err instanceof Error ? err.message : String(err) }
   }
 }

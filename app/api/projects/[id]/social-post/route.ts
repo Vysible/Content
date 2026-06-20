@@ -74,8 +74,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 
   let result
-  if (kanal === 'SOCIAL_FACEBOOK') result = await postFacebookDraft(text)
-  else if (kanal === 'SOCIAL_INSTAGRAM') result = await postInstagramDraft(text)
+  if (kanal === 'SOCIAL_FACEBOOK') result = await postFacebookDraft(params.id, text)
+  else if (kanal === 'SOCIAL_INSTAGRAM') result = await postInstagramDraft(params.id, text)
   else if (kanal === 'SOCIAL_LINKEDIN') result = await postLinkedInDraft(text)
   else return NextResponse.json({ error: `Unbekannter Kanal: ${kanal}` }, { status: 400 })
 

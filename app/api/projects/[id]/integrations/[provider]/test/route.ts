@@ -57,7 +57,7 @@ export async function POST(
 
     if (params.provider === 'META') {
       const res = await fetch(
-        `https://graph.facebook.com/v19.0/me?access_token=${encodeURIComponent(creds.pageAccessToken ?? '')}`,
+        `https://graph.facebook.com/v21.0/me?access_token=${encodeURIComponent(creds.pageAccessToken ?? '')}`,
       )
       if (!res.ok) return NextResponse.json({ ok: false, error: `Token ungültig (HTTP ${res.status})` })
       return NextResponse.json({ ok: true })
