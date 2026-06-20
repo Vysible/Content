@@ -6,7 +6,7 @@ import { logger } from '@/lib/utils/logger'
 import { loadCredentials, getIntegration } from '@/lib/integrations/store'
 import type { SocialDraftResult } from './meta'
 
-interface LinkedInCredentials {
+interface LinkedInCredentials extends Record<string, string> {
   accessToken: string
 }
 

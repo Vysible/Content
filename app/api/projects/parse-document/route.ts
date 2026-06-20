@@ -13,8 +13,6 @@ const ALLOWED_MIMES = new Set([
 ])
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  // pdf2json exports the class as the module itself (default in CJS)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mod = await import('pdf2json') as any
   const PDFParser = mod.default ?? mod
   return new Promise((resolve, reject) => {

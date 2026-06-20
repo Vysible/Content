@@ -104,7 +104,7 @@ className="inline-flex items-center gap-2 bg-nachtblau hover:bg-tiefblau text-wh
           <li><span className="font-bold">1.</span> Canva-App anlegen unter{' '}
             <a href="https://www.canva.com/developers/" target="_blank" rel="noopener noreferrer" className="underline">
               canva.com/developers
-            </a>{' '}→ „Connect" Integration aktivieren
+            </a>{' '}→ &bdquo;Connect&ldquo; Integration aktivieren
           </li>
           <li><span className="font-bold">2.</span> Redirect-URL in der Canva-App eintragen:{' '}
             <code className="font-mono bg-blue-100 px-1 py-0.5 rounded">

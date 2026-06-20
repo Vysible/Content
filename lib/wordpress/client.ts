@@ -2,7 +2,7 @@ import { loadCredentials } from '@/lib/integrations/store'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
 
-interface WordPressCredentials {
+interface WordPressCredentials extends Record<string, string> {
   url: string
   username: string
   appPassword: string

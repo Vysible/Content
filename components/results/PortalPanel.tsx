@@ -107,7 +107,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
 
           {portalCount === 0 && (
             <div className="text-xs text-stahlgrau bg-stone/30 rounded-lg px-3 py-2">
-              Noch keine Inhalte fürs Portal markiert. Aktiviere „Im Portal" bei den gewünschten Beiträgen.
+              Noch keine Inhalte fürs Portal markiert. Aktiviere &bdquo;Im Portal&ldquo; bei den gewünschten Beiträgen.
             </div>
           )}
 

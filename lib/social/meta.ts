@@ -8,7 +8,7 @@ import { loadCredentials, getIntegration } from '@/lib/integrations/store'
 
 const GRAPH_API = 'https://graph.facebook.com/v21.0'
 
-interface MetaCredentials {
+interface MetaCredentials extends Record<string, string> {
   pageAccessToken: string
 }
 
