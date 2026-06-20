@@ -87,37 +87,39 @@ interface SearchResponse {
 }
 
 async function searchGaql(customerId: string, query: string): Promise<SearchResponse> {
-  const accessToken = await fetchAccessToken()
-  const devToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN!
-  const managerCustomerId = process.env.GOOGLE_ADS_MANAGER_CUSTOMER_ID
+  return withRetry(async () => {
+    const accessToken = await fetchAccessToken()
+    const devToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN!
+    const managerCustomerId = process.env.GOOGLE_ADS_MANAGER_CUSTOMER_ID
 
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${accessToken}`,
-    'developer-token': devToken,
-    'Content-Type': 'application/json',
-  }
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${accessToken}`,
+      'developer-token': devToken,
+      'Content-Type': 'application/json',
+    }
 
-  // Manager-Konto (Verwaltungskonto): login-customer-id setzen
-  if (managerCustomerId) {
-    headers['login-customer-id'] = managerCustomerId.replace(/-/g, '')
-  }
+    // Manager-Konto (Verwaltungskonto): login-customer-id setzen
+    if (managerCustomerId) {
+      headers['login-customer-id'] = managerCustomerId.replace(/-/g, '')
+    }
 
-  const res = await fetch(
-    `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:search`,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ query }),
-    },
-  )
+    const res = await fetch(
+      `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:search`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ query }),
+      },
+    )
 
-  if (!res.ok) {
-    const errBody = await res.text()
-    logger.error({ status: res.status, body: errBody, customerId }, 'Google Ads GAQL-Anfrage fehlgeschlagen')
-    throw new Error(`Google Ads GAQL-Anfrage fehlgeschlagen: ${res.status} — ${errBody}`)
-  }
+    if (!res.ok) {
+      const errBody = await res.text()
+      logger.error({ status: res.status, body: errBody, customerId }, 'Google Ads GAQL-Anfrage fehlgeschlagen')
+      throw new Error(`Google Ads GAQL-Anfrage fehlgeschlagen: ${res.status} — ${errBody}`)
+    }
 
-  return res.json() as Promise<SearchResponse>
+    return res.json() as Promise<SearchResponse>
+  }, 'googleAds.searchGaql')
 }
 
 function getNumber(obj: unknown, ...path: string[]): number {
