@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
+import { normalizeGa4PropertyId } from './normalize-property-id'
 
 export interface GA4Metrics {
   sessions: number
@@ -27,16 +28,24 @@ interface TokenCache {
 
 let tokenCache: TokenCache | null = null
 
+function normalizePrivateKey(key: string): string {
+  // Coolify speichert manchmal literal \n statt echter Newlines
+  return key.includes('\\n') ? key.replace(/\\n/g, '\n') : key
+}
+
 function getServiceAccount(): ServiceAccountKey {
   const raw = process.env.GA4_SERVICE_ACCOUNT_JSON
   if (!raw) {
     throw new Error('GA4_SERVICE_ACCOUNT_JSON nicht konfiguriert')
   }
+  let sa: ServiceAccountKey
   try {
-    return JSON.parse(raw) as ServiceAccountKey
+    sa = JSON.parse(raw) as ServiceAccountKey
   } catch {
     throw new Error('GA4_SERVICE_ACCOUNT_JSON ist kein valides JSON')
   }
+  sa.private_key = normalizePrivateKey(sa.private_key)
+  return sa
 }
 
 function buildJwt(sa: ServiceAccountKey): string {
@@ -116,34 +125,38 @@ interface RunReportResponse {
 }
 
 async function runReport(propertyId: string, body: RunReportBody): Promise<RunReportResponse> {
-  const accessToken = await fetchAccessToken()
+  return withRetry(async () => {
+    const accessToken = await fetchAccessToken()
 
-  const res = await fetch(
-    `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
+    const res = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
       },
-      body: JSON.stringify(body),
-    },
-  )
+    )
 
-  if (!res.ok) {
-    const errBody = await res.text()
-    logger.error({ status: res.status, body: errBody, propertyId }, 'GA4 runReport fehlgeschlagen')
-    throw new Error(`GA4 runReport fehlgeschlagen: ${res.status} — ${errBody}`)
-  }
+    if (!res.ok) {
+      const errBody = await res.text()
+      logger.error({ status: res.status, body: errBody, propertyId }, 'GA4 runReport fehlgeschlagen')
+      throw new Error(`GA4 runReport fehlgeschlagen: ${res.status} — ${errBody}`)
+    }
 
-  return res.json() as Promise<RunReportResponse>
+    return res.json() as Promise<RunReportResponse>
+  }, 'ga4.runReport')
 }
 
 export async function fetchGA4Metrics(
-  propertyId: string,
+  propertyIdRaw: string,
   startDate: string,
   endDate: string,
 ): Promise<GA4Metrics> {
+  // Defensiv normalisieren — fängt alte DB-Einträge mit "properties/"-Präfix ab
+  const propertyId = normalizeGa4PropertyId(propertyIdRaw)
   logger.info({ propertyId, startDate, endDate }, 'GA4 Metriken werden abgerufen')
 
   const dateRange = { startDate, endDate }

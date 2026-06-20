@@ -14,65 +14,136 @@ export interface CanvaAsset {
   name: string
   type: string
   thumbnailUrl?: string
+  editUrl?: string
 }
 
-interface RawFolderItem {
-  id?: string
+// Canva API v1 — verschachtelte Item-Struktur pro Typ
+interface CanvaApiDesign {
+  id: string
+  title?: string
+  thumbnail?: { url?: string }
+  urls?: { edit_url?: string }
+}
+interface CanvaApiImage {
+  id: string
   name?: string
-  type?: string
   thumbnail?: { url?: string }
 }
-
-interface FoldersResponse {
-  items?: RawFolderItem[]
+interface CanvaApiBrandTemplate {
+  id: string
+  title?: string
+  thumbnail?: { url?: string }
+}
+interface CanvaApiFolder {
+  id: string
+  name?: string
 }
 
-/** Listet die Ordner des verbundenen Canva-Accounts. Throws wenn nicht verbunden. */
+interface CanvaApiItem {
+  type: 'design' | 'image' | 'brand_template' | 'folder' | string
+  design?: CanvaApiDesign
+  image?: CanvaApiImage
+  brand_template?: CanvaApiBrandTemplate
+  folder?: CanvaApiFolder
+}
+
+interface CanvaFolderItemsResponse {
+  items?: CanvaApiItem[]
+  continuation?: string
+}
+
+/** Mappt ein Canva API-Item auf ein CanvaAsset (null = überspringen). */
+function mapCanvaItem(item: CanvaApiItem): CanvaAsset | null {
+  if (item.type === 'design' && item.design?.id) {
+    return {
+      id: item.design.id,
+      name: item.design.title ?? item.design.id,
+      type: 'design',
+      thumbnailUrl: item.design.thumbnail?.url,
+      editUrl: item.design.urls?.edit_url,
+    }
+  }
+  if (item.type === 'image' && item.image?.id) {
+    return {
+      id: item.image.id,
+      name: item.image.name ?? item.image.id,
+      type: 'image',
+      thumbnailUrl: item.image.thumbnail?.url,
+    }
+  }
+  if (item.type === 'brand_template' && item.brand_template?.id) {
+    return {
+      id: item.brand_template.id,
+      name: item.brand_template.title ?? item.brand_template.id,
+      type: 'brand_template',
+      thumbnailUrl: item.brand_template.thumbnail?.url,
+    }
+  }
+  return null // folder und unbekannte Typen überspringen
+}
+
+/** Listet Unterordner des Root-Ordners via `folders/root/items`. Pagination inklusive. */
 export async function listFolders(userId: string): Promise<CanvaFolder[]> {
   return withRetry(async () => {
     const token = await getValidCanvaToken(userId)
+    const folders: CanvaFolder[] = []
+    let continuation: string | undefined
 
-    const res = await fetch(`${CANVA_API}/folders`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    do {
+      const url = new URL(`${CANVA_API}/folders/root/items`)
+      url.searchParams.set('item_types', 'folder')
+      if (continuation) url.searchParams.set('continuation', continuation)
 
-    if (!res.ok) {
-      throw new Error(`Canva Folders HTTP ${res.status}`)
-    }
+      const res = await fetch(url.toString(), {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-    const data = (await res.json()) as FoldersResponse
-    return (data.items ?? [])
-      .filter((it): it is RawFolderItem & { id: string; name: string } =>
-        typeof it.id === 'string' && typeof it.name === 'string',
-      )
-      .map((it) => ({ id: it.id, name: it.name }))
+      if (!res.ok) {
+        throw new Error(`Canva Folders HTTP ${res.status}`)
+      }
+
+      const data = (await res.json()) as CanvaFolderItemsResponse
+      for (const item of data.items ?? []) {
+        if (item.type === 'folder' && item.folder?.id) {
+          folders.push({ id: item.folder.id, name: item.folder.name ?? item.folder.id })
+        }
+      }
+      continuation = data.continuation
+    } while (continuation)
+
+    return folders
   }, 'canva.list_folders')
 }
 
-/** Listet Assets in einem Canva-Ordner. Throws wenn nicht verbunden oder Ordner nicht erreichbar. */
+/** Listet Assets in einem Canva-Ordner (designs, images, brand_templates). Pagination inklusive. */
 export async function listFolderAssets(folderId: string, userId: string): Promise<CanvaAsset[]> {
   return withRetry(async () => {
     const token = await getValidCanvaToken(userId)
+    const assets: CanvaAsset[] = []
+    let continuation: string | undefined
 
-    const res = await fetch(`${CANVA_API}/folders/${encodeURIComponent(folderId)}/items`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    do {
+      const url = new URL(`${CANVA_API}/folders/${encodeURIComponent(folderId)}/items`)
+      url.searchParams.set('item_types', 'design,image,brand_template')
+      if (continuation) url.searchParams.set('continuation', continuation)
 
-    if (!res.ok) {
-      throw new Error(`Canva Assets HTTP ${res.status}`)
-    }
+      const res = await fetch(url.toString(), {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-    const data = (await res.json()) as FoldersResponse
-    return (data.items ?? [])
-      .filter((it): it is RawFolderItem & { id: string; name: string; type: string } =>
-        typeof it.id === 'string' && typeof it.name === 'string' && typeof it.type === 'string',
-      )
-      .map((it) => ({
-        id: it.id,
-        name: it.name,
-        type: it.type,
-        thumbnailUrl: it.thumbnail?.url,
-      }))
+      if (!res.ok) {
+        throw new Error(`Canva Assets HTTP ${res.status}`)
+      }
+
+      const data = (await res.json()) as CanvaFolderItemsResponse
+      for (const item of data.items ?? []) {
+        const asset = mapCanvaItem(item)
+        if (asset) assets.push(asset)
+      }
+      continuation = data.continuation
+    } while (continuation)
+
+    return assets
   }, 'canva.list_folder_assets')
 }
 

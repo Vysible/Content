@@ -7,8 +7,9 @@ import { logger } from '@/lib/utils/logger'
 export const dynamic = 'force-dynamic'
 
 const STATE_COOKIE = 'canva_oauth_state'
+const VERIFIER_COOKIE = 'canva_oauth_verifier'
 
-/** Canva-OAuth-Callback: prüft State (CSRF), tauscht Code gegen Token, persistiert. */
+/** Canva-OAuth-Callback: prüft State (CSRF), tauscht Code + Verifier gegen Token, persistiert. */
 export async function GET(req: Request) {
   const session = await auth()
   if (!session?.user) {
@@ -22,7 +23,10 @@ export async function GET(req: Request) {
 
   const cookieStore = cookies()
   const stateFromCookie = cookieStore.get(STATE_COOKIE)?.value
-  cookieStore.delete(STATE_COOKIE) // immer löschen, single-use
+  const codeVerifier = cookieStore.get(VERIFIER_COOKIE)?.value
+  // Single-use: beide Cookies sofort löschen
+  cookieStore.delete(STATE_COOKIE)
+  cookieStore.delete(VERIFIER_COOKIE)
 
   if (oauthError) {
     logger.warn({ userId: session.user.id, oauthError }, '[Vysible] Canva-OAuth vom Benutzer abgebrochen')
@@ -35,11 +39,16 @@ export async function GET(req: Request) {
 
   if (!stateFromCookie || stateFromCookie !== stateFromQuery) {
     logger.warn({ userId: session.user.id }, '[Vysible] Canva-OAuth State-Mismatch (CSRF-Verdacht)')
-    return NextResponse.json({ error: 'Invalid state' }, { status: 400 })
+    return NextResponse.redirect(new URL('/settings/canva?error=state_mismatch', req.url))
+  }
+
+  if (!codeVerifier) {
+    logger.warn({ userId: session.user.id }, '[Vysible] Canva-OAuth PKCE-Verifier fehlt')
+    return NextResponse.redirect(new URL('/settings/canva?error=pkce_missing', req.url))
   }
 
   try {
-    const token = await exchangeCodeForToken(code)
+    const token = await exchangeCodeForToken(code, codeVerifier)
     await persistCanvaToken(session.user.id, token)
     return NextResponse.redirect(new URL('/settings/canva?connected=1', req.url))
   } catch (err: unknown) {

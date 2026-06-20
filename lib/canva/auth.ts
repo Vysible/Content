@@ -5,7 +5,7 @@ import { logger } from '@/lib/utils/logger'
 
 export const CANVA_AUTHORIZE_URL = 'https://www.canva.com/api/oauth/authorize'
 export const CANVA_TOKEN_URL = 'https://api.canva.com/rest/v1/oauth/token'
-export const CANVA_SCOPE = 'asset:read design:content:read'
+export const CANVA_SCOPE = 'folder:read asset:read design:meta:read'
 
 // 5-Minuten-Puffer vor Token-Ablauf → vorzeitiger Refresh, um Race-Conditions zu vermeiden
 const REFRESH_BUFFER_MS = 5 * 60 * 1_000
@@ -35,8 +35,8 @@ function getRedirectUri(): string {
   return `${base.replace(/\/$/, '')}/api/canva/oauth/callback`
 }
 
-/** Baut die Authorize-URL für den OAuth-Flow (vom /api/canva/oauth Handler genutzt). */
-export function buildAuthorizeUrl(state: string): string {
+/** Baut die Authorize-URL für den OAuth-Flow (PKCE, RFC 7636). */
+export function buildAuthorizeUrl(state: string, codeChallenge: string): string {
   const { clientId } = requireClientCredentials()
   const params = new URLSearchParams({
     response_type: 'code',
@@ -44,24 +44,29 @@ export function buildAuthorizeUrl(state: string): string {
     redirect_uri: getRedirectUri(),
     scope: CANVA_SCOPE,
     state,
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
   })
   return `${CANVA_AUTHORIZE_URL}?${params.toString()}`
 }
 
 /** Tauscht einen Auth-Code gegen Access-/Refresh-Token. Wird vom Callback-Handler verwendet. */
-export async function exchangeCodeForToken(code: string): Promise<CanvaTokenResponse> {
+export async function exchangeCodeForToken(code: string, codeVerifier: string): Promise<CanvaTokenResponse> {
   const { clientId, clientSecret } = requireClientCredentials()
+  const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
   return withRetry(async () => {
     const res = await fetch(CANVA_TOKEN_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${basicAuth}`,
+      },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         code,
-        client_id: clientId,
-        client_secret: clientSecret,
         redirect_uri: getRedirectUri(),
+        code_verifier: codeVerifier,
       }),
     })
 

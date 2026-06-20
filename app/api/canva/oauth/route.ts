@@ -3,14 +3,16 @@ import { randomUUID } from 'node:crypto'
 import { cookies } from 'next/headers'
 import { auth } from '@/auth'
 import { buildAuthorizeUrl } from '@/lib/canva/auth'
+import { generateCodeVerifier, generateCodeChallenge } from '@/lib/canva/pkce'
 import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
 const STATE_COOKIE = 'canva_oauth_state'
-const STATE_TTL_SECONDS = 600 // 10 Minuten
+const VERIFIER_COOKIE = 'canva_oauth_verifier'
+const TTL_SECONDS = 600 // 10 Minuten
 
-/** Initiiert den Canva-OAuth-Flow. Setzt ein httpOnly-State-Cookie (CSRF) und redirected zu Canva. */
+/** Initiiert den Canva-OAuth-Flow mit PKCE. Setzt httpOnly-Cookies für State + Verifier. */
 export async function GET(req: Request) {
   const session = await auth()
   if (!session?.user) {
@@ -19,16 +21,20 @@ export async function GET(req: Request) {
 
   try {
     const state = randomUUID()
-    const authorizeUrl = buildAuthorizeUrl(state)
+    const codeVerifier = generateCodeVerifier()
+    const codeChallenge = generateCodeChallenge(codeVerifier)
+    const authorizeUrl = buildAuthorizeUrl(state, codeChallenge)
 
     const cookieStore = cookies()
-    cookieStore.set(STATE_COOKIE, state, {
+    const cookieOpts = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: STATE_TTL_SECONDS,
+      sameSite: 'lax' as const,
+      maxAge: TTL_SECONDS,
       path: '/',
-    })
+    }
+    cookieStore.set(STATE_COOKIE, state, cookieOpts)
+    cookieStore.set(VERIFIER_COOKIE, codeVerifier, cookieOpts)
 
     return NextResponse.redirect(authorizeUrl)
   } catch (err: unknown) {

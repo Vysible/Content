@@ -19,7 +19,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
   const PDFParser = mod.default ?? mod
   return new Promise((resolve, reject) => {
     const parser = new PDFParser(null, 1)
-    parser.on('pdfParser_dataError', (err) => {
+    parser.on('pdfParser_dataError', (err: { parserError: unknown }) => {
       const e = err.parserError instanceof Error ? err.parserError : new Error(String(err.parserError))
       reject(e)
     })

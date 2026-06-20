@@ -32,7 +32,7 @@ const STEPS = [
     number: 6,
     title: 'GA4 Property-ID eintragen',
     description:
-      'In Google Analytics: Verwaltung → Property → Property-Details → Property-ID (z. B. 123456789). Hier in das Feld "properties/123456789" eintragen und speichern.',
+      'In Google Analytics: Verwaltung → Property → Property-Details → Property-ID (z. B. 123456789). Nur die Zahl eintragen — ohne "properties/" davor.',
   },
 ]
 

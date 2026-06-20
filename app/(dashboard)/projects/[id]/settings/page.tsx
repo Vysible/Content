@@ -31,6 +31,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
       positioningDocument: true,
       keywords: true,
       themenPool: true,
+      geplantThemen: true,
       canvaFolderId: true,
     },
   })
@@ -85,6 +86,9 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
               projectId={project.id}
               initialKeywords={project.keywords}
               initialThemenPool={project.themenPool ?? ''}
+              initialGeplantThemen={(project.geplantThemen as { monat: string; thema: string }[]) ?? []}
+              planningStart={project.planningStart.toISOString().slice(0, 7)}
+              planningEnd={project.planningEnd.toISOString().slice(0, 7)}
             />
           </div>
         </section>
