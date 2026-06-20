@@ -55,28 +55,28 @@ export async function exchangeCodeForToken(code: string, codeVerifier: string): 
   const { clientId, clientSecret } = requireClientCredentials()
   const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
-  return withRetry(async () => {
-    const res = await fetch(CANVA_TOKEN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${basicAuth}`,
-      },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: getRedirectUri(),
-        code_verifier: codeVerifier,
-      }),
-    })
+  // Kein withRetry — OAuth-Codes sind einmalig, ein Retry würde den Code als verbraucht markieren
+  const res = await fetch(CANVA_TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${basicAuth}`,
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: getRedirectUri(),
+      code_verifier: codeVerifier,
+    }),
+  })
 
-    if (!res.ok) {
-      const detail = await safeReadError(res)
-      throw new Error(`Canva-Token-Exchange fehlgeschlagen: HTTP ${res.status} ${detail}`)
-    }
+  if (!res.ok) {
+    const detail = await safeReadError(res)
+    logger.error({ status: res.status, detail }, '[Vysible] Canva-Token-Exchange HTTP-Fehler')
+    throw new Error(`Canva-Token-Exchange fehlgeschlagen: HTTP ${res.status} — ${detail}`)
+  }
 
-    return (await res.json()) as CanvaTokenResponse
-  }, 'canva.token_exchange')
+  return (await res.json()) as CanvaTokenResponse
 }
 
 /** Speichert (Upsert) das Token-Paar verschlüsselt in der DB. */
@@ -84,14 +84,15 @@ export async function persistCanvaToken(
   userId: string,
   token: CanvaTokenResponse,
 ): Promise<void> {
-  if (!token.refresh_token) {
-    throw new Error('Canva-Token-Response enthält keinen refresh_token')
-  }
-
   const expiresAt = new Date(Date.now() + token.expires_in * 1_000)
   const encryptedAccessToken = encrypt(token.access_token)
-  const encryptedRefreshToken = encrypt(token.refresh_token)
+  // Draft-Apps geben manchmal keinen refresh_token zurück — leerer String als Platzhalter
+  const encryptedRefreshToken = encrypt(token.refresh_token ?? '')
   const scope = token.scope ?? CANVA_SCOPE
+
+  if (!token.refresh_token) {
+    logger.warn({ userId }, '[Vysible] Canva-Token-Response enthält keinen refresh_token — Auto-Refresh nicht möglich')
+  }
 
   await prisma.canvaToken.upsert({
     where: { userId },
@@ -99,7 +100,7 @@ export async function persistCanvaToken(
     create: { userId, encryptedAccessToken, encryptedRefreshToken, expiresAt, scope },
   })
 
-  logger.info({ userId, expiresAt }, '[Vysible] Canva-Token gespeichert')
+  logger.info({ userId, expiresAt, hasRefreshToken: !!token.refresh_token }, '[Vysible] Canva-Token gespeichert')
 }
 
 /**
