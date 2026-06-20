@@ -1,26 +1,18 @@
-import { prisma } from '@/lib/db'
-import { decrypt } from '@/lib/crypto/aes'
+import { loadCredentials } from '@/lib/integrations/store'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
+
+interface WordPressCredentials {
+  url: string
+  username: string
+  appPassword: string
+}
 
 export interface WpDraftResult {
   id: number
   link: string
   status: string
-}
-
-async function getWpCredentials(projectId: string): Promise<{ url: string; credentials: string }> {
-  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { wpUrl: true } })
-  if (!project?.wpUrl) throw new Error('Keine WordPress-URL für dieses Projekt konfiguriert')
-
-  const apiKey = await prisma.apiKey.findFirst({
-    where: { provider: 'WORDPRESS', active: true },
-    orderBy: { createdAt: 'desc' },
-  })
-  if (!apiKey) throw new Error('Kein WordPress API-Key gefunden')
-
-  const credentials = decrypt(apiKey.encryptedKey)
-  return { url: project.wpUrl.replace(/\/$/, ''), credentials }
+  wpUrl: string
 }
 
 export async function createWpDraft(
@@ -29,8 +21,9 @@ export async function createWpDraft(
   content: string,
   excerpt?: string,
 ): Promise<WpDraftResult> {
-  const { url, credentials } = await getWpCredentials(projectId)
-  const authHeader = `Basic ${Buffer.from(credentials).toString('base64')}`
+  const creds = await loadCredentials<WordPressCredentials>(projectId, 'WORDPRESS')
+  const url = creds.url.replace(/\/$/, '')
+  const authHeader = `Basic ${Buffer.from(`${creds.username}:${creds.appPassword}`).toString('base64')}`
   const apiUrl = `${url}/wp-json/wp/v2/posts`
 
   return withRetry(async () => {
@@ -59,7 +52,7 @@ export async function createWpDraft(
 
     const data = (await response.json()) as { id: number; link: string; status: string }
     logger.info({ wpPostId: data.id, wpUrl: url }, '[Vysible] WordPress Draft erstellt')
-    return { id: data.id, link: data.link, status: data.status }
+    return { id: data.id, link: data.link, status: data.status, wpUrl: url }
   }, 'wordpress.create_draft')
 }
 

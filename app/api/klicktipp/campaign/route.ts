@@ -1,5 +1,6 @@
 import { requireAuth } from '@/lib/auth/session'
 import { loadKtCredentials, createKlickTippCampaign } from '@/lib/klicktipp/client'
+import { getIntegration } from '@/lib/integrations/store'
 import { formatForKlickTipp } from '@/lib/klicktipp/newsletter-formatter'
 import { sendNotification } from '@/lib/email/mailer'
 import { prisma } from '@/lib/db'
@@ -79,13 +80,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Kein KlickTipp API-Key konfiguriert' }, { status: 400 })
   }
 
-  const apiKey = await prisma.apiKey.findFirst({
-    where: { provider: 'KLICKTIPP', active: true },
-    select: { model: true },
-    orderBy: { createdAt: 'desc' },
-  })
-
-  const listId = project.ktListId ?? apiKey?.model ?? ''
+  const integration = await getIntegration(projectId, 'KLICKTIPP')
+  const listId = integration.config?.listId ?? project.ktListId ?? ''
   if (!listId) {
     return NextResponse.json(
       { error: 'Keine KlickTipp Listen-ID konfiguriert (Projekt oder globale Einstellungen)' },

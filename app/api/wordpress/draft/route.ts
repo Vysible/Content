@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    select: { name: true, hwgFlag: true, wpUrl: true },
+    select: { name: true, hwgFlag: true },
   })
 
   if (!project) {
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     projectId: projectId,
     userId:    session.user.id,
     userEmail: session.user.email ?? undefined,
-    meta:      { wpPostId: draft.id, wpUrl: project.wpUrl },
+    meta:      { wpPostId: draft.id, wpUrl: draft.wpUrl },
   })
 
   await sendNotification(
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     logger.warn({ err, projectId }, '[Vysible] E-Mail-Benachrichtigung für WordPress-Draft fehlgeschlagen')
   })
 
-  const editUrl = `${project.wpUrl?.replace(/\/$/, '')}/wp-admin/post.php?post=${draft.id}&action=edit`
+  const editUrl = `${draft.wpUrl}/wp-admin/post.php?post=${draft.id}&action=edit`
 
   return NextResponse.json({ wpPostId: draft.id, editUrl, link: draft.link })
 }

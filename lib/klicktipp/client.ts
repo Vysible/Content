@@ -1,5 +1,4 @@
-import { prisma } from '@/lib/db'
-import { decrypt } from '@/lib/crypto/aes'
+import { loadCredentials } from '@/lib/integrations/store'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
 
@@ -20,22 +19,9 @@ export interface KtCampaignResult {
   editUrl: string
 }
 
-export async function loadKtCredentials(projectId?: string): Promise<string> {
-  if (projectId) {
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { ktApiKey: { select: { encryptedKey: true, active: true } } },
-    })
-    if (project?.ktApiKey?.active) {
-      return decrypt(project.ktApiKey.encryptedKey)
-    }
-  }
-  const apiKey = await prisma.apiKey.findFirst({
-    where: { provider: 'KLICKTIPP', active: true },
-    orderBy: { createdAt: 'desc' },
-  })
-  if (!apiKey) throw new Error('Kein KlickTipp API-Key gefunden')
-  return decrypt(apiKey.encryptedKey)
+export async function loadKtCredentials(projectId: string): Promise<string> {
+  const creds = await loadCredentials<{ username: string; password: string }>(projectId, 'KLICKTIPP')
+  return `${creds.username}:${creds.password}`
 }
 
 async function ktLogin(username: string, password: string): Promise<string> {
