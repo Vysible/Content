@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { StoredTextResult, CustomerApproval } from '@/lib/generation/results-store'
+import type { GA4Metrics } from '@/lib/ga4/client'
+import type { GoogleAdsMetrics } from '@/lib/google-ads/client'
 
 interface PortalItem {
   globalIndex: number
@@ -15,6 +17,8 @@ interface Props {
   praxisName: string
   expiresAt: string
   portalItems: PortalItem[]
+  ga4: GA4Metrics | null
+  googleAds: GoogleAdsMetrics | null
 }
 
 interface LocalState {
@@ -59,7 +63,27 @@ function LinkedInMockup({ text, praxisName }: { text: string; praxisName: string
   )
 }
 
-export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems }: Props) {
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="bg-white border border-stone rounded-xl p-5">
+      <p className="text-xs font-medium text-stahlgrau mb-1">{label}</p>
+      <p className="text-2xl font-bold text-nachtblau">
+        {typeof value === 'number' ? value.toLocaleString('de-DE') : value}
+      </p>
+    </div>
+  )
+}
+
+function MiniBar({ value, max }: { value: number; max: number }) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0
+  return (
+    <div className="w-full bg-stone/40 rounded-full h-2 mt-1">
+      <div className="bg-nachtblau h-2 rounded-full" style={{ width: `${pct}%` }} />
+    </div>
+  )
+}
+
+export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, ga4, googleAds }: Props) {
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
@@ -314,6 +338,123 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
             </div>
           )
         })}
+        {/* Analytics */}
+        {(ga4 || googleAds) && (
+          <section className="space-y-6">
+            <div className="border-t border-stone pt-6">
+              <h2 className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-6">
+                Analysen — letzte 28 Tage
+              </h2>
+
+              {ga4 && (
+                <div className="space-y-4 mb-8">
+                  <h3 className="text-sm font-semibold text-nachtblau">Website-Analytics (Google Analytics)</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <StatCard label="Sessions" value={ga4.sessions} />
+                    <StatCard label="Nutzer" value={ga4.users} />
+                    <StatCard label="Seitenaufrufe" value={ga4.pageviews} />
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {ga4.topPages.length > 0 && (
+                      <div className="bg-white border border-stone rounded-xl p-5">
+                        <h4 className="text-sm font-semibold text-nachtblau mb-4">Top-Seiten</h4>
+                        <div className="space-y-3">
+                          {ga4.topPages.map((page) => {
+                            const max = Math.max(...ga4.topPages.map((p) => p.views), 1)
+                            return (
+                              <div key={page.page}>
+                                <div className="flex justify-between items-baseline">
+                                  <span className="text-xs text-stahlgrau truncate max-w-[70%]" title={page.page}>{page.page}</span>
+                                  <span className="text-xs font-medium text-nachtblau ml-2">{page.views.toLocaleString('de-DE')}</span>
+                                </div>
+                                <MiniBar value={page.views} max={max} />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {ga4.trafficSources.length > 0 && (
+                      <div className="bg-white border border-stone rounded-xl p-5">
+                        <h4 className="text-sm font-semibold text-nachtblau mb-4">Traffic-Quellen</h4>
+                        <div className="space-y-3">
+                          {ga4.trafficSources.map((source) => {
+                            const max = Math.max(...ga4.trafficSources.map((s) => s.sessions), 1)
+                            return (
+                              <div key={source.source}>
+                                <div className="flex justify-between items-baseline">
+                                  <span className="text-xs text-stahlgrau">{source.source}</span>
+                                  <span className="text-xs font-medium text-nachtblau ml-2">{source.sessions.toLocaleString('de-DE')}</span>
+                                </div>
+                                <MiniBar value={source.sessions} max={max} />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {ga4.dailySessions.length > 0 && (
+                    <div className="bg-white border border-stone rounded-xl p-5">
+                      <h4 className="text-sm font-semibold text-nachtblau mb-4">Sessions-Verlauf</h4>
+                      <div className="flex items-end gap-1 h-24">
+                        {ga4.dailySessions.map((day) => {
+                          const max = Math.max(...ga4.dailySessions.map((d) => d.sessions), 1)
+                          const heightPct = Math.max(4, Math.round((day.sessions / max) * 100))
+                          return (
+                            <div
+                              key={day.date}
+                              className="flex-1 bg-nachtblau/60 hover:bg-nachtblau rounded-sm transition-all cursor-default"
+                              style={{ height: `${heightPct}%` }}
+                              title={`${day.date}: ${day.sessions.toLocaleString('de-DE')} Sessions`}
+                            />
+                          )
+                        })}
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span className="text-xs text-stahlgrau">{ga4.dailySessions[0]?.date}</span>
+                        <span className="text-xs text-stahlgrau">{ga4.dailySessions[ga4.dailySessions.length - 1]?.date}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {googleAds && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-nachtblau">Google Ads</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <StatCard label="Werbeausgaben" value={`€ ${googleAds.totalSpend.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+                    <StatCard label="Klicks" value={googleAds.totalClicks} />
+                    <StatCard label="Impressionen" value={googleAds.totalImpressions} />
+                    <StatCard label="Conversions" value={googleAds.totalConversions} />
+                  </div>
+
+                  {googleAds.campaigns.length > 0 && (
+                    <div className="bg-white border border-stone rounded-xl p-5">
+                      <h4 className="text-sm font-semibold text-nachtblau mb-4">Kampagnen</h4>
+                      <div className="space-y-3">
+                        {googleAds.campaigns.map((c) => (
+                          <div key={c.name} className="flex items-center justify-between gap-4 py-2 border-b border-stone/40 last:border-0">
+                            <span className="text-sm text-nachtblau font-medium truncate">{c.name}</span>
+                            <div className="flex gap-4 text-xs text-stahlgrau shrink-0">
+                              <span>€ {c.spend.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              <span>{c.clicks.toLocaleString('de-DE')} Klicks</span>
+                              <span>{(c.ctr * 100).toFixed(2)} % CTR</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   )
