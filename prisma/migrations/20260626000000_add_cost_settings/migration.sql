@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "CostSettings" (
+CREATE TABLE IF NOT EXISTS "CostSettings" (
     "id" TEXT NOT NULL,
     "monthlyAlertEur" DOUBLE PRECISION NOT NULL DEFAULT 50.0,
     "alertEnabled" BOOLEAN NOT NULL DEFAULT true,

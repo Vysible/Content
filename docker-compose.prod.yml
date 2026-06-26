@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    hostname: vysible-app
     environment:
       DATABASE_URL: ${DATABASE_URL}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
@@ -16,6 +17,12 @@ services:
           memory: 1024m
         reservations:
           memory: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     depends_on:
       playwright:
         condition: service_started
