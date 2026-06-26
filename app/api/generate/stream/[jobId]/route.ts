@@ -39,6 +39,16 @@ export async function GET(req: Request, { params }: { params: { jobId: string } 
         return
       }
 
+      // Keepalive-Ping alle 20s — verhindert Nginx/Traefik proxy_read_timeout (default 60s)
+      // SSE-Kommentare sind für EventSource unsichtbar, halten aber die Verbindung offen.
+      const keepalive = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(': keepalive\n\n'))
+        } catch {
+          clearInterval(keepalive)
+        }
+      }, 20_000)
+
       const onEvent = (event: GenerationEvent) => {
         try {
           controller.enqueue(encoder.encode(formatSSE(event)))
@@ -47,6 +57,7 @@ export async function GET(req: Request, { params }: { params: { jobId: string } 
         }
 
         if (event.type === 'texts_done' || event.type === 'error') {
+          clearInterval(keepalive)
           emitter.off('event', onEvent)
           try {
             controller.close()
@@ -60,6 +71,7 @@ export async function GET(req: Request, { params }: { params: { jobId: string } 
 
       req.signal.addEventListener('abort', () => {
         logger.info({ jobId }, '[Vysible] SSE-Verbindung geschlossen (Client-Disconnect)')
+        clearInterval(keepalive)
         emitter.off('event', onEvent)
         try {
           controller.close()
