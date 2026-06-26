@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db'
 
 const TEST_SECRET = 'a'.repeat(64)
@@ -15,7 +16,7 @@ vi.mock('@/lib/audit/logger', () => ({
 }))
 
 function makeRequest(body: Record<string, unknown>) {
-  return new Request('http://localhost/api/projects', {
+  return new NextRequest('http://localhost/api/projects', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
