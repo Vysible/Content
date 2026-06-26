@@ -27,7 +27,7 @@ export default function CostBreakdownTable({ projects }: Props) {
   }, [projects])
 
   if (loading) {
-    return <p className="text-sm text-gray-500">Lade Kosten...</p>
+    return <p className="text-sm text-stahlgrau">Lade Kosten...</p>
   }
 
   const handleDownloadCsv = async (projectId: string) => {
@@ -44,32 +44,32 @@ export default function CostBreakdownTable({ projects }: Props) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-stone">
+        <thead className="bg-stone/30">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Projekt</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monat aktuell</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Gesamt</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ø/Paket</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Generierungen</th>
-            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">CSV</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-stahlgrau uppercase">Projekt</th>
+            <th className="px-4 py-3 text-right text-xs font-medium text-stahlgrau uppercase">Monat aktuell</th>
+            <th className="px-4 py-3 text-right text-xs font-medium text-stahlgrau uppercase">Gesamt</th>
+            <th className="px-4 py-3 text-right text-xs font-medium text-stahlgrau uppercase">Ø/Paket</th>
+            <th className="px-4 py-3 text-right text-xs font-medium text-stahlgrau uppercase">Generierungen</th>
+            <th className="px-4 py-3 text-center text-xs font-medium text-stahlgrau uppercase">CSV</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-stone/50">
           {projects.map((p) => {
             const s = summaries[p.id]
             if (!s) return null
             return (
               <tr key={p.id}>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">{p.name}</td>
-                <td className="px-4 py-3 text-sm text-right text-gray-700">{s.currentMonthEur.toFixed(2)} €</td>
-                <td className="px-4 py-3 text-sm text-right text-gray-700">{s.totalEur.toFixed(2)} €</td>
-                <td className="px-4 py-3 text-sm text-right text-gray-700">{s.avgPerPackage.toFixed(2)} €</td>
-                <td className="px-4 py-3 text-sm text-right text-gray-500">{s.generationCount}</td>
+                <td className="px-4 py-3 text-sm font-medium text-nachtblau">{p.name}</td>
+                <td className="px-4 py-3 text-sm text-right text-anthrazit">{s.currentMonthEur.toFixed(2)} €</td>
+                <td className="px-4 py-3 text-sm text-right text-anthrazit">{s.totalEur.toFixed(2)} €</td>
+                <td className="px-4 py-3 text-sm text-right text-anthrazit">{s.avgPerPackage.toFixed(2)} €</td>
+                <td className="px-4 py-3 text-sm text-right text-stahlgrau">{s.generationCount}</td>
                 <td className="px-4 py-3 text-center">
                   <button
                     onClick={() => void handleDownloadCsv(p.id)}
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    className="text-sm text-nachtblau hover:text-tiefblau underline"
                   >
                     Download
                   </button>

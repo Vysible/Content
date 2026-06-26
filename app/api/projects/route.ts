@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { writeAuditLog } from '@/lib/audit/logger'
+import { encrypt } from '@/lib/crypto/aes'
 
 const createSchema = z.object({
   name: z.string().min(1).max(200),
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
       planningStart: new Date(data.planningStart),
       planningEnd: new Date(data.planningEnd),
       channels: data.channels,
-      positioningDocument: data.positioningDocument ?? null,
+      positioningDocument: data.positioningDocument ? encrypt(data.positioningDocument) : null,
       themenPool: data.themenPool ?? null,
       keywords: data.keywords,
       canvaFolderId: data.canvaFolderId ?? null,

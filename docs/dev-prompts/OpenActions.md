@@ -27,7 +27,7 @@ Neue Indexes: `Project[createdById, updatedAt]`, `CostEntry[projectId, timestamp
 > Vor erstem produktivem Einsatz zwingend durchführen.
 
 **Manuelle Vorab-Aktion (einmalig):**
-1. KlickTipp-Credentials in Vysible hinterlegen: `/settings/klicktipp`
+1. KlickTipp-Credentials in Vysible hinterlegen: Projekt → Einstellungen → Integrationen → KlickTipp
 2. Verbindungstest klicken → `[OK] Verbunden` bestätigt Session-Auth funktioniert.
 3. Eine Test-Kampagne mit einem echten Newsletter anlegen → KT-Kampagnen-ID
    erscheint im Ergebnis + Link zur KT-Bearbeitungsseite ist klickbar.
@@ -154,28 +154,23 @@ Neue Indexes: `Project[createdById, updatedAt]`, `CostEntry[projectId, timestamp
 > Aus `docs/audit-2026-05-16.md`. Kein Sicherheits- oder Compliance-Blocker,
 > aber relevant für Produktionsqualität und Skalierbarkeit.
 
-11. **FIX-07 — Test-Coverage zu gering (NFA-16 partiell)**
+11. **FIX-07 — Test-Coverage erweitert (NFA-16 partiell)**
 
-    Sprint-Prompt: `docs/dev-prompts/audit-2026-05-16.md` (Abschnitt FIX-07).
-    Fehlt:
-    - E2E URL→ZIP-Flow (war in roadmap Sprint 2 geplant, nur `login.spec.ts` vorhanden)
-    - Unit-Tests: Chat-Versioning, Cost-Aggregator, Export-Dateinamen, Template-Loader, WP-Formatter, KT-Formatter, Email-Templates
-    - Integration-Tests: weitere API-Routen außer `/api/generate/start`
+    Erledigt (2026-06-26): `decryptIfEncrypted`, `integrations/store`, `projects/create`, `projects/settings`. 79 Tests grün.
 
-    Aufwand: 3–5 Tage. Empfehlung: als eigenen Sprint planen.
+    Noch offen (niedrige Priorität):
+    - E2E URL→ZIP-Flow
+    - Unit-Tests: Chat-Versioning, Cost-Aggregator, Export-Dateinamen, WP/KT-Formatter, Email-Templates
 
 12. ~~**FIX-08 — Audit-Log-Retention fehlt**~~ **✅ Erledigt (2026-05-16)**
 
     Cron täglich 03:00 in `lib/cron/scheduler.ts` — löscht `AuditLog`-Einträge älter als 30 Tage.
     Konfigurierbar via `AUDIT_LOG_RETENTION_DAYS` (Standard: 30). `.env.example` ergänzt.
 
-13. **FIX-09 — `positioningDocument` unverschlüsselt in DB (bekannte Abweichung)**
+13. ~~**FIX-09 — `positioningDocument` unverschlüsselt in DB**~~ **✅ Erledigt (2026-06-26)**
 
-    `Project.positioningDocument String?` — Klartext in PostgreSQL.
-    Kann Praxis-sensible Strategieinformationen enthalten.
-    Bereits in `docs/forge-web-deviations.md` als bekannte Abweichung dokumentiert.
-    Sprint-Prompt: `docs/dev-prompts/sprint-fix06-aes-version-prefix.md` als Vorlage (gleiche AES-Mechanik).
-    Empfehlung: nach FIX-06 (AES-Versions-Präfix) angehen — gleiche Migrations-Infrastruktur.
+    `encrypt()` auf allen Write-Pfaden + `decryptIfEncrypted()` auf allen Read-Pfaden.
+    Transparenter Legacy-Fallback via `v1:`-Präfix. Keine DB-Migration nötig.
 
 14. **FIX-10 — In-Memory-Queue + In-Memory-Rate-Limiter**
 

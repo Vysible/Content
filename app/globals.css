@@ -3,11 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --color-nachtblau: #0F1E35;
-  --color-tiefblau: #1C3560;
-  --color-cognac: #C47830;
+  --color-nachtblau: #111111;
+  --color-tiefblau: #1a1a1a;
+  --color-brombeer: #E5E4F0;
+  --color-bordeaux: #7A2D42;
   --color-creme: #F6F1E9;
+  --color-stone: #E8E2D8;
   --color-anthrazit: #2D3748;
+  --color-stahlgrau: #5A6478;
 }
 
 html,

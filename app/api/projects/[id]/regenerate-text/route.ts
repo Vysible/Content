@@ -10,6 +10,7 @@ import { buildContext } from '@/lib/ai/context-builder'
 import { logger } from '@/lib/utils/logger'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { StoredTextResult } from '@/lib/generation/results-store'
+import { decryptIfEncrypted } from '@/lib/crypto/aes'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,7 +60,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
       try {
         const { systemContext: positioningContext } = buildContext({
-          positioningDocument: project.positioningDocument ?? undefined,
+          positioningDocument: decryptIfEncrypted(project.positioningDocument) ?? undefined,
           keywords: project.keywords,
           themenPool: project.themenPool ?? undefined,
         })

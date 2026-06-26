@@ -46,6 +46,59 @@ function AnspracheToggle({ value, onChange }: { value: 'Du' | 'Sie'; onChange: (
   )
 }
 
+function AnalyticsSection({ data, onChange }: { data: WizardData; onChange: (u: Partial<WizardData>) => void }) {
+  const [open, setOpen] = useState(false)
+  const hasValues = !!(data.ga4PropertyId || data.googleAdsCustomerId)
+  return (
+    <div className="border border-stone rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-anthrazit hover:bg-stone/30 transition"
+      >
+        <span>
+          Analytics-Verknüpfung
+          {hasValues && <span className="ml-2 inline-block w-2 h-2 rounded-full bg-nachtblau align-middle" />}
+        </span>
+        <span className="text-stahlgrau text-xs">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-4 border-t border-stone/50 pt-4">
+          <p className="text-xs text-stahlgrau">
+            Optional — kann auch später in den Projekteinstellungen eingetragen werden. Aktiviert Analytics-Daten im Kundenportal.
+          </p>
+          <div>
+            <label className="block text-xs font-medium text-anthrazit mb-1">
+              GA4 Property ID <span className="text-stahlgrau font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={data.ga4PropertyId}
+              onChange={(e) => onChange({ ga4PropertyId: e.target.value })}
+              placeholder="properties/123456789"
+              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
+            />
+            <p className="mt-1 text-xs text-stahlgrau">Aus GA4 → Verwaltung → Property-Details.</p>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-anthrazit mb-1">
+              Google Ads Customer-ID <span className="text-stahlgrau font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={data.googleAdsCustomerId}
+              onChange={(e) => onChange({ googleAdsCustomerId: e.target.value })}
+              placeholder="123-456-7890"
+              className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
+            />
+            <p className="mt-1 text-xs text-stahlgrau">Aus Google Ads oben rechts.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function Step3Context({
   data,
   onChange,
@@ -252,39 +305,8 @@ export function Step3Context({
         onChange={(folderId, folderName) => onChange({ canvaFolderId: folderId, canvaFolderName: folderName })}
       />
 
-      {/* GA4 Property ID */}
-      <div>
-        <label className="block text-xs font-medium text-anthrazit mb-1">
-          GA4 Property ID <span className="text-stahlgrau font-normal">(optional)</span>
-        </label>
-        <input
-          type="text"
-          value={data.ga4PropertyId}
-          onChange={(e) => onChange({ ga4PropertyId: e.target.value })}
-          placeholder="properties/123456789"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
-        />
-        <p className="mt-1 text-xs text-stahlgrau">
-          Aus GA4 → Verwaltung → Property-Details. Kann auch später in den Projekteinstellungen eingetragen werden.
-        </p>
-      </div>
-
-      {/* Google Ads Customer-ID */}
-      <div>
-        <label className="block text-xs font-medium text-anthrazit mb-1">
-          Google Ads Customer-ID <span className="text-stahlgrau font-normal">(optional)</span>
-        </label>
-        <input
-          type="text"
-          value={data.googleAdsCustomerId}
-          onChange={(e) => onChange({ googleAdsCustomerId: e.target.value })}
-          placeholder="123-456-7890"
-          className="w-full px-3 py-2 text-sm border border-stone rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux"
-        />
-        <p className="mt-1 text-xs text-stahlgrau">
-          Aus Google Ads oben rechts. Kann auch später in den Projekteinstellungen eingetragen werden.
-        </p>
-      </div>
+      {/* Analytics — collapsible */}
+      <AnalyticsSection data={data} onChange={onChange} />
 
       <div className="flex justify-between pt-2">
         <button onClick={onBack} className="px-4 py-2 text-sm text-stahlgrau hover:text-anthrazit transition">

@@ -20,14 +20,16 @@ export async function withRetry<T>(
     try {
       return await fn()
     } catch (exc: unknown) {
-      // Permanent 4xx (not 429) — no retry
-      if (
-        exc instanceof Response &&
-        exc.status >= 400 &&
-        exc.status < 500 &&
-        exc.status !== 429
-      ) {
-        logger.error({ context, status: exc.status }, 'Permanent HTTP error — no retry')
+      // Permanent 4xx (not 429) — no retry.
+      // Prüft sowohl fetch Response als auch Anthropic APIError (hat .status-Property).
+      const httpStatus =
+        exc instanceof Response
+          ? exc.status
+          : typeof (exc as { status?: unknown }).status === 'number'
+            ? (exc as { status: number }).status
+            : undefined
+      if (httpStatus && httpStatus >= 400 && httpStatus < 500 && httpStatus !== 429) {
+        logger.error({ context, status: httpStatus }, 'Permanent HTTP error — no retry')
         throw exc
       }
 

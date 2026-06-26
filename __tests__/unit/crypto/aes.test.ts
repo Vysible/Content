@@ -67,3 +67,37 @@ describe('AES-256-GCM encrypt/decrypt', () => {
     expect(() => decrypt('v2:aabbcc:ddeeff:001122')).toThrow('noch nicht implementiert')
   })
 })
+
+describe('decryptIfEncrypted', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.stubEnv('ENCRYPTION_SECRET', TEST_SECRET)
+  })
+
+  it('gibt null für null zurück', async () => {
+    const { decryptIfEncrypted } = await import('@/lib/crypto/aes')
+    expect(decryptIfEncrypted(null)).toBeNull()
+  })
+
+  it('gibt null für undefined zurück', async () => {
+    const { decryptIfEncrypted } = await import('@/lib/crypto/aes')
+    expect(decryptIfEncrypted(undefined)).toBeNull()
+  })
+
+  it('gibt null für leeren String zurück', async () => {
+    const { decryptIfEncrypted } = await import('@/lib/crypto/aes')
+    expect(decryptIfEncrypted('')).toBeNull()
+  })
+
+  it('entschlüsselt v1-verschlüsselte Werte', async () => {
+    const { encrypt, decryptIfEncrypted } = await import('@/lib/crypto/aes')
+    const plain = 'Positionierungsdokument Inhalt'
+    expect(decryptIfEncrypted(encrypt(plain))).toBe(plain)
+  })
+
+  it('gibt Klartext unverändert zurück (Legacy-Fallback)', async () => {
+    const { decryptIfEncrypted } = await import('@/lib/crypto/aes')
+    const plain = 'Kein Präfix, alter Datensatz'
+    expect(decryptIfEncrypted(plain)).toBe(plain)
+  })
+})

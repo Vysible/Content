@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/auth/session'
 import { listSessions, fetchTranscript, generatePositioningFromTranscript } from '@/lib/hedy/client'
 import { prepareTranscriptForPrompt } from '@/lib/hedy/transcript-parser'
 import { prisma } from '@/lib/db'
-import { decrypt } from '@/lib/crypto/aes'
+import { decrypt, encrypt } from '@/lib/crypto/aes'
 import { logger } from '@/lib/utils/logger'
 
 export async function GET(req: NextRequest) {
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     if (projectId) {
       await prisma.project.update({
         where: { id: projectId },
-        data: { positioningDocument: document },
+        data: { positioningDocument: encrypt(document) },
       })
     }
 

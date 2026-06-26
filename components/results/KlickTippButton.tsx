@@ -66,7 +66,7 @@ export function KlickTippButton({
       <button
         disabled
         className="px-3 py-1.5 text-xs bg-stone/50 text-stahlgrau rounded-lg opacity-60 cursor-not-allowed"
-        title="KlickTipp nicht konfiguriert — /settings/klicktipp"
+        title="KlickTipp nicht konfiguriert — Projekt → Einstellungen → Integrationen"
       >
         KT-Kampagne (nicht konfiguriert)
       </button>

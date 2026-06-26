@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { logger } from '@/lib/utils/logger'
 import { z } from 'zod'
+import { encrypt } from '@/lib/crypto/aes'
 
 const schema = z.object({
   name: z.string().min(1).optional(),
@@ -55,7 +56,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       return new Date(y, m, 0) // last day of month
     })()
     if (d.channelQuantities !== undefined) updateData.channelQuantities = d.channelQuantities ?? null
-    if (d.positioningDocument !== undefined) updateData.positioningDocument = d.positioningDocument
+    if (d.positioningDocument !== undefined) updateData.positioningDocument = d.positioningDocument ? encrypt(d.positioningDocument) : null
     if (d.keywords !== undefined) updateData.keywords = d.keywords
     if (d.themenPool !== undefined) updateData.themenPool = d.themenPool
     if (d.geplantThemen !== undefined) updateData.geplantThemen = d.geplantThemen

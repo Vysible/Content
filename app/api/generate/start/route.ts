@@ -6,6 +6,7 @@ import { tryEnqueue } from '@/lib/generation/queue'
 import { rateLimit } from '@/lib/ratelimit'
 import { writeAuditLog } from '@/lib/audit/logger'
 import { NextResponse } from 'next/server'
+import { decryptIfEncrypted } from '@/lib/crypto/aes'
 
 export async function POST(req: Request) {
   const session = await requireAuth()
@@ -53,7 +54,11 @@ export async function POST(req: Request) {
     meta:      { jobId: job.id, channels: project.channels },
   })
 
-  await tryEnqueue(job.id, () => runGenerationPipeline(job.id, project))
+  const projectForPipeline = {
+    ...project,
+    positioningDocument: decryptIfEncrypted(project.positioningDocument),
+  }
+  await tryEnqueue(job.id, () => runGenerationPipeline(job.id, projectForPipeline))
 
   return NextResponse.json({ jobId: job.id })
 }

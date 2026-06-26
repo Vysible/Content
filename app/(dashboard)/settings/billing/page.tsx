@@ -21,39 +21,39 @@ export default async function BillingPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Kosten & Abrechnung</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl font-bold text-nachtblau mb-1">Kosten & Abrechnung</h1>
+        <p className="text-sm text-stahlgrau">
           Übersicht aller KI-Kosten, Marge-Kalkulation und Schwellwert-Konfiguration
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm font-medium text-gray-500">Gesamtkosten (kumuliert)</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{kpis.totalCostEur.toFixed(2)} €</p>
+        <div className="bg-white rounded-xl border border-stone p-6">
+          <p className="text-sm font-medium text-stahlgrau">Gesamtkosten (kumuliert)</p>
+          <p className="mt-2 text-3xl font-bold text-nachtblau">{kpis.totalCostEur.toFixed(2)} €</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm font-medium text-gray-500">Laufender Monat</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{kpis.currentMonthEur.toFixed(2)} €</p>
+        <div className="bg-white rounded-xl border border-stone p-6">
+          <p className="text-sm font-medium text-stahlgrau">Laufender Monat</p>
+          <p className="mt-2 text-3xl font-bold text-nachtblau">{kpis.currentMonthEur.toFixed(2)} €</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm font-medium text-gray-500">Ø Kosten pro Content-Paket</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{kpis.avgCostPerPackage.toFixed(2)} €</p>
+        <div className="bg-white rounded-xl border border-stone p-6">
+          <p className="text-sm font-medium text-stahlgrau">Ø Kosten pro Content-Paket</p>
+          <p className="mt-2 text-3xl font-bold text-nachtblau">{kpis.avgCostPerPackage.toFixed(2)} €</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Kosten pro Projekt</h2>
+      <div className="bg-white rounded-xl border border-stone p-6">
+        <h2 className="text-base font-semibold text-nachtblau mb-4">Kosten pro Projekt</h2>
         <CostBreakdownTable projects={projects} />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Marge-Kalkulation</h2>
+      <div className="bg-white rounded-xl border border-stone p-6">
+        <h2 className="text-base font-semibold text-nachtblau mb-4">Marge-Kalkulation</h2>
         <MarginCalculator avgCostPerPackage={kpis.avgCostPerPackage} />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Schwellwert-Konfiguration</h2>
+      <div className="bg-white rounded-xl border border-stone p-6">
+        <h2 className="text-base font-semibold text-nachtblau mb-4">Schwellwert-Konfiguration</h2>
         <CostThresholdConfig />
       </div>
     </div>

@@ -19,6 +19,7 @@ interface Props {
   portalItems: PortalItem[]
   ga4: GA4Metrics | null
   googleAds: GoogleAdsMetrics | null
+  showAnalytics?: boolean
 }
 
 interface LocalState {
@@ -83,7 +84,7 @@ function MiniBar({ value, max }: { value: number; max: number }) {
   )
 }
 
-export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, ga4, googleAds }: Props) {
+export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, ga4, googleAds, showAnalytics }: Props) {
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
@@ -196,20 +197,44 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
     )
   }
 
+  const approvedCount = Object.values(localStates).filter((s) => s.status === 'approved').length
+  const totalCount = portalItems.length
+
   return (
     <div className="min-h-screen bg-creme">
       <header className="sticky top-0 z-10 bg-nachtblau text-creme">
-        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Vysible" width={28} height={28} className="object-contain opacity-90" />
-            <span className="text-xs font-semibold tracking-widest uppercase opacity-50">Kundenportal</span>
-            <span className="text-sm font-bold">{praxisName}</span>
+        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Image src="/logo.png" alt="Vysible" width={28} height={28} className="object-contain opacity-90 flex-shrink-0" />
+            <span className="text-xs font-semibold tracking-widest uppercase opacity-50 hidden sm:block">Kundenportal</span>
+            <span className="text-sm font-bold truncate">{praxisName}</span>
           </div>
-          <p className="text-xs opacity-40 hidden sm:block">{projectName}</p>
+          <p className="text-xs opacity-60 truncate">{projectName}</p>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-10">
+      <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+        {/* Intro + progress */}
+        {totalCount > 0 && (
+          <div className="bg-white rounded-xl border border-stone p-5 space-y-3">
+            <p className="text-sm text-anthrazit">
+              Bitte prüfen Sie die folgenden Inhalte und geben Sie diese frei oder teilen Sie uns Ihre Änderungswünsche mit.
+              Freigegebene Inhalte werden direkt veröffentlicht.
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 bg-stone/40 rounded-full h-2">
+                <div
+                  className="bg-nachtblau h-2 rounded-full transition-all"
+                  style={{ width: totalCount > 0 ? `${Math.round((approvedCount / totalCount) * 100)}%` : '0%' }}
+                />
+              </div>
+              <span className="text-xs font-semibold text-nachtblau whitespace-nowrap">
+                {approvedCount} von {totalCount} freigegeben
+              </span>
+            </div>
+          </div>
+        )}
+
         {portalItems.length === 0 && (
           <div className="bg-white rounded-xl border border-stone p-8 text-center">
             <p className="text-sm text-stahlgrau">Keine Inhalte zur Freigabe vorhanden.</p>
@@ -339,12 +364,18 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
           )
         })}
         {/* Analytics */}
-        {(ga4 || googleAds) && (
+        {(showAnalytics || ga4 || googleAds) && (
           <section className="space-y-6">
             <div className="border-t border-stone pt-6">
               <h2 className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-6">
                 Analysen — letzte 28 Tage
               </h2>
+              {!ga4 && !googleAds && (
+                <div className="bg-white rounded-xl border border-stone p-5 text-center">
+                  <p className="text-sm text-stahlgrau">Noch keine Analysedaten verfügbar.</p>
+                  <p className="text-xs text-stahlgrau mt-1 opacity-70">Die Daten erscheinen hier, sobald GA4 oder Google Ads verbunden sind.</p>
+                </div>
+              )}
 
               {ga4 && (
                 <div className="space-y-4 mb-8">
