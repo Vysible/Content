@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
+import { decryptIfEncrypted } from '@/lib/crypto/aes'
 import { Header } from '@/components/layout/header'
 import { ProjectGA4Settings } from './ProjectGA4Settings'
 import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
@@ -80,7 +81,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
           <div className="space-y-4">
             <ProjectPositioningSettings
               projectId={project.id}
-              initialDocument={project.positioningDocument ?? ''}
+              initialDocument={decryptIfEncrypted(project.positioningDocument) ?? ''}
             />
             <ProjectContentSettings
               projectId={project.id}

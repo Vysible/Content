@@ -22,6 +22,14 @@ export function encrypt(plaintext: string): string {
   return `v1:${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`
 }
 
+export function decryptIfEncrypted(value: string | null | undefined): string | null {
+  if (!value) return null
+  if (value.startsWith('v1:') || value.startsWith('v2:')) {
+    return decrypt(value)
+  }
+  return value
+}
+
 export function decrypt(ciphertext: string): string {
   let ivHex: string, tagHex: string, dataHex: string
 

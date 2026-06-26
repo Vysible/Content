@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth/session'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
+import { decryptIfEncrypted } from '@/lib/crypto/aes'
 import Link from 'next/link'
 import { GenerateSection } from './GenerateSection'
 import { ReviewPanel } from '@/components/project/ReviewPanel'
@@ -98,7 +99,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
           />
           <ProjectPositioningSettings
             projectId={project.id}
-            initialDocument={project.positioningDocument ?? ''}
+            initialDocument={decryptIfEncrypted(project.positioningDocument) ?? ''}
           />
           <ProjectContentSettings
             projectId={project.id}
