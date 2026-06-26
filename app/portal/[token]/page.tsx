@@ -74,6 +74,7 @@ export default async function PortalPage({ params }: { params: { token: string }
       portalItems={portalItems}
       ga4={ga4}
       googleAds={googleAds}
+      showAnalytics={link.showAnalytics}
     />
   )
 }
