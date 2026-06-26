@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ApiKeyList } from '@/components/api-keys/ApiKeyList'
 import { ApiKeyForm } from '@/components/api-keys/ApiKeyForm'
-import { SocialTokenStatusSection } from './SocialTokenStatusSection'
 
 interface ApiKey {
   id: string
@@ -78,10 +77,21 @@ className="bg-nachtblau hover:bg-tiefblau text-white text-sm font-semibold px-4 
 
       {/* Social Media ───────────────────────────────────────── */}
       <section>
-        <p className="text-xs font-semibold uppercase tracking-widest text-stahlgrau mb-4">
-          Social Media Verbindungen
+        <p className="text-xs font-semibold uppercase tracking-widest text-stahlgrau mb-3">
+          Social Media &amp; Integrationen
         </p>
-        <SocialTokenStatusSection />
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 space-y-1">
+          <p>
+            <strong>Meta (Facebook/Instagram)</strong>, <strong>LinkedIn</strong>,{' '}
+            <strong>WordPress</strong> und <strong>KlickTipp</strong> werden{' '}
+            <strong>pro Projekt</strong> konfiguriert — Zugangsdaten unter{' '}
+            Projekt &rarr; Einstellungen &rarr; Integrationen hinterlegen.
+          </p>
+          <p>
+            <strong>Canva:</strong>{' '}
+            <a href="/settings/canva" className="underline font-medium">Einstellungen &rarr; Canva</a>
+          </p>
+        </div>
       </section>
 
     </div>
