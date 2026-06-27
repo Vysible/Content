@@ -206,7 +206,7 @@ export function Step3Context({
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
-                activeTab === tab ? 'bg-brombeer text-anthrazit shadow-sm' : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
+                activeTab === tab ? 'bg-white text-nachtblau shadow-sm' : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
               }`}
             >
               {tab === 'eingeben' ? 'Text eingeben' : 'Datei hochladen'}

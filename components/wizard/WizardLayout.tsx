@@ -25,7 +25,7 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
                   currentStep > step.n
                     ? 'bg-tiefblau text-white'
                     : currentStep === step.n
-                    ? 'bg-brombeer text-anthrazit'
+                    ? 'bg-bordeaux text-white'
                     : 'bg-stone text-stahlgrau'
                 )}
               >

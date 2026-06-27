@@ -112,7 +112,7 @@ export function ProjectPositioningSettings({ projectId, initialDocument }: Props
             onClick={() => setActiveTab(tab)}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
               activeTab === tab
-                ? 'bg-brombeer text-anthrazit shadow-sm'
+                ? 'bg-white text-nachtblau shadow-sm'
                 : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
             }`}
           >

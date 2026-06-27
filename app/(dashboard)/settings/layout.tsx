@@ -32,7 +32,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
               className={cn(
                 'px-3 py-2 text-sm font-semibold rounded-lg whitespace-nowrap transition',
                 active
-                  ? 'bg-brombeer text-anthrazit shadow-sm'
+                  ? 'bg-white text-nachtblau shadow-sm'
                   : 'text-stahlgrau hover:text-anthrazit hover:bg-white/60'
               )}
             >
