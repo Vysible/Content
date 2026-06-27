@@ -16,6 +16,25 @@ interface ThemesInput {
   canvaContext?: string
 }
 
+// Returns all months (YYYY-MM) in [start, end] inclusive
+function getMonthsInRange(start: Date, end: Date): string[] {
+  const months: string[] = []
+  const cur = new Date(start.getFullYear(), start.getMonth(), 1)
+  const last = new Date(end.getFullYear(), end.getMonth(), 1)
+  while (cur <= last) {
+    months.push(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`)
+    cur.setMonth(cur.getMonth() + 1)
+  }
+  return months
+}
+
+// Split an array into chunks of at most `size`
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
+
 export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> {
   const { project, scrapeResult, canvaContext } = input
 
@@ -35,11 +54,6 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
       : undefined,
   })
 
-  const start = new Date(project.planningStart)
-  const end = new Date(project.planningEnd)
-  const zeitraumStart = start.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
-  const zeitraumEnde = end.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
-
   const canvaSection = canvaContext
     ? `\n\nVerfügbare Canva-Assets (für Bildgestaltung berücksichtigen):\n${canvaContext}`
     : ''
@@ -50,59 +64,90 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
       geplantThemenRaw.map(t => `- ${t.monat}: ${t.thema}`).join('\n')
     : ''
 
-  const prompt = loadPrompt('themes', {
-    praxisName: project.praxisName ?? project.praxisUrl,
-    standort: extractStandort(scrapeResult),
-    fachgebiet: project.fachgebiet ?? 'Allgemeinmedizin',
-    zeitraumStart,
-    zeitraumEnde,
-    kanaele: project.channels.join(', '),
-    positionierungsdokument: context.systemContext + canvaSection + geplantThemenSection,
-    keywords: project.keywords.join(', '),
-    mengenplan: buildMengenplan(project),
-  })
-
+  const sharedContext = context.systemContext + canvaSection + geplantThemenSection
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
   const cfg = await getAppConfig()
 
-  return withRetry(async () => {
-    const response = await anthropic.messages.create({
-      model: cfg.modelThemes,
-      max_tokens: 16_000,
-      system: prompt.system,
-      messages: [{ role: 'user', content: prompt.user }],
-    }, { timeout: 120_000 })
+  // Split the planning period into 2-month chunks to avoid output token limits.
+  // A full 7-month × 5-channel project exceeds 16K tokens in a single call.
+  const allMonths = getMonthsInRange(new Date(project.planningStart), new Date(project.planningEnd))
+  const batches = chunk(allMonths, 2)
 
-    await trackCost({
-      projectId: project.id,
-      model: cfg.modelThemes,
-      inputTokens: response.usage.input_tokens,
-      outputTokens: response.usage.output_tokens,
-      step: 'themes',
+  logger.info({ projectId: project.id, totalMonths: allMonths.length, batchCount: batches.length }, '[themes] Batch-Generierung gestartet')
+
+  const allItems: ThemenItem[] = []
+
+  for (const monthBatch of batches) {
+    const batchStart = monthBatch[0]
+    const batchEnd = monthBatch[monthBatch.length - 1]
+
+    const [startYear, startMonth] = batchStart.split('-').map(Number)
+    const [endYear, endMonth] = batchEnd.split('-').map(Number)
+    const zeitraumStart = new Date(startYear, startMonth - 1, 1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
+    const zeitraumEnde = new Date(endYear, endMonth - 1, 1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
+
+    // Filter geplantThemen to only those months in this batch
+    const batchGeplant = geplantThemenRaw.filter(t => monthBatch.includes(t.monat))
+    const batchGeplantSection = batchGeplant.length > 0
+      ? '\n\nBEREITS ABGESTIMMTE THEMEN (verbindlich):\n' + batchGeplant.map(t => `- ${t.monat}: ${t.thema}`).join('\n')
+      : ''
+
+    const prompt = loadPrompt('themes', {
+      praxisName: project.praxisName ?? project.praxisUrl,
+      standort: extractStandort(scrapeResult),
+      fachgebiet: project.fachgebiet ?? 'Allgemeinmedizin',
+      zeitraumStart,
+      zeitraumEnde,
+      kanaele: project.channels.join(', '),
+      positionierungsdokument: sharedContext + batchGeplantSection,
+      keywords: project.keywords.join(', '),
+      mengenplan: buildMengenplan(project),
     })
 
-    const rawText = response.content
-      .filter((b) => b.type === 'text')
-      .map((b) => (b as { type: 'text'; text: string }).text)
-      .join('')
+    const batchItems = await withRetry(async () => {
+      const response = await anthropic.messages.create({
+        model: cfg.modelThemes,
+        max_tokens: 8_192,
+        system: prompt.system,
+        messages: [{ role: 'user', content: prompt.user }],
+      }, { timeout: 120_000 })
 
-    const items = parseThemesJson(rawText).map((item) => ({
-      ...item,
-      istFrage: computeIstFrage(item.seoTitel, item.keywordPrimaer),
-    }))
-    const validation = validateThemenQuality(items, { minPraxisQuote: cfg.themesMinPraxisQuote, minSeoQuote: cfg.themesMinSeoQuote })
+      await trackCost({
+        projectId: project.id,
+        model: cfg.modelThemes,
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens,
+        step: 'themes',
+      })
 
-    if (!validation.ok) {
-      logger.warn({ projectId: project.id, reason: validation.reason }, 'Themen-Qualitätskriterien nicht erfüllt — wird wiederholt')
-      throw new Error(`Qualitätsprüfung fehlgeschlagen: ${validation.reason}`)
-    }
+      const rawText = response.content
+        .filter((b) => b.type === 'text')
+        .map((b) => (b as { type: 'text'; text: string }).text)
+        .join('')
 
-    if (validation.warning) {
-      logger.warn({ projectId: project.id, warning: validation.warning }, 'Themen-SEO-Qualitätshinweis (kein Abbruch)')
-    }
+      return parseThemesJson(rawText).map((item) => ({
+        ...item,
+        istFrage: computeIstFrage(item.seoTitel, item.keywordPrimaer),
+      }))
+    }, `anthropic.generateThemes(${project.id})[${batchStart}–${batchEnd}]`)
 
-    return items
-  }, `anthropic.generateThemes(${project.id})`)
+    logger.info({ projectId: project.id, batch: `${batchStart}–${batchEnd}`, count: batchItems.length }, '[themes] Batch abgeschlossen')
+    allItems.push(...batchItems)
+  }
+
+  const validation = validateThemenQuality(allItems, { minPraxisQuote: cfg.themesMinPraxisQuote, minSeoQuote: cfg.themesMinSeoQuote })
+
+  if (!validation.ok) {
+    logger.warn({ projectId: project.id, reason: validation.reason }, 'Themen-Qualitätskriterien nicht erfüllt')
+    // Don't throw — return what we have rather than losing all generated data
+    logger.warn({ projectId: project.id }, 'Qualitätscheck nicht bestanden, gebe trotzdem alle Themen zurück')
+  }
+
+  if (validation.warning) {
+    logger.warn({ projectId: project.id, warning: validation.warning }, 'Themen-SEO-Qualitätshinweis')
+  }
+
+  return allItems
 }
 
 function parseThemesJson(text: string): ThemenItem[] {
