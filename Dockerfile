@@ -61,7 +61,7 @@ CMD ["sh", "-c", "\
     if echo \"$output\" | grep -qE 'No pending migrations|migrations found and applied|Migration OK'; then \
       echo '[Startup] Migration OK'; migrated=1; break; \
     elif echo \"$output\" | grep -q 'P3009'; then \
-      failed=$(echo \"$output\" | grep -oE 'The \`[^`]+\`' | head -1 | tr -d 'The \`'); \
+      failed=$(echo \"$output\" | grep -oE '[0-9]{14}_[a-zA-Z_]+' | head -1); \
       if [ -n \"$failed\" ]; then \
         echo \"[Startup] P3009 — markiere '$failed' als applied...\"; \
         $PRISMA migrate resolve --applied \"$failed\" 2>&1; \
