@@ -13,6 +13,7 @@ const schema = z.object({
   ansprache: z.enum(['Du', 'Sie']).optional(),
   planningStart: z.string().optional(),
   planningEnd: z.string().optional(),
+  channels: z.array(z.string()).min(1).optional(),
   channelQuantities: z.record(z.unknown()).nullable().optional(),
   positioningDocument: z.string().optional(),
   keywords: z.array(z.string()).optional(),
@@ -55,6 +56,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       const [y, m] = d.planningEnd!.split('-').map(Number)
       return new Date(y, m, 0) // last day of month
     })()
+    if (d.channels !== undefined) updateData.channels = d.channels
     if (d.channelQuantities !== undefined) updateData.channelQuantities = d.channelQuantities ?? null
     if (d.positioningDocument !== undefined) updateData.positioningDocument = d.positioningDocument ? encrypt(d.positioningDocument) : null
     if (d.keywords !== undefined) updateData.keywords = d.keywords

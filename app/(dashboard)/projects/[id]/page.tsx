@@ -96,6 +96,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
             initialAnsprache={project.ansprache ?? 'Sie'}
             initialPlanningStart={project.planningStart.toISOString()}
             initialPlanningEnd={project.planningEnd.toISOString()}
+            initialChannels={project.channels}
           />
           <ProjectPositioningSettings
             projectId={project.id}

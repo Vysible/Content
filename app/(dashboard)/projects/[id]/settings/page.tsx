@@ -69,6 +69,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
             initialAnsprache={project.ansprache ?? 'Sie'}
             initialPlanningStart={project.planningStart.toISOString()}
             initialPlanningEnd={project.planningEnd.toISOString()}
+            initialChannels={project.channels}
           />
         </section>
 

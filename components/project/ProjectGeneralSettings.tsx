@@ -20,6 +20,14 @@ function toYearMonth(date: Date | string | null | undefined): string {
   return d.toISOString().slice(0, 7)
 }
 
+const ALL_CHANNELS = [
+  { id: 'BLOG',             label: 'Blog',       icon: '✍' },
+  { id: 'NEWSLETTER',       label: 'Newsletter',  icon: '✉' },
+  { id: 'SOCIAL_INSTAGRAM', label: 'Instagram',   icon: '◈' },
+  { id: 'SOCIAL_FACEBOOK',  label: 'Facebook',    icon: '◉' },
+  { id: 'SOCIAL_LINKEDIN',  label: 'LinkedIn',    icon: '◆' },
+]
+
 interface Props {
   projectId: string
   initialName: string
@@ -29,6 +37,7 @@ interface Props {
   initialAnsprache: string
   initialPlanningStart: string // ISO date string
   initialPlanningEnd: string   // ISO date string
+  initialChannels?: string[]
 }
 
 export function ProjectGeneralSettings({
@@ -40,6 +49,7 @@ export function ProjectGeneralSettings({
   initialAnsprache,
   initialPlanningStart,
   initialPlanningEnd,
+  initialChannels = [],
 }: Props) {
   const [name, setName] = useState(initialName)
   const [praxisUrl, setPraxisUrl] = useState(initialPraxisUrl)
@@ -50,6 +60,13 @@ export function ProjectGeneralSettings({
   )
   const [planningStart, setPlanningStart] = useState(toYearMonth(initialPlanningStart))
   const [planningEnd, setPlanningEnd] = useState(toYearMonth(initialPlanningEnd))
+  const [channels, setChannels] = useState<string[]>(initialChannels)
+
+  function toggleChannel(id: string) {
+    setChannels((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    )
+  }
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -62,7 +79,7 @@ export function ProjectGeneralSettings({
       const res = await fetch(`/api/projects/${projectId}/settings`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, praxisUrl, praxisName, fachgebiet, ansprache, planningStart, planningEnd }),
+        body: JSON.stringify({ name, praxisUrl, praxisName, fachgebiet, ansprache, planningStart, planningEnd, channels }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -166,10 +183,39 @@ export function ProjectGeneralSettings({
         </div>
       </div>
 
+      {initialChannels.length > 0 && (
+        <div>
+          <label className="block text-xs font-medium text-anthrazit mb-2">Kanäle</label>
+          <div className="flex flex-wrap gap-2">
+            {ALL_CHANNELS.map((ch) => {
+              const active = channels.includes(ch.id)
+              return (
+                <button
+                  key={ch.id}
+                  type="button"
+                  onClick={() => toggleChannel(ch.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm transition font-medium ${
+                    active
+                      ? 'border-bordeaux bg-bordeaux text-white'
+                      : 'border-stone bg-white text-anthrazit hover:border-bordeaux'
+                  }`}
+                >
+                  <span>{ch.icon}</span>
+                  {ch.label}
+                </button>
+              )
+            })}
+          </div>
+          {channels.length === 0 && (
+            <p className="text-xs text-bordeaux mt-1">Mindestens einen Kanal auswählen.</p>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center gap-3 pt-1">
         <button
           onClick={handleSave}
-          disabled={saving || !name.trim()}
+          disabled={saving || !name.trim() || channels.length === 0}
           className="px-4 py-2 bg-tiefblau text-white text-sm rounded-lg hover:bg-nachtblau disabled:opacity-50 transition"
         >
           {saving ? 'Speichern…' : 'Speichern'}
