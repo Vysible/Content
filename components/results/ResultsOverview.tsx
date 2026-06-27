@@ -98,6 +98,7 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
 
   const blogThemes = themes.filter((t) => t.kanal === 'BLOG').sort((a, b) => a.monat.localeCompare(b.monat))
   const newsletterThemes = themes.filter((t) => t.kanal === 'NEWSLETTER').sort((a, b) => a.monat.localeCompare(b.monat))
+  const socialThemes = themes.filter((t) => t.kanal.startsWith('SOCIAL_')).sort((a, b) => a.monat.localeCompare(b.monat))
 
   return (
     <div className="space-y-6">
@@ -253,6 +254,85 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
                     {idx < newsletterThemes.length - 1 && (
                       <div className="h-px w-8 bg-emerald-300/50 flex-shrink-0" />
                     )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Social-Media-Planung */}
+      {socialThemes.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Social-Media-Planung</p>
+          <div className="overflow-x-auto pb-2">
+            <div className="min-w-max">
+              {/* Monats-Gruppen */}
+              {Array.from(new Set(socialThemes.map((t) => t.monat))).sort().map((monat) => {
+                const monthSocial = socialThemes.filter((t) => t.monat === monat)
+                const igPosts = monthSocial.filter((t) => t.kanal === 'SOCIAL_INSTAGRAM')
+                const fbPosts = monthSocial.filter((t) => t.kanal === 'SOCIAL_FACEBOOK')
+                const liPosts = monthSocial.filter((t) => t.kanal === 'SOCIAL_LINKEDIN')
+                return (
+                  <div key={monat} className="mb-4 last:mb-0">
+                    <p className="text-xs font-semibold text-nachtblau mb-2">{formatMonatShort(monat)}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {igPosts.length > 0 && (
+                        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3">
+                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+                            Instagram ({igPosts.length})
+                          </p>
+                          <div className="space-y-1.5">
+                            {igPosts.map((t, i) => (
+                              <button key={i} onClick={() => openModal(t)} className="w-full text-left group">
+                                <div className="rounded-lg border border-purple-100 bg-white px-2.5 py-1.5 hover:border-purple-400 transition">
+                                  <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-purple-700 line-clamp-2">{t.seoTitel}</p>
+                                  {hasText(t) && <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {fbPosts.length > 0 && (
+                        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3">
+                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-purple-400 inline-block" />
+                            Facebook ({fbPosts.length})
+                          </p>
+                          <div className="space-y-1.5">
+                            {fbPosts.map((t, i) => (
+                              <button key={i} onClick={() => openModal(t)} className="w-full text-left group">
+                                <div className="rounded-lg border border-purple-100 bg-white px-2.5 py-1.5 hover:border-purple-400 transition">
+                                  <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-purple-700 line-clamp-2">{t.seoTitel}</p>
+                                  {hasText(t) && <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {liPosts.length > 0 && (
+                        <div className="rounded-xl border border-violet-200 bg-violet-50/50 p-3">
+                          <p className="text-xs font-semibold text-violet-700 mb-2 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-violet-500 inline-block" />
+                            LinkedIn ({liPosts.length})
+                          </p>
+                          <div className="space-y-1.5">
+                            {liPosts.map((t, i) => (
+                              <button key={i} onClick={() => openModal(t)} className="w-full text-left group">
+                                <div className="rounded-lg border border-violet-100 bg-white px-2.5 py-1.5 hover:border-violet-400 transition">
+                                  <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-violet-700 line-clamp-2">{t.seoTitel}</p>
+                                  {hasText(t) && <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )
               })}

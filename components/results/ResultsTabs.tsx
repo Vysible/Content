@@ -562,6 +562,7 @@ function SocialTab({
   praxisName: string
 }) {
   const [expiredProviders, setExpiredProviders] = useState<Set<string>>(new Set())
+  const [canvaExpired, setCanvaExpired] = useState(false)
   const [canvaAssets, setCanvaAssets] = useState<CanvaAssetSocial[]>([])
   const [canvaOpen, setCanvaOpen] = useState(true)
 
@@ -573,6 +574,7 @@ function SocialTab({
           data.filter((t) => t.level === 'expired').map((t) => t.provider)
         )
         setExpiredProviders(expired)
+        setCanvaExpired(expired.has('CANVA'))
       })
       .catch((err: unknown) => {
         console.warn('[Vysible] Token-Status konnte nicht geladen werden', err)
@@ -608,6 +610,24 @@ function SocialTab({
 
   return (
     <div className="space-y-4">
+
+      {/* Canva-Reconnect-Hinweis */}
+      {canvaExpired && (
+        <div className="border border-amber-200 bg-amber-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Canva-Verbindung abgelaufen</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Dein Canva-Token ist abgelaufen. Templates und Assets werden nicht angezeigt, bis du dich neu verbindest.
+            </p>
+          </div>
+          <a
+            href="/settings/canva"
+            className="shrink-0 text-xs px-3 py-1.5 bg-amber-700 text-white rounded-lg hover:bg-amber-800 transition font-medium"
+          >
+            Neu verbinden →
+          </a>
+        </div>
+      )}
 
       {/* Canva-Templates Panel */}
       {canvaAssets.length > 0 && (

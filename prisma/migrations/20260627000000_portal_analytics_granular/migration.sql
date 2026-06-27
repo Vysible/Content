@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "PortalLink" ADD COLUMN "showGA4" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "PortalLink" ADD COLUMN "showGoogleAds" BOOLEAN NOT NULL DEFAULT false;

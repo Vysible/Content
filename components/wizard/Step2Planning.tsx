@@ -146,8 +146,9 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                 onClick={() => handleDurationChange(d)}
                 className={`flex-1 py-2 text-sm rounded-lg border transition font-medium ${
                   data.durationMonths === d
-                    ? 'border-brombeer bg-brombeer text-anthrazit'
-: 'border-stone bg-white text-anthrazit hover:border-brombeer'                }`}
+                    ? 'border-bordeaux bg-bordeaux text-white'
+                    : 'border-stone bg-white text-anthrazit hover:border-bordeaux'
+                }`}
               >
                 {d} Mo.
               </button>
@@ -191,8 +192,9 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                 onClick={() => toggleChannel(ch.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm transition ${
                   active
-                    ? 'border-brombeer bg-brombeer text-anthrazit font-medium'
-: 'border-stone bg-white text-anthrazit hover:border-brombeer'                }`}
+                    ? 'border-bordeaux bg-bordeaux text-white font-medium'
+                    : 'border-stone bg-white text-anthrazit hover:border-bordeaux'
+                }`}
               >
                 <span>{ch.icon}</span>
                 {ch.label}

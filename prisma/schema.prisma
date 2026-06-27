@@ -226,6 +226,8 @@ model PortalLink {
   passwordHash  String
   expiresAt     DateTime
   showAnalytics Boolean  @default(false)
+  showGA4       Boolean  @default(false)
+  showGoogleAds Boolean  @default(false)
   createdAt     DateTime @default(now())
 
   @@index([token])

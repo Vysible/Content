@@ -43,25 +43,26 @@ export default async function PortalPage({ params }: { params: { token: string }
   let ga4: GA4Metrics | null = null
   let googleAds: GoogleAdsMetrics | null = null
 
-  if (link.showAnalytics) {
-    const endDate = new Date().toISOString().slice(0, 10)
-    const startDate = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10)
+  const endDate = new Date().toISOString().slice(0, 10)
+  const startDate = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10)
 
-    if (link.project.ga4PropertyId && process.env.GA4_SERVICE_ACCOUNT_JSON) {
-      try {
-        ga4 = await fetchGA4Metrics(link.project.ga4PropertyId, startDate, endDate)
-      } catch (err) {
-        logger.warn({ err, projectId: link.projectId }, '[portal] GA4-Daten konnten nicht geladen werden')
-      }
+  const showGA4 = (link as unknown as { showGA4?: boolean }).showGA4 ?? link.showAnalytics
+  const showGoogleAds = (link as unknown as { showGoogleAds?: boolean }).showGoogleAds ?? link.showAnalytics
+
+  if (showGA4 && link.project.ga4PropertyId && process.env.GA4_SERVICE_ACCOUNT_JSON) {
+    try {
+      ga4 = await fetchGA4Metrics(link.project.ga4PropertyId, startDate, endDate)
+    } catch (err) {
+      logger.warn({ err, projectId: link.projectId }, '[portal] GA4-Daten konnten nicht geladen werden')
     }
+  }
 
-    const adsEnvOk = ADS_ENV_VARS.every((v) => !!process.env[v])
-    if (link.project.googleAdsCustomerId && adsEnvOk) {
-      try {
-        googleAds = await fetchGoogleAdsMetrics(link.project.googleAdsCustomerId, startDate, endDate)
-      } catch (err) {
-        logger.warn({ err, projectId: link.projectId }, '[portal] Google Ads Daten konnten nicht geladen werden')
-      }
+  const adsEnvOk = ADS_ENV_VARS.every((v) => !!process.env[v])
+  if (showGoogleAds && link.project.googleAdsCustomerId && adsEnvOk) {
+    try {
+      googleAds = await fetchGoogleAdsMetrics(link.project.googleAdsCustomerId, startDate, endDate)
+    } catch (err) {
+      logger.warn({ err, projectId: link.projectId }, '[portal] Google Ads Daten konnten nicht geladen werden')
     }
   }
 

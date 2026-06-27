@@ -14,10 +14,10 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 }
 
 // POST — create portal link
-// Body: { password: string, showAnalytics?: boolean, expiresInDays?: number }
+// Body: { password: string, showGA4?: boolean, showGoogleAds?: boolean, expiresInDays?: number }
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   await requireAuth()
-  const { password, showAnalytics = false, expiresInDays = 365 } = await req.json()
+  const { password, showGA4 = false, showGoogleAds = false, expiresInDays = 365 } = await req.json()
   if (!password || password.length < 4) {
     return NextResponse.json({ error: 'Passwort zu kurz (min. 4 Zeichen)' }, { status: 400 })
   }
@@ -25,8 +25,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   await prisma.portalLink.deleteMany({ where: { projectId: params.id } })
   const passwordHash = await bcrypt.hash(password, 10)
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
+  const showAnalytics = showGA4 || showGoogleAds
   const link = await prisma.portalLink.create({
-    data: { projectId: params.id, passwordHash, expiresAt, showAnalytics },
+    data: { projectId: params.id, passwordHash, expiresAt, showAnalytics, showGA4, showGoogleAds },
   })
   return NextResponse.json(link)
 }

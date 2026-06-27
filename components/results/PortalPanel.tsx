@@ -6,6 +6,8 @@ interface PortalLink {
   token: string
   expiresAt: string
   showAnalytics: boolean
+  showGA4?: boolean
+  showGoogleAds?: boolean
 }
 
 interface Props {
@@ -17,7 +19,8 @@ export function PortalPanel({ projectId, portalCount }: Props) {
   const [show, setShow] = useState(false)
   const [link, setLink] = useState<PortalLink | null>(null)
   const [password, setPassword] = useState('')
-  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showGA4, setShowGA4] = useState(false)
+  const [showGoogleAds, setShowGoogleAds] = useState(false)
   const [expiresInDays, setExpiresInDays] = useState(365)
   const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -44,7 +47,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
       const res = await fetch(`/api/projects/${projectId}/portal`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, showAnalytics, expiresInDays }),
+        body: JSON.stringify({ password, showGA4, showGoogleAds, expiresInDays }),
       })
       if (!res.ok) {
         const d = await res.json()
@@ -137,8 +140,13 @@ export function PortalPanel({ projectId, portalCount }: Props) {
               </div>
               <p className="text-xs text-stahlgrau">
                 Gültig bis {new Date(link.expiresAt).toLocaleDateString('de-DE')}
-                {link.showAnalytics && ' · inkl. Analysen'}
               </p>
+              {(link.showGA4 || link.showGoogleAds || link.showAnalytics) && (
+                <p className="text-xs text-emerald-700 bg-emerald-50 rounded px-2 py-1">
+                  Analysen aktiv:{' '}
+                  {[link.showGA4 ? 'GA4' : null, link.showGoogleAds ? 'Google Ads' : null].filter(Boolean).join(' + ') || 'Ja'}
+                </p>
+              )}
               <button
                 onClick={deleteLink}
                 disabled={deleting}
@@ -173,15 +181,29 @@ export function PortalPanel({ projectId, portalCount }: Props) {
                   <option value={365}>1 Jahr</option>
                 </select>
               </div>
-              <label className="flex items-center gap-2 text-xs text-anthrazit cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showAnalytics}
-                  onChange={(e) => setShowAnalytics(e.target.checked)}
-                  className="rounded"
-                />
-                GA4-Analysen im Portal anzeigen
-              </label>
+              <div>
+                <p className="text-xs text-stahlgrau mb-1.5">Analysen anzeigen (optional)</p>
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-xs text-anthrazit cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showGA4}
+                      onChange={(e) => setShowGA4(e.target.checked)}
+                      className="rounded"
+                    />
+                    Google Analytics (GA4)
+                  </label>
+                  <label className="flex items-center gap-2 text-xs text-anthrazit cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showGoogleAds}
+                      onChange={(e) => setShowGoogleAds(e.target.checked)}
+                      className="rounded"
+                    />
+                    Google Ads
+                  </label>
+                </div>
+              </div>
               {error && <p className="text-xs text-red-600">{error}</p>}
               <button
                 onClick={createLink}
