@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 
 interface Props {
   jobId: string
+  projectId?: string
   onComplete?: () => void
 }
 
@@ -27,7 +28,7 @@ function formatElapsed(s: number) {
 
 const SLOW_STEPS = new Set(['texts_done', 'blog_outline_done', 'themes_done'])
 
-export function GenerationProgress({ jobId, onComplete }: Props) {
+export function GenerationProgress({ jobId, projectId, onComplete }: Props) {
   const { status, completedSteps, lastError, failedStep, isTerminal, retry, events } =
     useGenerationStream(jobId)
 
@@ -129,8 +130,16 @@ export function GenerationProgress({ jobId, onComplete }: Props) {
       )}
 
       {status === 'complete' && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between gap-4">
           <p className="text-sm text-green-700 font-medium">Generierung abgeschlossen!</p>
+          {projectId && (
+            <a
+              href={`/projects/${projectId}/results`}
+              className="shrink-0 px-4 py-2 bg-tiefblau text-white text-sm font-semibold rounded-lg hover:bg-nachtblau transition"
+            >
+              Zu den Ergebnissen →
+            </a>
+          )}
         </div>
       )}
 

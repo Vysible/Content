@@ -56,7 +56,7 @@ export function GenerateSection({ projectId }: Props) {
   }
 
   if (jobId) {
-    return <GenerationProgress jobId={jobId} />
+    return <GenerationProgress jobId={jobId} projectId={projectId} />
   }
 
   const canStart = estimate?.hasAnthropicKey && !estimate?.missingUrl
