@@ -262,166 +262,98 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
         </div>
       )}
 
-      {/* Social-Media-Planung */}
-      {socialThemes.length > 0 && (
-        <div>
-          <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Social-Media-Planung</p>
-          <div className="overflow-x-auto pb-2">
-            <div className="min-w-max">
-              {/* Monats-Gruppen */}
-              {Array.from(new Set(socialThemes.map((t) => t.monat))).sort().map((monat) => {
-                const monthSocial = socialThemes.filter((t) => t.monat === monat)
-                const igPosts = monthSocial.filter((t) => t.kanal === 'SOCIAL_INSTAGRAM')
-                const fbPosts = monthSocial.filter((t) => t.kanal === 'SOCIAL_FACEBOOK')
-                const liPosts = monthSocial.filter((t) => t.kanal === 'SOCIAL_LINKEDIN')
-                return (
-                  <div key={monat} className="mb-4 last:mb-0">
-                    <p className="text-xs font-semibold text-nachtblau mb-2">{formatMonatShort(monat)}</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      {igPosts.length > 0 && (
-                        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3">
-                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
-                            Instagram ({igPosts.length})
-                          </p>
-                          <div className="space-y-1.5">
-                            {igPosts.map((t, i) => (
-                              <button key={i} onClick={() => openModal(t)} className="w-full text-left group">
-                                <div className="rounded-lg border border-purple-100 bg-white px-2.5 py-1.5 hover:border-purple-400 transition">
-                                  <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-purple-700 line-clamp-2">{t.seoTitel}</p>
-                                  {hasText(t) && <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {fbPosts.length > 0 && (
-                        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3">
-                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-purple-400 inline-block" />
-                            Facebook ({fbPosts.length})
-                          </p>
-                          <div className="space-y-1.5">
-                            {fbPosts.map((t, i) => (
-                              <button key={i} onClick={() => openModal(t)} className="w-full text-left group">
-                                <div className="rounded-lg border border-purple-100 bg-white px-2.5 py-1.5 hover:border-purple-400 transition">
-                                  <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-purple-700 line-clamp-2">{t.seoTitel}</p>
-                                  {hasText(t) && <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {liPosts.length > 0 && (
-                        <div className="rounded-xl border border-violet-200 bg-violet-50/50 p-3">
-                          <p className="text-xs font-semibold text-violet-700 mb-2 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-violet-500 inline-block" />
-                            LinkedIn ({liPosts.length})
-                          </p>
-                          <div className="space-y-1.5">
-                            {liPosts.map((t, i) => (
-                              <button key={i} onClick={() => openModal(t)} className="w-full text-left group">
-                                <div className="rounded-lg border border-violet-100 bg-white px-2.5 py-1.5 hover:border-violet-400 transition">
-                                  <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-violet-700 line-clamp-2">{t.seoTitel}</p>
-                                  {hasText(t) && <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Redaktionsplan-Tabelle — Monate als Spalten, Kanäle als Zeilen */}
-      <div>
-        <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Redaktionsplan</p>
-        <div className="overflow-x-auto">
-          <table className="text-sm border-collapse">
-            <thead>
-              {/* Zeile 1: Monatsnamen */}
-              <tr>
-                <th className="sticky left-0 z-10 bg-white text-left py-2 pr-4 pl-1 text-xs text-stahlgrau font-medium whitespace-nowrap min-w-[120px] border-b-2 border-stone">
-                  Kanal
-                </th>
-                {months.map((m) => (
-                  <th
-                    key={m}
-                    className="text-left py-2 px-3 text-xs font-bold text-nachtblau whitespace-nowrap border-b-2 border-stone min-w-[160px]"
-                  >
-                    {formatMonatShort(m)}
-                    <span className="block text-xs font-normal text-stahlgrau mt-0.5">
-                      {getMonthKwRange(m)}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {activeChannels.map((ch) => (
-                <tr key={ch} className="border-b border-stone/40 align-top">
-                  {/* Kanalname (sticky) */}
-                  <td className="sticky left-0 z-10 bg-white py-3 pr-4 pl-1 text-xs font-semibold text-anthrazit whitespace-nowrap">
-                    <span className="flex items-center gap-1.5">
-                      <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${CHANNEL_COLORS[ch] ?? 'bg-stone'}`} />
-                      {CHANNEL_LABELS[ch] ?? ch}
-                    </span>
-                  </td>
-
-                  {/* Eine Zelle pro Monat */}
-                  {months.map((monat) => {
-                    const items = lookup.get(`${monat}::${ch}`) ?? []
-                    if (items.length === 0) {
-                      return (
-                        <td key={monat} className="py-3 px-3 text-stahlgrau/30 text-sm">
-                          —
-                        </td>
-                      )
-                    }
+      {/* Social-Media-Planung — Monatsweise, Kanäle nebeneinander */}
+      {socialThemes.length > 0 && (() => {
+        const socialChannels = ['SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN'].filter((ch) =>
+          channels.includes(ch)
+        )
+        const socialMonths = Array.from(new Set(socialThemes.map((t) => t.monat))).sort()
+        const channelMeta: Record<string, { label: string; dot: string; header: string; row: string; card: string }> = {
+          SOCIAL_INSTAGRAM: {
+            label: 'Instagram',
+            dot: 'bg-purple-500',
+            header: 'text-purple-700',
+            row: 'bg-purple-50/40 border-purple-100',
+            card: 'hover:border-purple-400 hover:text-purple-800',
+          },
+          SOCIAL_FACEBOOK: {
+            label: 'Facebook',
+            dot: 'bg-blue-500',
+            header: 'text-blue-700',
+            row: 'bg-blue-50/40 border-blue-100',
+            card: 'hover:border-blue-400 hover:text-blue-800',
+          },
+          SOCIAL_LINKEDIN: {
+            label: 'LinkedIn',
+            dot: 'bg-violet-500',
+            header: 'text-violet-700',
+            row: 'bg-violet-50/40 border-violet-100',
+            card: 'hover:border-violet-400 hover:text-violet-800',
+          },
+        }
+        return (
+          <div>
+            <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Social-Media-Planung</p>
+            <div className="overflow-x-auto pb-2">
+              <table className="border-collapse" style={{ minWidth: `${120 + socialMonths.length * 180}px` }}>
+                <thead>
+                  <tr>
+                    <th className="sticky left-0 z-10 bg-white text-left py-2 pr-4 text-xs text-stahlgrau font-medium whitespace-nowrap w-28 border-b-2 border-stone" />
+                    {socialMonths.map((m) => (
+                      <th key={m} className="text-left py-2 px-3 text-xs font-bold text-nachtblau whitespace-nowrap border-b-2 border-stone min-w-[170px]">
+                        {formatMonatShort(m)}
+                        <span className="block text-xs font-normal text-stahlgrau mt-0.5">{getMonthKwRange(m)}</span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {socialChannels.map((ch) => {
+                    const meta = channelMeta[ch]
                     return (
-                      <td key={monat} className="py-3 px-3">
-                        <div className="flex flex-col gap-1.5">
-                          {items.map((theme, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => openModal(theme)}
-                              className="text-left group w-full"
-                            >
-<div className="rounded-lg border border-stone bg-white px-2.5 py-1.5 hover:border-brombeer hover:bg-amber-50/40 transition">                                <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-nachtblau line-clamp-2">
-                                  {theme.seoTitel}
-                                </p>
-                                <div className="mt-1 flex items-center gap-1.5">
-                                  {hasText(theme) ? (
-                                    <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                                      Text ✓
-                                    </span>
-                                  ) : (
-                                    <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-stone text-stahlgrau">
-                                      Offen
-                                    </span>
-                                  )}
+                      <tr key={ch} className="align-top border-b border-stone/30">
+                        <td className="sticky left-0 z-10 bg-white py-3 pr-4 whitespace-nowrap">
+                          <span className="flex items-center gap-1.5 text-xs font-semibold text-anthrazit">
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${meta.dot}`} />
+                            {meta.label}
+                          </span>
+                        </td>
+                        {socialMonths.map((monat) => {
+                          const posts = (lookup.get(`${monat}::${ch}`) ?? [])
+                          return (
+                            <td key={monat} className="py-2 px-2 align-top">
+                              {posts.length === 0 ? (
+                                <span className="text-stahlgrau/30 text-sm">—</span>
+                              ) : (
+                                <div className="flex flex-col gap-1.5">
+                                  {posts.map((t, i) => (
+                                    <button key={i} onClick={() => openModal(t)} className={`w-full text-left group rounded-lg border border-stone/60 bg-white px-2.5 py-2 transition ${meta.card}`}>
+                                      <p className={`text-xs font-medium text-anthrazit leading-snug line-clamp-3 group-hover:text-current`}>
+                                        {t.seoTitel}
+                                      </p>
+                                      <div className="mt-1 flex items-center gap-1">
+                                        {hasText(t) ? (
+                                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>
+                                        ) : (
+                                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-stone text-stahlgrau">Offen</span>
+                                        )}
+                                      </div>
+                                    </button>
+                                  ))}
                                 </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </td>
+                              )}
+                            </td>
+                          )
+                        })}
+                      </tr>
                     )
                   })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      })()}
 
       {modal && <OverviewModal item={modal} onClose={() => setModal(null)} />}
     </div>

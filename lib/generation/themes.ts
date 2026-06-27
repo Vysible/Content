@@ -68,7 +68,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
   return withRetry(async () => {
     const response = await anthropic.messages.create({
       model: cfg.modelThemes,
-      max_tokens: 8_192,
+      max_tokens: 16_000,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
     }, { timeout: 120_000 })
