@@ -39,6 +39,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
   const end = new Date(project.planningEnd)
   const zeitraumStart = start.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
   const zeitraumEnde = end.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
+  const monate = buildMonateListe(start, end)
 
   const canvaSection = canvaContext
     ? `\n\nVerfügbare Canva-Assets (für Bildgestaltung berücksichtigen):\n${canvaContext}`
@@ -56,6 +57,7 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     fachgebiet: project.fachgebiet ?? 'Allgemeinmedizin',
     zeitraumStart,
     zeitraumEnde,
+    monate,
     kanaele: project.channels.join(', '),
     positionierungsdokument: context.systemContext + canvaSection + geplantThemenSection,
     keywords: project.keywords.join(', '),
@@ -175,6 +177,17 @@ function buildMengenplan(project: Project): string {
     const count = (q[ch as keyof ChannelQuantities] as number | undefined) ?? 1
     return `${ch}: ${count} pro Monat`
   }).join('\n')
+}
+
+function buildMonateListe(start: Date, end: Date): string {
+  const months: string[] = []
+  const current = new Date(start.getFullYear(), start.getMonth(), 1)
+  const last = new Date(end.getFullYear(), end.getMonth(), 1)
+  while (current <= last) {
+    months.push(`${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`)
+    current.setMonth(current.getMonth() + 1)
+  }
+  return months.join(', ')
 }
 
 function extractStandort(scrapeResult?: ScrapeResult): string {
