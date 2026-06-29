@@ -67,10 +67,16 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
   const anthropic = await getAnthropicClient(project.apiKeyId ?? null)
   const cfg = await getAppConfig()
 
+  // max_tokens dynamisch: ~400 Token pro Thema, mind. 8192
+  const monthCount = monate.split(',').length
+  const channelCount = project.channels.length
+  const estimatedItems = monthCount * channelCount
+  const dynamicMaxTokens = Math.max(8_192, estimatedItems * 500)
+
   return withRetry(async () => {
     const response = await anthropic.messages.create({
       model: cfg.modelThemes,
-      max_tokens: 8_192,
+      max_tokens: dynamicMaxTokens,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }],
     }, { timeout: 120_000 })
@@ -95,8 +101,12 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     const validation = validateThemenQuality(items, { minPraxisQuote: cfg.themesMinPraxisQuote, minSeoQuote: cfg.themesMinSeoQuote })
 
     if (!validation.ok) {
-      logger.warn({ projectId: project.id, reason: validation.reason }, 'Themen-Qualitätskriterien nicht erfüllt — wird wiederholt')
-      throw new Error(`Qualitätsprüfung fehlgeschlagen: ${validation.reason}`)
+      // Qualitätsprüfung: kein withRetry-Kandidat (würde 3× 120s blockieren).
+      // Stattdessen: Ergebnis mit Status 422 abbrechen — Pipeline zeigt Fehler mit Retry-Button.
+      logger.warn({ projectId: project.id, reason: validation.reason, itemCount: items.length }, 'Themen-Qualitätskriterien nicht erfüllt')
+      const err = new Error(`Qualitätsprüfung fehlgeschlagen: ${validation.reason}`) as Error & { status: number }
+      err.status = 422
+      throw err
     }
 
     if (validation.warning) {
