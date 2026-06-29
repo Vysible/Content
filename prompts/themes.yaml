@@ -24,7 +24,8 @@ system: |
   }
 
   Regeln:
-  - Erstelle pro Monat pro Kanal genau die angegebene Anzahl (siehe Mengenplan unten)
+  - Erstelle für JEDEN Monat aus der Monatsliste pro Kanal genau die angegebene Anzahl (siehe Mengenplan unten)
+  - Die Monatsliste ist verbindlich — kein Monat darf fehlen
   - Mindestens 80% der Themen praxisspezifisch (Praxisname oder Standort erwähnen)
   - Formuliere mindestens 50% der seoTitel als Frage (endet mit ?) oder mit dem Primärkeyword
   - HWG-Flag: gruen = unbedenklich, gelb = Disclaimer nötig, rot = Versprechen vermeiden
@@ -37,6 +38,7 @@ user: |
   Standort: {{standort}}
   Fachgebiet: {{fachgebiet}}
   Zeitraum: {{zeitraumStart}} bis {{zeitraumEnde}}
+  Monate (exakt diese, alle pflichtmäßig): {{monate}}
   Kanäle: {{kanaele}}
   Positionierung und Kontext:
   {{positionierungsdokument}}
