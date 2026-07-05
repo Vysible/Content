@@ -5,19 +5,34 @@ import { logger } from '@/lib/utils/logger'
 import { NextResponse } from 'next/server'
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  await requireAuth()
+  const session = await requireAuth()
+  const sessionUserId = (session as { user?: { id?: string } }).user?.id
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { canvaFolderId: true, createdById: true },
+    select: { canvaFolderId: true, clientId: true, createdById: true },
   })
   if (!project) return NextResponse.json({ error: 'Nicht gefunden' }, { status: 404 })
-  if (!project.canvaFolderId) {
+
+  // Ordner: Projekt-Einstellung > Kunden-Einstellung als Fallback
+  let folderId = project.canvaFolderId
+  if (!folderId && project.clientId) {
+    const client = await prisma.client.findUnique({
+      where: { id: project.clientId },
+      select: { canvaFolderId: true },
+    })
+    folderId = client?.canvaFolderId ?? null
+  }
+
+  if (!folderId) {
     return NextResponse.json({ assets: [], message: 'Kein Canva-Ordner konfiguriert' })
   }
 
+  // Token des eingeloggten Users verwenden; Fallback auf Ersteller des Projekts
+  const effectiveUserId = sessionUserId ?? project.createdById
+
   try {
-    const assets = await listFolderAssets(project.canvaFolderId, project.createdById)
+    const assets = await listFolderAssets(folderId, effectiveUserId)
     return NextResponse.json({ assets })
   } catch (err: unknown) {
     logger.warn({ err, projectId: params.id }, '[Vysible] Canva-Asset-Abruf für Projekt fehlgeschlagen')

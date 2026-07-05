@@ -114,9 +114,23 @@ async function runStep(
     }
 
     case 'canva_loaded': {
-      if (project.canvaFolderId) {
+      // Ordner: Projekt-Einstellung > Kunden-Einstellung als Fallback
+      let canvaFolderId = project.canvaFolderId
+      if (!canvaFolderId && project.clientId) {
         try {
-          const assets = await listFolderAssets(project.canvaFolderId, project.createdById)
+          const client = await prisma.client.findUnique({
+            where: { id: project.clientId },
+            select: { canvaFolderId: true },
+          })
+          canvaFolderId = client?.canvaFolderId ?? null
+        } catch (err: unknown) {
+          logger.warn({ err, projectId: project.id }, 'Kunden-Canva-Ordner konnte nicht geladen werden')
+        }
+      }
+
+      if (canvaFolderId) {
+        try {
+          const assets = await listFolderAssets(canvaFolderId, project.createdById)
           ctx.canvaContext = buildCanvaContext(assets)
           await emitEvent(jobId, {
             type: 'canva_loaded',
