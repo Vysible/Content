@@ -29,6 +29,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
       planningStart: true,
       planningEnd: true,
       channels: true,
+      channelQuantities: true,
       positioningDocument: true,
       keywords: true,
       themenPool: true,
@@ -87,7 +88,9 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
               projectId={project.id}
               initialKeywords={project.keywords}
               initialThemenPool={project.themenPool ?? ''}
-              initialGeplantThemen={(project.geplantThemen as { monat: string; thema: string }[]) ?? []}
+              initialGeplantThemen={(project.geplantThemen as { monat: string; kanal: string; thema: string }[]) ?? []}
+              initialChannelQuantities={(project.channelQuantities as import('@/lib/types/channel-quantities').ChannelQuantities | null) ?? {}}
+              channels={project.channels}
               planningStart={project.planningStart.toISOString().slice(0, 7)}
               planningEnd={project.planningEnd.toISOString().slice(0, 7)}
             />

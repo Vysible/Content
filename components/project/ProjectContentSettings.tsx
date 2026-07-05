@@ -2,17 +2,32 @@
 
 import { useState, useRef } from 'react'
 import type { KeyboardEvent } from 'react'
+import { DEFAULT_QUANTITIES } from '@/lib/types/channel-quantities'
+import type { ChannelQuantities, SocialQuantity } from '@/lib/types/channel-quantities'
 
 interface GeplantThema {
   monat: string
+  kanal: string
   thema: string
 }
+
+const CHANNEL_LABELS: Record<string, string> = {
+  BLOG: 'Blog',
+  NEWSLETTER: 'Newsletter',
+  SOCIAL_INSTAGRAM: 'Instagram',
+  SOCIAL_FACEBOOK: 'Facebook',
+  SOCIAL_LINKEDIN: 'LinkedIn',
+}
+
+const SOCIAL_CHANNELS = new Set(['SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN'])
 
 interface Props {
   projectId: string
   initialKeywords: string[]
   initialThemenPool: string
   initialGeplantThemen: GeplantThema[]
+  initialChannelQuantities: ChannelQuantities
+  channels: string[]
   planningStart: string
   planningEnd: string
 }
@@ -40,6 +55,8 @@ export function ProjectContentSettings({
   initialKeywords,
   initialThemenPool,
   initialGeplantThemen,
+  initialChannelQuantities,
+  channels,
   planningStart,
   planningEnd,
 }: Props) {
@@ -52,11 +69,20 @@ export function ProjectContentSettings({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const months = generateMonths(planningStart, planningEnd)
+
+  // geplantThemen: Record<`${monat}::${kanal}`, thema>
   const [geplantThemen, setGeplantThemen] = useState<Record<string, string>>(() => {
     const map: Record<string, string> = {}
-    for (const t of initialGeplantThemen) map[t.monat] = t.thema
+    for (const t of initialGeplantThemen) {
+      if (t.kanal) map[`${t.monat}::${t.kanal}`] = t.thema
+    }
     return map
   })
+
+  const [quantities, setQuantities] = useState<ChannelQuantities>(() => ({
+    ...DEFAULT_QUANTITIES,
+    ...initialChannelQuantities,
+  }))
 
   function addKeyword(raw: string) {
     const trimmed = raw.trim()
@@ -82,16 +108,24 @@ export function ProjectContentSettings({
     if (kwInput.trim()) addKeyword(kwInput)
   }
 
-  function setThema(monat: string, thema: string) {
-    setGeplantThemen(prev => ({ ...prev, [monat]: thema }))
+  function getThema(monat: string, kanal: string): string {
+    return geplantThemen[`${monat}::${kanal}`] ?? ''
   }
 
-  function clearThema(monat: string) {
-    setGeplantThemen(prev => {
-      const next = { ...prev }
-      delete next[monat]
-      return next
+  function setThema(monat: string, kanal: string, thema: string) {
+    const key = `${monat}::${kanal}`
+    setGeplantThemen(prev => thema ? { ...prev, [key]: thema } : (() => { const n = { ...prev }; delete n[key]; return n })())
+  }
+
+  function setSocialQuantity(kanal: string, field: 'posts' | 'stories', value: number) {
+    setQuantities(prev => {
+      const existing = (prev[kanal as keyof ChannelQuantities] as SocialQuantity | undefined) ?? { posts: 4, stories: 0 }
+      return { ...prev, [kanal]: { ...existing, [field]: value } }
     })
+  }
+
+  function setSimpleQuantity(kanal: string, value: number) {
+    setQuantities(prev => ({ ...prev, [kanal]: value }))
   }
 
   async function handleSave() {
@@ -100,19 +134,21 @@ export function ProjectContentSettings({
     const finalKeywords = kwInput.trim()
       ? [...keywords, kwInput.trim()].filter((k, i, a) => a.indexOf(k) === i)
       : keywords
-    if (kwInput.trim()) {
-      setKeywords(finalKeywords)
-      setKwInput('')
-    }
+    if (kwInput.trim()) { setKeywords(finalKeywords); setKwInput('') }
+
     const geplantThemenArr: GeplantThema[] = Object.entries(geplantThemen)
       .filter(([, thema]) => thema.trim())
-      .map(([monat, thema]) => ({ monat, thema: thema.trim() }))
+      .map(([key, thema]) => {
+        const [monat, kanal] = key.split('::')
+        return { monat: monat ?? '', kanal: kanal ?? '', thema: thema.trim() }
+      })
+      .filter(t => t.monat && t.kanal)
 
     try {
       const res = await fetch(`/api/projects/${projectId}/settings`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keywords: finalKeywords, themenPool, geplantThemen: geplantThemenArr }),
+        body: JSON.stringify({ keywords: finalKeywords, themenPool, geplantThemen: geplantThemenArr, channelQuantities: quantities }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -127,8 +163,12 @@ export function ProjectContentSettings({
     }
   }
 
+  const activeChannels = ['BLOG', 'NEWSLETTER', 'SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN']
+    .filter(ch => channels.includes(ch))
+
   return (
-    <div className="bg-white rounded-2xl border border-stone p-6 space-y-5">
+    <div className="bg-white rounded-2xl border border-stone p-6 space-y-6">
+
       {/* Keywords */}
       <div>
         <label className="block text-xs font-medium text-anthrazit mb-1">
@@ -139,18 +179,9 @@ export function ProjectContentSettings({
           onClick={() => inputRef.current?.focus()}
         >
           {keywords.map((kw) => (
-            <span
-              key={kw}
-              className="inline-flex items-center gap-1 text-xs bg-stone px-2 py-0.5 rounded-full text-anthrazit"
-            >
+            <span key={kw} className="inline-flex items-center gap-1 text-xs bg-stone px-2 py-0.5 rounded-full text-anthrazit">
               {kw}
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); removeKeyword(kw) }}
-                className="text-stahlgrau hover:text-bordeaux leading-none"
-              >
-                ×
-              </button>
+              <button type="button" onClick={(e) => { e.stopPropagation(); removeKeyword(kw) }} className="text-stahlgrau hover:text-bordeaux leading-none">×</button>
             </span>
           ))}
           <input
@@ -181,37 +212,114 @@ export function ProjectContentSettings({
         />
       </div>
 
-      {/* Bereits abgestimmte Themen */}
-      {months.length > 0 && (
+      {/* Mengenplan */}
+      {activeChannels.length > 0 && (
+        <div>
+          <label className="block text-xs font-medium text-anthrazit mb-2">
+            Mengenplan <span className="text-stahlgrau font-normal">(Anzahl pro Monat)</span>
+          </label>
+          <div className="border border-stone rounded-lg overflow-hidden divide-y divide-stone/40">
+            {activeChannels.map((ch) => {
+              const isSocial = SOCIAL_CHANNELS.has(ch)
+              return (
+                <div key={ch} className="flex items-center gap-4 px-4 py-2.5 bg-white">
+                  <span className="text-sm text-anthrazit w-28 shrink-0">{CHANNEL_LABELS[ch] ?? ch}</span>
+                  {isSocial ? (
+                    <div className="flex items-center gap-4 text-sm">
+                      <label className="flex items-center gap-1.5 text-stahlgrau text-xs">
+                        Beiträge
+                        <input
+                          type="number"
+                          min={0}
+                          max={30}
+                          value={(quantities[ch as keyof ChannelQuantities] as SocialQuantity | undefined)?.posts ?? 4}
+                          onChange={e => setSocialQuantity(ch, 'posts', Math.max(0, parseInt(e.target.value) || 0))}
+                          className="w-14 px-2 py-1 border border-stone rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-bordeaux"
+                        />
+                      </label>
+                      <label className="flex items-center gap-1.5 text-stahlgrau text-xs">
+                        Storys
+                        <input
+                          type="number"
+                          min={0}
+                          max={30}
+                          value={(quantities[ch as keyof ChannelQuantities] as SocialQuantity | undefined)?.stories ?? 0}
+                          onChange={e => setSocialQuantity(ch, 'stories', Math.max(0, parseInt(e.target.value) || 0))}
+                          className="w-14 px-2 py-1 border border-stone rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-bordeaux"
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <label className="flex items-center gap-1.5 text-stahlgrau text-xs">
+                      pro Monat
+                      <input
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={(quantities[ch as keyof ChannelQuantities] as number | undefined) ?? 1}
+                        onChange={e => setSimpleQuantity(ch, Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-14 px-2 py-1 border border-stone rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-bordeaux"
+                      />
+                    </label>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Bereits abgestimmte Themen — pro Monat & Kanal */}
+      {months.length > 0 && activeChannels.length > 0 && (
         <div>
           <label className="block text-xs font-medium text-anthrazit mb-2">
             Bereits abgestimmte Themen <span className="text-stahlgrau font-normal">(verbindlich für die Generierung)</span>
           </label>
-          <div className="border border-stone rounded-lg overflow-hidden">
-            {months.map((monat, i) => (
-              <div
-                key={monat}
-                className={`flex items-center gap-3 px-3 py-2 ${i % 2 === 0 ? 'bg-white' : 'bg-stone/30'}`}
-              >
-                <span className="text-xs text-stahlgrau w-28 shrink-0">{formatMonat(monat)}</span>
-                <input
-                  type="text"
-                  value={geplantThemen[monat] ?? ''}
-                  onChange={(e) => setThema(monat, e.target.value)}
-                  placeholder="Thema eintragen …"
-                  className="flex-1 text-sm bg-transparent focus:outline-none placeholder:text-stone-400"
-                />
-                {geplantThemen[monat] && (
-                  <button
-                    type="button"
-                    onClick={() => clearThema(monat)}
-                    className="text-stahlgrau hover:text-bordeaux text-xs leading-none"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse border border-stone rounded-lg overflow-hidden">
+              <thead>
+                <tr className="bg-stone/40">
+                  <th className="text-left px-3 py-2 text-xs font-medium text-stahlgrau whitespace-nowrap min-w-[110px]">Monat</th>
+                  {activeChannels.map(ch => (
+                    <th key={ch} className="text-left px-3 py-2 text-xs font-medium text-stahlgrau whitespace-nowrap min-w-[160px]">
+                      {CHANNEL_LABELS[ch] ?? ch}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {months.map((monat, i) => (
+                  <tr key={monat} className={`border-t border-stone/40 ${i % 2 === 0 ? 'bg-white' : 'bg-stone/20'}`}>
+                    <td className="px-3 py-2 text-xs text-stahlgrau whitespace-nowrap align-middle">{formatMonat(monat)}</td>
+                    {activeChannels.map(ch => {
+                      const val = getThema(monat, ch)
+                      return (
+                        <td key={ch} className="px-2 py-1.5 align-middle">
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="text"
+                              value={val}
+                              onChange={e => setThema(monat, ch, e.target.value)}
+                              placeholder="Thema …"
+                              className="flex-1 text-xs bg-transparent focus:outline-none placeholder:text-stone-400 min-w-0"
+                            />
+                            {val && (
+                              <button
+                                type="button"
+                                onClick={() => setThema(monat, ch, '')}
+                                className="text-stahlgrau hover:text-bordeaux text-xs leading-none shrink-0"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           <p className="mt-1 text-xs text-stahlgrau">Eingetragene Themen werden bei der KI-Generierung verbindlich berücksichtigt.</p>
         </div>
