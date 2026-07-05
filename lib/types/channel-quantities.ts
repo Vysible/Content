@@ -29,3 +29,13 @@ export const NEWSLETTER_RHYTHM_OPTIONS: { label: string; value: number }[] = [
   { label: 'Quartalsweise (4x/Jahr)', value: 0.25 },
   { label: 'Halbjährlich (2x/Jahr)', value: 0.17 },
 ]
+
+// Blog-Rhythmus: auch mehrfach pro Monat möglich
+export const BLOG_RHYTHM_OPTIONS: { label: string; value: number }[] = [
+  { label: 'Wöchentlich (4x/Monat)', value: 4 },
+  { label: '2x pro Monat', value: 2 },
+  { label: 'Monatlich', value: 1 },
+  { label: 'Alle 2 Monate', value: 0.5 },
+  { label: 'Alle 3 Monate', value: 0.33 },
+  { label: 'Quartalsweise (4x/Jahr)', value: 0.25 },
+]
