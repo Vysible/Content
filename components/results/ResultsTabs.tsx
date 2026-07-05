@@ -312,7 +312,7 @@ function BlogTab({
                 <p className="font-medium text-sm">{r.titel}</p>
                 <p className="text-xs text-stahlgrau">{r.monat} · {r.blog?.wordCount ?? 0} Wörter</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap justify-end">
                 {!r.blog && (
                   <RegenerateButton
                     projectId={projectId}
@@ -321,6 +321,7 @@ function BlogTab({
                     onSuccess={(result) => onUpdate(globalIndex, result)}
                   />
                 )}
+                <ApprovalBadge approval={r.customerApproval} comment={r.customerComment} />
                 <button
                   onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
                   className={`text-xs px-2 py-1 rounded-full border transition ${
@@ -434,7 +435,7 @@ function NewsletterTab({
                 <p className="font-medium text-sm">{r.titel}</p>
                 <p className="text-xs text-stahlgrau">{r.monat}{nl?.betreffA ? ` · ${nl.betreffA.slice(0, 50)}…` : ''}</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap justify-end">
                 {!r.newsletter && (
                   <RegenerateButton
                     projectId={projectId}
@@ -443,6 +444,7 @@ function NewsletterTab({
                     onSuccess={(result) => onUpdate(globalIndex, result)}
                   />
                 )}
+                <ApprovalBadge approval={r.customerApproval} comment={r.customerComment} />
                 <button
                   onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
                   className={`text-xs px-2 py-1 rounded-full border transition ${
@@ -680,7 +682,7 @@ function SocialTab({
                         <div key={globalIndex} className="bg-white border border-stone rounded-xl p-4 border-l-4 border-l-purple-400">
                           <div className="flex items-center justify-between mb-3">
                             <p className="font-medium text-sm">{r.titel}</p>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 flex-wrap justify-end">
                               {!r.socialPosts?.length && (
                                 <RegenerateButton
                                   projectId={projectId}
@@ -689,6 +691,7 @@ function SocialTab({
                                   onSuccess={(result) => onUpdate(globalIndex, result)}
                                 />
                               )}
+                              <ApprovalBadge approval={r.customerApproval} comment={r.customerComment} />
                               <button
                                 onClick={(e) => { e.stopPropagation(); onUpdate(globalIndex, { portalVisible: !r.portalVisible }) }}
                                 className={`text-xs px-2 py-1 rounded-full border transition ${
@@ -1379,6 +1382,25 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <p className="text-xs text-stahlgrau mb-1">{label}</p>
       {children}
     </div>
+  )
+}
+
+function ApprovalBadge({ approval, comment }: { approval?: string; comment?: string }) {
+  if (!approval || approval === 'pending') return null
+  const isApproved = approval === 'approved'
+  return (
+    <span
+      title={comment || undefined}
+      className={`text-xs px-2 py-0.5 rounded-full font-medium cursor-default ${
+        isApproved
+          ? 'bg-emerald-100 text-emerald-700'
+          : 'bg-amber-100 text-amber-700'
+      }`}
+    >
+      {isApproved ? '✓ Freigegeben' : '△ Änderung'}
+      {comment && ' ·'}
+      {comment && <span className="italic ml-0.5 truncate max-w-[100px] inline-block align-bottom" style={{ maxWidth: '120px' }}>{comment}</span>}
+    </span>
   )
 }
 

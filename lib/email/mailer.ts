@@ -13,6 +13,8 @@ export type EmailTrigger =
   | 'cost_threshold_exceeded'
   | 'monthly_report'
   | 'token_expiring'
+  | 'portal_approved'
+  | 'portal_changes_requested'
 
 export async function sendPasswordResetMail(toEmail: string, resetUrl: string): Promise<void> {
   const config = await prisma.smtpConfig.findFirst({ where: { active: true } })
@@ -69,10 +71,13 @@ export async function sendPasswordResetMail(toEmail: string, resetUrl: string): 
 export async function sendNotification(
   trigger: EmailTrigger,
   projectName: string,
-  details?: string
+  details?: string,
+  toOverride?: string
 ): Promise<void> {
   const config = await prisma.smtpConfig.findFirst({ where: { active: true } })
-  if (!config || config.recipients.length === 0) return
+  if (!config) return
+  const recipients = toOverride ? [toOverride] : config.recipients
+  if (recipients.length === 0) return
 
   let password: string
   try {

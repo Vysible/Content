@@ -8,6 +8,8 @@ const TRIGGER_SUBJECTS: Record<EmailTrigger, string> = {
   cost_threshold_exceeded: 'Vysible: Kosten-Schwellwert überschritten',
   monthly_report: 'Vysible: Automatischer Monatsreport verfügbar',
   token_expiring: 'Vysible: API-Token läuft bald ab',
+  portal_approved: 'Vysible: Kundenportal – Freigabe erteilt',
+  portal_changes_requested: 'Vysible: Kundenportal – Änderungen gewünscht',
 }
 
 function escapeHtml(value: string): string {
