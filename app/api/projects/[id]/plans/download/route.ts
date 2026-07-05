@@ -37,39 +37,66 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: 'Keine Pläne vorhanden' }, { status: 422 })
   }
 
+  const SOCIAL_KANAELE = new Set(['SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN'])
+
   const wb = XLSX.utils.book_new()
 
-  // Sheet 1: Themenplan
-  const themenRows = themes.map((t) => ({
-    Monat: t.monat,
-    Titel: t.seoTitel,
-    Kanal: KANAL_LABELS[t.kanal] ?? t.kanal,
-    Funnel: t.funnelStufe,
-    HWG: t.hwgFlag,
-    'Keyword (primär)': t.keywordPrimaer,
-    'Keywords (sekundär)': t.keywordSekundaer.join(', '),
-    CTA: t.cta,
-    Priorität: t.prioritaet,
-    Thema: t.thema,
-    Zielgruppe: t.zielgruppe,
-    Kategorie: t.kategorie,
-  }))
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(themenRows), 'Themenplan')
+  // Sheet 1: Blog
+  const blogThemes = themes.filter((t) => t.kanal === 'BLOG')
+  if (blogThemes.length > 0) {
+    const rows = blogThemes.map((t) => ({
+      Monat: t.monat,
+      Titel: t.seoTitel,
+      Thema: t.thema,
+      Kategorie: t.kategorie,
+      Funnel: t.funnelStufe,
+      'Keyword (primär)': t.keywordPrimaer,
+      'Keywords (sekundär)': t.keywordSekundaer.join(', '),
+      'PAA-Fragen': t.paaFragen.join(' | '),
+      'Content-Winkel': t.contentWinkel,
+      CTA: t.cta,
+      Priorität: t.prioritaet,
+      HWG: t.hwgFlag,
+    }))
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Blog')
+  }
 
-  // Sheet 2: Redaktionsplan
-  const redaktionsRows = themes.map((t) => ({
-    Monat: t.monat,
-    Kanal: KANAL_LABELS[t.kanal] ?? t.kanal,
-    Titel: t.seoTitel,
-    'Keyword (primär)': t.keywordPrimaer,
-    CTA: t.cta,
-    Funnel: t.funnelStufe,
-    'PAA-Fragen': t.paaFragen.join(' | '),
-    'Content-Winkel': t.contentWinkel,
-  }))
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(redaktionsRows), 'Redaktionsplan')
+  // Sheet 2: Newsletter
+  const newsletterThemes = themes.filter((t) => t.kanal === 'NEWSLETTER')
+  if (newsletterThemes.length > 0) {
+    const rows = newsletterThemes.map((t) => ({
+      Monat: t.monat,
+      Titel: t.seoTitel,
+      Thema: t.thema,
+      Funnel: t.funnelStufe,
+      'Keyword (primär)': t.keywordPrimaer,
+      'Content-Winkel': t.contentWinkel,
+      CTA: t.cta,
+      Priorität: t.prioritaet,
+      HWG: t.hwgFlag,
+    }))
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Newsletter')
+  }
 
-  // Sheet 3: Blog-Gliederungen (nur wenn vorhanden)
+  // Sheet 3: Social Media (Instagram + Facebook + LinkedIn)
+  const socialThemes = themes.filter((t) => SOCIAL_KANAELE.has(t.kanal))
+  if (socialThemes.length > 0) {
+    const rows = socialThemes.map((t) => ({
+      Monat: t.monat,
+      Kanal: KANAL_LABELS[t.kanal] ?? t.kanal,
+      Titel: t.seoTitel,
+      Thema: t.thema,
+      Zielgruppe: t.zielgruppe,
+      Funnel: t.funnelStufe,
+      'Keyword (primär)': t.keywordPrimaer,
+      'Content-Winkel': t.contentWinkel,
+      CTA: t.cta,
+      HWG: t.hwgFlag,
+    }))
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Social Media')
+  }
+
+  // Sheet 4: Blog-Gliederungen (nur wenn vorhanden)
   const blogWithOutlines = textResults.filter((r) => r.blog?.outline)
   if (blogWithOutlines.length > 0) {
     const outlineRows = blogWithOutlines.map((r) => ({
