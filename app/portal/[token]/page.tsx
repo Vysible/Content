@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { PortalAccess } from './PortalAccess'
 import type { StoredTextResult } from '@/lib/generation/results-store'
+import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { GA4Metrics } from '@/lib/ga4/client'
 import type { GoogleAdsMetrics } from '@/lib/google-ads/client'
 import { fetchGA4Metrics } from '@/lib/ga4/client'
@@ -25,6 +26,7 @@ export default async function PortalPage({ params }: { params: { token: string }
           praxisName: true,
           praxisUrl: true,
           textResults: true,
+          themeResults: true,
           ga4PropertyId: true,
           googleAdsCustomerId: true,
         },
@@ -36,6 +38,7 @@ export default async function PortalPage({ params }: { params: { token: string }
   if (link.expiresAt < new Date()) notFound()
 
   const allResults = (link.project.textResults as unknown as StoredTextResult[] | null) ?? []
+  const themes = (link.project.themeResults as unknown as ThemenItem[] | null) ?? []
   const portalItems = allResults
     .map((r, i) => ({ globalIndex: i, result: r }))
     .filter(({ result }) => result.portalVisible)
@@ -72,6 +75,7 @@ export default async function PortalPage({ params }: { params: { token: string }
       praxisName={link.project.praxisName ?? link.project.praxisUrl ?? ''}
       expiresAt={link.expiresAt.toISOString()}
       portalItems={portalItems}
+      themes={themes}
       ga4={ga4}
       googleAds={googleAds}
       showAnalytics={link.showAnalytics}

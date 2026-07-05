@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { StoredTextResult, CustomerApproval } from '@/lib/generation/results-store'
+import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { GA4Metrics } from '@/lib/ga4/client'
 import type { GoogleAdsMetrics } from '@/lib/google-ads/client'
 
@@ -17,9 +18,62 @@ interface Props {
   praxisName: string
   expiresAt: string
   portalItems: PortalItem[]
+  themes: ThemenItem[]
   ga4: GA4Metrics | null
   googleAds: GoogleAdsMetrics | null
   showAnalytics?: boolean
+}
+
+type PlanKanal = 'BLOG' | 'NEWSLETTER' | 'SOCIAL'
+
+interface PlanItem {
+  kanal: PlanKanal
+  titel: string
+  isReady: boolean
+}
+
+function formatMonatLang(monat: string): string {
+  const [year, month] = monat.split('-')
+  return new Date(parseInt(year), parseInt(month) - 1, 1)
+    .toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
+}
+
+function kanalLabel(kanal: PlanKanal): string {
+  if (kanal === 'BLOG') return 'Blog'
+  if (kanal === 'NEWSLETTER') return 'Newsletter'
+  return 'Social Media'
+}
+
+function kanalStyle(kanal: PlanKanal): string {
+  if (kanal === 'BLOG') return 'bg-stone/30 text-anthrazit'
+  if (kanal === 'NEWSLETTER') return 'bg-emerald-100 text-emerald-700'
+  return 'bg-purple-100 text-purple-700'
+}
+
+function buildPlanByMonth(themes: ThemenItem[], portalItems: PortalItem[]): Record<string, PlanItem[]> {
+  const byMonth: Record<string, PlanItem[]> = {}
+
+  for (const t of themes) {
+    if (!byMonth[t.monat]) byMonth[t.monat] = []
+
+    let kanal: PlanKanal
+    if (t.kanal === 'BLOG') kanal = 'BLOG'
+    else if (t.kanal === 'NEWSLETTER') kanal = 'NEWSLETTER'
+    else kanal = 'SOCIAL'
+
+    if (kanal === 'SOCIAL' && byMonth[t.monat].some((p) => p.kanal === 'SOCIAL')) continue
+
+    const isReady = portalItems.some(({ result: r }) => {
+      if (r.monat !== t.monat) return false
+      if (kanal === 'BLOG') return !!r.blog
+      if (kanal === 'NEWSLETTER') return !!r.newsletter
+      return (r.socialPosts?.length ?? 0) > 0
+    })
+
+    byMonth[t.monat].push({ kanal, titel: t.seoTitel, isReady })
+  }
+
+  return byMonth
 }
 
 interface LocalState {
@@ -84,7 +138,7 @@ function MiniBar({ value, max }: { value: number; max: number }) {
   )
 }
 
-export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, ga4, googleAds, showAnalytics }: Props) {
+export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, themes, ga4, googleAds, showAnalytics }: Props) {
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
@@ -363,19 +417,55 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
             </div>
           )
         })}
+        {/* Content-Planung */}
+        {themes.length > 0 && (() => {
+          const planByMonth = buildPlanByMonth(themes, portalItems)
+          const months = Object.keys(planByMonth).sort()
+          return (
+            <section>
+              <div className="border-t border-stone pt-6">
+                <h2 className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-1">
+                  Ihre Content-Planung
+                </h2>
+                <p className="text-sm text-stahlgrau mb-5">
+                  Alle geplanten Inhalte für Ihre Praxis — nach Monat und Format sortiert.
+                </p>
+                <div className="space-y-4">
+                  {months.map((monat) => (
+                    <div key={monat} className="bg-white border border-stone rounded-xl overflow-hidden">
+                      <div className="px-5 py-3 border-b border-stone/40 bg-stone/10">
+                        <p className="text-sm font-semibold text-nachtblau">{formatMonatLang(monat)}</p>
+                      </div>
+                      <div className="divide-y divide-stone/30">
+                        {planByMonth[monat].map((item, i) => (
+                          <div key={i} className="flex items-center gap-3 px-5 py-3">
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${kanalStyle(item.kanal)}`}>
+                              {kanalLabel(item.kanal)}
+                            </span>
+                            <p className="text-sm text-anthrazit flex-1 min-w-0">{item.titel}</p>
+                            {item.isReady ? (
+                              <span className="text-xs text-emerald-600 font-medium shrink-0">✓ Im Portal</span>
+                            ) : (
+                              <span className="text-xs text-stahlgrau shrink-0">In Vorbereitung</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )
+        })()}
+
         {/* Analytics */}
-        {(showAnalytics || ga4 || googleAds) && (
+        {showAnalytics && (ga4 || googleAds) && (
           <section className="space-y-6">
             <div className="border-t border-stone pt-6">
               <h2 className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-6">
                 Analysen — letzte 28 Tage
               </h2>
-              {!ga4 && !googleAds && (
-                <div className="bg-white rounded-xl border border-stone p-5 text-center">
-                  <p className="text-sm text-stahlgrau">Noch keine Analysedaten verfügbar.</p>
-                  <p className="text-xs text-stahlgrau mt-1 opacity-70">Die Daten erscheinen hier, sobald GA4 oder Google Ads verbunden sind.</p>
-                </div>
-              )}
 
               {ga4 && (
                 <div className="space-y-4 mb-8">
