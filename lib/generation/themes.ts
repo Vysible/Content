@@ -189,11 +189,12 @@ function buildMengenplan(project: Project): string {
         : ''
       return `${ch}: ${postDesc}${storyDesc}`
     }
-    if (ch === 'NEWSLETTER') {
+    if (ch === 'NEWSLETTER' || ch === 'BLOG') {
       const count = (q[ch as keyof ChannelQuantities] as number | undefined) ?? 1
-      if (count >= 1) return `${ch}: ${count} Newsletter pro Monat`
+      const label = ch === 'NEWSLETTER' ? 'Newsletter' : 'Blog-Artikel'
+      if (count >= 1) return `${ch}: ${count} ${label} pro Monat`
       const intervalMonths = Math.round(1 / count)
-      return `${ch}: Newsletter alle ${intervalMonths} Monate (nur jeder ${intervalMonths}. Monat bekommt ein Newsletter-Thema)`
+      return `${ch}: ${label} alle ${intervalMonths} Monate (nur jeder ${intervalMonths}. Monat bekommt ein ${label}-Thema)`
     }
     const count = (q[ch as keyof ChannelQuantities] as number | undefined) ?? 1
     return `${ch}: ${count} pro Monat`

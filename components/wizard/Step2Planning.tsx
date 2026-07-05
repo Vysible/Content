@@ -2,7 +2,7 @@
 
 import type { WizardData } from './NewProjectWizard'
 import type { ChannelQuantities, SocialQuantity } from '@/lib/types/channel-quantities'
-import { NEWSLETTER_RHYTHM_OPTIONS } from '@/lib/types/channel-quantities'
+import { NEWSLETTER_RHYTHM_OPTIONS, BLOG_RHYTHM_OPTIONS } from '@/lib/types/channel-quantities'
 
 const CHANNELS = [
   { id: 'BLOG',              label: 'Blog',        icon: '✍' },
@@ -242,39 +242,21 @@ export function Step2Planning({ data, onChange, onNext, onBack }: Step2Props) {
                   </div>
                 )
               }
-              if (ch.id === 'NEWSLETTER') {
-                const count = (data.channelQuantities[ch.id as keyof ChannelQuantities] as number | undefined) ?? 1
-                return (
-                  <div key={ch.id} className="flex items-center gap-3 bg-stone/30 rounded-lg px-3 py-2">
-                    <span className="text-xs text-anthrazit font-medium w-24 shrink-0">{ch.icon} {ch.label}</span>
-                    <select
-                      value={count}
-                      onChange={(e) => updateSimpleQuantity(ch.id, parseFloat(e.target.value))}
-                      className="text-xs px-2 py-1.5 border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-bordeaux"
-                    >
-                      {NEWSLETTER_RHYTHM_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                )
-              }
-              // BLOG
+              // BLOG or NEWSLETTER — Rhythmus-Dropdown
               const count = (data.channelQuantities[ch.id as keyof ChannelQuantities] as number | undefined) ?? 1
+              const options = ch.id === 'BLOG' ? BLOG_RHYTHM_OPTIONS : NEWSLETTER_RHYTHM_OPTIONS
               return (
                 <div key={ch.id} className="flex items-center gap-3 bg-stone/30 rounded-lg px-3 py-2">
                   <span className="text-xs text-anthrazit font-medium w-24 shrink-0">{ch.icon} {ch.label}</span>
-                  <div className="flex items-center gap-1.5">
-                    <label className="text-xs text-stahlgrau">Artikel/Monat</label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={4}
-                      value={count}
-                      onChange={(e) => updateSimpleQuantity(ch.id, Math.min(4, Math.max(1, Number(e.target.value))))}
-                      className="w-14 px-2 py-1 text-xs border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-bordeaux text-center"
-                    />
-                  </div>
+                  <select
+                    value={count}
+                    onChange={(e) => updateSimpleQuantity(ch.id, parseFloat(e.target.value))}
+                    className="text-xs px-2 py-1.5 border border-stone rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-bordeaux"
+                  >
+                    {options.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
                 </div>
               )
             })}

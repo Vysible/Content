@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import type { KeyboardEvent } from 'react'
-import { DEFAULT_QUANTITIES, NEWSLETTER_RHYTHM_OPTIONS } from '@/lib/types/channel-quantities'
+import { DEFAULT_QUANTITIES, NEWSLETTER_RHYTHM_OPTIONS, BLOG_RHYTHM_OPTIONS } from '@/lib/types/channel-quantities'
 import type { ChannelQuantities, SocialQuantity } from '@/lib/types/channel-quantities'
 
 interface GeplantThema {
@@ -249,13 +249,13 @@ export function ProjectContentSettings({
                         />
                       </label>
                     </div>
-                  ) : ch === 'NEWSLETTER' ? (
+                  ) : (ch === 'NEWSLETTER' || ch === 'BLOG') ? (
                     <select
                       value={(quantities[ch as keyof ChannelQuantities] as number | undefined) ?? 1}
                       onChange={e => setSimpleQuantity(ch, parseFloat(e.target.value))}
                       className="text-xs px-2 py-1.5 border border-stone rounded focus:outline-none focus:ring-1 focus:ring-bordeaux bg-white"
                     >
-                      {NEWSLETTER_RHYTHM_OPTIONS.map(opt => (
+                      {(ch === 'BLOG' ? BLOG_RHYTHM_OPTIONS : NEWSLETTER_RHYTHM_OPTIONS).map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
