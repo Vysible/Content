@@ -7,6 +7,8 @@ import type { GA4Metrics } from '@/lib/ga4/client'
 import type { GoogleAdsMetrics } from '@/lib/google-ads/client'
 import { fetchGA4Metrics } from '@/lib/ga4/client'
 import { fetchGoogleAdsMetrics } from '@/lib/google-ads/client'
+import { listFolderAssets } from '@/lib/canva/client'
+import type { CanvaAsset } from '@/lib/canva/client'
 import { logger } from '@/lib/utils/logger'
 
 const ADS_ENV_VARS = [
@@ -29,6 +31,9 @@ export default async function PortalPage({ params }: { params: { token: string }
           themeResults: true,
           ga4PropertyId: true,
           googleAdsCustomerId: true,
+          canvaFolderId: true,
+          clientId: true,
+          createdById: true,
         },
       },
     },
@@ -45,6 +50,7 @@ export default async function PortalPage({ params }: { params: { token: string }
 
   let ga4: GA4Metrics | null = null
   let googleAds: GoogleAdsMetrics | null = null
+  let canvaAssets: CanvaAsset[] = []
 
   if (link.showAnalytics) {
     const endDate = new Date().toISOString().slice(0, 10)
@@ -68,6 +74,27 @@ export default async function PortalPage({ params }: { params: { token: string }
     }
   }
 
+  // Canva-Assets laden für Social-Post-Bildvorschau
+  let canvaFolderId = link.project.canvaFolderId
+  if (!canvaFolderId && link.project.clientId) {
+    try {
+      const client = await prisma.client.findUnique({
+        where: { id: link.project.clientId },
+        select: { canvaFolderId: true },
+      })
+      canvaFolderId = client?.canvaFolderId ?? null
+    } catch (err) {
+      logger.warn({ err, projectId: link.projectId }, '[portal] Kunden-Canva-Ordner konnte nicht geladen werden')
+    }
+  }
+  if (canvaFolderId) {
+    try {
+      canvaAssets = await listFolderAssets(canvaFolderId, link.project.createdById)
+    } catch (err) {
+      logger.warn({ err, projectId: link.projectId }, '[portal] Canva-Assets konnten nicht geladen werden')
+    }
+  }
+
   return (
     <PortalAccess
       token={params.token}
@@ -79,6 +106,7 @@ export default async function PortalPage({ params }: { params: { token: string }
       ga4={ga4}
       googleAds={googleAds}
       showAnalytics={link.showAnalytics}
+      canvaAssets={canvaAssets}
     />
   )
 }
