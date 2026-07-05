@@ -45,13 +45,16 @@ export async function getAllTokenExpiryStatuses(): Promise<TokenExpiryStatus[]> 
     statuses.push({ id: key.id, name: key.name, provider: key.provider, expiresAt: key.expiresAt, daysLeft, level, source: 'apiKey' })
   }
 
+  // Canva access tokens expire after ~1h by design and auto-refresh via refresh token.
+  // Only warn if truly expired (daysLeft <= 0) — i.e. auto-refresh also failed.
   const canvaTokens = await prisma.canvaToken.findMany({
-    where: { expiresAt: { lte: warnBefore } },
+    where: { expiresAt: { lte: new Date() } },
     select: { id: true, expiresAt: true },
   })
 
   for (const token of canvaTokens) {
     const daysLeft = daysUntil(token.expiresAt)
+    if (daysLeft > 0) continue
     const level = getExpiryLevel(daysLeft)
     if (level === 'ok') continue
     statuses.push({ id: token.id, name: 'Canva OAuth Token', provider: 'CANVA', expiresAt: token.expiresAt, daysLeft, level, source: 'canvaToken' })
