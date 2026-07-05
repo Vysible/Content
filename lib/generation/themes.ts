@@ -177,9 +177,23 @@ function buildMengenplan(project: Project): string {
   return project.channels.map(ch => {
     if (ch === 'SOCIAL_INSTAGRAM' || ch === 'SOCIAL_FACEBOOK' || ch === 'SOCIAL_LINKEDIN') {
       const sq = q[ch as keyof ChannelQuantities] as SocialQuantity | undefined
-      const posts = sq?.posts ?? 4
+      const unit = sq?.postsUnit ?? 'month'
+      const posts = sq?.posts ?? (unit === 'week' ? 1 : 4)
       const stories = sq?.stories ?? 0
-      return `${ch}: ${posts} Beiträge${stories > 0 ? ` + ${stories} Storys` : ''} pro Monat`
+      const monthlyPosts = unit === 'week' ? posts * 4 : posts
+      const postDesc = unit === 'week'
+        ? `${posts} Beitrag${posts !== 1 ? 'e' : ''} pro Woche (~${monthlyPosts} pro Monat)`
+        : `${posts} Beiträge pro Monat`
+      const storyDesc = stories > 0
+        ? ` + ${stories} Story${stories !== 1 ? 's' : ''} pro ${unit === 'week' ? 'Woche' : 'Monat'}`
+        : ''
+      return `${ch}: ${postDesc}${storyDesc}`
+    }
+    if (ch === 'NEWSLETTER') {
+      const count = (q[ch as keyof ChannelQuantities] as number | undefined) ?? 1
+      if (count >= 1) return `${ch}: ${count} Newsletter pro Monat`
+      const intervalMonths = Math.round(1 / count)
+      return `${ch}: Newsletter alle ${intervalMonths} Monate (nur jeder ${intervalMonths}. Monat bekommt ein Newsletter-Thema)`
     }
     const count = (q[ch as keyof ChannelQuantities] as number | undefined) ?? 1
     return `${ch}: ${count} pro Monat`
