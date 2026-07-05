@@ -21,6 +21,7 @@ const CHANNEL_COLORS: Record<string, string> = {
 }
 
 const ALL_CHANNELS = ['BLOG', 'NEWSLETTER', 'SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN']
+const SOCIAL_CHANNELS = new Set(['SOCIAL_INSTAGRAM', 'SOCIAL_FACEBOOK', 'SOCIAL_LINKEDIN'])
 
 interface Props {
   projectId: string
@@ -67,6 +68,8 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
   const [modal, setModal] = useState<ModalItem | null>(null)
 
   const activeChannels = ALL_CHANNELS.filter((ch) => channels.includes(ch))
+  const editorialChannels = activeChannels.filter((ch) => !SOCIAL_CHANNELS.has(ch))
+  const socialChannels = activeChannels.filter((ch) => SOCIAL_CHANNELS.has(ch))
   const months = getUniqueMonths(themes)
 
   // Lookup: monat+kanal → ThemenItem[]
@@ -261,87 +264,134 @@ export function ResultsOverview({ projectId, themes, textResults, channels }: Pr
         </div>
       )}
 
-      {/* Redaktionsplan-Tabelle — Monate als Spalten, Kanäle als Zeilen */}
-      <div>
-        <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Redaktionsplan</p>
-        <div className="overflow-x-auto">
-          <table className="text-sm border-collapse">
-            <thead>
-              {/* Zeile 1: Monatsnamen */}
-              <tr>
-                <th className="sticky left-0 z-10 bg-white text-left py-2 pr-4 pl-1 text-xs text-stahlgrau font-medium whitespace-nowrap min-w-[120px] border-b-2 border-stone">
-                  Kanal
-                </th>
-                {months.map((m) => (
-                  <th
-                    key={m}
-                    className="text-left py-2 px-3 text-xs font-bold text-nachtblau whitespace-nowrap border-b-2 border-stone min-w-[160px]"
-                  >
-                    {formatMonatShort(m)}
-                    <span className="block text-xs font-normal text-stahlgrau mt-0.5">
-                      {getMonthKwRange(m)}
-                    </span>
+      {/* Redaktionsplan-Tabelle — nur Blog & Newsletter */}
+      {editorialChannels.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Redaktionsplan</p>
+          <div className="overflow-x-auto">
+            <table className="text-sm border-collapse">
+              <thead>
+                <tr>
+                  <th className="sticky left-0 z-10 bg-white text-left py-2 pr-4 pl-1 text-xs text-stahlgrau font-medium whitespace-nowrap min-w-[120px] border-b-2 border-stone">
+                    Kanal
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {activeChannels.map((ch) => (
-                <tr key={ch} className="border-b border-stone/40 align-top">
-                  {/* Kanalname (sticky) */}
-                  <td className="sticky left-0 z-10 bg-white py-3 pr-4 pl-1 text-xs font-semibold text-anthrazit whitespace-nowrap">
-                    <span className="flex items-center gap-1.5">
-                      <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${CHANNEL_COLORS[ch] ?? 'bg-stone'}`} />
-                      {CHANNEL_LABELS[ch] ?? ch}
-                    </span>
-                  </td>
-
-                  {/* Eine Zelle pro Monat */}
-                  {months.map((monat) => {
-                    const items = lookup.get(`${monat}::${ch}`) ?? []
-                    if (items.length === 0) {
+                  {months.map((m) => (
+                    <th
+                      key={m}
+                      className="text-left py-2 px-3 text-xs font-bold text-nachtblau whitespace-nowrap border-b-2 border-stone min-w-[160px]"
+                    >
+                      {formatMonatShort(m)}
+                      <span className="block text-xs font-normal text-stahlgrau mt-0.5">
+                        {getMonthKwRange(m)}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {editorialChannels.map((ch) => (
+                  <tr key={ch} className="border-b border-stone/40 align-top">
+                    <td className="sticky left-0 z-10 bg-white py-3 pr-4 pl-1 text-xs font-semibold text-anthrazit whitespace-nowrap">
+                      <span className="flex items-center gap-1.5">
+                        <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${CHANNEL_COLORS[ch] ?? 'bg-stone'}`} />
+                        {CHANNEL_LABELS[ch] ?? ch}
+                      </span>
+                    </td>
+                    {months.map((monat) => {
+                      const items = lookup.get(`${monat}::${ch}`) ?? []
+                      if (items.length === 0) {
+                        return <td key={monat} className="py-3 px-3 text-stahlgrau/30 text-sm">—</td>
+                      }
                       return (
-                        <td key={monat} className="py-3 px-3 text-stahlgrau/30 text-sm">
-                          —
+                        <td key={monat} className="py-3 px-3">
+                          <div className="flex flex-col gap-1.5">
+                            {items.map((theme, idx) => (
+                              <button key={idx} onClick={() => openModal(theme)} className="text-left group w-full">
+                                <div className="rounded-lg border border-stone bg-white px-2.5 py-1.5 hover:border-brombeer hover:bg-amber-50/40 transition">
+                                  <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-nachtblau line-clamp-2">
+                                    {theme.seoTitel}
+                                  </p>
+                                  <div className="mt-1">
+                                    {hasText(theme) ? (
+                                      <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Text ✓</span>
+                                    ) : (
+                                      <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-stone text-stahlgrau">Offen</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </td>
                       )
-                    }
-                    return (
-                      <td key={monat} className="py-3 px-3">
-                        <div className="flex flex-col gap-1.5">
-                          {items.map((theme, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => openModal(theme)}
-                              className="text-left group w-full"
-                            >
-<div className="rounded-lg border border-stone bg-white px-2.5 py-1.5 hover:border-brombeer hover:bg-amber-50/40 transition">                                <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-nachtblau line-clamp-2">
-                                  {theme.seoTitel}
-                                </p>
-                                <div className="mt-1 flex items-center gap-1.5">
-                                  {hasText(theme) ? (
-                                    <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                                      Text ✓
-                                    </span>
-                                  ) : (
-                                    <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-stone text-stahlgrau">
-                                      Offen
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Social-Media-Plan — Monat für Monat, Kanal nebeneinander */}
+      {socialChannels.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-stahlgrau uppercase tracking-wide mb-3">Social-Media-Plan</p>
+          <div className="space-y-8">
+            {months.map((monat) => {
+              const hasAny = socialChannels.some((ch) => (lookup.get(`${monat}::${ch}`) ?? []).length > 0)
+              if (!hasAny) return null
+              return (
+                <div key={monat}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-sm font-bold text-nachtblau">{formatMonatShort(monat)}</span>
+                    <span className="text-xs text-stahlgrau">{getMonthKwRange(monat)}</span>
+                  </div>
+                  <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${socialChannels.length}, minmax(0, 1fr))` }}>
+                    {socialChannels.map((ch) => {
+                      const items = lookup.get(`${monat}::${ch}`) ?? []
+                      return (
+                        <div key={ch}>
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${CHANNEL_COLORS[ch] ?? 'bg-stone'}`} />
+                            <span className="text-xs font-semibold text-anthrazit">{CHANNEL_LABELS[ch] ?? ch}</span>
+                            {items.length > 0 && (
+                              <span className="text-xs text-stahlgrau">({items.length})</span>
+                            )}
+                          </div>
+                          {items.length === 0 ? (
+                            <p className="text-xs text-stahlgrau/40 italic px-2">—</p>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {items.map((theme, idx) => (
+                                <button key={idx} onClick={() => openModal(theme)} className="w-full text-left group">
+                                  <div className="rounded-lg border border-stone bg-white px-2.5 py-2 hover:border-brombeer hover:bg-amber-50/40 transition">
+                                    <p className="text-xs font-medium text-anthrazit leading-snug group-hover:text-nachtblau line-clamp-3">
+                                      {theme.seoTitel}
+                                    </p>
+                                    <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                                      <span className="text-xs text-stahlgrau">{theme.funnelStufe}</span>
+                                      {hasText(theme) ? (
+                                        <span className="inline-block text-xs px-1 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">✓</span>
+                                      ) : (
+                                        <span className="inline-block text-xs px-1 py-0.5 rounded-full bg-stone text-stahlgrau">Offen</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {modal && <OverviewModal item={modal} onClose={() => setModal(null)} />}
     </div>
