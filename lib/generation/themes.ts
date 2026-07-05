@@ -45,11 +45,8 @@ export async function generateThemes(input: ThemesInput): Promise<ThemenItem[]> 
     ? `\n\nVerfügbare Canva-Assets (für Bildgestaltung berücksichtigen):\n${canvaContext}`
     : ''
 
-  const geplantThemenRaw = (project.geplantThemen as { monat: string; thema: string }[] | null) ?? []
-  const geplantThemenSection = geplantThemenRaw.length > 0
-    ? '\n\nBEREITS ABGESTIMMTE THEMEN (verbindlich — diese Themen MÜSSEN für den jeweiligen Monat verwendet werden):\n' +
-      geplantThemenRaw.map(t => `- ${t.monat}: ${t.thema}`).join('\n')
-    : ''
+  const geplantThemenRaw = (project.geplantThemen as { monat: string; kanal?: string; thema: string }[] | null) ?? []
+  const geplantThemenSection = buildGeplantThemenSection(geplantThemenRaw)
 
   const prompt = loadPrompt('themes', {
     praxisName: project.praxisName ?? project.praxisUrl,
@@ -205,4 +202,32 @@ function extractStandort(scrapeResult?: ScrapeResult): string {
   const addr = scrapeResult.contact.address
   if (addr) return addr
   return ''
+}
+
+const KANAL_LABELS: Record<string, string> = {
+  BLOG: 'Blog',
+  NEWSLETTER: 'Newsletter',
+  SOCIAL_INSTAGRAM: 'Instagram',
+  SOCIAL_FACEBOOK: 'Facebook',
+  SOCIAL_LINKEDIN: 'LinkedIn',
+}
+
+function buildGeplantThemenSection(items: { monat: string; kanal?: string; thema: string }[]): string {
+  if (items.length === 0) return ''
+
+  // Group by kanal
+  const byKanal = new Map<string, { monat: string; thema: string }[]>()
+  for (const t of items) {
+    const kanal = t.kanal ?? 'Allgemein'
+    const existing = byKanal.get(kanal) ?? []
+    existing.push({ monat: t.monat, thema: t.thema })
+    byKanal.set(kanal, existing)
+  }
+
+  const lines: string[] = ['\n\nBEREITS ABGESTIMMTE THEMEN (verbindlich — diese Themen MÜSSEN für den jeweiligen Monat und Kanal verwendet werden):']
+  Array.from(byKanal.entries()).forEach(([kanal, eintraege]) => {
+    lines.push(`${KANAL_LABELS[kanal] ?? kanal}:`)
+    eintraege.forEach(e => lines.push(`  - ${e.monat}: ${e.thema}`))
+  })
+  return lines.join('\n')
 }

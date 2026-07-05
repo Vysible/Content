@@ -17,7 +17,7 @@ const schema = z.object({
   positioningDocument: z.string().optional(),
   keywords: z.array(z.string()).optional(),
   themenPool: z.string().optional(),
-  geplantThemen: z.array(z.object({ monat: z.string(), thema: z.string() })).optional(),
+  geplantThemen: z.array(z.object({ monat: z.string(), kanal: z.string(), thema: z.string() })).optional(),
   canvaFolderId: z.string().nullable().optional(),
   hedyImportHighlight: z.boolean().optional(),
 })
