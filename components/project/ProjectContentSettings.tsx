@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import type { KeyboardEvent } from 'react'
-import { DEFAULT_QUANTITIES } from '@/lib/types/channel-quantities'
+import { DEFAULT_QUANTITIES, NEWSLETTER_RHYTHM_OPTIONS } from '@/lib/types/channel-quantities'
 import type { ChannelQuantities, SocialQuantity } from '@/lib/types/channel-quantities'
 
 interface GeplantThema {
@@ -119,8 +119,8 @@ export function ProjectContentSettings({
 
   function setSocialQuantity(kanal: string, field: 'posts' | 'stories', value: number) {
     setQuantities(prev => {
-      const existing = (prev[kanal as keyof ChannelQuantities] as SocialQuantity | undefined) ?? { posts: 4, stories: 0 }
-      return { ...prev, [kanal]: { ...existing, [field]: value } }
+      const existing = (prev[kanal as keyof ChannelQuantities] as SocialQuantity | undefined) ?? { posts: 1, stories: 0, postsUnit: 'week' }
+      return { ...prev, [kanal]: { ...existing, [field]: value, postsUnit: 'week' } }
     })
   }
 
@@ -216,7 +216,7 @@ export function ProjectContentSettings({
       {activeChannels.length > 0 && (
         <div>
           <label className="block text-xs font-medium text-anthrazit mb-2">
-            Mengenplan <span className="text-stahlgrau font-normal">(Anzahl pro Monat)</span>
+            Mengenplan
           </label>
           <div className="border border-stone rounded-lg overflow-hidden divide-y divide-stone/40">
             {activeChannels.map((ch) => {
@@ -225,30 +225,40 @@ export function ProjectContentSettings({
                 <div key={ch} className="flex items-center gap-4 px-4 py-2.5 bg-white">
                   <span className="text-sm text-anthrazit w-28 shrink-0">{CHANNEL_LABELS[ch] ?? ch}</span>
                   {isSocial ? (
-                    <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-4">
                       <label className="flex items-center gap-1.5 text-stahlgrau text-xs">
-                        Beiträge
+                        Beiträge/Woche
                         <input
                           type="number"
                           min={0}
-                          max={30}
-                          value={(quantities[ch as keyof ChannelQuantities] as SocialQuantity | undefined)?.posts ?? 4}
+                          max={7}
+                          value={(quantities[ch as keyof ChannelQuantities] as SocialQuantity | undefined)?.posts ?? 1}
                           onChange={e => setSocialQuantity(ch, 'posts', Math.max(0, parseInt(e.target.value) || 0))}
                           className="w-14 px-2 py-1 border border-stone rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-bordeaux"
                         />
                       </label>
                       <label className="flex items-center gap-1.5 text-stahlgrau text-xs">
-                        Storys
+                        Storys/Woche
                         <input
                           type="number"
                           min={0}
-                          max={30}
+                          max={7}
                           value={(quantities[ch as keyof ChannelQuantities] as SocialQuantity | undefined)?.stories ?? 0}
                           onChange={e => setSocialQuantity(ch, 'stories', Math.max(0, parseInt(e.target.value) || 0))}
                           className="w-14 px-2 py-1 border border-stone rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-bordeaux"
                         />
                       </label>
                     </div>
+                  ) : ch === 'NEWSLETTER' ? (
+                    <select
+                      value={(quantities[ch as keyof ChannelQuantities] as number | undefined) ?? 1}
+                      onChange={e => setSimpleQuantity(ch, parseFloat(e.target.value))}
+                      className="text-xs px-2 py-1.5 border border-stone rounded focus:outline-none focus:ring-1 focus:ring-bordeaux bg-white"
+                    >
+                      {NEWSLETTER_RHYTHM_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
                   ) : (
                     <label className="flex items-center gap-1.5 text-stahlgrau text-xs">
                       pro Monat
