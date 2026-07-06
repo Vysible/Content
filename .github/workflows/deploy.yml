@@ -13,7 +13,13 @@ jobs:
     steps:
       - name: Trigger Coolify Deploy
         run: |
-          curl -sf -X GET \
+          HTTP_STATUS=$(curl -s -o /tmp/deploy_response.txt -w "%{http_code}" -X GET \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
-            "http://72.62.115.121:8000/api/v1/deploy?uuid=nndzr03dlpcfony81kja6lb6&force=true"
-          echo "Deploy triggered"
+            "http://72.62.115.121:8000/api/v1/deploy?uuid=nndzr03dlpcfony81kja6lb6&force=true")
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response: $(cat /tmp/deploy_response.txt)"
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
+            echo "Deploy trigger failed with HTTP $HTTP_STATUS"
+            exit 1
+          fi
+          echo "Deploy triggered successfully"

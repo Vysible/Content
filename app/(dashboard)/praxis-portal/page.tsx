@@ -126,10 +126,13 @@ export default async function PraxisPortalPage() {
       {/* Section 2: Projects without portal link */}
       {withoutLink.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-nachtblau mb-3">
-            Weitere Projekte
+          <h2 className="text-sm font-semibold text-nachtblau mb-1">
+            Noch kein Portal eingerichtet
             <span className="ml-2 text-xs font-normal text-stahlgrau">({withoutLink.length})</span>
           </h2>
+          <p className="text-xs text-stahlgrau mb-3">
+            So geht&apos;s: Öffne die Ergebnisse → markiere die gewünschten Inhalte mit &bdquo;Im Portal&ldquo; → klicke auf &bdquo;Kundenportal&ldquo; um einen Zugangslink mit Passwort zu erstellen.
+          </p>
           <div className="bg-white border border-stone rounded-xl divide-y divide-stone/50">
             {withoutLink.map((project) => (
               <div key={project.id} className="flex items-center justify-between px-4 py-3">
@@ -143,9 +146,9 @@ export default async function PraxisPortalPage() {
                 </div>
                 <Link
                   href={`/projects/${project.id}/results`}
-                  className="text-xs text-bordeaux hover:underline font-medium"
+                  className="text-xs px-3 py-1.5 bg-stone/40 hover:bg-stone text-anthrazit rounded-lg font-medium transition"
                 >
-                  Ergebnisse →
+                  Portal einrichten →
                 </Link>
               </div>
             ))}

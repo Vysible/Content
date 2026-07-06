@@ -1,12 +1,19 @@
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
 
+export interface ConversionBreakdown {
+  anrufe: number
+  mails: number
+  buchungen: number
+}
+
 export interface GoogleAdsMetrics {
   totalSpend: number
   totalClicks: number
   totalImpressions: number
   totalConversions: number
   averageCpc: number
+  conversionBreakdown: ConversionBreakdown
   campaigns: {
     name: string
     spend: number
@@ -15,6 +22,7 @@ export interface GoogleAdsMetrics {
     ctr: number
     conversions: number
     status: string
+    conversionBreakdown: ConversionBreakdown
   }[]
   topKeywords: {
     keyword: string
@@ -161,6 +169,16 @@ export async function fetchGoogleAdsMetrics(
     LIMIT 20
   `
 
+  const conversionActionQuery = `
+    SELECT campaign.name, segments.conversion_action_name,
+           segments.conversion_action_category, metrics.conversions
+    FROM campaign
+    WHERE ${dateFilter}
+      AND campaign.status != 'REMOVED'
+      AND metrics.conversions > 0
+    ORDER BY campaign.name ASC
+  `
+
   const keywordsQuery = `
     SELECT ad_group_criterion.keyword.text, metrics.impressions, metrics.clicks,
            metrics.cost_micros
@@ -178,11 +196,38 @@ export async function fetchGoogleAdsMetrics(
     ORDER BY segments.date ASC
   `
 
-  const [campaignRes, keywordsRes, dailyRes] = await Promise.all([
+  const [campaignRes, conversionActionRes, keywordsRes, dailyRes] = await Promise.all([
     searchGaql(normalizedId, campaignQuery),
+    searchGaql(normalizedId, conversionActionQuery).catch((err) => {
+      logger.warn({ err, customerId: normalizedId }, 'Conversion-Action-Breakdown konnte nicht geladen werden')
+      return { results: [] as Record<string, unknown>[] }
+    }),
     searchGaql(normalizedId, keywordsQuery),
     searchGaql(normalizedId, dailySpendQuery),
   ])
+
+  // Conversion-Action-Kategorien → Deutsch
+  const emptyBreakdown = (): ConversionBreakdown => ({ anrufe: 0, mails: 0, buchungen: 0 })
+
+  function categoryToBucket(category: string): keyof ConversionBreakdown | null {
+    const c = category.toUpperCase()
+    if (c.includes('CALL') || c.includes('PHONE')) return 'anrufe'
+    if (c.includes('LEAD') || c.includes('FORM') || c.includes('CONTACT') || c.includes('EMAIL')) return 'mails'
+    if (c.includes('BOOK') || c.includes('APPOINTMENT') || c.includes('PURCHASE') || c.includes('SIGNUP')) return 'buchungen'
+    return null
+  }
+
+  // Breakdown pro Kampagne aufbauen
+  const breakdownByCampaign: Record<string, ConversionBreakdown> = {}
+  for (const row of conversionActionRes.results ?? []) {
+    const campaignName = getString(row, 'campaign', 'name')
+    const category = getString(row, 'segments', 'conversionActionCategory')
+    const convs = getNumber(row, 'metrics', 'conversions')
+    const bucket = categoryToBucket(category)
+    if (!bucket || convs === 0) continue
+    if (!breakdownByCampaign[campaignName]) breakdownByCampaign[campaignName] = emptyBreakdown()
+    breakdownByCampaign[campaignName][bucket] += convs
+  }
 
   const campaigns = (campaignRes.results ?? []).map((row) => {
     const spend = getNumber(row, 'metrics', 'costMicros') / 1_000_000
@@ -192,7 +237,8 @@ export async function fetchGoogleAdsMetrics(
     const conversions = getNumber(row, 'metrics', 'conversions')
     const name = getString(row, 'campaign', 'name')
     const status = getString(row, 'campaign', 'status')
-    return { name, spend, clicks, impressions, ctr, conversions, status }
+    const conversionBreakdown = breakdownByCampaign[name] ?? emptyBreakdown()
+    return { name, spend, clicks, impressions, ctr, conversions, status, conversionBreakdown }
   })
 
   const topKeywords = (keywordsRes.results ?? []).map((row) => {
@@ -215,8 +261,17 @@ export async function fetchGoogleAdsMetrics(
   const totalConversions = campaigns.reduce((sum, c) => sum + c.conversions, 0)
   const averageCpc = totalClicks > 0 ? totalSpend / totalClicks : 0
 
+  const conversionBreakdown: ConversionBreakdown = campaigns.reduce(
+    (sum, c) => ({
+      anrufe: sum.anrufe + c.conversionBreakdown.anrufe,
+      mails: sum.mails + c.conversionBreakdown.mails,
+      buchungen: sum.buchungen + c.conversionBreakdown.buchungen,
+    }),
+    emptyBreakdown(),
+  )
+
   logger.info(
-    { customerId: normalizedId, totalSpend, totalClicks, totalImpressions },
+    { customerId: normalizedId, totalSpend, totalClicks, totalImpressions, totalConversions },
     'Google Ads Metriken erfolgreich abgerufen',
   )
 
@@ -226,6 +281,7 @@ export async function fetchGoogleAdsMetrics(
     totalImpressions,
     totalConversions,
     averageCpc,
+    conversionBreakdown,
     campaigns,
     topKeywords,
     dailySpend,

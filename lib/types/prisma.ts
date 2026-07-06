@@ -14,6 +14,7 @@ export interface Project {
   themenPool: string | null
   keywords: string[]
   canvaFolderId: string | null
+  clientId: string | null
   wpUrl: string | null
   socialExamples: string | null
   ktListId: string | null

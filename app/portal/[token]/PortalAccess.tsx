@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { StoredTextResult, CustomerApproval } from '@/lib/generation/results-store'
+import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { GA4Metrics } from '@/lib/ga4/client'
 import type { GoogleAdsMetrics } from '@/lib/google-ads/client'
+import type { CanvaAsset } from '@/lib/canva/client'
 
 interface PortalItem {
   globalIndex: number
@@ -17,9 +19,67 @@ interface Props {
   praxisName: string
   expiresAt: string
   portalItems: PortalItem[]
+  themes: ThemenItem[]
   ga4: GA4Metrics | null
   googleAds: GoogleAdsMetrics | null
   showAnalytics?: boolean
+  canvaAssets?: CanvaAsset[]
+}
+
+type PlanKanal = 'BLOG' | 'NEWSLETTER' | 'SOCIAL_INSTAGRAM' | 'SOCIAL_FACEBOOK' | 'SOCIAL_LINKEDIN'
+
+interface PlanItem {
+  kanal: PlanKanal
+  titel: string
+  isReady: boolean
+}
+
+function formatMonatLang(monat: string): string {
+  const [year, month] = monat.split('-')
+  return new Date(parseInt(year), parseInt(month) - 1, 1)
+    .toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
+}
+
+function kanalLabel(kanal: PlanKanal): string {
+  if (kanal === 'BLOG') return 'Blog'
+  if (kanal === 'NEWSLETTER') return 'Newsletter'
+  if (kanal === 'SOCIAL_INSTAGRAM') return 'Instagram'
+  if (kanal === 'SOCIAL_FACEBOOK') return 'Facebook'
+  return 'LinkedIn'
+}
+
+function kanalStyle(kanal: PlanKanal): string {
+  if (kanal === 'BLOG') return 'bg-stone/30 text-anthrazit'
+  if (kanal === 'NEWSLETTER') return 'bg-emerald-100 text-emerald-700'
+  if (kanal === 'SOCIAL_LINKEDIN') return 'bg-blue-100 text-blue-700'
+  return 'bg-purple-100 text-purple-700'
+}
+
+function buildPlanByMonth(themes: ThemenItem[], portalItems: PortalItem[]): Record<string, PlanItem[]> {
+  const byMonth: Record<string, PlanItem[]> = {}
+  // Index je Kanal×Monat für isReady-Prüfung (socialPosts ist flache Liste ohne Plattform-Trennung)
+  const socialIndexPerMonth: Record<string, number> = {}
+
+  for (const t of themes) {
+    if (!byMonth[t.monat]) byMonth[t.monat] = []
+
+    const kanal = t.kanal as PlanKanal
+    const isSocial = kanal !== 'BLOG' && kanal !== 'NEWSLETTER'
+
+    const socialIndex = isSocial ? (socialIndexPerMonth[t.monat] ?? 0) : 0
+    if (isSocial) socialIndexPerMonth[t.monat] = socialIndex + 1
+
+    const isReady = portalItems.some(({ result: r }) => {
+      if (r.monat !== t.monat) return false
+      if (kanal === 'BLOG') return !!r.blog
+      if (kanal === 'NEWSLETTER') return !!r.newsletter
+      return (r.socialPosts?.length ?? 0) > socialIndex
+    })
+
+    byMonth[t.monat].push({ kanal, titel: t.seoTitel, isReady })
+  }
+
+  return byMonth
 }
 
 interface LocalState {
@@ -30,7 +90,7 @@ interface LocalState {
   error: string
 }
 
-function InstagramMockup({ text, praxisName }: { text: string; praxisName: string }) {
+function InstagramMockup({ text, praxisName, imageUrl }: { text: string; praxisName: string; imageUrl?: string }) {
   const initials = praxisName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
   return (
     <div className="border border-stone rounded-xl overflow-hidden bg-white max-w-sm mx-auto">
@@ -38,7 +98,12 @@ function InstagramMockup({ text, praxisName }: { text: string; praxisName: strin
         <div className="w-7 h-7 rounded-full bg-nachtblau flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{initials}</div>
         <span className="text-xs font-semibold text-nachtblau">{praxisName}</span>
       </div>
-      <div className="bg-stone/20 aspect-square flex items-center justify-center text-stahlgrau text-xs">Bild</div>
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt="Canva-Vorschau" className="w-full aspect-square object-cover" />
+      ) : (
+        <div className="bg-stone/20 aspect-square flex items-center justify-center text-stahlgrau text-xs">Bild / Grafik</div>
+      )}
       <div className="px-3 py-2.5">
         <p className="text-xs leading-relaxed text-nachtblau whitespace-pre-wrap">{text}</p>
       </div>
@@ -46,7 +111,7 @@ function InstagramMockup({ text, praxisName }: { text: string; praxisName: strin
   )
 }
 
-function LinkedInMockup({ text, praxisName }: { text: string; praxisName: string }) {
+function LinkedInMockup({ text, praxisName, imageUrl }: { text: string; praxisName: string; imageUrl?: string }) {
   const initials = praxisName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
   return (
     <div className="border border-stone rounded-xl overflow-hidden bg-white max-w-sm mx-auto">
@@ -57,6 +122,10 @@ function LinkedInMockup({ text, praxisName }: { text: string; praxisName: string
           <p className="text-xs text-stahlgrau">Zahnarztpraxis</p>
         </div>
       </div>
+      {imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt="Canva-Vorschau" className="w-full aspect-video object-cover" />
+      )}
       <div className="px-3 py-3">
         <p className="text-xs leading-relaxed text-nachtblau whitespace-pre-wrap">{text}</p>
       </div>
@@ -64,27 +133,31 @@ function LinkedInMockup({ text, praxisName }: { text: string; praxisName: string
   )
 }
 
-function StatCard({ label, value }: { label: string; value: string | number }) {
+function AnalyticStat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="bg-white border border-stone rounded-xl p-5">
-      <p className="text-xs font-medium text-stahlgrau mb-1">{label}</p>
-      <p className="text-2xl font-bold text-nachtblau">
+    <div className="bg-white border border-stone rounded-xl p-4">
+      <p className="text-[10px] font-semibold tracking-wide uppercase text-stahlgrau mb-1">{label}</p>
+      <p className="text-2xl font-bold text-nachtblau tabular-nums leading-tight">
         {typeof value === 'number' ? value.toLocaleString('de-DE') : value}
       </p>
     </div>
   )
 }
 
-function MiniBar({ value, max }: { value: number; max: number }) {
+function HBar({ value, max, color }: { value: number; max: number; color: 'dark' | 'green' }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0
   return (
-    <div className="w-full bg-stone/40 rounded-full h-2 mt-1">
-      <div className="bg-nachtblau h-2 rounded-full" style={{ width: `${pct}%` }} />
+    <div className="h-1.5 bg-stone/60 rounded-full overflow-hidden mt-1">
+      <div
+        className={`h-full rounded-full ${color === 'green' ? 'bg-emerald-600/50' : 'bg-nachtblau/40'}`}
+        style={{ width: `${pct}%` }}
+      />
     </div>
   )
 }
 
-export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, ga4, googleAds, showAnalytics }: Props) {
+export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, themes, ga4, googleAds, showAnalytics, canvaAssets = [] }: Props) {
+  const canvaThumb = canvaAssets.find(a => a.thumbnailUrl)?.thumbnailUrl
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
   const [authError, setAuthError] = useState('')
@@ -292,13 +365,13 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
                     {metaPost && (
                       <div>
                         <p className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-3">Instagram & Facebook</p>
-                        <InstagramMockup text={metaPost.text} praxisName={praxisName} />
+                        <InstagramMockup text={metaPost.text} praxisName={praxisName} imageUrl={canvaThumb} />
                       </div>
                     )}
                     {liPost && (
                       <div>
                         <p className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-3">LinkedIn</p>
-                        <LinkedInMockup text={liPost.text} praxisName={praxisName} />
+                        <LinkedInMockup text={liPost.text} praxisName={praxisName} imageUrl={canvaThumb} />
                       </div>
                     )}
                   </div>
@@ -363,33 +436,95 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
             </div>
           )
         })}
-        {/* Analytics */}
-        {(showAnalytics || ga4 || googleAds) && (
-          <section className="space-y-6">
-            <div className="border-t border-stone pt-6">
-              <h2 className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-6">
-                Analysen — letzte 28 Tage
-              </h2>
-              {!ga4 && !googleAds && (
-                <div className="bg-white rounded-xl border border-stone p-5 text-center">
-                  <p className="text-sm text-stahlgrau">Noch keine Analysedaten verfügbar.</p>
-                  <p className="text-xs text-stahlgrau mt-1 opacity-70">Die Daten erscheinen hier, sobald GA4 oder Google Ads verbunden sind.</p>
+        {/* Content-Planung */}
+        {themes.length > 0 && (() => {
+          const planByMonth = buildPlanByMonth(themes, portalItems)
+          const months = Object.keys(planByMonth).sort()
+          return (
+            <section>
+              <div className="border-t border-stone pt-6">
+                <h2 className="text-xs font-semibold tracking-widest uppercase text-stahlgrau mb-1">
+                  Ihre Content-Planung
+                </h2>
+                <p className="text-sm text-stahlgrau mb-5">
+                  Alle geplanten Inhalte für Ihre Praxis — nach Monat und Format sortiert.
+                </p>
+                <div className="space-y-4">
+                  {months.map((monat) => (
+                    <div key={monat} className="bg-white border border-stone rounded-xl overflow-hidden">
+                      <div className="px-5 py-3 border-b border-stone/40 bg-stone/10">
+                        <p className="text-sm font-semibold text-nachtblau">{formatMonatLang(monat)}</p>
+                      </div>
+                      <div className="divide-y divide-stone/30">
+                        {planByMonth[monat].map((item, i) => (
+                          <div key={i} className="flex items-center gap-3 px-5 py-3">
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${kanalStyle(item.kanal)}`}>
+                              {kanalLabel(item.kanal)}
+                            </span>
+                            <p className="text-sm text-anthrazit flex-1 min-w-0">{item.titel}</p>
+                            {item.isReady ? (
+                              <span className="text-xs text-emerald-600 font-medium shrink-0">✓ Im Portal</span>
+                            ) : (
+                              <span className="text-xs text-stahlgrau shrink-0">In Vorbereitung</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            </section>
+          )
+        })()}
 
+        {/* Analytics */}
+        {showAnalytics && (ga4 || googleAds) && (
+          <section>
+            <div className="border-t border-stone pt-6 space-y-8">
+              <p className="text-xs font-semibold tracking-widest uppercase text-stahlgrau">
+                Analysen — letzte 28 Tage
+              </p>
+
+              {/* GA4 */}
               {ga4 && (
-                <div className="space-y-4 mb-8">
-                  <h3 className="text-sm font-semibold text-nachtblau">Website-Analytics (Google Analytics)</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <StatCard label="Sessions" value={ga4.sessions} />
-                    <StatCard label="Nutzer" value={ga4.users} />
-                    <StatCard label="Seitenaufrufe" value={ga4.pageviews} />
+                <div className="space-y-4">
+                  <p className="text-sm font-semibold text-nachtblau">Website-Analytics</p>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <AnalyticStat label="Sessions" value={ga4.sessions} />
+                    <AnalyticStat label="Nutzer" value={ga4.users} />
+                    <AnalyticStat label="Seitenaufrufe" value={ga4.pageviews} />
                   </div>
+
+                  {ga4.dailySessions.length > 0 && (
+                    <div className="bg-white border border-stone rounded-xl p-5">
+                      <p className="text-xs font-semibold text-nachtblau mb-4">Sessions-Verlauf</p>
+                      <div className="flex items-end gap-[3px] h-40">
+                        {ga4.dailySessions.map((day) => {
+                          const max = Math.max(...ga4.dailySessions.map((d) => d.sessions), 1)
+                          const pct = Math.max(2, Math.round((day.sessions / max) * 100))
+                          return (
+                            <div
+                              key={day.date}
+                              className="flex-1 bg-nachtblau/30 hover:bg-nachtblau/70 rounded-sm transition-colors cursor-default"
+                              style={{ height: `${pct}%` }}
+                              title={`${day.date}: ${day.sessions.toLocaleString('de-DE')} Sessions`}
+                            />
+                          )
+                        })}
+                      </div>
+                      <div className="flex justify-between mt-2">
+                        <span className="text-[10px] text-stahlgrau">{ga4.dailySessions[0]?.date}</span>
+                        <span className="text-[10px] text-stahlgrau">{ga4.dailySessions[ga4.dailySessions.length - 1]?.date}</span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {ga4.topPages.length > 0 && (
                       <div className="bg-white border border-stone rounded-xl p-5">
-                        <h4 className="text-sm font-semibold text-nachtblau mb-4">Top-Seiten</h4>
+                        <p className="text-xs font-semibold text-nachtblau mb-4">Top-Seiten</p>
                         <div className="space-y-3">
                           {ga4.topPages.map((page) => {
                             const max = Math.max(...ga4.topPages.map((p) => p.views), 1)
@@ -397,9 +532,9 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
                               <div key={page.page}>
                                 <div className="flex justify-between items-baseline">
                                   <span className="text-xs text-stahlgrau truncate max-w-[70%]" title={page.page}>{page.page}</span>
-                                  <span className="text-xs font-medium text-nachtblau ml-2">{page.views.toLocaleString('de-DE')}</span>
+                                  <span className="text-xs font-semibold text-nachtblau tabular-nums ml-2">{page.views.toLocaleString('de-DE')}</span>
                                 </div>
-                                <MiniBar value={page.views} max={max} />
+                                <HBar value={page.views} max={max} color="dark" />
                               </div>
                             )
                           })}
@@ -409,17 +544,17 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
 
                     {ga4.trafficSources.length > 0 && (
                       <div className="bg-white border border-stone rounded-xl p-5">
-                        <h4 className="text-sm font-semibold text-nachtblau mb-4">Traffic-Quellen</h4>
+                        <p className="text-xs font-semibold text-nachtblau mb-4">Traffic-Quellen</p>
                         <div className="space-y-3">
                           {ga4.trafficSources.map((source) => {
                             const max = Math.max(...ga4.trafficSources.map((s) => s.sessions), 1)
                             return (
                               <div key={source.source}>
                                 <div className="flex justify-between items-baseline">
-                                  <span className="text-xs text-stahlgrau">{source.source}</span>
-                                  <span className="text-xs font-medium text-nachtblau ml-2">{source.sessions.toLocaleString('de-DE')}</span>
+                                  <span className="text-xs text-stahlgrau truncate max-w-[70%]">{source.source}</span>
+                                  <span className="text-xs font-semibold text-nachtblau tabular-nums ml-2">{source.sessions.toLocaleString('de-DE')}</span>
                                 </div>
-                                <MiniBar value={source.sessions} max={max} />
+                                <HBar value={source.sessions} max={max} color="dark" />
                               </div>
                             )
                           })}
@@ -427,62 +562,77 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
                       </div>
                     )}
                   </div>
-
-                  {ga4.dailySessions.length > 0 && (
-                    <div className="bg-white border border-stone rounded-xl p-5">
-                      <h4 className="text-sm font-semibold text-nachtblau mb-4">Sessions-Verlauf</h4>
-                      <div className="flex items-end gap-1 h-24">
-                        {ga4.dailySessions.map((day) => {
-                          const max = Math.max(...ga4.dailySessions.map((d) => d.sessions), 1)
-                          const heightPct = Math.max(4, Math.round((day.sessions / max) * 100))
-                          return (
-                            <div
-                              key={day.date}
-                              className="flex-1 bg-nachtblau/60 hover:bg-nachtblau rounded-sm transition-all cursor-default"
-                              style={{ height: `${heightPct}%` }}
-                              title={`${day.date}: ${day.sessions.toLocaleString('de-DE')} Sessions`}
-                            />
-                          )
-                        })}
-                      </div>
-                      <div className="flex justify-between mt-1">
-                        <span className="text-xs text-stahlgrau">{ga4.dailySessions[0]?.date}</span>
-                        <span className="text-xs text-stahlgrau">{ga4.dailySessions[ga4.dailySessions.length - 1]?.date}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
 
-              {googleAds && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-nachtblau">Google Ads</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <StatCard label="Werbeausgaben" value={`€ ${googleAds.totalSpend.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
-                    <StatCard label="Klicks" value={googleAds.totalClicks} />
-                    <StatCard label="Impressionen" value={googleAds.totalImpressions} />
-                    <StatCard label="Conversions" value={googleAds.totalConversions} />
+              {/* Google Ads */}
+              {googleAds && (() => {
+                const ctr = googleAds.totalImpressions > 0
+                  ? `${(googleAds.totalClicks / googleAds.totalImpressions * 100).toFixed(2)} %`
+                  : '—'
+                const ctc = googleAds.totalConversions > 0
+                  ? `€ ${(googleAds.totalSpend / googleAds.totalConversions).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : '—'
+                return (
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold text-nachtblau">Google Ads</p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                      <AnalyticStat label="Impressionen" value={googleAds.totalImpressions} />
+                      <AnalyticStat label="Klicks" value={googleAds.totalClicks} />
+                      <AnalyticStat label="CTR" value={ctr} />
+                      <AnalyticStat label="Conversions" value={googleAds.totalConversions} />
+                      <AnalyticStat label="Kosten / Conv." value={ctc} />
+                    </div>
+
+                    {googleAds.campaigns.length > 0 && (
+                      <div className="bg-white border border-stone rounded-xl overflow-hidden">
+                        <p className="text-xs font-semibold text-nachtblau px-5 py-3 border-b border-stone/40">
+                          Kampagnen — Conversions
+                        </p>
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse text-xs">
+                            <thead>
+                              <tr className="border-b border-stone/40">
+                                <th className="text-left px-5 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Kampagne</th>
+                                <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Anrufe</th>
+                                <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Mails</th>
+                                <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Buchungen</th>
+                                <th className="text-right px-5 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Gesamt</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-stone/30">
+                              {googleAds.campaigns.slice(0, 8).map((c) => (
+                                <tr key={c.name} className="hover:bg-stone/10 transition-colors">
+                                  <td className="px-5 py-3">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 ${c.status === 'ENABLED' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone/60 text-stahlgrau'}`}>
+                                        {c.status === 'ENABLED' ? 'Aktiv' : 'Pausiert'}
+                                      </span>
+                                      <span className="font-medium text-nachtblau truncate max-w-[160px]">{c.name}</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.anrufe > 0 ? c.conversionBreakdown.anrufe : '—'}</td>
+                                  <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.mails > 0 ? c.conversionBreakdown.mails : '—'}</td>
+                                  <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.buchungen > 0 ? c.conversionBreakdown.buchungen : '—'}</td>
+                                  <td className="px-5 py-3 text-right tabular-nums font-semibold text-nachtblau">{c.conversions > 0 ? Math.round(c.conversions) : '—'}</td>
+                                </tr>
+                              ))}
+                              <tr className="bg-stone/10 border-t border-stone/60">
+                                <td className="px-5 py-3 text-xs font-semibold text-nachtblau">Gesamt</td>
+                                <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{googleAds.conversionBreakdown.anrufe > 0 ? googleAds.conversionBreakdown.anrufe : '—'}</td>
+                                <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{googleAds.conversionBreakdown.mails > 0 ? googleAds.conversionBreakdown.mails : '—'}</td>
+                                <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{googleAds.conversionBreakdown.buchungen > 0 ? googleAds.conversionBreakdown.buchungen : '—'}</td>
+                                <td className="px-5 py-3 text-right tabular-nums font-semibold text-nachtblau">{Math.round(googleAds.totalConversions)}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                  {googleAds.campaigns.length > 0 && (
-                    <div className="bg-white border border-stone rounded-xl p-5">
-                      <h4 className="text-sm font-semibold text-nachtblau mb-4">Kampagnen</h4>
-                      <div className="space-y-3">
-                        {googleAds.campaigns.map((c) => (
-                          <div key={c.name} className="flex items-center justify-between gap-4 py-2 border-b border-stone/40 last:border-0">
-                            <span className="text-sm text-nachtblau font-medium truncate">{c.name}</span>
-                            <div className="flex gap-4 text-xs text-stahlgrau shrink-0">
-                              <span>€ {c.spend.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                              <span>{c.clicks.toLocaleString('de-DE')} Klicks</span>
-                              <span>{(c.ctr * 100).toFixed(2)} % CTR</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                )
+              })()}
             </div>
           </section>
         )}
