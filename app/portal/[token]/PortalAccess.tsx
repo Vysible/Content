@@ -568,16 +568,66 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
                 const ctr = googleAds.totalImpressions > 0
                   ? `${(googleAds.totalClicks / googleAds.totalImpressions * 100).toFixed(2)} %`
                   : '—'
+                const ctc = googleAds.totalConversions > 0
+                  ? `€ ${(googleAds.totalSpend / googleAds.totalConversions).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : '—'
                 return (
                   <div className="space-y-4">
                     <p className="text-sm font-semibold text-nachtblau">Google Ads</p>
+
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                       <AnalyticStat label="Impressionen" value={googleAds.totalImpressions} />
                       <AnalyticStat label="Klicks" value={googleAds.totalClicks} />
                       <AnalyticStat label="CTR" value={ctr} />
                       <AnalyticStat label="Conversions" value={googleAds.totalConversions} />
-                      <AnalyticStat label="Ø CPC" value={`€ ${googleAds.averageCpc.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+                      <AnalyticStat label="Kosten / Conv." value={ctc} />
                     </div>
+
+                    {googleAds.campaigns.length > 0 && (
+                      <div className="bg-white border border-stone rounded-xl overflow-hidden">
+                        <p className="text-xs font-semibold text-nachtblau px-5 py-3 border-b border-stone/40">
+                          Kampagnen — Conversions
+                        </p>
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse text-xs">
+                            <thead>
+                              <tr className="border-b border-stone/40">
+                                <th className="text-left px-5 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Kampagne</th>
+                                <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Anrufe</th>
+                                <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Mails</th>
+                                <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Buchungen</th>
+                                <th className="text-right px-5 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Gesamt</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-stone/30">
+                              {googleAds.campaigns.slice(0, 8).map((c) => (
+                                <tr key={c.name} className="hover:bg-stone/10 transition-colors">
+                                  <td className="px-5 py-3">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 ${c.status === 'ENABLED' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone/60 text-stahlgrau'}`}>
+                                        {c.status === 'ENABLED' ? 'Aktiv' : 'Pausiert'}
+                                      </span>
+                                      <span className="font-medium text-nachtblau truncate max-w-[160px]">{c.name}</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.anrufe > 0 ? c.conversionBreakdown.anrufe : '—'}</td>
+                                  <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.mails > 0 ? c.conversionBreakdown.mails : '—'}</td>
+                                  <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.buchungen > 0 ? c.conversionBreakdown.buchungen : '—'}</td>
+                                  <td className="px-5 py-3 text-right tabular-nums font-semibold text-nachtblau">{c.conversions > 0 ? Math.round(c.conversions) : '—'}</td>
+                                </tr>
+                              ))}
+                              <tr className="bg-stone/10 border-t border-stone/60">
+                                <td className="px-5 py-3 text-xs font-semibold text-nachtblau">Gesamt</td>
+                                <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{googleAds.conversionBreakdown.anrufe > 0 ? googleAds.conversionBreakdown.anrufe : '—'}</td>
+                                <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{googleAds.conversionBreakdown.mails > 0 ? googleAds.conversionBreakdown.mails : '—'}</td>
+                                <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{googleAds.conversionBreakdown.buchungen > 0 ? googleAds.conversionBreakdown.buchungen : '—'}</td>
+                                <td className="px-5 py-3 text-right tabular-nums font-semibold text-nachtblau">{Math.round(googleAds.totalConversions)}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               })()}
