@@ -54,6 +54,7 @@ function kanalStyle(kanal: PlanKanal): string {
 
 function buildPlanByMonth(themes: ThemenItem[], portalItems: PortalItem[]): Record<string, PlanItem[]> {
   const byMonth: Record<string, PlanItem[]> = {}
+  const socialIndexPerMonth: Record<string, number> = {}
 
   for (const t of themes) {
     if (!byMonth[t.monat]) byMonth[t.monat] = []
@@ -63,13 +64,14 @@ function buildPlanByMonth(themes: ThemenItem[], portalItems: PortalItem[]): Reco
     else if (t.kanal === 'NEWSLETTER') kanal = 'NEWSLETTER'
     else kanal = 'SOCIAL'
 
-    if (kanal === 'SOCIAL' && byMonth[t.monat].some((p) => p.kanal === 'SOCIAL')) continue
+    const socialIndex = kanal === 'SOCIAL' ? (socialIndexPerMonth[t.monat] ?? 0) : 0
+    if (kanal === 'SOCIAL') socialIndexPerMonth[t.monat] = socialIndex + 1
 
     const isReady = portalItems.some(({ result: r }) => {
       if (r.monat !== t.monat) return false
       if (kanal === 'BLOG') return !!r.blog
       if (kanal === 'NEWSLETTER') return !!r.newsletter
-      return (r.socialPosts?.length ?? 0) > 0
+      return (r.socialPosts?.length ?? 0) > socialIndex
     })
 
     byMonth[t.monat].push({ kanal, titel: t.seoTitel, isReady })
