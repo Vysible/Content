@@ -26,7 +26,7 @@ interface Props {
   canvaAssets?: CanvaAsset[]
 }
 
-type PlanKanal = 'BLOG' | 'NEWSLETTER' | 'SOCIAL'
+type PlanKanal = 'BLOG' | 'NEWSLETTER' | 'SOCIAL_INSTAGRAM' | 'SOCIAL_FACEBOOK' | 'SOCIAL_LINKEDIN'
 
 interface PlanItem {
   kanal: PlanKanal
@@ -43,29 +43,31 @@ function formatMonatLang(monat: string): string {
 function kanalLabel(kanal: PlanKanal): string {
   if (kanal === 'BLOG') return 'Blog'
   if (kanal === 'NEWSLETTER') return 'Newsletter'
-  return 'Social Media'
+  if (kanal === 'SOCIAL_INSTAGRAM') return 'Instagram'
+  if (kanal === 'SOCIAL_FACEBOOK') return 'Facebook'
+  return 'LinkedIn'
 }
 
 function kanalStyle(kanal: PlanKanal): string {
   if (kanal === 'BLOG') return 'bg-stone/30 text-anthrazit'
   if (kanal === 'NEWSLETTER') return 'bg-emerald-100 text-emerald-700'
+  if (kanal === 'SOCIAL_LINKEDIN') return 'bg-blue-100 text-blue-700'
   return 'bg-purple-100 text-purple-700'
 }
 
 function buildPlanByMonth(themes: ThemenItem[], portalItems: PortalItem[]): Record<string, PlanItem[]> {
   const byMonth: Record<string, PlanItem[]> = {}
+  // Index je Kanal×Monat für isReady-Prüfung (socialPosts ist flache Liste ohne Plattform-Trennung)
   const socialIndexPerMonth: Record<string, number> = {}
 
   for (const t of themes) {
     if (!byMonth[t.monat]) byMonth[t.monat] = []
 
-    let kanal: PlanKanal
-    if (t.kanal === 'BLOG') kanal = 'BLOG'
-    else if (t.kanal === 'NEWSLETTER') kanal = 'NEWSLETTER'
-    else kanal = 'SOCIAL'
+    const kanal = t.kanal as PlanKanal
+    const isSocial = kanal !== 'BLOG' && kanal !== 'NEWSLETTER'
 
-    const socialIndex = kanal === 'SOCIAL' ? (socialIndexPerMonth[t.monat] ?? 0) : 0
-    if (kanal === 'SOCIAL') socialIndexPerMonth[t.monat] = socialIndex + 1
+    const socialIndex = isSocial ? (socialIndexPerMonth[t.monat] ?? 0) : 0
+    if (isSocial) socialIndexPerMonth[t.monat] = socialIndex + 1
 
     const isReady = portalItems.some(({ result: r }) => {
       if (r.monat !== t.monat) return false
