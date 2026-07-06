@@ -11,6 +11,65 @@ import { listFolderAssets } from '@/lib/canva/client'
 import type { CanvaAsset } from '@/lib/canva/client'
 import { logger } from '@/lib/utils/logger'
 
+const DEMO_GOOGLE_ADS: GoogleAdsMetrics = {
+  totalSpend: 1847.20,
+  totalClicks: 1240,
+  totalImpressions: 84600,
+  totalConversions: 38,
+  averageCpc: 1.49,
+  conversionBreakdown: { anrufe: 14, mails: 16, buchungen: 8 },
+  campaigns: [
+    {
+      name: 'Coaching – Brand',
+      spend: 680.50,
+      clicks: 520,
+      impressions: 42000,
+      ctr: 1.24,
+      conversions: 18,
+      status: 'ENABLED',
+      conversionBreakdown: { anrufe: 8, mails: 7, buchungen: 3 },
+    },
+    {
+      name: 'Führungskräfte Coaching',
+      spend: 720.30,
+      clicks: 410,
+      impressions: 28500,
+      ctr: 1.44,
+      conversions: 12,
+      status: 'ENABLED',
+      conversionBreakdown: { anrufe: 4, mails: 6, buchungen: 2 },
+    },
+    {
+      name: 'Burnout Prävention',
+      spend: 311.80,
+      clicks: 210,
+      impressions: 10200,
+      ctr: 2.06,
+      conversions: 6,
+      status: 'ENABLED',
+      conversionBreakdown: { anrufe: 1, mails: 3, buchungen: 2 },
+    },
+    {
+      name: 'Retargeting',
+      spend: 134.60,
+      clicks: 100,
+      impressions: 3900,
+      ctr: 2.56,
+      conversions: 2,
+      status: 'PAUSED',
+      conversionBreakdown: { anrufe: 1, mails: 0, buchungen: 1 },
+    },
+  ],
+  topKeywords: [
+    { keyword: 'life coach', clicks: 310, impressions: 21000, spend: 462.00 },
+    { keyword: 'business coaching', clicks: 280, impressions: 18500, spend: 418.00 },
+    { keyword: 'burnout coaching', clicks: 190, impressions: 14200, spend: 283.50 },
+    { keyword: 'führungskräfte coach', clicks: 160, impressions: 12800, spend: 238.60 },
+    { keyword: 'innere blockaden', clicks: 120, impressions: 9400, spend: 179.00 },
+  ],
+  dailySpend: [],
+}
+
 const ADS_ENV_VARS = [
   'GOOGLE_ADS_DEVELOPER_TOKEN',
   'GOOGLE_ADS_CLIENT_ID',
@@ -64,12 +123,16 @@ export default async function PortalPage({ params }: { params: { token: string }
       }
     }
 
-    const adsEnvOk = ADS_ENV_VARS.every((v) => !!process.env[v])
-    if (link.project.googleAdsCustomerId && adsEnvOk) {
-      try {
-        googleAds = await fetchGoogleAdsMetrics(link.project.googleAdsCustomerId, startDate, endDate)
-      } catch (err) {
-        logger.warn({ err, projectId: link.projectId }, '[portal] Google Ads Daten konnten nicht geladen werden')
+    if (link.project.googleAdsCustomerId === 'DEMO') {
+      googleAds = DEMO_GOOGLE_ADS
+    } else {
+      const adsEnvOk = ADS_ENV_VARS.every((v) => !!process.env[v])
+      if (link.project.googleAdsCustomerId && adsEnvOk) {
+        try {
+          googleAds = await fetchGoogleAdsMetrics(link.project.googleAdsCustomerId, startDate, endDate)
+        } catch (err) {
+          logger.warn({ err, projectId: link.projectId }, '[portal] Google Ads Daten konnten nicht geladen werden')
+        }
       }
     }
   }

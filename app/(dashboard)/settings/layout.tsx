@@ -12,6 +12,7 @@ const settingsTabs = [
   { href: '/settings/parameter', label: 'Parameter' },
   { href: '/settings/users', label: 'Benutzer' },
   { href: '/settings/password', label: 'Passwort' },
+  { href: '/settings/demo', label: 'Demo' },
 ]
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
