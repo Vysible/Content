@@ -180,7 +180,7 @@ export function PortalPanel({ projectId, portalCount }: Props) {
                   onChange={(e) => setShowAnalytics(e.target.checked)}
                   className="rounded"
                 />
-                GA4-Analysen im Portal anzeigen
+                Analysen im Portal anzeigen (GA4 + Google Ads)
               </label>
               {error && <p className="text-xs text-red-600">{error}</p>}
               <button

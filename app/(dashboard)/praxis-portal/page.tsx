@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import type { StoredTextResult } from '@/lib/generation/results-store'
 import { CopyButton } from './CopyButton'
+import { AnalyticsToggle } from './AnalyticsToggle'
 
 export default async function PraxisPortalPage() {
   await requireAuth()
@@ -88,10 +89,12 @@ export default async function PraxisPortalPage() {
                       )}
                     </div>
 
-                    <p className="text-xs text-stahlgrau mt-1">
-                      Gültig bis {link.expiresAt.toLocaleDateString('de-DE')}
-                      {link.showAnalytics && ' · inkl. Analysen'}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <p className="text-xs text-stahlgrau">
+                        Gültig bis {link.expiresAt.toLocaleDateString('de-DE')}
+                      </p>
+                      <AnalyticsToggle projectId={project.id} showAnalytics={link.showAnalytics} />
+                    </div>
 
                     {/* Stats chips */}
                     <div className="flex flex-wrap gap-2 mt-2">

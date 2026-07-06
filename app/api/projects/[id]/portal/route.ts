@@ -31,6 +31,26 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   return NextResponse.json(link)
 }
 
+// PATCH — update showAnalytics on existing portal link
+// Body: { showAnalytics: boolean }
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  await requireAuth()
+  const { showAnalytics } = await req.json()
+  if (typeof showAnalytics !== 'boolean') {
+    return NextResponse.json({ error: 'showAnalytics muss boolean sein' }, { status: 400 })
+  }
+  const link = await prisma.portalLink.findFirst({
+    where: { projectId: params.id },
+    orderBy: { createdAt: 'desc' },
+  })
+  if (!link) return NextResponse.json({ error: 'Kein Portal-Link gefunden' }, { status: 404 })
+  const updated = await prisma.portalLink.update({
+    where: { id: link.id },
+    data: { showAnalytics },
+  })
+  return NextResponse.json(updated)
+}
+
 // DELETE — remove portal link
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   await requireAuth()
