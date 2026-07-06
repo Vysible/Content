@@ -156,6 +156,7 @@ export async function POST() {
         keywords: ['life coaching', 'business coaching', 'innere blockaden', 'burnout prävention', 'führungskräfte coaching'],
         positioningDocument: 'Andrea Hoffmann ist zertifizierter Life & Business Coach (ICF ACC) mit Fokus auf Berufstätige in Führungspositionen und Selbstständige. Sie begleitet Menschen dabei, innere Blockaden aufzulösen, Burnout zu verhindern und authentisch zu führen.',
         ansprache: 'Sie',
+        googleAdsCustomerId: 'DEMO',
         status: 'ACTIVE',
         themeResults: THEMES,
         textResults: TEXT_RESULTS,
@@ -170,7 +171,7 @@ export async function POST() {
         projectId: project.id,
         passwordHash,
         expiresAt: new Date('2027-12-31'),
-        showAnalytics: false,
+        showAnalytics: true,
       },
     })
 
