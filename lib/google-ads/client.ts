@@ -7,6 +7,14 @@ export interface ConversionBreakdown {
   buchungen: number
 }
 
+export interface PeriodSnapshot {
+  totalSpend: number
+  totalClicks: number
+  totalImpressions: number
+  totalConversions: number
+  averageCpc: number
+}
+
 export interface GoogleAdsMetrics {
   totalSpend: number
   totalClicks: number
@@ -14,6 +22,7 @@ export interface GoogleAdsMetrics {
   totalConversions: number
   averageCpc: number
   conversionBreakdown: ConversionBreakdown
+  prev: PeriodSnapshot | null
   campaigns: {
     name: string
     spend: number
@@ -196,7 +205,20 @@ export async function fetchGoogleAdsMetrics(
     ORDER BY segments.date ASC
   `
 
-  const [campaignRes, conversionActionRes, keywordsRes, dailyRes] = await Promise.all([
+  // Vorperiode berechnen (gleiche Länge vor dem aktuellen Zeitraum)
+  const periodMs = new Date(endDate).getTime() - new Date(startDate).getTime()
+  const periodDays = Math.round(periodMs / 86_400_000) + 1
+  const prevEnd = new Date(new Date(startDate).getTime() - 86_400_000).toISOString().slice(0, 10)
+  const prevStart = new Date(new Date(startDate).getTime() - periodDays * 86_400_000).toISOString().slice(0, 10)
+
+  const prevQuery = `
+    SELECT metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions
+    FROM campaign
+    WHERE segments.date BETWEEN '${prevStart}' AND '${prevEnd}'
+      AND campaign.status != 'REMOVED'
+  `
+
+  const [campaignRes, conversionActionRes, keywordsRes, dailyRes, prevRes] = await Promise.all([
     searchGaql(normalizedId, campaignQuery),
     searchGaql(normalizedId, conversionActionQuery).catch((err) => {
       logger.warn({ err, customerId: normalizedId }, 'Conversion-Action-Breakdown konnte nicht geladen werden')
@@ -204,6 +226,7 @@ export async function fetchGoogleAdsMetrics(
     }),
     searchGaql(normalizedId, keywordsQuery),
     searchGaql(normalizedId, dailySpendQuery),
+    searchGaql(normalizedId, prevQuery).catch(() => ({ results: [] as Record<string, unknown>[] })),
   ])
 
   // Conversion-Action-Kategorien → Deutsch
@@ -261,6 +284,21 @@ export async function fetchGoogleAdsMetrics(
   const totalConversions = campaigns.reduce((sum, c) => sum + c.conversions, 0)
   const averageCpc = totalClicks > 0 ? totalSpend / totalClicks : 0
 
+  // Vorperiode aggregieren
+  const prevRows = prevRes.results ?? []
+  const prevTotalSpend = prevRows.reduce((s, r) => s + getNumber(r, 'metrics', 'costMicros') / 1_000_000, 0)
+  const prevTotalClicks = prevRows.reduce((s, r) => s + getNumber(r, 'metrics', 'clicks'), 0)
+  const prevTotalImpressions = prevRows.reduce((s, r) => s + getNumber(r, 'metrics', 'impressions'), 0)
+  const prevTotalConversions = prevRows.reduce((s, r) => s + getNumber(r, 'metrics', 'conversions'), 0)
+  const prevAverageCpc = prevTotalClicks > 0 ? prevTotalSpend / prevTotalClicks : 0
+  const prev: PeriodSnapshot | null = prevRows.length > 0 ? {
+    totalSpend: prevTotalSpend,
+    totalClicks: prevTotalClicks,
+    totalImpressions: prevTotalImpressions,
+    totalConversions: prevTotalConversions,
+    averageCpc: prevAverageCpc,
+  } : null
+
   const conversionBreakdown: ConversionBreakdown = campaigns.reduce(
     (sum, c) => ({
       anrufe: sum.anrufe + c.conversionBreakdown.anrufe,
@@ -282,6 +320,7 @@ export async function fetchGoogleAdsMetrics(
     totalConversions,
     averageCpc,
     conversionBreakdown,
+    prev,
     campaigns,
     topKeywords,
     dailySpend,

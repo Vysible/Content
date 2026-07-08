@@ -7,6 +7,7 @@ import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type { GA4Metrics } from '@/lib/ga4/client'
 import type { GoogleAdsMetrics } from '@/lib/google-ads/client'
 import type { CanvaAsset } from '@/lib/canva/client'
+import type { AdsInsights } from '@/lib/analytics/insights'
 
 interface PortalItem {
   globalIndex: number
@@ -23,6 +24,7 @@ interface Props {
   ga4: GA4Metrics | null
   googleAds: GoogleAdsMetrics | null
   showAnalytics?: boolean
+  adsInsights?: AdsInsights | null
   canvaAssets?: CanvaAsset[]
 }
 
@@ -133,13 +135,46 @@ function LinkedInMockup({ text, praxisName, imageUrl }: { text: string; praxisNa
   )
 }
 
-function AnalyticStat({ label, value }: { label: string; value: string | number }) {
+function trend(current: number, prev: number | undefined): { pct: number; dir: 'up' | 'down' | 'flat' } | null {
+  if (prev === undefined || prev === 0) return null
+  const pct = ((current - prev) / prev) * 100
+  return { pct, dir: Math.abs(pct) < 1 ? 'flat' : pct > 0 ? 'up' : 'down' }
+}
+
+function AnalyticStat({
+  label,
+  value,
+  trendData,
+  invertTrend,
+}: {
+  label: string
+  value: string | number
+  trendData?: { pct: number; dir: 'up' | 'down' | 'flat' } | null
+  invertTrend?: boolean
+}) {
+  const isPositive = trendData
+    ? invertTrend
+      ? trendData.dir === 'down'
+      : trendData.dir === 'up'
+    : false
+  const isNegative = trendData
+    ? invertTrend
+      ? trendData.dir === 'up'
+      : trendData.dir === 'down'
+    : false
+
   return (
     <div className="bg-white border border-stone rounded-xl p-4">
       <p className="text-[10px] font-semibold tracking-wide uppercase text-stahlgrau mb-1">{label}</p>
       <p className="text-2xl font-bold text-nachtblau tabular-nums leading-tight">
         {typeof value === 'number' ? value.toLocaleString('de-DE') : value}
       </p>
+      {trendData && (
+        <p className={`text-[11px] font-semibold mt-1 ${isPositive ? 'text-emerald-600' : isNegative ? 'text-red-500' : 'text-stahlgrau'}`}>
+          {trendData.dir === 'up' ? '↑' : trendData.dir === 'down' ? '↓' : '→'}{' '}
+          {Math.abs(trendData.pct).toFixed(1)} % ggü. Vorperiode
+        </p>
+      )}
     </div>
   )
 }
@@ -156,7 +191,7 @@ function HBar({ value, max, color }: { value: number; max: number; color: 'dark'
   )
 }
 
-export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, themes, ga4, googleAds, showAnalytics, canvaAssets = [] }: Props) {
+export function PortalAccess({ token, projectName, praxisName, expiresAt, portalItems, themes, ga4, googleAds, showAnalytics, adsInsights, canvaAssets = [] }: Props) {
   const canvaThumb = canvaAssets.find(a => a.thumbnailUrl)?.thumbnailUrl
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
@@ -568,21 +603,26 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
               {/* Google Ads */}
               {googleAds && (() => {
                 const ctr = googleAds.totalImpressions > 0
-                  ? `${(googleAds.totalClicks / googleAds.totalImpressions * 100).toFixed(2)} %`
+                  ? (googleAds.totalClicks / googleAds.totalImpressions * 100).toFixed(2) + ' %'
                   : '—'
                 const ctc = googleAds.totalConversions > 0
                   ? `€ ${(googleAds.totalSpend / googleAds.totalConversions).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                   : '—'
+                const p = googleAds.prev
+                const prevCtr = p && p.totalImpressions > 0 ? p.totalClicks / p.totalImpressions * 100 : undefined
+                const currCtr = googleAds.totalImpressions > 0 ? googleAds.totalClicks / googleAds.totalImpressions * 100 : 0
+                const prevCtc = p && p.totalConversions > 0 ? p.totalSpend / p.totalConversions : undefined
+                const currCtc = googleAds.totalConversions > 0 ? googleAds.totalSpend / googleAds.totalConversions : 0
                 return (
                   <div className="space-y-4">
                     <p className="text-sm font-semibold text-nachtblau">Google Ads</p>
 
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                      <AnalyticStat label="Impressionen" value={googleAds.totalImpressions} />
-                      <AnalyticStat label="Klicks" value={googleAds.totalClicks} />
-                      <AnalyticStat label="CTR" value={ctr} />
-                      <AnalyticStat label="Conversions" value={googleAds.totalConversions} />
-                      <AnalyticStat label="Kosten / Conv." value={ctc} />
+                      <AnalyticStat label="Impressionen" value={googleAds.totalImpressions} trendData={p ? trend(googleAds.totalImpressions, p.totalImpressions) : null} />
+                      <AnalyticStat label="Klicks" value={googleAds.totalClicks} trendData={p ? trend(googleAds.totalClicks, p.totalClicks) : null} />
+                      <AnalyticStat label="CTR" value={ctr} trendData={prevCtr !== undefined ? trend(currCtr, prevCtr) : null} />
+                      <AnalyticStat label="Conversions" value={googleAds.totalConversions} trendData={p ? trend(googleAds.totalConversions, p.totalConversions) : null} />
+                      <AnalyticStat label="Kosten / Conv." value={ctc} trendData={prevCtc !== undefined ? trend(currCtc, prevCtc) : null} invertTrend />
                     </div>
 
                     {googleAds.campaigns.length > 0 && (
@@ -627,6 +667,54 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
                               </tr>
                             </tbody>
                           </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                    {/* KI-Insights */}
+                    {adsInsights && (
+                      <div className="space-y-4 pt-2">
+                        {/* 3 Insights */}
+                        <p className="text-xs font-semibold tracking-wide uppercase text-stahlgrau">Strategische Insights</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {adsInsights.insights.map((ins, i) => {
+                            const catColor =
+                              ins.kategorie === 'Stärke' ? 'bg-emerald-50 border-emerald-200' :
+                              ins.kategorie === 'Risiko' ? 'bg-red-50 border-red-200' :
+                              'bg-violet-50 border-violet-200'
+                            const numColor =
+                              ins.kategorie === 'Stärke' ? 'text-emerald-100' :
+                              ins.kategorie === 'Risiko' ? 'text-red-100' :
+                              'text-violet-100'
+                            const labelColor =
+                              ins.kategorie === 'Stärke' ? 'text-emerald-700' :
+                              ins.kategorie === 'Risiko' ? 'text-red-600' :
+                              'text-violet-700'
+                            return (
+                              <div key={i} className={`relative border rounded-xl p-5 overflow-hidden ${catColor}`}>
+                                <span className={`absolute right-3 top-2 text-7xl font-black leading-none select-none ${numColor}`}>{i + 1}</span>
+                                <p className={`text-[10px] font-bold tracking-widest uppercase mb-2 ${labelColor}`}>{ins.kategorie}</p>
+                                <p className="text-sm font-bold text-nachtblau mb-1 relative z-10">{ins.titel}</p>
+                                <p className="text-xs text-stahlgrau leading-relaxed relative z-10">{ins.text}</p>
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        {/* 4 Empfehlungen */}
+                        <p className="text-xs font-semibold tracking-wide uppercase text-stahlgrau pt-2">Handlungsempfehlungen</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {adsInsights.empfehlungen.map((emp, i) => {
+                            const dark = i % 2 === 1
+                            return (
+                              <div key={i} className={`relative border rounded-xl p-5 overflow-hidden ${dark ? 'bg-nachtblau border-nachtblau text-white' : 'bg-white border-stone'}`}>
+                                <span className={`absolute right-3 top-2 text-7xl font-black leading-none select-none ${dark ? 'text-white/10' : 'text-stone/60'}`}>{i + 1}</span>
+                                <p className={`text-sm font-bold mb-1 relative z-10 ${dark ? 'text-white' : 'text-nachtblau'}`}>{emp.titel}</p>
+                                <p className={`text-xs leading-relaxed relative z-10 ${dark ? 'text-white/70' : 'text-stahlgrau'}`}>{emp.text}</p>
+                              </div>
+                            )
+                          })}
                         </div>
                       </div>
                     )}

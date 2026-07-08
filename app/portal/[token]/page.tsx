@@ -9,6 +9,8 @@ import { fetchGA4Metrics } from '@/lib/ga4/client'
 import { fetchGoogleAdsMetrics } from '@/lib/google-ads/client'
 import { listFolderAssets } from '@/lib/canva/client'
 import type { CanvaAsset } from '@/lib/canva/client'
+import { generateAdsInsights } from '@/lib/analytics/insights'
+import type { AdsInsights } from '@/lib/analytics/insights'
 import { logger } from '@/lib/utils/logger'
 
 const DEMO_GOOGLE_ADS: GoogleAdsMetrics = {
@@ -18,6 +20,13 @@ const DEMO_GOOGLE_ADS: GoogleAdsMetrics = {
   totalConversions: 38,
   averageCpc: 1.49,
   conversionBreakdown: { anrufe: 14, mails: 16, buchungen: 8 },
+  prev: {
+    totalSpend: 1620.40,
+    totalClicks: 1080,
+    totalImpressions: 71200,
+    totalConversions: 31,
+    averageCpc: 1.50,
+  },
   campaigns: [
     {
       name: 'Coaching – Brand',
@@ -109,6 +118,7 @@ export default async function PortalPage({ params }: { params: { token: string }
 
   let ga4: GA4Metrics | null = null
   let googleAds: GoogleAdsMetrics | null = null
+  let adsInsights: AdsInsights | null = null
   let canvaAssets: CanvaAsset[] = []
 
   if (link.showAnalytics) {
@@ -125,11 +135,15 @@ export default async function PortalPage({ params }: { params: { token: string }
 
     if (link.project.googleAdsCustomerId === 'DEMO') {
       googleAds = DEMO_GOOGLE_ADS
+      adsInsights = await generateAdsInsights(DEMO_GOOGLE_ADS, link.project.praxisName ?? link.project.name).catch(() => null)
     } else {
       const adsEnvOk = ADS_ENV_VARS.every((v) => !!process.env[v])
       if (link.project.googleAdsCustomerId && adsEnvOk) {
         try {
           googleAds = await fetchGoogleAdsMetrics(link.project.googleAdsCustomerId, startDate, endDate)
+          if (googleAds) {
+            adsInsights = await generateAdsInsights(googleAds, link.project.praxisName ?? link.project.name).catch(() => null)
+          }
         } catch (err) {
           logger.warn({ err, projectId: link.projectId }, '[portal] Google Ads Daten konnten nicht geladen werden')
         }
@@ -169,6 +183,7 @@ export default async function PortalPage({ params }: { params: { token: string }
       ga4={ga4}
       googleAds={googleAds}
       showAnalytics={link.showAnalytics}
+      adsInsights={adsInsights}
       canvaAssets={canvaAssets}
     />
   )
