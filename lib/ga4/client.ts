@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
 import { normalizeGa4PropertyId } from './normalize-property-id'
+import { parseGa4ServiceAccountJson } from './parse-service-account-json'
 
 export interface GA4Metrics {
   sessions: number
@@ -12,15 +13,6 @@ export interface GA4Metrics {
   dailySessions: { date: string; sessions: number }[]
 }
 
-interface ServiceAccountKey {
-  type: string
-  project_id: string
-  private_key_id: string
-  private_key: string
-  client_email: string
-  token_uri: string
-}
-
 interface TokenCache {
   accessToken: string
   expiresAt: number
@@ -28,27 +20,15 @@ interface TokenCache {
 
 let tokenCache: TokenCache | null = null
 
-function normalizePrivateKey(key: string): string {
-  // Coolify speichert manchmal literal \n statt echter Newlines
-  return key.includes('\\n') ? key.replace(/\\n/g, '\n') : key
-}
-
-function getServiceAccount(): ServiceAccountKey {
+function getServiceAccount() {
   const raw = process.env.GA4_SERVICE_ACCOUNT_JSON
   if (!raw) {
     throw new Error('GA4_SERVICE_ACCOUNT_JSON nicht konfiguriert')
   }
-  let sa: ServiceAccountKey
-  try {
-    sa = JSON.parse(raw) as ServiceAccountKey
-  } catch {
-    throw new Error('GA4_SERVICE_ACCOUNT_JSON ist kein valides JSON')
-  }
-  sa.private_key = normalizePrivateKey(sa.private_key)
-  return sa
+  return parseGa4ServiceAccountJson(raw)
 }
 
-function buildJwt(sa: ServiceAccountKey): string {
+function buildJwt(sa: ReturnType<typeof parseGa4ServiceAccountJson>): string {
   const now = Math.floor(Date.now() / 1000)
   const exp = now + 3600
 
