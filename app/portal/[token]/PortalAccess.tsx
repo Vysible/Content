@@ -670,9 +670,6 @@ export function PortalAccess({ token, projectName, praxisName, expiresAt, portal
                         </div>
                       </div>
                     )}
-                  </div>
-
-                    {/* KI-Insights */}
                     {adsInsights && (
                       <div className="space-y-4 pt-2">
                         {/* 3 Insights */}

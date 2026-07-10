@@ -54,7 +54,7 @@ export function DemoClient() {
 
       <div className="max-w-xl space-y-4">
         <div className="bg-stone/30 border border-stone rounded-xl p-5 text-sm text-stahlgrau space-y-2">
-          <p className="font-semibold text-anthrazit">Coaching-Demo „Andrea Hoffmann"</p>
+          <p className="font-semibold text-anthrazit">Coaching-Demo „Andrea Hoffmann&ldquo;</p>
           <p>Erstellt ein vollständiges Demo-Projekt mit Themenplan (Jul–Sep 2026), fertig geschriebenen Texten für Juli und einem Kundenportal-Link.</p>
           <ul className="list-disc list-inside space-y-0.5 text-xs">
             <li>1 Blog-Artikel + 1 Newsletter + 4 Instagram + 2 LinkedIn pro Monat</li>
