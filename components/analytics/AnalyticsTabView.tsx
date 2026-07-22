@@ -117,8 +117,8 @@ function ZugangsdatenTab({ ga4Configured, googleAdsConfigured }: { ga4Configured
     <div className="space-y-6">
       <div className="bg-white border border-stone rounded-xl p-5">
         <h3 className="text-sm font-bold text-nachtblau mb-1">Google Analytics 4</h3>
-        <p className="text-xs text-stahlgrau mb-4">Service Account wird für den API-Zugriff auf GA4-Daten benötigt. In Coolify als Umgebungsvariable setzen.</p>
-        <CredentialRow label="Service Account JSON" configured={ga4Configured} hint="GA4_SERVICE_ACCOUNT_JSON" />
+        <p className="text-xs text-stahlgrau mb-4">OAuth-Refresh-Token des Vysible-Google-Accounts. Gibt Zugriff auf alle GA4-Properties, auf die dieser Account Zugriff hat.</p>
+        <CredentialRow label="Refresh Token" configured={ga4Configured} hint="GA4_REFRESH_TOKEN" />
       </div>
 
       <div className="bg-white border border-stone rounded-xl p-5">

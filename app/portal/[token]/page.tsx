@@ -163,7 +163,7 @@ export default async function PortalPage({ params }: { params: { token: string }
     const endDate = new Date().toISOString().slice(0, 10)
     const startDate = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10)
 
-    if (link.project.ga4PropertyId && process.env.GA4_SERVICE_ACCOUNT_JSON) {
+    if (link.project.ga4PropertyId && process.env.GA4_REFRESH_TOKEN) {
       try {
         ga4 = await fetchGA4Metrics(link.project.ga4PropertyId, startDate, endDate)
       } catch (err) {

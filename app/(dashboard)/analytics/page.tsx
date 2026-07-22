@@ -11,7 +11,7 @@ export default async function AnalyticsPage() {
     select: { id: true, name: true, ga4PropertyId: true, googleAdsCustomerId: true },
   })
 
-  const ga4Configured = !!process.env.GA4_SERVICE_ACCOUNT_JSON
+  const ga4Configured = !!process.env.GA4_REFRESH_TOKEN
   const googleAdsConfigured = !!(
     process.env.GOOGLE_ADS_DEVELOPER_TOKEN &&
     process.env.GOOGLE_ADS_CLIENT_ID &&
