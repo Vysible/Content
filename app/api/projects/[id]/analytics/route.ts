@@ -11,9 +11,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 })
   }
 
-  if (!process.env.GA4_SERVICE_ACCOUNT_JSON) {
+  if (!process.env.GA4_REFRESH_TOKEN) {
     return NextResponse.json(
-      { error: 'GA4 Service Account nicht konfiguriert' },
+      { error: 'GA4 nicht konfiguriert (GA4_REFRESH_TOKEN fehlt)' },
       { status: 503 },
     )
   }

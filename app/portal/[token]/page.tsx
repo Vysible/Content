@@ -79,6 +79,44 @@ const DEMO_GOOGLE_ADS: GoogleAdsMetrics = {
   dailySpend: [],
 }
 
+const DEMO_ADS_INSIGHTS: AdsInsights = {
+  insights: [
+    {
+      kategorie: 'Stärke',
+      titel: 'Starke Conversion-Rate bei Retargeting',
+      text: 'Die Retargeting-Kampagne erzielt mit 2,56 % CTR die höchste Klickrate aller Kampagnen. Das zeigt, dass Nutzer, die bereits Kontakt hatten, deutlich engagierter reagieren.',
+    },
+    {
+      kategorie: 'Risiko',
+      titel: 'Steigende Kosten ohne proportionales Wachstum',
+      text: 'Die Ausgaben stiegen um 14 % (€ 227 mehr), während Conversions nur um 23 % zunahmen. Ohne Optimierung droht die Rentabilität bei weiterer Skalierung zu sinken.',
+    },
+    {
+      kategorie: 'Potenzial',
+      titel: 'Burnout-Kampagne mit bestem Kosten-Nutzen-Verhältnis',
+      text: '„Burnout Prävention" liefert mit € 52 pro Conversion den günstigsten CPA aller Kampagnen. Mehr Budget hier könnte die Gesamtperformance deutlich verbessern.',
+    },
+  ],
+  empfehlungen: [
+    {
+      titel: 'Budget zur Burnout-Kampagne verlagern',
+      text: 'Erhöhen Sie das Budget für „Burnout Prävention" um 20–30 %, da diese Kampagne den niedrigsten Cost-per-Acquisition hat und noch Skalierungspotenzial bietet.',
+    },
+    {
+      titel: 'Retargeting-Zielgruppe erweitern',
+      text: 'Erhöhen Sie das Retargeting-Budget und testen Sie Lookalike Audiences basierend auf bisherigen Convertern, um ähnlich qualifizierte Neukunden zu erreichen.',
+    },
+    {
+      titel: 'Negative Keywords für Brand-Kampagne prüfen',
+      text: 'Analysieren Sie Suchanfragen der „Coaching – Brand"-Kampagne auf irrelevante Treffer. Gezieltes Aussortieren senkt den CPC und steigert die Conversion-Rate.',
+    },
+    {
+      titel: 'Anzeigentexte A/B-testen',
+      text: 'Erstellen Sie für jede aktive Kampagne mindestens 2 Anzeigenvarianten mit unterschiedlichen USPs. Pausieren Sie nach 30 Tagen die schwächere Variante.',
+    },
+  ],
+}
+
 const ADS_ENV_VARS = [
   'GOOGLE_ADS_DEVELOPER_TOKEN',
   'GOOGLE_ADS_CLIENT_ID',
@@ -125,7 +163,7 @@ export default async function PortalPage({ params }: { params: { token: string }
     const endDate = new Date().toISOString().slice(0, 10)
     const startDate = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10)
 
-    if (link.project.ga4PropertyId && process.env.GA4_SERVICE_ACCOUNT_JSON) {
+    if (link.project.ga4PropertyId && process.env.GA4_REFRESH_TOKEN) {
       try {
         ga4 = await fetchGA4Metrics(link.project.ga4PropertyId, startDate, endDate)
       } catch (err) {
@@ -135,7 +173,7 @@ export default async function PortalPage({ params }: { params: { token: string }
 
     if (link.project.googleAdsCustomerId === 'DEMO') {
       googleAds = DEMO_GOOGLE_ADS
-      adsInsights = await generateAdsInsights(DEMO_GOOGLE_ADS, link.project.praxisName ?? link.project.name).catch(() => null)
+      adsInsights = DEMO_ADS_INSIGHTS
     } else {
       const adsEnvOk = ADS_ENV_VARS.every((v) => !!process.env[v])
       if (link.project.googleAdsCustomerId && adsEnvOk) {

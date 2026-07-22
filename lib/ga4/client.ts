@@ -1,8 +1,6 @@
-import crypto from 'crypto'
 import { withRetry } from '@/lib/utils/retry'
 import { logger } from '@/lib/utils/logger'
 import { normalizeGa4PropertyId } from './normalize-property-id'
-import { parseGa4ServiceAccountJson } from './parse-service-account-json'
 
 export interface GA4Metrics {
   sessions: number
@@ -20,35 +18,18 @@ interface TokenCache {
 
 let tokenCache: TokenCache | null = null
 
-function getServiceAccount() {
-  const raw = process.env.GA4_SERVICE_ACCOUNT_JSON
-  if (!raw) {
-    throw new Error('GA4_SERVICE_ACCOUNT_JSON nicht konfiguriert')
+function getOAuthCredentials() {
+  // GA4_CLIENT_ID / GA4_CLIENT_SECRET sind optional — Fallback auf Google Ads Credentials
+  // (gleiche Google Cloud App, zusätzlicher Scope analytics.readonly)
+  const clientId = process.env.GA4_CLIENT_ID ?? process.env.GOOGLE_ADS_CLIENT_ID
+  const clientSecret = process.env.GA4_CLIENT_SECRET ?? process.env.GOOGLE_ADS_CLIENT_SECRET
+  const refreshToken = process.env.GA4_REFRESH_TOKEN
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error('GA4 OAuth-Zugangsdaten nicht konfiguriert (GA4_REFRESH_TOKEN fehlt)')
   }
-  return parseGa4ServiceAccountJson(raw)
-}
 
-function buildJwt(sa: ReturnType<typeof parseGa4ServiceAccountJson>): string {
-  const now = Math.floor(Date.now() / 1000)
-  const exp = now + 3600
-
-  const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url')
-  const claims = Buffer.from(
-    JSON.stringify({
-      iss: sa.client_email,
-      scope: 'https://www.googleapis.com/auth/analytics.readonly',
-      aud: 'https://oauth2.googleapis.com/token',
-      exp,
-      iat: now,
-    }),
-  ).toString('base64url')
-
-  const payload = `${header}.${claims}`
-  const sign = crypto.createSign('RSA-SHA256')
-  sign.update(payload)
-  const signature = sign.sign(sa.private_key, 'base64url')
-
-  return `${payload}.${signature}`
+  return { clientId, clientSecret, refreshToken }
 }
 
 async function fetchAccessToken(): Promise<string> {
@@ -56,16 +37,17 @@ async function fetchAccessToken(): Promise<string> {
     return tokenCache.accessToken
   }
 
-  const sa = getServiceAccount()
+  const { clientId, clientSecret, refreshToken } = getOAuthCredentials()
 
-  const accessToken = await withRetry(async () => {
-    const jwt = buildJwt(sa)
+  const { accessToken, expiresIn } = await withRetry(async () => {
     const res = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: jwt,
+        grant_type: 'refresh_token',
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
       }),
     })
 
@@ -76,12 +58,12 @@ async function fetchAccessToken(): Promise<string> {
     }
 
     const data = (await res.json()) as { access_token: string; expires_in: number }
-    return data.access_token
+    return { accessToken: data.access_token, expiresIn: data.expires_in }
   }, 'ga4.fetchAccessToken')
 
   tokenCache = {
     accessToken,
-    expiresAt: Date.now() + 3600 * 1000,
+    expiresAt: Date.now() + (expiresIn - 60) * 1000,
   }
 
   return accessToken
@@ -135,7 +117,6 @@ export async function fetchGA4Metrics(
   startDate: string,
   endDate: string,
 ): Promise<GA4Metrics> {
-  // Defensiv normalisieren — fängt alte DB-Einträge mit "properties/"-Präfix ab
   const propertyId = normalizeGa4PropertyId(propertyIdRaw)
   logger.info({ propertyId, startDate, endDate }, 'GA4 Metriken werden abgerufen')
 
