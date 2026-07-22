@@ -76,17 +76,17 @@ export function GA4Dashboard({ projectId }: Props) {
 
   if (error) {
     const isNotConfigured = error.includes('Keine GA4-Property-ID')
-    const isNoServiceAccount = error.includes('Service Account nicht konfiguriert')
+    const isNotSetup = error.includes('GA4_REFRESH_TOKEN')
     return (
       <div>
         <div className="bg-white border border-stone rounded-xl p-6 space-y-2">
           <p className="text-sm font-semibold text-nachtblau">
-            {isNotConfigured ? 'GA4-Property-ID fehlt' : isNoServiceAccount ? 'GA4 Service Account nicht konfiguriert' : 'Analytics nicht verfügbar'}
+            {isNotConfigured ? 'GA4-Property-ID fehlt' : isNotSetup ? 'GA4 noch nicht konfiguriert' : 'Analytics nicht verfügbar'}
           </p>
           <p className="text-sm text-stahlgrau">
-            {isNotConfigured ? 'Für dieses Projekt ist noch keine GA4-Property-ID hinterlegt.' : isNoServiceAccount ? 'Der GA4 Service Account (GA4_SERVICE_ACCOUNT_JSON) ist in Coolify noch nicht gesetzt.' : error}
+            {isNotConfigured ? 'Für dieses Projekt ist noch keine GA4-Property-ID hinterlegt.' : isNotSetup ? 'GA4_REFRESH_TOKEN ist in Coolify noch nicht gesetzt.' : error}
           </p>
-          {(isNotConfigured || isNoServiceAccount) && (
+          {(isNotConfigured || isNotSetup) && (
             <a href={`/projects/${projectId}/settings`} className="inline-block mt-2 px-4 py-2 text-sm bg-brombeer text-anthrazit font-semibold rounded-lg hover:opacity-90 transition">
               Zu den Einstellungen
             </a>
