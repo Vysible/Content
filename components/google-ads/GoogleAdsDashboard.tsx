@@ -3,6 +3,15 @@
 import { useEffect, useState, useCallback } from 'react'
 import { GoogleAdsSetupGuide } from './GoogleAdsSetupGuide'
 import { DateRangePicker, type DateRange } from '@/components/analytics/DateRangePicker'
+import { AnalyticStat, calcTrend } from '@/components/analytics/AnalyticStat'
+
+interface PrevSnapshot {
+  totalSpend: number
+  totalClicks: number
+  totalImpressions: number
+  totalConversions: number
+  averageCpc: number
+}
 
 interface GoogleAdsMetrics {
   totalSpend: number
@@ -10,6 +19,7 @@ interface GoogleAdsMetrics {
   totalImpressions: number
   totalConversions: number
   averageCpc: number
+  prev: PrevSnapshot | null
   campaigns: {
     name: string
     spend: number
@@ -41,14 +51,6 @@ function eur(value: number) {
   return value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-white border border-stone rounded-xl p-5">
-      <p className="text-xs font-medium text-stahlgrau mb-1">{label}</p>
-      <p className="text-2xl font-bold text-nachtblau">{value}</p>
-    </div>
-  )
-}
 
 function StatusBadge({ status }: { status: string }) {
   const isEnabled = status === 'ENABLED'
@@ -142,10 +144,10 @@ export function GoogleAdsDashboard({ projectId }: Props) {
       ) : metrics ? (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <StatCard label="Ausgaben" value={eur(metrics.totalSpend)} />
-            <StatCard label="Klicks" value={metrics.totalClicks.toLocaleString('de-DE')} />
-            <StatCard label="Impressionen" value={metrics.totalImpressions.toLocaleString('de-DE')} />
-            <StatCard label="Conversions" value={metrics.totalConversions.toLocaleString('de-DE')} />
+            <AnalyticStat label="Ausgaben" value={eur(metrics.totalSpend)} trendData={calcTrend(metrics.totalSpend, metrics.prev?.totalSpend)} invertTrend />
+            <AnalyticStat label="Klicks" value={metrics.totalClicks.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalClicks, metrics.prev?.totalClicks)} />
+            <AnalyticStat label="Impressionen" value={metrics.totalImpressions.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalImpressions, metrics.prev?.totalImpressions)} />
+            <AnalyticStat label="Conversions" value={metrics.totalConversions.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalConversions, metrics.prev?.totalConversions)} />
           </div>
 
           {metrics.campaigns.length > 0 && (
