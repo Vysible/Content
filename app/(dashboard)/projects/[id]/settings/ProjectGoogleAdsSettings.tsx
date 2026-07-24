@@ -89,7 +89,7 @@ export function ProjectGoogleAdsSettings({ projectId }: Props) {
         </a>
       )}
 
-      <GoogleAdsSetupGuide />
+      {!customerId && <GoogleAdsSetupGuide />}
     </div>
   )
 }

@@ -88,7 +88,7 @@ export function ProjectGA4Settings({ projectId }: Props) {
         </a>
       )}
 
-      <GA4SetupGuide />
+      {!propertyId && <GA4SetupGuide />}
     </div>
   )
 }

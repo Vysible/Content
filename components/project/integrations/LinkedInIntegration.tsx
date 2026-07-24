@@ -8,10 +8,10 @@ interface Props {
 }
 
 const PREREQUISITES = [
-  { step: 'LinkedIn-Unternehmensseite oder persönliches Profil' },
-  { step: 'LinkedIn Developer App anlegen', detail: 'Produkte: „Share on LinkedIn" + „Sign In with LinkedIn"', link: { label: 'linkedin.com/developers', href: 'https://www.linkedin.com/developers' } },
-  { step: 'Access Token generieren', detail: 'OAuth 2.0 Scope: w_member_social (Persönlich) oder w_organization_social (Unternehmensseite). Token läuft nach 60 Tagen ab — muss regelmäßig erneuert werden.' },
-  { step: 'Person ID oder Organisation ID', detail: 'Persönlich: GET /v2/me → Feld „id". Unternehmen: GET /v2/organizations → Feld „id"' },
+  { step: 'LinkedIn-Unternehmensseite (Admin-Zugriff erforderlich)' },
+  { step: 'LinkedIn Developer App — Produkte aktivieren', detail: 'Produkte: „Share on LinkedIn" + „Sign In with LinkedIn using OpenID Connect"', link: { label: 'linkedin.com/developers', href: 'https://www.linkedin.com/developers' } },
+  { step: 'Access Token generieren', detail: 'Benötigte Scopes: w_organization_social (Posten) + r_organization_social (Analytics). Token läuft nach 60 Tagen ab — muss regelmäßig erneuert werden.' },
+  { step: 'Organisations-ID', detail: 'Steht in der URL der Unternehmensseite: linkedin.com/company/12345678/ → die Zahl ist die ID' },
 ]
 
 export function LinkedInIntegration({ projectId }: Props) {

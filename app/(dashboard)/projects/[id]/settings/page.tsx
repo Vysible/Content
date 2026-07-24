@@ -3,16 +3,9 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { decryptIfEncrypted } from '@/lib/crypto/aes'
 import { Header } from '@/components/layout/header'
-import { ProjectGA4Settings } from './ProjectGA4Settings'
-import { ProjectGoogleAdsSettings } from './ProjectGoogleAdsSettings'
-import { ProjectCanvaSettings } from '@/components/project/ProjectCanvaSettings'
 import { ProjectPositioningSettings } from '@/components/project/ProjectPositioningSettings'
 import { ProjectGeneralSettings } from '@/components/project/ProjectGeneralSettings'
 import { ProjectContentSettings } from '@/components/project/ProjectContentSettings'
-import { KlickTippIntegration } from '@/components/project/integrations/KlickTippIntegration'
-import { WordPressIntegration } from '@/components/project/integrations/WordPressIntegration'
-import { MetaIntegration } from '@/components/project/integrations/MetaIntegration'
-import { LinkedInIntegration } from '@/components/project/integrations/LinkedInIntegration'
 
 export default async function ProjectSettingsPage({ params }: { params: { id: string } }) {
   await requireAuth()
@@ -34,17 +27,10 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
       keywords: true,
       themenPool: true,
       geplantThemen: true,
-      canvaFolderId: true,
     },
   })
 
   if (!project) notFound()
-
-  const hasBlog       = project.channels.includes('BLOG')
-  const hasNewsletter = project.channels.includes('NEWSLETTER')
-  const hasMeta       = project.channels.some((c) => c === 'SOCIAL_FACEBOOK' || c === 'SOCIAL_INSTAGRAM')
-  const hasLinkedIn   = project.channels.includes('SOCIAL_LINKEDIN')
-  const hasChannelConnections = hasBlog || hasNewsletter || hasMeta || hasLinkedIn
 
   return (
     <div>
@@ -97,45 +83,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
           </div>
         </section>
 
-        {/* ── 3. Kanal-Verbindungen ─────────────────────────────── */}
-        <section>
-          <SectionHeader
-            title="Kanal-Verbindungen"
-            subtitle="Zugangsdaten werden AES-256-verschlüsselt gespeichert."
-          />
-          <div className="space-y-4">
-            {hasNewsletter && <KlickTippIntegration projectId={project.id} />}
-            {hasBlog       && <WordPressIntegration projectId={project.id} />}
-            {hasMeta       && <MetaIntegration      projectId={project.id} />}
-            {hasLinkedIn   && <LinkedInIntegration   projectId={project.id} />}
-            {!hasChannelConnections && (
-              <p className="text-sm text-stahlgrau px-1">
-                Keine verbindbaren Kanäle für dieses Projekt konfiguriert.
-              </p>
-            )}
-          </div>
-        </section>
-
-        {/* ── 4. Analytics ──────────────────────────────────────── */}
-        <section>
-          <SectionHeader
-            title="Analytics"
-            subtitle="Systemzugang ist zentral konfiguriert — hier nur die Projekt-IDs eintragen."
-          />
-          <div className="space-y-4">
-            <ProjectGA4Settings projectId={project.id} />
-            <ProjectGoogleAdsSettings projectId={project.id} />
-          </div>
-        </section>
-
-        {/* ── 5. Design & Assets ────────────────────────────────── */}
-        <section>
-          <SectionHeader title="Design & Assets" />
-          <ProjectCanvaSettings
-            projectId={project.id}
-            initialCanvaFolderId={project.canvaFolderId ?? null}
-          />
-        </section>
+        {/* Credentials/IDs/Assets → Tab "Anbindungen" (/connections) */}
 
       </div>
     </div>

@@ -9,11 +9,11 @@ interface Props {
 
 const PREREQUISITES = [
   { step: 'Facebook-Seite (Business oder Creator)', link: { label: 'Meta Business Suite', href: 'https://business.facebook.com' } },
-  { step: 'Verknüpftes Instagram Business- oder Creator-Konto', detail: 'Instagram-Konto muss auf „Professional" umgestellt und mit der Facebook-Seite verbunden sein' },
-  { step: 'Meta Developer App anlegen', detail: 'App-Typ „Business", Permissions: pages_manage_posts, instagram_basic, instagram_content_publish', link: { label: 'developers.facebook.com', href: 'https://developers.facebook.com' } },
-  { step: 'Dauerhaften Page Access Token generieren', detail: 'Graph API Explorer → Seite auswählen → Token kopieren. Kein kurzlebiger User-Token!' },
-  { step: 'Seiten-ID (Page ID)', detail: 'Facebook-Seite → Info → Seiten-ID, oder über Graph API: /me/accounts' },
-  { step: 'Instagram Business Account ID (optional)', detail: 'Graph API: /{page-id}?fields=instagram_business_account' },
+  { step: 'Verknüpftes Instagram Business- oder Creator-Konto (optional)', detail: 'Instagram-Konto muss auf „Professional" umgestellt und mit der Facebook-Seite verbunden sein' },
+  { step: 'Meta Developer App — Permissions', detail: 'Benötigte Scopes: pages_manage_posts, pages_read_engagement, instagram_basic, instagram_content_publish, instagram_manage_insights', link: { label: 'developers.facebook.com', href: 'https://developers.facebook.com' } },
+  { step: 'Dauerhaften Page Access Token generieren', detail: 'Graph API Explorer → Benutzertoken generieren (mit obigen Scopes) → In Access Token Tool gegen langlebigen Token tauschen → /me/accounts aufrufen → Page Access Token kopieren. Dieser läuft nie ab.' },
+  { step: 'Seiten-ID (Page ID)', detail: 'Aus /me/accounts-Antwort kopieren (Feld „id")' },
+  { step: 'Instagram Business Account ID (optional, für Instagram-Analytics)', detail: 'Graph API: /{page-id}?fields=instagram_business_account → Feld „id"' },
 ]
 
 export function MetaIntegration({ projectId }: Props) {
