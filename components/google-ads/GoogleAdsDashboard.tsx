@@ -5,6 +5,12 @@ import { GoogleAdsSetupGuide } from './GoogleAdsSetupGuide'
 import { DateRangePicker, type DateRange } from '@/components/analytics/DateRangePicker'
 import { AnalyticStat, calcTrend } from '@/components/analytics/AnalyticStat'
 
+interface ConversionBreakdown {
+  anrufe: number
+  mails: number
+  buchungen: number
+}
+
 interface PrevSnapshot {
   totalSpend: number
   totalClicks: number
@@ -19,6 +25,7 @@ interface GoogleAdsMetrics {
   totalImpressions: number
   totalConversions: number
   averageCpc: number
+  conversionBreakdown: ConversionBreakdown
   prev: PrevSnapshot | null
   campaigns: {
     name: string
@@ -28,6 +35,7 @@ interface GoogleAdsMetrics {
     ctr: number
     conversions: number
     status: string
+    conversionBreakdown: ConversionBreakdown
   }[]
   topKeywords: {
     keyword: string
@@ -141,44 +149,69 @@ export function GoogleAdsDashboard({ projectId }: Props) {
           </div>
           <div className="bg-white border border-stone rounded-xl p-5 animate-pulse h-40" />
         </div>
-      ) : metrics ? (
+      ) : metrics ? (() => {
+          const p = metrics.prev
+          const ctr = metrics.totalImpressions > 0
+            ? (metrics.totalClicks / metrics.totalImpressions * 100).toFixed(2) + ' %'
+            : '—'
+          const ctc = metrics.totalConversions > 0
+            ? eur(metrics.totalSpend / metrics.totalConversions)
+            : '—'
+          const prevCtr = p && p.totalImpressions > 0 ? p.totalClicks / p.totalImpressions * 100 : undefined
+          const currCtr = metrics.totalImpressions > 0 ? metrics.totalClicks / metrics.totalImpressions * 100 : 0
+          const prevCtc = p && p.totalConversions > 0 ? p.totalSpend / p.totalConversions : undefined
+          const currCtc = metrics.totalConversions > 0 ? metrics.totalSpend / metrics.totalConversions : 0
+          return (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <AnalyticStat label="Ausgaben" value={eur(metrics.totalSpend)} trendData={calcTrend(metrics.totalSpend, metrics.prev?.totalSpend)} invertTrend />
-            <AnalyticStat label="Klicks" value={metrics.totalClicks.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalClicks, metrics.prev?.totalClicks)} />
-            <AnalyticStat label="Impressionen" value={metrics.totalImpressions.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalImpressions, metrics.prev?.totalImpressions)} />
-            <AnalyticStat label="Conversions" value={metrics.totalConversions.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalConversions, metrics.prev?.totalConversions)} />
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            <AnalyticStat label="Impressionen" value={metrics.totalImpressions.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalImpressions, p?.totalImpressions)} />
+            <AnalyticStat label="Klicks" value={metrics.totalClicks.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalClicks, p?.totalClicks)} />
+            <AnalyticStat label="CTR" value={ctr} trendData={prevCtr !== undefined ? calcTrend(currCtr, prevCtr) : null} />
+            <AnalyticStat label="Conversions" value={metrics.totalConversions.toLocaleString('de-DE')} trendData={calcTrend(metrics.totalConversions, p?.totalConversions)} />
+            <AnalyticStat label="Kosten / Conv." value={ctc} trendData={prevCtc !== undefined ? calcTrend(currCtc, prevCtc) : null} invertTrend />
           </div>
 
           {metrics.campaigns.length > 0 && (
             <div className="bg-white border border-stone rounded-xl overflow-hidden">
               <div className="px-5 py-4 border-b border-stone">
-                <h3 className="text-sm font-semibold text-nachtblau">Kampagnen</h3>
+                <h3 className="text-sm font-semibold text-nachtblau">Kampagnen — Conversions</h3>
               </div>
-              <table className="w-full text-xs">
-                <thead className="bg-stone/20">
-                  <tr>
-                    <th className="text-left px-4 py-2 font-medium text-stahlgrau">Kampagne</th>
-                    <th className="text-left px-4 py-2 font-medium text-stahlgrau">Status</th>
-                    <th className="text-right px-4 py-2 font-medium text-stahlgrau">Ausgaben</th>
-                    <th className="text-right px-4 py-2 font-medium text-stahlgrau">Klicks</th>
-                    <th className="text-right px-4 py-2 font-medium text-stahlgrau">CTR</th>
-                    <th className="text-right px-4 py-2 font-medium text-stahlgrau">Conv.</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone/40">
-                  {metrics.campaigns.map((c, i) => (
-                    <tr key={i} className="hover:bg-stone/10">
-                      <td className="px-4 py-2 text-nachtblau font-medium truncate max-w-[200px]" title={c.name}>{c.name}</td>
-                      <td className="px-4 py-2"><StatusBadge status={c.status} /></td>
-                      <td className="px-4 py-2 text-right">{eur(c.spend)}</td>
-                      <td className="px-4 py-2 text-right">{c.clicks.toLocaleString('de-DE')}</td>
-                      <td className="px-4 py-2 text-right">{(c.ctr * 100).toFixed(2)} %</td>
-                      <td className="px-4 py-2 text-right">{c.conversions.toLocaleString('de-DE')}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="bg-stone/20">
+                    <tr>
+                      <th className="text-left px-5 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Kampagne</th>
+                      <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Anrufe</th>
+                      <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Mails</th>
+                      <th className="text-right px-4 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Buchungen</th>
+                      <th className="text-right px-5 py-2.5 font-semibold tracking-wide uppercase text-stahlgrau text-[10px]">Gesamt</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-stone/40">
+                    {metrics.campaigns.slice(0, 8).map((c, i) => (
+                      <tr key={i} className="hover:bg-stone/10 transition-colors">
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-2">
+                            <StatusBadge status={c.status} />
+                            <span className="font-medium text-nachtblau truncate max-w-[200px]">{c.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.anrufe > 0 ? c.conversionBreakdown.anrufe : '—'}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.mails > 0 ? c.conversionBreakdown.mails : '—'}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-anthrazit">{c.conversionBreakdown.buchungen > 0 ? c.conversionBreakdown.buchungen : '—'}</td>
+                        <td className="px-5 py-3 text-right tabular-nums font-semibold text-nachtblau">{c.conversions > 0 ? Math.round(c.conversions) : '—'}</td>
+                      </tr>
+                    ))}
+                    <tr className="bg-stone/10 border-t border-stone/60">
+                      <td className="px-5 py-3 text-xs font-semibold text-nachtblau">Gesamt</td>
+                      <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{metrics.conversionBreakdown.anrufe > 0 ? metrics.conversionBreakdown.anrufe : '—'}</td>
+                      <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{metrics.conversionBreakdown.mails > 0 ? metrics.conversionBreakdown.mails : '—'}</td>
+                      <td className="px-4 py-3 text-right tabular-nums font-semibold text-nachtblau">{metrics.conversionBreakdown.buchungen > 0 ? metrics.conversionBreakdown.buchungen : '—'}</td>
+                      <td className="px-5 py-3 text-right tabular-nums font-semibold text-nachtblau">{Math.round(metrics.totalConversions)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -236,7 +269,8 @@ export function GoogleAdsDashboard({ projectId }: Props) {
             </div>
           )}
         </>
-      ) : null}
+          )
+        })() : null}
     </div>
   )
 }
