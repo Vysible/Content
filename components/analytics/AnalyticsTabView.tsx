@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { GA4Dashboard } from './GA4Dashboard'
 import { GoogleAdsDashboard } from '@/components/google-ads/GoogleAdsDashboard'
+import { SocialDashboard } from './SocialDashboard'
 
 interface Project {
   id: string
@@ -17,11 +18,12 @@ interface Props {
   googleAdsConfigured: boolean
 }
 
-type Tab = 'ga4' | 'google-ads' | 'ki-kosten' | 'zugangsdaten'
+type Tab = 'ga4' | 'google-ads' | 'social' | 'ki-kosten' | 'zugangsdaten'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'ga4',           label: 'Web-Analytics (GA4)' },
   { key: 'google-ads',    label: 'Google Ads' },
+  { key: 'social',        label: 'Social Media' },
   { key: 'ki-kosten',     label: 'KI-Kosten' },
   { key: 'zugangsdaten',  label: 'Zugangsdaten' },
 ]
@@ -210,6 +212,12 @@ export function AnalyticsTabView({ projects, ga4Configured, googleAdsConfigured 
               </div>
             )
             : <GoogleAdsDashboard projectId={selectedId} />
+      )}
+
+      {active === 'social' && (
+        projects.length === 0
+          ? <EmptyState text="Noch keine Projekte vorhanden." />
+          : <SocialDashboard projectId={selectedId} />
       )}
 
       {active === 'ki-kosten' && <KiKostenTab />}
