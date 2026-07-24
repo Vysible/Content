@@ -9,6 +9,7 @@ export interface GA4Metrics {
   topPages: { page: string; views: number }[]
   trafficSources: { source: string; sessions: number }[]
   dailySessions: { date: string; sessions: number }[]
+  prev: { sessions: number; users: number; pageviews: number } | null
 }
 
 interface TokenCache {
@@ -122,7 +123,12 @@ export async function fetchGA4Metrics(
 
   const dateRange = { startDate, endDate }
 
-  const [overviewReport, topPagesReport, trafficReport, dailyReport] = await Promise.all([
+  const periodMs = new Date(endDate).getTime() - new Date(startDate).getTime()
+  const periodDays = Math.round(periodMs / 86_400_000) + 1
+  const prevEnd = new Date(new Date(startDate).getTime() - 86_400_000).toISOString().slice(0, 10)
+  const prevStart = new Date(new Date(startDate).getTime() - periodDays * 86_400_000).toISOString().slice(0, 10)
+
+  const [overviewReport, topPagesReport, trafficReport, dailyReport, prevReport] = await Promise.all([
     runReport(propertyId, {
       dateRanges: [dateRange],
       metrics: [{ name: 'sessions' }, { name: 'totalUsers' }, { name: 'screenPageViews' }],
@@ -147,6 +153,10 @@ export async function fetchGA4Metrics(
       metrics: [{ name: 'sessions' }],
       orderBys: [{ metric: { metricName: 'sessions' }, desc: false }],
     }),
+    runReport(propertyId, {
+      dateRanges: [{ startDate: prevStart, endDate: prevEnd }],
+      metrics: [{ name: 'sessions' }, { name: 'totalUsers' }, { name: 'screenPageViews' }],
+    }).catch(() => null),
   ])
 
   const overviewRow = overviewReport.rows?.[0]
@@ -178,7 +188,14 @@ export async function fetchGA4Metrics(
     })
     .sort((a, b) => a.date.localeCompare(b.date))
 
+  const prevRow = prevReport?.rows?.[0]
+  const prev = prevRow ? {
+    sessions: parseInt(prevRow.metricValues?.[0]?.value ?? '0', 10),
+    users: parseInt(prevRow.metricValues?.[1]?.value ?? '0', 10),
+    pageviews: parseInt(prevRow.metricValues?.[2]?.value ?? '0', 10),
+  } : null
+
   logger.info({ propertyId, sessions, users, pageviews }, 'GA4 Metriken erfolgreich abgerufen')
 
-  return { sessions, users, pageviews, topPages, trafficSources, dailySessions }
+  return { sessions, users, pageviews, topPages, trafficSources, dailySessions, prev }
 }

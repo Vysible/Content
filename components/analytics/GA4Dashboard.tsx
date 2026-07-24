@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { GA4SetupGuide } from './GA4SetupGuide'
 import { DateRangePicker, type DateRange } from './DateRangePicker'
+import { AnalyticStat, calcTrend } from './AnalyticStat'
 
 interface GA4Metrics {
   sessions: number
@@ -11,6 +12,7 @@ interface GA4Metrics {
   topPages: { page: string; views: number }[]
   trafficSources: { source: string; sessions: number }[]
   dailySessions: { date: string; sessions: number }[]
+  prev: { sessions: number; users: number; pageviews: number } | null
 }
 
 interface Props {
@@ -22,14 +24,6 @@ function daysAgo(n: number): string {
   const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10)
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="bg-white border border-stone rounded-xl p-5">
-      <p className="text-xs font-medium text-stahlgrau mb-1">{label}</p>
-      <p className="text-2xl font-bold text-nachtblau">{value.toLocaleString('de-DE')}</p>
-    </div>
-  )
-}
 
 function MiniBar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0
@@ -118,9 +112,9 @@ export function GA4Dashboard({ projectId }: Props) {
       ) : metrics ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard label="Sessions" value={metrics.sessions} />
-            <StatCard label="Nutzer" value={metrics.users} />
-            <StatCard label="Seitenaufrufe" value={metrics.pageviews} />
+            <AnalyticStat label="Sessions" value={metrics.sessions} trendData={calcTrend(metrics.sessions, metrics.prev?.sessions)} />
+            <AnalyticStat label="Nutzer" value={metrics.users} trendData={calcTrend(metrics.users, metrics.prev?.users)} />
+            <AnalyticStat label="Seitenaufrufe" value={metrics.pageviews} trendData={calcTrend(metrics.pageviews, metrics.prev?.pageviews)} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
