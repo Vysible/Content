@@ -51,6 +51,13 @@ export default async function ProjectPage({ params }: { params: { id: string } }
 
   const totalCost = project.costEntries.reduce((sum: number, e: { costEur: number }) => sum + e.costEur, 0)
 
+  let positioningDocument: string = ''
+  try {
+    positioningDocument = decryptIfEncrypted(project.positioningDocument) ?? ''
+  } catch (err) {
+    console.error('[Vysible] Positionierungsdokument konnte nicht entschlüsselt werden', { projectId: params.id, err })
+  }
+
   return (
     <div className="space-y-8">
 
@@ -100,7 +107,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
           />
           <ProjectPositioningSettings
             projectId={project.id}
-            initialDocument={decryptIfEncrypted(project.positioningDocument) ?? ''}
+            initialDocument={positioningDocument}
           />
           <ProjectContentSettings
             projectId={project.id}

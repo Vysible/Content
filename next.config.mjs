@@ -21,7 +21,7 @@ const nextConfig = {
     serverComponentsExternalPackages: ['pdf2json', 'mammoth'],
   },
   images: {
-    formats: ['image/avif', 'image/webp'],
+    unoptimized: true,
   },
   compress: true,
   poweredByHeader: false,

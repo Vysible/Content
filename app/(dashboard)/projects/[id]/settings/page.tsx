@@ -32,6 +32,13 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
 
   if (!project) notFound()
 
+  let positioningDocument: string = ''
+  try {
+    positioningDocument = decryptIfEncrypted(project.positioningDocument) ?? ''
+  } catch (err) {
+    console.error('[Vysible] Positionierungsdokument konnte nicht entschlüsselt werden', { projectId: params.id, err })
+  }
+
   return (
     <div>
       <Header
@@ -68,7 +75,7 @@ export default async function ProjectSettingsPage({ params }: { params: { id: st
           <div className="space-y-4">
             <ProjectPositioningSettings
               projectId={project.id}
-              initialDocument={decryptIfEncrypted(project.positioningDocument) ?? ''}
+              initialDocument={positioningDocument}
             />
             <ProjectContentSettings
               projectId={project.id}
