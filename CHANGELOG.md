@@ -6,6 +6,10 @@ Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0
 ## [Unreleased]
 
 ### Added
+- **Newsletter-HTML-Layoutvorschau (Ergebnisse → Newsletter):** Neuer Button „HTML-Vorschau (echtes Layout)" rendert das tatsächlich generierte klicktipp-HTML in einem sandboxed iframe mit Desktop/Mobile-Breitenumschaltung (620px/375px) statt nur den rohen Fließtext zu zeigen. `components/results/NewsletterHtmlPreview.tsx`.
+- **ESP-Kompatibilitäts-Check (`lib/newsletter/esp-lint.ts`):** Statische Prüfung des Newsletter-HTMLs — `position:absolute` ohne MSO-Fallback, Base64-Bilder, fehlender Abmelde-Link, fehlendes `viewport`-Meta, zu große Breite, fehlende `alt`-Texte. Zusätzliches strenges Profil `klicktipp-block-editor` (nur `table/tr/td/span/strong/img/a/br` erlaubt) für die manuelle Arbeit im klicktipp-Blockeditor, getrennt vom API-Profil, das Vysible selbst beim Kampagnenversand nutzt.
+- **Social-Vorschau erweitert (Ergebnisse → Social):** Neuer `FacebookMockup` (bisher gab es nur Instagram/LinkedIn-Mockups, Facebook+Instagram teilten sich ein Textfeld ohne eigene Facebook-Vorschau). Zusätzlich `lib/social/preview-lint.ts` — zeigt unter jedem Social-Textfeld an, ab wie vielen Zeichen die Plattform im Feed auf „mehr anzeigen" kürzt, sowie Fehler bei Überschreitung der harten Zeichen-/Hashtag-Limits.
+- **Skill `newsletter-html-generator`:** Neuer wiederverwendbarer Claude-Code-Skill (CI-Profile, Block-Bibliothek, klicktipp-ESP-Regeln) für die Newsletter-HTML-Erzeugung über Kundenprojekte hinweg, destilliert aus den My.Ortho-Referenzprojekten.
 - **Ansprache (Du/Sie) pro Projekt:** Neues Feld `ansprache` im Wizard Step 3 — Segmented-Control-Toggle. Wert wird in allen Prompts (Blog, Newsletter, Social) konsistent verwendet. Default: „Sie".
 - **Prompt-Qualitätsstandards (Textgenerierung):**
   - **Blog:** 800–1.500 Wörter (war 600–900), Hookpflicht in Intro, 3–5 H2 als Nutzenaussage/Frage, Meta-Titel (max. 60 Zeichen) + Meta-Beschreibung (140–155 Zeichen) im Output, LSI-Keywords aus Projektprofil, verbotene Phrasen im System-Prompt

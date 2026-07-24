@@ -9,6 +9,9 @@ import { SocialPostButton } from '@/components/results/SocialPostButton'
 import { ImageBriefCard } from '@/components/results/ImageBriefCard'
 import { RegenerateButton } from '@/components/results/RegenerateButton'
 import { ResultsOverview } from '@/components/results/ResultsOverview'
+import { NewsletterHtmlPreview } from '@/components/results/NewsletterHtmlPreview'
+import { formatForKlickTipp } from '@/lib/klicktipp/newsletter-formatter'
+import { lintSocialText } from '@/lib/social/preview-lint'
 import type { ThemenItem } from '@/lib/generation/themes-schema'
 import type {
   StoredTextResult,
@@ -37,9 +40,10 @@ interface Props {
   linkedInConfigured?: boolean
   hwgFlag?: string
   praxisName: string
+  praxisWebsite?: string
 }
 
-export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, metaConfigured = false, linkedInConfigured = false, hwgFlag, praxisName }: Props) {
+export function ResultsTabs({ projectId, themes, textResults, channels, wpConfigured = false, ktConfigured = false, metaConfigured = false, linkedInConfigured = false, hwgFlag, praxisName, praxisWebsite = '' }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('uebersicht')
   const [results, setResults] = useState<StoredTextResult[]>(textResults)
   const [sort, setSort] = useState<SortKey>('monat')
@@ -167,6 +171,8 @@ export function ResultsTabs({ projectId, themes, textResults, channels, wpConfig
           allResults={results}
           ktConfigured={ktConfigured}
           hwgFlag={hwgFlag}
+          praxisName={praxisName}
+          praxisWebsite={praxisWebsite}
         />
       )}
       {activeTab === 'social' && (
@@ -407,6 +413,8 @@ function NewsletterTab({
   onUpdate,
   ktConfigured,
   hwgFlag,
+  praxisName,
+  praxisWebsite,
 }: {
   projectId: string
   results: StoredTextResult[]
@@ -415,8 +423,11 @@ function NewsletterTab({
   onUpdate: (index: number, updates: Partial<StoredTextResult>) => void
   ktConfigured: boolean
   hwgFlag?: string
+  praxisName: string
+  praxisWebsite: string
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
+  const [htmlPreviewOpen, setHtmlPreviewOpen] = useState<number | null>(null)
 
   return (
     <div className="space-y-3">
@@ -519,12 +530,32 @@ function NewsletterTab({
                     hwgFlag={hwgFlag}
                     initialStatus={r.newsletterStatus === 'kt_kampagne' ? 'kt_kampagne' : 'ausstehend'}
                   />
+                  <button
+                    onClick={() => setHtmlPreviewOpen(htmlPreviewOpen === globalIndex ? null : globalIndex)}
+                    className="px-3 py-1.5 text-xs border border-stone text-stahlgrau rounded-lg hover:border-tiefblau hover:text-tiefblau transition"
+                  >
+                    {htmlPreviewOpen === globalIndex ? 'HTML-Vorschau schließen ▲' : 'HTML-Vorschau (echtes Layout) ▼'}
+                  </button>
                   <RegenerateButton
                     projectId={projectId}
                     monat={r.monat}
                     onSuccess={(result) => onUpdate(globalIndex, result)}
                   />
                 </div>
+                {htmlPreviewOpen === globalIndex && (
+                  <div className="px-4 pb-4">
+                    <NewsletterHtmlPreview
+                      html={formatForKlickTipp({
+                        subject: nl.betreffA,
+                        preheader: nl.preheader,
+                        bodyText: nl.body,
+                        ctaText: nl.cta,
+                        praxisName,
+                        praxisWebsite,
+                      })}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -739,6 +770,7 @@ function SocialTab({
                                         onUpdate(globalIndex, { socialPosts: updatedPosts })
                                       }}
                                     />
+                                    <SocialLintList text={metaText} kanal="SOCIAL_INSTAGRAM" />
                                     <div className="mt-2">
                                       {metaConfigured ? (
                                         <SocialPostButton
@@ -763,9 +795,15 @@ function SocialTab({
                                       )}
                                     </div>
                                   </div>
-                                  <div>
-                                    <p className="text-xs text-stahlgrau uppercase tracking-wide mb-2 font-medium">Instagram Vorschau</p>
-                                    <InstagramMockup text={metaText} praxisName={praxisName} />
+                                  <div className="flex gap-3 flex-wrap">
+                                    <div>
+                                      <p className="text-xs text-stahlgrau uppercase tracking-wide mb-2 font-medium">Instagram Vorschau</p>
+                                      <InstagramMockup text={metaText} praxisName={praxisName} />
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-stahlgrau uppercase tracking-wide mb-2 font-medium">Facebook Vorschau</p>
+                                      <FacebookMockup text={metaText} praxisName={praxisName} />
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -795,6 +833,7 @@ function SocialTab({
                                         onUpdate(globalIndex, { socialPosts: updatedPosts })
                                       }}
                                     />
+                                    <SocialLintList text={liText} kanal="SOCIAL_LINKEDIN" />
                                     <div className="mt-2">
                                       {linkedInConfigured ? (
                                         <SocialPostButton
@@ -1345,6 +1384,56 @@ function LinkedInMockup({ text, praxisName }: { text: string; praxisName: string
         <span>💬 Kommentieren</span>
         <span>↗ Teilen</span>
       </div>
+    </div>
+  )
+}
+
+function FacebookMockup({ text, praxisName }: { text: string; praxisName: string }) {
+  const initial = praxisName[0]?.toUpperCase() ?? 'P'
+  return (
+    <div className="max-w-[280px] rounded-xl border border-stone bg-white overflow-hidden shadow-sm text-[11px] font-sans">
+      <div className="px-3 pt-3 pb-2 flex items-center gap-2">
+        <div className="w-8 h-8 rounded-full bg-[#1877f2] flex items-center justify-center text-white text-sm font-bold shrink-0">
+          {initial}
+        </div>
+        <div className="min-w-0">
+          <p className="font-semibold text-[11px] text-anthrazit leading-none">{praxisName}</p>
+          <p className="text-[9px] text-stahlgrau">Gesponsert · 🌐</p>
+        </div>
+      </div>
+      <p className="px-3 pb-2 text-[11px] text-anthrazit leading-relaxed line-clamp-6">
+        {text || <span className="text-stahlgrau italic">Text erscheint hier…</span>}
+      </p>
+      <div className="w-full aspect-video bg-stone/30 flex items-center justify-center">
+        <span className="text-[10px] text-stahlgrau">Bild / Grafik</span>
+      </div>
+      <div className="px-3 py-2 border-t border-stone flex gap-4 text-[10px] text-stahlgrau">
+        <span>👍 Gefällt mir</span>
+        <span>💬 Kommentieren</span>
+        <span>↗ Teilen</span>
+      </div>
+    </div>
+  )
+}
+
+const SOCIAL_LINT_STYLES: Record<'error' | 'warning' | 'info', string> = {
+  error: 'text-red-600',
+  warning: 'text-amber-600',
+  info: 'text-stahlgrau',
+}
+
+/** Zeigt Darstellungs-Hinweise (Abschneide-Punkt, Zeichen-/Hashtag-Limits) unter einem Social-Textfeld. */
+function SocialLintList({ text, kanal }: { text: string; kanal: Parameters<typeof lintSocialText>[1] }) {
+  if (!text.trim()) return null
+  const issues = lintSocialText(text, kanal)
+  if (issues.length === 0) return null
+  return (
+    <div className="mt-1.5 space-y-1">
+      {issues.map((issue, i) => (
+        <p key={i} className={`text-[11px] ${SOCIAL_LINT_STYLES[issue.severity]}`}>
+          {issue.message}
+        </p>
+      ))}
     </div>
   )
 }

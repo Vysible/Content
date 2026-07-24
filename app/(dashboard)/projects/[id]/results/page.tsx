@@ -90,6 +90,7 @@ export default async function ResultsPage({ params }: { params: { id: string } }
         linkedInConfigured={linkedInConfigured}
         hwgFlag={project.hwgFlag ? 'rot' : undefined}
         praxisName={project.praxisName ?? ''}
+        praxisWebsite={project.praxisUrl}
       />
     </div>
   )
