@@ -53,7 +53,7 @@ export function ProjectGA4Settings({ projectId }: Props) {
     <div className="bg-white border border-stone rounded-xl p-6">
       <h2 className="text-sm font-semibold text-nachtblau mb-1">Google Analytics 4</h2>
       <p className="text-xs text-stahlgrau mb-4">
-        Property-ID aus der GA4-Oberfläche (Einstellungen → Property → Property-ID).
+        Nur die Zahl eintragen, z. B. <code className="bg-stone/20 px-1 rounded">123456789</code> — wo du sie findest, steht unten.
       </p>
 
       <div className="flex gap-2 items-start">

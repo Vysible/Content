@@ -54,7 +54,7 @@ export function ProjectGoogleAdsSettings({ projectId }: Props) {
     <div className="bg-white border border-stone rounded-xl p-6">
       <h2 className="text-sm font-semibold text-nachtblau mb-1">Google Ads</h2>
       <p className="text-xs text-stahlgrau mb-4">
-        Customer-ID aus Google Ads oben rechts (Format: 123-456-7890).
+        Customer-ID des Kundenkontos eintragen — wo du sie findest, steht unten.
       </p>
 
       <div className="flex gap-2 items-start">
